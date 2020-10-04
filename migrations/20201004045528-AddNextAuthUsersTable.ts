@@ -1,20 +1,7 @@
-"use strict";
+import Base from "db-migrate-base";
+import { promisify } from "util";
 
-var dbm;
-var type;
-var seed;
-
-/**
-  * We receive the dbmigrate dependency from dbmigrate initially.
-  * This enables us to not have to rely on NODE_PATH.
-  */
-exports.setup = function(options, seedLink) {
-  dbm = options.dbmigrate;
-  type = dbm.dataType;
-  seed = seedLink;
-};
-
-exports.up = function(db, callback) {
+export function up(db: Base, callback: Base.CallbackFunction): void {
   db.runSql(
     `CREATE TABLE accounts
   (
@@ -92,12 +79,36 @@ CREATE UNIQUE INDEX token
   ON verification_requests(token);`,
     callback
   );
-};
+}
 
-exports.down = function(db) {
-  return null;
-};
+export async function down(
+  db: Base,
+  callback: Base.CallbackFunction
+): Promise<void> {
+  const removeIndex = promisify<string>(db.removeIndex.bind(db));
+  const dropTable = promisify<string>(db.dropTable.bind(db));
+  try {
+    // Drop indexes
+    await removeIndex("token");
+    await removeIndex("email");
+    await removeIndex("access_token");
+    await removeIndex("session_token");
+    await removeIndex("user_id");
+    await removeIndex("provider_id");
+    await removeIndex("provider_account_id");
+    await removeIndex("compound_id");
 
-exports._meta = {
-  "version": 1
+    // Drop tables
+    await dropTable("verification_requests");
+    await dropTable("users");
+    await dropTable("sessions");
+    db.dropTable("accounts", callback);
+  } catch (err) {
+    callback(err, null);
+  }
+}
+
+// eslint-disable-next-line no-underscore-dangle
+export const _meta = {
+  version: 1,
 };
