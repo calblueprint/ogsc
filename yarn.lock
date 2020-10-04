@@ -1102,10 +1102,23 @@
   resolved "https://registry.yarnpkg.com/@sqltools/formatter/-/formatter-1.2.2.tgz#9390a8127c0dcba61ebd7fdcc748655e191bdd68"
   integrity sha512-/5O7Fq6Vnv8L6ucmPjaWbVG1XkP4FO+w5glqfkIsq3Xw4oyNAdJddbnYodNDAfjVUvo/rrSCTom4kAND7T1o5Q==
 
+"@types/bluebird@*":
+  version "3.5.32"
+  resolved "https://registry.yarnpkg.com/@types/bluebird/-/bluebird-3.5.32.tgz#381e7b59e39f010d20bbf7e044e48f5caf1ab620"
+  integrity sha512-dIOxFfI0C+jz89g6lQ+TqhGgPQ0MxSnh/E4xuC0blhFtyW269+mPG5QeLgbdwst/LvdP8o1y0o/Gz5EHXLec/g==
+
 "@types/color-name@^1.1.1":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@types/color-name/-/color-name-1.1.1.tgz#1c1261bbeaa10a8055bbc5d8ab84b7b2afc846a0"
   integrity sha512-rr+OQyAjxze7GgWrSaJwydHStIhHq2lvY3BOC2Mj7KnzI7XK0Uw1TOOdI9lDoajEbSWLiYgoo4f1R51erQfhPQ==
+
+"@types/db-migrate-base@^0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@types/db-migrate-base/-/db-migrate-base-0.0.8.tgz#90a0505d082138b04d959bcaf7c860870da4f6c0"
+  integrity sha512-+yTNz1Dg3HBelWqihzX0/OGUKzoS4rdl0y+jBe/jvTde/8c/TH72pgZCqJIQY/PtXkoqRvfEuYZoSfE1ALJalg==
+  dependencies:
+    "@types/bluebird" "*"
+    "@types/node" "*"
 
 "@types/json-schema@^7.0.3", "@types/json-schema@^7.0.5":
   version "7.0.6"
@@ -1117,7 +1130,7 @@
   resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
   integrity sha1-7ihweulOEdK4J7y+UnC86n8+ce4=
 
-"@types/node@^14.11.1":
+"@types/node@*", "@types/node@^14.11.1":
   version "14.11.2"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-14.11.2.tgz#2de1ed6670439387da1c9f549a2ade2b0a799256"
   integrity sha512-jiE3QIxJ8JLNcb1Ps6rDbysDhN4xa8DJJvuC9prr6w+1tIh+QAbYyNF3tyiZNLDBIuBCf4KEcV2UvQm/V60xfA==
@@ -2564,6 +2577,11 @@ db-migrate-pg@^1.2.2:
     db-migrate-base "^2.3.0"
     pg "^8.0.3"
     semver "^5.0.3"
+
+db-migrate-plugin-typescript@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/db-migrate-plugin-typescript/-/db-migrate-plugin-typescript-2.0.0.tgz#1fe18b7522d22b03fa0c7f0de5430dde49b0794a"
+  integrity sha512-I3vWzpXvftOUjC/aPPxTbfW7m0iCacHvB6hcFnvyzWOtERpJtFglRvSqbV1qrAzxyRTtzTmdKFaPZWIpXA70fQ==
 
 db-migrate-shared@^1.2.0:
   version "1.2.0"
