@@ -32,7 +32,7 @@ const options = {
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials: AuthorizeDTO) => {
-        const user = await prisma.users.findOne({
+        const user = await prisma.users.findFirst({
           where: { email: credentials.email },
         });
         if (!user) {
@@ -59,6 +59,12 @@ const options = {
 
   // A database is optional, but required to persist accounts in a database
   database: process.env.DATABASE_URL,
+  session: {
+    jwt: true,
+  },
+  jwt: {
+    secret: process.env.JWT_SIGNING_PRIVATE_KEY,
+  },
 };
 
 export default (
