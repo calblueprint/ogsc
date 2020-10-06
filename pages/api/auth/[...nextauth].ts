@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import Providers from "next-auth/providers";
+import { PrismaClient } from "@prisma/client";
 
 type AuthorizeDTO = {
   email: string;
@@ -7,6 +8,9 @@ type AuthorizeDTO = {
   inviteCode?: string;
   // metadata: userData;
 }
+
+const prisma = new PrismaClient();
+
 
 const options = {
   // Configure one or more authentication providers
@@ -18,19 +22,20 @@ const options = {
         password: {  label: "Password", type: "password" }
       },
       authorize: async (credentials: AuthorizeDTO) => {
-        
-        const user = users.findOne({ where: { email: credentials.email }});
+        const user = await prisma.users.findOne({ where: { email: credentials.email }});
         if (!user) {
-            // Verify that they are specifying a valid invite code
-            credentials.inviteCode
-    
             // This is a new user, let's sign them up and authenticate them
-            const newUser = user.create({
-                    ...,
-                    hashedPassword: hash(credentials.password)
+            const newUser = await prisma.users.create({
+              data: {
+                email: credentials.email
+                //  : hash(credentials.password)
+              }
+                    
             });
             return newUser; // TODO: Strip out hashedPassword
-        }
+        } 
+        // Verify that they are specifying a valid invite code
+        credentials.inviteCode;
         if (user.hashedPassword === hash(credentials.password)) {
             // This is an existing user, let's see if their password matches
             return user; // TODO: Strip out hashedPassword
