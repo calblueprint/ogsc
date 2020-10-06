@@ -1130,6 +1130,16 @@
   resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
   integrity sha1-7ihweulOEdK4J7y+UnC86n8+ce4=
 
+"@types/next-auth@^3.1.10":
+  version "3.1.10"
+  resolved "https://registry.yarnpkg.com/@types/next-auth/-/next-auth-3.1.10.tgz#d9ca9957279c02ef11797e3ba4089b11ccca047f"
+  integrity sha512-elK/OUw9HhXiaL9y4etxj2CGltF+P89rcWNq/TdeIQL0a8cM26t8n1wuEyyUwJmLFa65WLfUePc1L0oqSV3Vmg==
+  dependencies:
+    "@types/node" "*"
+    "@types/react" "*"
+    jose "^1.28.0"
+    typeorm "^0.2.24"
+
 "@types/node@*", "@types/node@^14.11.1":
   version "14.11.2"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-14.11.2.tgz#2de1ed6670439387da1c9f549a2ade2b0a799256"
@@ -2578,10 +2588,9 @@ db-migrate-pg@^1.2.2:
     pg "^8.0.3"
     semver "^5.0.3"
 
-db-migrate-plugin-typescript@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/db-migrate-plugin-typescript/-/db-migrate-plugin-typescript-2.0.0.tgz#1fe18b7522d22b03fa0c7f0de5430dde49b0794a"
-  integrity sha512-I3vWzpXvftOUjC/aPPxTbfW7m0iCacHvB6hcFnvyzWOtERpJtFglRvSqbV1qrAzxyRTtzTmdKFaPZWIpXA70fQ==
+db-migrate-plugin-typescript@ethanlee16/plugin-typescript:
+  version "2.0.1"
+  resolved "https://codeload.github.com/ethanlee16/plugin-typescript/tar.gz/7e881bec7073dc37c6fbc1580c1274fc3654c680"
 
 db-migrate-shared@^1.2.0:
   version "1.2.0"
@@ -4104,7 +4113,7 @@ jest-worker@24.9.0:
     merge-stream "^2.0.0"
     supports-color "^6.1.0"
 
-jose@^1.27.2:
+jose@^1.27.2, jose@^1.28.0:
   version "1.28.0"
   resolved "https://registry.yarnpkg.com/jose/-/jose-1.28.0.tgz#0803f8c71f43cd293a9d931c555c30531f5ca5dc"
   integrity sha512-JmfDRzt/HSj8ipd9TsDtEHoLUnLYavG+7e8F6s1mx2jfVSfXOTaFQsJUydbjJpTnTDHP1+yKL9Ke7ktS/a0Eiw==
