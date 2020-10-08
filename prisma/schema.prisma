@@ -49,6 +49,7 @@ model users {
   image          String?
   created_at     DateTime  @default(now())
   updated_at     DateTime  @default(now())
+  players        players[]
 }
 
 model verification_requests {
@@ -58,4 +59,26 @@ model verification_requests {
   expires    DateTime
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
+}
+
+model players {
+  user_id                      Int     @id
+  bio                          String?
+  academic_engagement_score    Int?
+  academic_engagement_comments String?
+  advising_score               Int?
+  advising_comments            String?
+  athletic_score               Int?
+  athletic_comments            String?
+  gpa                          Float?
+  disciplinary_actions         String?
+  school_absences              String?
+  advising_absences            String?
+  athletic_absences            String?
+  bmi                          Float?
+  health_and_wellness          String?
+  beep_test                    String?
+  mile_time                    String?
+  highlights                   String?
+  users                        users   @relation(fields: [user_id], references: [id])
 }

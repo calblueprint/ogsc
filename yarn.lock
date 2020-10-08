@@ -2578,10 +2578,9 @@ db-migrate-pg@^1.2.2:
     pg "^8.0.3"
     semver "^5.0.3"
 
-db-migrate-plugin-typescript@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/db-migrate-plugin-typescript/-/db-migrate-plugin-typescript-2.0.0.tgz#1fe18b7522d22b03fa0c7f0de5430dde49b0794a"
-  integrity sha512-I3vWzpXvftOUjC/aPPxTbfW7m0iCacHvB6hcFnvyzWOtERpJtFglRvSqbV1qrAzxyRTtzTmdKFaPZWIpXA70fQ==
+db-migrate-plugin-typescript@ethanlee16/plugin-typescript:
+  version "2.0.1"
+  resolved "https://codeload.github.com/ethanlee16/plugin-typescript/tar.gz/7e881bec7073dc37c6fbc1580c1274fc3654c680"
 
 db-migrate-shared@^1.2.0:
   version "1.2.0"
