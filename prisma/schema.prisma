@@ -16,7 +16,7 @@ model User {
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime  @default(now()) @map("updated_at")
   hashedPassword String    @map("hashed_password")
-  players        players[]
+  player         Player?
 
   @@map("users")
 }
@@ -64,24 +64,26 @@ model verification_requests {
   updated_at DateTime @default(now())
 }
 
-model players {
-  user_id                      Int     @id
-  bio                          String?
-  academic_engagement_score    Int?
-  academic_engagement_comments String?
-  advising_score               Int?
-  advising_comments            String?
-  athletic_score               Int?
-  athletic_comments            String?
-  gpa                          Float?
-  disciplinary_actions         String?
-  school_absences              String?
-  advising_absences            String?
-  athletic_absences            String?
-  bmi                          Float?
-  health_and_wellness          String?
-  beep_test                    String?
-  mile_time                    String?
-  highlights                   String?
-  users                        User    @relation(fields: [user_id], references: [id])
+model Player {
+  user_id                     Int     @id
+  bio                         String?
+  academicEngagementScore     Int?    @map("academic_engagement_score")
+  acaademicEngagementComments String? @map("academic_engagement_comments")
+  advisingScore               Int?    @map("advising_score")
+  advisingComments            String? @map("advising_comments")
+  athleticScore               Int?    @map("athletic_score")
+  athleticComments            String? @map("athletic_comments")
+  gpa                         Float?
+  disciplinaryActions         String? @map("disciplinary_actions")
+  schoolAbsences              String? @map("school_absences")
+  advisingAbsences            String? @map("advising_absences")
+  athleticAbsences            String? @map("athletic_absences")
+  bmi                         Float?
+  healthAndWellness           String? @map("health_and_wellness")
+  beepTest                    String? @map("beep_test")
+  mileTime                    String? @map("mile_time")
+  highlights                  String?
+  user                        User    @relation(fields: [user_id], references: [id])
+
+  @@map("players")
 }
