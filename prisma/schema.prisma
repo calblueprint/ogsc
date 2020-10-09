@@ -8,15 +8,16 @@ datasource db {
 }
 
 model User {
-  id             Int       @id @default(autoincrement())
+  id             Int          @id @default(autoincrement())
   name           String?
-  email          String?   @unique
-  emailVerified  DateTime? @map("email_verified")
+  email          String?      @unique
+  emailVerified  DateTime?    @map("email_verified")
   image          String?
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @default(now()) @map("updated_at")
-  hashedPassword String    @map("hashed_password")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @default(now()) @map("updated_at")
+  hashedPassword String       @map("hashed_password")
   player         Player?
+  userInvites    UserInvite[] @relation("user_invitesTousers")
 
   @@map("users")
 }
@@ -86,4 +87,13 @@ model Player {
   user                        User    @relation(fields: [user_id], references: [id])
 
   @@map("players")
+}
+
+model UserInvite {
+  id         String   @id @default(dbgenerated())
+  created_at DateTime @default(now())
+  user_id    Int
+  user       User     @relation("user_invitesTousers", fields: [user_id], references: [id])
+
+  @@map("user_invites")
 }
