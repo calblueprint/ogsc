@@ -7,6 +7,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id             Int       @id @default(autoincrement())
+  name           String?
+  email          String?   @unique
+  emailVerified  DateTime? @map("email_verified")
+  image          String?
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @default(now()) @map("updated_at")
+  hashedPassword String    @map("hashed_password")
+  players        players[]
+
+  @@map("users")
+}
+
 model migrations {
   id     Int      @id @default(autoincrement())
   name   String
@@ -41,18 +55,6 @@ model sessions {
   updated_at    DateTime @default(now())
 }
 
-model users {
-  id              Int       @id @default(autoincrement())
-  name            String?
-  email           String?   @unique
-  email_verified  DateTime?
-  image           String?
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @default(now())
-  hashed_password String
-  players        players[]
-}
-
 model verification_requests {
   id         Int      @id @default(autoincrement())
   identifier String
@@ -81,5 +83,5 @@ model players {
   beep_test                    String?
   mile_time                    String?
   highlights                   String?
-  users                        users   @relation(fields: [user_id], references: [id])
+  users                        User    @relation(fields: [user_id], references: [id])
 }
