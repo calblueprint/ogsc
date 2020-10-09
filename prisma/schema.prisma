@@ -42,13 +42,14 @@ model sessions {
 }
 
 model users {
-  id             Int       @id @default(autoincrement())
-  name           String?
-  email          String?   @unique
-  email_verified DateTime?
-  image          String?
-  created_at     DateTime  @default(now())
-  updated_at     DateTime  @default(now())
+  id              Int       @id @default(autoincrement())
+  name            String?
+  email           String?   @unique
+  email_verified  DateTime?
+  image           String?
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @default(now())
+  hashed_password String
   players        players[]
 }
 

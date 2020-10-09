@@ -38,6 +38,15 @@ module.exports = {
         allowExpressions: true,
       },
     ],
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        vars: "all",
+        args: "after-used",
+        ignoreRestSiblings: false,
+        varsIgnorePattern: "^_",
+      },
+    ],
     // React
     "react/prop-types": "off",
     "react/react-in-jsx-scope": "off",
