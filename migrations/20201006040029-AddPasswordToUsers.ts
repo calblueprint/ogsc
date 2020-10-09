@@ -1,7 +1,7 @@
 import Base from "db-migrate-base";
 
 /**
- * Describe what your `up` migration does.
+ * Adds the hashed_password field to the users table.
  */
 export async function up(
   db: Base,
@@ -19,7 +19,7 @@ export async function up(
 }
 
 /**
- * Describe what your `down` migration does.
+ * Removes the hashed_password field to the users table.
  */
 export async function down(
   db: Base,

@@ -8,7 +8,6 @@ type AuthorizeDTO = {
   email: string;
   password: string;
   inviteCode?: string;
-  // metadata: userData;
 };
 
 const prisma = new PrismaClient();
@@ -46,7 +45,6 @@ const options = {
           return stripPassword(newUser);
         }
         // Verify that they are specifying a valid invite code
-        // credentials.inviteCode;
         if (user.hashed_password === hash(credentials.password)) {
           // This is an existing user, let's see if their password matches
           return stripPassword(user);
@@ -57,7 +55,6 @@ const options = {
     }),
   ],
 
-  // A database is optional, but required to persist accounts in a database
   database: process.env.DATABASE_URL,
   session: {
     jwt: true,
