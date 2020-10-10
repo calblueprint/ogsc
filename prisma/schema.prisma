@@ -42,16 +42,16 @@ model sessions {
 }
 
 model users {
-  id                                                       Int                   @id @default(autoincrement())
-  name                                                     String?
-  email                                                    String?               @unique
-  email_verified                                           DateTime?
-  image                                                    String?
-  created_at                                               DateTime              @default(now())
-  updated_at                                               DateTime              @default(now())
-  players                                                  players[]
-  viewing_permissions_usersToviewing_permissions_viewee_id viewing_permissions[] @relation("usersToviewing_permissions_viewee_id")
-  viewing_permissions_usersToviewing_permissions_viewer_id viewing_permissions[] @relation("usersToviewing_permissions_viewer_id")
+  id                  Int                   @id @default(autoincrement())
+  name                String?
+  email               String?               @unique
+  email_verified      DateTime?
+  image               String?
+  created_at          DateTime              @default(now())
+  updated_at          DateTime              @default(now())
+  players             players[]
+  viewedByPermissions viewing_permissions[] @relation("UsersToViewees")
+  viewerPermissions   viewing_permissions[] @relation("UsersToViewers")
 }
 
 model verification_requests {
@@ -86,9 +86,10 @@ model players {
 }
 
 model viewing_permissions {
-  viewer_id                                  Int     @id
-  viewee_id                                  Int?
-  relationship_type                          String?
-  users_usersToviewing_permissions_viewee_id users?  @relation("usersToviewing_permissions_viewee_id", fields: [viewee_id], references: [id])
-  users_usersToviewing_permissions_viewer_id users   @relation("usersToviewing_permissions_viewer_id", fields: [viewer_id], references: [id])
+  id                Int     @id
+  viewer_id         Int?
+  viewee_id         Int?
+  relationship_type String?
+  viewee            users?  @relation("UsersToViewees", fields: [viewee_id], references: [id])
+  viewer            users?  @relation("UsersToViewers", fields: [viewer_id], references: [id])
 }

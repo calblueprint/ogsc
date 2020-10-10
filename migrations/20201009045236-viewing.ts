@@ -1,5 +1,6 @@
 import Base from "db-migrate-base";
 
+// creates a table for viewing permissions with two foreign keys mapping to the users table
 export async function up(
   db: Base,
   callback: Base.CallbackFunction
@@ -7,10 +8,14 @@ export async function up(
   db.createTable(
     "viewing_permissions",
     {
+      id: {
+        type: "int",
+        notNull: true,
+        primaryKey: true,
+      },
       viewer_id: {
         type: "int",
         notNull: false,
-        primaryKey: true,
       },
       viewee_id: "int",
       relationship_type: "string",
@@ -19,6 +24,7 @@ export async function up(
   );
 }
 
+// drops the viewing permissions table
 export async function down(
   db: Base,
   callback: Base.CallbackFunction
