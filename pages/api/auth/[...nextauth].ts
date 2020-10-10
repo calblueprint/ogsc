@@ -1,8 +1,9 @@
 import NextAuth from "next-auth";
 import Providers from "next-auth/providers";
-import { PrismaClient, User } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { createHmac } from "crypto";
 import { NextApiRequest, NextApiResponse } from "next";
+import sanitizeUser from "utils/sanitizeUser";
 
 type AuthorizeDTO = {
   email: string;
@@ -16,18 +17,13 @@ const hash = (password: string): string => {
   return createHmac("sha256", password).digest("hex");
 };
 
-const stripPassword = (user: User): Omit<User, "hashedPassword"> => {
-  const { hashedPassword: _hashedPassword, ...sanitizedUser } = user;
-  return sanitizedUser;
-};
-
 const options = {
   // Configure one or more authentication providers
   providers: [
     Providers.Credentials({
       name: "Credentials",
       credentials: {
-        username: { label: "Email", type: "text", placeholder: "" },
+        email: { label: "Email", type: "text", placeholder: "" },
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials: AuthorizeDTO) => {
@@ -42,12 +38,12 @@ const options = {
               hashedPassword: hash(credentials.password),
             },
           });
-          return stripPassword(newUser);
+          return sanitizeUser(newUser);
         }
         // Verify that they are specifying a valid invite code
         if (user.hashedPassword === hash(credentials.password)) {
           // This is an existing user, let's see if their password matches
-          return stripPassword(user);
+          return sanitizeUser(user);
         }
         // Password mismatch
         throw new Error("Invalid password");
