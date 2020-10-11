@@ -1,8 +1,8 @@
 import { PrismaClient, UserInvite } from "@prisma/client";
 import { SanitizedUser } from "interfaces";
+import Joi from "joi";
 import { NextApiRequest, NextApiResponse } from "next";
 import sanitizeUser from "utils/sanitizeUser";
-import isUUID from "validator/lib/isUUID";
 
 const prisma = new PrismaClient();
 
@@ -13,7 +13,7 @@ const prisma = new PrismaClient();
 export const getInviteById = async (
   id: string
 ): Promise<(UserInvite & { user: SanitizedUser }) | null> => {
-  if (!isUUID(id)) {
+  if (Joi.string().uuid({ version: "uuidv4" }).validate(id)) {
     return null;
   }
   const invite = await prisma.userInvite.findOne({
