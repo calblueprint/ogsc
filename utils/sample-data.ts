@@ -1,4 +1,7 @@
-import { User } from "interfaces";
+export type User = {
+  id: number;
+  name: string;
+};
 
 /** Dummy user data. */
 // eslint-disable-next-line import/prefer-default-export
