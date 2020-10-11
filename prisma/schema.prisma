@@ -7,6 +7,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id             Int          @id @default(autoincrement())
+  name           String?
+  email          String?      @unique
+  emailVerified  DateTime?    @map("email_verified")
+  image          String?
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @default(now()) @map("updated_at")
+  hashedPassword String       @map("hashed_password")
+  player         Player?
+  userInvites    UserInvite[] @relation("user_invitesTousers")
+
+  @@map("users")
+}
+
 model migrations {
   id     Int      @id @default(autoincrement())
   name   String
@@ -42,15 +57,16 @@ model sessions {
 }
 
 model users {
-  id              Int       @id @default(autoincrement())
-  name            String?
-  email           String?   @unique
-  email_verified  DateTime?
-  image           String?
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @default(now())
-  hashed_password String
-  players        players[]
+  id                  Int                   @id @default(autoincrement())
+  name                String?
+  email               String?               @unique
+  email_verified      DateTime?
+  image               String?
+  created_at          DateTime              @default(now())
+  updated_at          DateTime              @default(now())
+  players             Player[]
+  viewedByPermissions viewing_permissions[] @relation("UsersToViewees")
+  viewerPermissions   viewing_permissions[] @relation("UsersToViewers")
 }
 
 model verification_requests {
@@ -62,24 +78,44 @@ model verification_requests {
   updated_at DateTime @default(now())
 }
 
-model players {
-  user_id                      Int     @id
-  bio                          String?
-  academic_engagement_score    Int?
-  academic_engagement_comments String?
-  advising_score               Int?
-  advising_comments            String?
-  athletic_score               Int?
-  athletic_comments            String?
-  gpa                          Float?
-  disciplinary_actions         String?
-  school_absences              String?
-  advising_absences            String?
-  athletic_absences            String?
-  bmi                          Float?
-  health_and_wellness          String?
-  beep_test                    String?
-  mile_time                    String?
-  highlights                   String?
-  users                        users   @relation(fields: [user_id], references: [id])
+model Player {
+  user_id                     Int     @id
+  bio                         String?
+  academicEngagementScore     Int?    @map("academic_engagement_score")
+  acaademicEngagementComments String? @map("academic_engagement_comments")
+  advisingScore               Int?    @map("advising_score")
+  advisingComments            String? @map("advising_comments")
+  athleticScore               Int?    @map("athletic_score")
+  athleticComments            String? @map("athletic_comments")
+  gpa                         Float?
+  disciplinaryActions         String? @map("disciplinary_actions")
+  schoolAbsences              String? @map("school_absences")
+  advisingAbsences            String? @map("advising_absences")
+  athleticAbsences            String? @map("athletic_absences")
+  bmi                         Float?
+  healthAndWellness           String? @map("health_and_wellness")
+  beepTest                    String? @map("beep_test")
+  mileTime                    String? @map("mile_time")
+  highlights                  String?
+  user                        User    @relation(fields: [user_id], references: [id])
+
+  @@map("players")
+}
+
+model UserInvite {
+  id         String   @id @default(dbgenerated())
+  created_at DateTime @default(now())
+  user_id    Int
+  user       User     @relation("user_invitesTousers", fields: [user_id], references: [id])
+
+  @@map("user_invites")
+}
+
+model viewing_permissions {
+  id                Int     @id
+  viewer_id         Int?
+  viewee_id         Int?
+  relationship_type String?
+  viewee            users?  @relation("UsersToViewees", fields: [viewee_id], references: [id])
+  viewer            users?  @relation("UsersToViewers", fields: [viewer_id], references: [id])
 }
