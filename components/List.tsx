@@ -1,4 +1,4 @@
-import { User } from "interfaces";
+import { User } from "utils/sample-data";
 import ListItem from "./ListItem";
 
 type Props = {

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { User } from "interfaces";
+import { User } from "utils/sample-data";
 
 type Props = {
   data: User;
