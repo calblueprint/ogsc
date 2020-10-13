@@ -1,8 +1,8 @@
 import NextAuth from "next-auth";
 import Providers from "next-auth/providers";
 import { PrismaClient } from "@prisma/client";
-import { createHmac } from "crypto";
 import { NextApiRequest, NextApiResponse } from "next";
+import hashPassword from "utils/hashPassword";
 import sanitizeUser from "utils/sanitizeUser";
 
 type AuthorizeDTO = {
@@ -12,10 +12,6 @@ type AuthorizeDTO = {
 };
 
 const prisma = new PrismaClient();
-
-const hash = (password: string): string => {
-  return createHmac("sha256", password).digest("hex");
-};
 
 const options = {
   // Configure one or more authentication providers
@@ -32,16 +28,17 @@ const options = {
         });
         if (!user) {
           // This is a new user, let's sign them up and authenticate them
-          const newUser = await prisma.user.create({
-            data: {
-              email: credentials.email,
-              hashedPassword: hash(credentials.password),
-            },
-          });
-          return sanitizeUser(newUser);
+          // call createAccount endpoint
+          // const newUser = await prisma.user.create({
+          //   data: {
+          //     email: credentials.email,
+          //     hashedPassword: hashPassword(credentials.password),
+          //   },
+          // });
+          // return sanitizeUser(newUser);
         }
         // Verify that they are specifying a valid invite code
-        if (user.hashedPassword === hash(credentials.password)) {
+        if (user.hashedPassword === hashPassword(credentials.password)) {
           // This is an existing user, let's see if their password matches
           return sanitizeUser(user);
         }
