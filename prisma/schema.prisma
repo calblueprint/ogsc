@@ -8,16 +8,18 @@ datasource db {
 }
 
 model User {
-  id             Int          @id @default(autoincrement())
-  name           String?
-  email          String?      @unique
-  emailVerified  DateTime?    @map("email_verified")
-  image          String?
-  createdAt      DateTime     @default(now()) @map("created_at")
-  updatedAt      DateTime     @default(now()) @map("updated_at")
-  hashedPassword String       @map("hashed_password")
-  player         Player?
-  userInvites    UserInvite[] @relation("UserInvitesToUsers")
+  id                  Int                 @id @default(autoincrement())
+  name                String?
+  email               String?             @unique
+  emailVerified       DateTime?           @map("email_verified")
+  image               String?
+  createdAt           DateTime            @default(now()) @map("created_at")
+  updatedAt           DateTime            @default(now()) @map("updated_at")
+  hashedPassword      String              @map("hashed_password")
+  player              Player?
+  userInvites         UserInvite[]        @relation("UserInvitesToUsers")
+  viewedByPermissions ViewingPermission[] @relation("UsersToViewees")
+  viewerPermissions   ViewingPermission[] @relation("UsersToViewers")
 
   @@map("users")
 }
@@ -54,19 +56,6 @@ model sessions {
   access_token  String   @unique
   created_at    DateTime @default(now())
   updated_at    DateTime @default(now())
-}
-
-model users {
-  id                  Int                   @id @default(autoincrement())
-  name                String?
-  email               String?               @unique
-  email_verified      DateTime?
-  image               String?
-  created_at          DateTime              @default(now())
-  updated_at          DateTime              @default(now())
-  players             Player[]
-  viewedByPermissions viewing_permissions[] @relation("UsersToViewees")
-  viewerPermissions   viewing_permissions[] @relation("UsersToViewers")
 }
 
 model verification_requests {
@@ -111,11 +100,13 @@ model UserInvite {
   @@map("user_invites")
 }
 
-model viewing_permissions {
+model ViewingPermission {
   id                Int     @id
   viewer_id         Int?
   viewee_id         Int?
   relationship_type String?
-  viewee            users?  @relation("UsersToViewees", fields: [viewee_id], references: [id])
-  viewer            users?  @relation("UsersToViewers", fields: [viewer_id], references: [id])
+  viewee            User?   @relation("UsersToViewees", fields: [viewee_id], references: [id])
+  viewer            User?   @relation("UsersToViewers", fields: [viewer_id], references: [id])
+
+  @@map("viewing_permissions")
 }

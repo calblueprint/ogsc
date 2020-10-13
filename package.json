@@ -25,11 +25,11 @@
     "@prisma/client": "2.8.0",
     "db-migrate": "^0.11.11",
     "db-migrate-base": "^2.3.0",
+    "joi": "^17.2.1",
     "next": "9.5.3",
     "next-auth": "^3.1.0",
     "react": "16.13.1",
-    "react-dom": "16.13.1",
-    "validator": "^13.1.17"
+    "react-dom": "16.13.1"
   },
   "devDependencies": {
     "@prisma/cli": "2.8.0",
@@ -38,7 +38,6 @@
     "@types/node": "^14.11.1",
     "@types/react": "^16.9.49",
     "@types/react-dom": "^16.9.8",
-    "@types/validator": "^13.1.0",
     "@typescript-eslint/eslint-plugin": "^4.2.0",
     "@typescript-eslint/parser": "^4.2.0",
     "babel-eslint": "^10.1.0",
