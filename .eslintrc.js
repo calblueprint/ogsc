@@ -31,6 +31,8 @@ module.exports = {
     // Prettier
     "prettier/prettier": "error",
     // Typescript
+    "no-shadow": "off",
+    "@typescript-eslint/no-shadow": ["error"],
     "@typescript-eslint/explicit-member-accessibility": "off",
     "@typescript-eslint/explicit-function-return-type": [
       "error",
