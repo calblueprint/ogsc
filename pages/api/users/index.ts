@@ -27,6 +27,11 @@ type CreateUserDTO = {
 export const createAccount = async (
   user: CreateUserDTO
 ): Promise<SanitizedUser | null> => {
+  if (
+    Joi.string().uuid({ version: "uuidv4" }).validate(user.inviteCodeId).error
+  ) {
+    throw new Error("Invalid inviteCodeId");
+  }
   const loginInfo = {
     name: user.name,
     email: user.email,
@@ -63,8 +68,8 @@ const handler = async (
   try {
     const expectedBody = Joi.object({
       name: Joi.string().required(),
-      email: Joi.string().required(),
-      password: Joi.string().required(),
+      email: Joi.string().email().required(),
+      password: Joi.string().min(8).required(),
       inviteCodeId: Joi.string().optional(),
     });
     const { value, error } = expectedBody.validate(req.body);
