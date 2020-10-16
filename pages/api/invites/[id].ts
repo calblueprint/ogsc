@@ -13,7 +13,7 @@ const prisma = new PrismaClient();
 export const getInviteById = async (
   id: string
 ): Promise<(UserInvite & { user: SanitizedUser }) | null> => {
-  if (Joi.string().uuid({ version: "uuidv4" }).validate(id)) {
+  if (Joi.string().uuid({ version: "uuidv4" }).validate(id).error) {
     return null;
   }
   const invite = await prisma.userInvite.findOne({

@@ -19,8 +19,9 @@ type CreateUserDTO = {
 };
 
 /**
- * Create an account with email and password (if user signing up) or invite code id (admin signing user up)
- * @param user - contains metadata
+ * Update existing user record with given password by fetching from user invite table (if signing up with an invite code)
+ * OR create an account with given email and password (if user is signing up without invite code)
+ * @param user - contains email, password, and an optional invite code
  */
 
 export const createAccount = async (
@@ -31,23 +32,34 @@ export const createAccount = async (
     email: user.email,
     hashedPassword: hash(user.password),
   };
-  const newUser = await prisma.user.upsert({
-    where: {
-      id: user.inviteCodeId
-        ? (await getInviteById(user.inviteCodeId))?.user.id
-        : undefined,
-    },
-    create: loginInfo,
-    update: loginInfo,
-  });
+  let newUser;
+  const inviteCode = user.inviteCodeId
+    ? await getInviteById(user.inviteCodeId)
+    : null;
+  if (inviteCode) {
+    // inviteCodeId exists and valid invite code fetched
+    newUser = await prisma.user.update({
+      data: loginInfo,
+      where: {
+        id: inviteCode.user_id,
+      },
+    });
+  } else {
+    // signing up without an invite code
+    newUser = await prisma.user.create({
+      data: loginInfo,
+    });
+  }
   if (!newUser) {
     return null;
   }
   return sanitizeUser(newUser);
 };
 
-const handler = async (req: NextApiRequest, res: NextApiResponse): void => {
-  console.log(req.body, req.method);
+const handler = async (
+  req: NextApiRequest,
+  res: NextApiResponse
+): Promise<void> => {
   try {
     const expectedBody = Joi.object({
       name: Joi.string().required(),

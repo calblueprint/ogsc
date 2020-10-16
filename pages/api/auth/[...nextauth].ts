@@ -23,23 +23,14 @@ const options = {
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials: AuthorizeDTO) => {
-        const user = await prisma.user.findFirst({
+        const user = await prisma.user.findOne({
           where: { email: credentials.email },
         });
         if (!user) {
-          // This is a new user, let's sign them up and authenticate them
-          // call createAccount endpoint
-          // const newUser = await prisma.user.create({
-          //   data: {
-          //     email: credentials.email,
-          //     hashedPassword: hashPassword(credentials.password),
-          //   },
-          // });
-          // return sanitizeUser(newUser);
+          throw new Error("No account exists");
         }
-        // Verify that they are specifying a valid invite code
+        // Verify that their password matches
         if (user.hashedPassword === hashPassword(credentials.password)) {
-          // This is an existing user, let's see if their password matches
           return sanitizeUser(user);
         }
         // Password mismatch
