@@ -49,6 +49,7 @@ export default async (
         hashedPassword: body.hashedPassword,
       },
     });
+    res.json({ name: "CJ", id: 213 });
   } catch (err) {
     res.status(500);
     res.json({ statusCode: 500, message: err.message });
