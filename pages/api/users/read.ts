@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { Player, PrismaClient, UserInvite } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import Joi from "joi";
 
@@ -11,6 +11,8 @@ type userDTO = {
   image: string;
   createdAt: Date;
   updatedAt: Date;
+  player: Player;
+  userInvites: UserInvite[];
 };
 
 export default async (
@@ -26,6 +28,8 @@ export default async (
       image: Joi.string(),
       createdAt: Joi.date(),
       updatedAt: Joi.date(),
+      player: Joi.object().ref(),
+      userInvites: Joi.object(),
     });
 
     const { value, error } = expectedBody.validate(req.body);
@@ -34,17 +38,11 @@ export default async (
     }
     const body = value as userDTO;
 
-    await prisma.user.update({
+    const user = await prisma.user.findOne({
       where: { id: body.id },
-      data: {
-        name: body.name,
-        email: body.email,
-        emailVerified: body.emailVerified,
-        image: body.image,
-        createdAt: body.createdAt,
-        updatedAt: body.updatedAt,
-      },
     });
+
+    res.json(user);
   } catch (err) {
     res.status(500);
     res.json({ statusCode: 500, message: err.message });

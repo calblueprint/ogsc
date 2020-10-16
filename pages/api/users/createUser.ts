@@ -1,4 +1,4 @@
-import { Player, PrismaClient, UserInvite } from "@prisma/client";
+import { PrismaClient, UserInvite } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import Joi from "joi";
 
@@ -13,10 +13,7 @@ type UserDTO = {
   createdAt: Date;
   updatedAt: Date;
   hashedPassword: string;
-  player: Player;
   userInvites: UserInvite[];
-  viewedByPermissions: ViewingPermission[];
-  viewerPermissions: ViewingPermission[];
 };
 
 export default async (
@@ -32,10 +29,7 @@ export default async (
       image: Joi.string().required(),
       createdAt: Joi.date().required(),
       updatedAt: Joi.date().required(),
-      player: Joi.object().ref(),
       hashedPassword: Joi.string().required(),
-      viewedByPermissions: Joi.array().items(Joi.object()),
-      viewerPermissions: Joi.array().items(Joi.object()),
     });
 
     const { value, error } = expectedBody.validate(req.body);
@@ -53,10 +47,6 @@ export default async (
         createdAt: body.createdAt,
         updatedAt: body.updatedAt,
         hashedPassword: body.hashedPassword,
-        player: body.player,
-        userInvites: body.userInvites,
-        viewedByPermissions: body.viewedByPermissions,
-        viewerPermissions: body.viewerPermissions,
       },
     });
   } catch (err) {

@@ -34,16 +34,8 @@ export default async (
     }
     const body = value as userDTO;
 
-    await prisma.user.update({
+    await prisma.user.delete({
       where: { id: body.id },
-      data: {
-        name: body.name,
-        email: body.email,
-        emailVerified: body.emailVerified,
-        image: body.image,
-        createdAt: body.createdAt,
-        updatedAt: body.updatedAt,
-      },
     });
   } catch (err) {
     res.status(500);

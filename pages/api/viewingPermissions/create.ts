@@ -3,14 +3,11 @@ import { NextApiRequest, NextApiResponse } from "next";
 import Joi from "joi";
 
 const prisma = new PrismaClient();
-type userDTO = {
+type viewingPermissionDTO = {
   id: number;
-  name: string;
-  email: string;
-  emailVerified: Date;
-  image: string;
-  createdAt: Date;
-  updatedAt: Date;
+  viewerId: number;
+  vieweeId: number;
+  relationshipType: string;
 };
 
 export default async (
@@ -20,29 +17,23 @@ export default async (
   try {
     const expectedBody = Joi.object({
       id: Joi.number().required(),
-      name: Joi.string(),
-      email: Joi.string(),
-      emailVerified: Joi.date(),
-      image: Joi.string(),
-      createdAt: Joi.date(),
-      updatedAt: Joi.date(),
+      viewerId: Joi.number(),
+      vieweeId: Joi.number(),
+      relationshipType: Joi.string(),
     });
 
     const { value, error } = expectedBody.validate(req.body);
     if (error) {
       throw new Error(error.message);
     }
-    const body = value as userDTO;
+    const body = value as viewingPermissionDTO;
 
-    await prisma.user.update({
-      where: { id: body.id },
+    await prisma.user.create({
       data: {
-        name: body.name,
-        email: body.email,
-        emailVerified: body.emailVerified,
-        image: body.image,
-        createdAt: body.createdAt,
-        updatedAt: body.updatedAt,
+        id: expectedBody.id,
+        viewerId: body.viewer_id,
+        vieweeId: body.viewee_id,
+        relationshipType: body.relationship_type,
       },
     });
   } catch (err) {
