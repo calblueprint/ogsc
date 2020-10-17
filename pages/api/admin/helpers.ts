@@ -1,13 +1,13 @@
 import { PrismaClient } from "@prisma/client";
-import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
+import { AuthenticatedNextApiHandler } from "interfaces";
+import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/client";
 
 const prisma = new PrismaClient();
 
-export const adminOnlyHandler = (handler: NextApiHandler) => async (
-  req: NextApiRequest,
-  res: NextApiResponse
-): Promise<void> => {
+export const adminOnlyHandler = (
+  handler: AuthenticatedNextApiHandler
+) => async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
   const session = await getSession({ req });
   if (!session) {
     res.statusCode = 401;
@@ -17,7 +17,7 @@ export const adminOnlyHandler = (handler: NextApiHandler) => async (
   const user = await prisma.user.findOne({
     where: { email: session.user.email },
   });
-  if (!user?.isAdmin) {
+  if (user === null || !user.isAdmin) {
     res.statusCode = 401;
     res.json({
       message:
@@ -25,7 +25,8 @@ export const adminOnlyHandler = (handler: NextApiHandler) => async (
     });
     return;
   }
-  handler(req, res);
+
+  handler(req, res, user);
 };
 
 export default {
