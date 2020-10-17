@@ -23,10 +23,10 @@ export default async (
     if (error) {
       throw new Error(error.message);
     }
-    const body = value as viewingPermissionDTO;
+    const permissionInfo = value as viewingPermissionDTO;
 
     const view = await prisma.viewingPermission.delete({
-      where: { id: body.id },
+      where: { id: permissionInfo.id },
     });
     res.json({
       message: "Successfully deleted viewing permission.",

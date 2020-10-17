@@ -32,10 +32,10 @@ export default async (
     if (error) {
       throw new Error(error.message);
     }
-    const body = value as userDTO;
+    const userInfo = value as userDTO;
 
     const user = await prisma.user.delete({
-      where: { id: body.id },
+      where: { id: userInfo.id },
     });
     res.json({
       message: "Successfully deleted user.",

@@ -11,9 +11,9 @@ type viewingPermissionDTO = {
 };
 const expectedBody = Joi.object({
   id: Joi.number().required(),
-  viewer_id: Joi.number().required(),
-  viewee_id: Joi.number().required(),
-  relationship_type: Joi.string().required(),
+  viewerId: Joi.number().required(),
+  vieweeId: Joi.number().required(),
+  relationshipType: Joi.string().required(),
 });
 
 const handler = async (
@@ -25,14 +25,14 @@ const handler = async (
     if (error) {
       throw new Error(error.message);
     }
-    const body = value as viewingPermissionDTO;
+    const permissionInfo = value as viewingPermissionDTO;
 
     const view = await prisma.viewingPermission.create({
       data: {
-        id: body.id,
-        viewer: { connect: { id: body.viewer_id } },
-        viewee: { connect: { id: body.viewee_id } },
-        relationship_type: body.relationship_type,
+        id: permissionInfo.id,
+        viewer: { connect: { id: permissionInfo.viewerId } },
+        viewee: { connect: { id: permissionInfo.vieweeId } },
+        relationship_type: permissionInfo.relationshipType,
       },
     });
     res.json({

@@ -29,17 +29,22 @@ export default async (
     if (error) {
       throw new Error(error.message);
     }
-    const body = value as userDTO;
+    const userInfo = value as userDTO;
 
     const user = await prisma.user.update({
-      where: { id: body.id },
+      where: { id: userInfo.id },
       data: {
-        name: body.name,
-        email: body.email,
-        image: body.image,
-        hashedPassword: body.hashedPassword,
+        name: userInfo.name,
+        email: userInfo.email,
+        image: userInfo.image,
+        hashedPassword: userInfo.hashedPassword,
       },
     });
+    if (!user) {
+      res
+        .status(404)
+        .json({ statusCode: 404, message: "User does not exist." });
+    }
     res.json({
       message: "Successfully updated user.",
       user,

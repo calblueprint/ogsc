@@ -20,12 +20,17 @@ export default async (
     if (error) {
       throw new Error(error.message);
     }
-    const body = value as userDTO;
+    const userInfo = value as userDTO;
 
     const user = await prisma.user.findOne({
-      where: { id: body.id },
+      where: { id: userInfo.id },
     });
 
+    if (!user) {
+      res
+        .status(404)
+        .json({ statusCode: 404, message: "User does not exist." });
+    }
     res.json(user);
   } catch (err) {
     res.status(500);

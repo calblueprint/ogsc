@@ -33,17 +33,17 @@ export default async (
     if (error) {
       throw new Error(error.message);
     }
-    const body = value as UserDTO;
+    const userInfo = value as UserDTO;
 
     const user = await prisma.user.create({
       data: {
-        name: body.name,
-        email: body.email,
-        emailVerified: body.emailVerified,
-        image: body.image,
-        createdAt: body.createdAt,
-        updatedAt: body.updatedAt,
-        hashedPassword: body.hashedPassword,
+        name: userInfo.name,
+        email: userInfo.email,
+        emailVerified: userInfo.emailVerified,
+        image: userInfo.image,
+        createdAt: userInfo.createdAt,
+        updatedAt: userInfo.updatedAt,
+        hashedPassword: userInfo.hashedPassword,
       },
     });
     res.json({
