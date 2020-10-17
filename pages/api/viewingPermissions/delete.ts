@@ -17,9 +17,6 @@ export default async (
   try {
     const expectedBody = Joi.object({
       id: Joi.number().required(),
-      viewerId: Joi.number(),
-      vieweeId: Joi.number(),
-      relationshipType: Joi.string(),
     });
 
     const { value, error } = expectedBody.validate(req.body);
@@ -28,8 +25,12 @@ export default async (
     }
     const body = value as viewingPermissionDTO;
 
-    await prisma.user.delete({
+    const view = await prisma.viewingPermission.delete({
       where: { id: body.id },
+    });
+    res.json({
+      message: "Successfully deleted viewing permission.",
+      view,
     });
   } catch (err) {
     res.status(500);

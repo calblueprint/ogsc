@@ -1,11 +1,10 @@
-import { PrismaClient, UserInvite } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import Joi from "joi";
 
 const prisma = new PrismaClient();
 
 type UserDTO = {
-  id: number;
   name: string;
   email: string;
   emailVerified: Date;
@@ -13,7 +12,6 @@ type UserDTO = {
   createdAt: Date;
   updatedAt: Date;
   hashedPassword: string;
-  userInvites: UserInvite[];
 };
 
 export default async (
@@ -22,11 +20,10 @@ export default async (
 ): Promise<void> => {
   try {
     const expectedBody = Joi.object({
-      id: Joi.number().required(),
       name: Joi.string().required(),
-      email: Joi.string().required(),
-      email_verified: Joi.date().required(),
-      image: Joi.string().required(),
+      email: Joi.string(),
+      emailVerified: Joi.date(),
+      image: Joi.string(),
       createdAt: Joi.date().required(),
       updatedAt: Joi.date().required(),
       hashedPassword: Joi.string().required(),
@@ -38,7 +35,7 @@ export default async (
     }
     const body = value as UserDTO;
 
-    await prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         name: body.name,
         email: body.email,
@@ -49,7 +46,10 @@ export default async (
         hashedPassword: body.hashedPassword,
       },
     });
-    res.json({ name: "CJ", id: 213 });
+    res.json({
+      message: "Successfully created user.",
+      user,
+    });
   } catch (err) {
     res.status(500);
     res.json({ statusCode: 500, message: err.message });

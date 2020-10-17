@@ -29,11 +29,11 @@ export default async (
     }
     const body = value as viewingPermissionDTO;
 
-    const viewingPermission = await prisma.viewingPermission.findOne({
+    const view = await prisma.viewingPermission.findOne({
       where: { id: body.id },
     });
 
-    res.json(viewingPermission);
+    res.json(view);
   } catch (err) {
     res.status(500);
     res.json({ statusCode: 500, message: err.message });

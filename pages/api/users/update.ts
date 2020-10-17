@@ -9,8 +9,7 @@ type userDTO = {
   email: string;
   emailVerified: Date;
   image: string;
-  createdAt: Date;
-  updatedAt: Date;
+  hashedPassword: string;
 };
 
 export default async (
@@ -22,10 +21,8 @@ export default async (
       id: Joi.number().required(),
       name: Joi.string(),
       email: Joi.string(),
-      emailVerified: Joi.date(),
       image: Joi.string(),
-      createdAt: Joi.date(),
-      updatedAt: Joi.date(),
+      hashedPassword: Joi.string(),
     });
 
     const { value, error } = expectedBody.validate(req.body);
@@ -34,16 +31,18 @@ export default async (
     }
     const body = value as userDTO;
 
-    await prisma.user.update({
+    const user = await prisma.user.update({
       where: { id: body.id },
       data: {
         name: body.name,
         email: body.email,
-        emailVerified: body.emailVerified,
         image: body.image,
-        createdAt: body.createdAt,
-        updatedAt: body.updatedAt,
+        hashedPassword: body.hashedPassword,
       },
+    });
+    res.json({
+      message: "Successfully updated user.",
+      user,
     });
   } catch (err) {
     res.status(500);

@@ -11,12 +11,12 @@ type viewingPermissionDTO = {
 };
 const expectedBody = Joi.object({
   id: Joi.number().required(),
-  viewer_id: Joi.number(),
-  viewee_id: Joi.number(),
-  relationship_type: Joi.string(),
+  viewer_id: Joi.number().required(),
+  viewee_id: Joi.number().required(),
+  relationship_type: Joi.string().required(),
 });
 
-export default async (
+const handler = async (
   req: NextApiRequest,
   res: NextApiResponse
 ): Promise<void> => {
@@ -30,14 +30,18 @@ export default async (
     const view = await prisma.viewingPermission.create({
       data: {
         id: body.id,
-        viewerId: body.viewerId,
-        vieweeId: body.vieweeId,
-        relationshipType: body.relationshipType,
+        viewer: { connect: { id: body.viewer_id } },
+        viewee: { connect: { id: body.viewee_id } },
+        relationship_type: body.relationship_type,
       },
     });
-    res.json(view);
+    res.json({
+      message: "Successfully created viewing permission.",
+      view,
+    });
   } catch (err) {
     res.status(500);
     res.json({ statusCode: 500, message: err.message });
   }
 };
+export default handler;

@@ -34,8 +34,12 @@ export default async (
     }
     const body = value as userDTO;
 
-    await prisma.user.delete({
+    const user = await prisma.user.delete({
       where: { id: body.id },
+    });
+    res.json({
+      message: "Successfully deleted user.",
+      user,
     });
   } catch (err) {
     res.status(500);
