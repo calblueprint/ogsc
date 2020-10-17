@@ -28,6 +28,7 @@ module.exports = {
   },
   plugins: ["react", "@typescript-eslint", "prettier"],
   rules: {
+    "class-methods-use-this": "off",
     // Prettier
     "prettier/prettier": "error",
     // Typescript
