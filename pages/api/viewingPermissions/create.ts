@@ -9,33 +9,33 @@ type viewingPermissionDTO = {
   vieweeId: number;
   relationshipType: string;
 };
+const expectedBody = Joi.object({
+  id: Joi.number().required(),
+  viewer_id: Joi.number(),
+  viewee_id: Joi.number(),
+  relationship_type: Joi.string(),
+});
 
 export default async (
   req: NextApiRequest,
   res: NextApiResponse
 ): Promise<void> => {
   try {
-    const expectedBody = Joi.object({
-      id: Joi.number().required(),
-      viewerId: Joi.number(),
-      vieweeId: Joi.number(),
-      relationshipType: Joi.string(),
-    });
-
     const { value, error } = expectedBody.validate(req.body);
     if (error) {
       throw new Error(error.message);
     }
     const body = value as viewingPermissionDTO;
 
-    await prisma.user.create({
+    const view = await prisma.viewingPermission.create({
       data: {
-        id: expectedBody.id,
-        viewerId: body.viewer_id,
-        vieweeId: body.viewee_id,
-        relationshipType: body.relationship_type,
+        id: body.id,
+        viewerId: body.viewerId,
+        vieweeId: body.vieweeId,
+        relationshipType: body.relationshipType,
       },
     });
+    res.json(view);
   } catch (err) {
     res.status(500);
     res.json({ statusCode: 500, message: err.message });
