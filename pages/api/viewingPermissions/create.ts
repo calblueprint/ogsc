@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import Joi from "joi";
 
 const prisma = new PrismaClient();
-type viewingPermissionDTO = {
+type ViewingPermissionDTO = {
   id: number;
   viewerId: number;
   vieweeId: number;
@@ -25,7 +25,7 @@ const handler = async (
     if (error) {
       throw new Error(error.message);
     }
-    const permissionInfo = value as viewingPermissionDTO;
+    const permissionInfo = value as ViewingPermissionDTO;
 
     const view = await prisma.viewingPermission.create({
       data: {

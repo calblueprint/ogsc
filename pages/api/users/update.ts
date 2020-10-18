@@ -1,15 +1,17 @@
 import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import Joi from "joi";
+import hash from "utils/hashPassword";
+import sanitizeUser from "utils/sanitizeUser";
 
 const prisma = new PrismaClient();
-type userDTO = {
+type UserDTO = {
   id: number;
   name: string;
   email: string;
   emailVerified: Date;
   image: string;
-  hashedPassword: string;
+  password: string;
 };
 
 export default async (
@@ -22,14 +24,14 @@ export default async (
       name: Joi.string(),
       email: Joi.string(),
       image: Joi.string(),
-      hashedPassword: Joi.string(),
+      password: Joi.string(),
     });
 
     const { value, error } = expectedBody.validate(req.body);
     if (error) {
       throw new Error(error.message);
     }
-    const userInfo = value as userDTO;
+    const userInfo = value as UserDTO;
 
     const user = await prisma.user.update({
       where: { id: userInfo.id },
@@ -37,7 +39,7 @@ export default async (
         name: userInfo.name,
         email: userInfo.email,
         image: userInfo.image,
-        hashedPassword: userInfo.hashedPassword,
+        hashedPassword: hash(userInfo.password),
       },
     });
     if (!user) {
@@ -47,7 +49,7 @@ export default async (
     }
     res.json({
       message: "Successfully updated user.",
-      user,
+      user: sanitizeUser(user),
     });
   } catch (err) {
     res.status(500);
