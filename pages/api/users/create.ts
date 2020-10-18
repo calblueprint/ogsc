@@ -1,6 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import Joi from "joi";
+import hash from "utils/hashPassword";
+import sanitizeUser from "utils/sanitizeUser";
 
 const prisma = new PrismaClient();
 
@@ -11,7 +13,7 @@ type UserDTO = {
   image: string;
   createdAt: Date;
   updatedAt: Date;
-  hashedPassword: string;
+  password: string;
 };
 
 export default async (
@@ -26,7 +28,7 @@ export default async (
       image: Joi.string(),
       createdAt: Joi.date().required(),
       updatedAt: Joi.date().required(),
-      hashedPassword: Joi.string().required(),
+      password: Joi.string().required(),
     });
 
     const { value, error } = expectedBody.validate(req.body);
@@ -43,12 +45,12 @@ export default async (
         image: userInfo.image,
         createdAt: userInfo.createdAt,
         updatedAt: userInfo.updatedAt,
-        hashedPassword: userInfo.hashedPassword,
+        hashedPassword: hash(userInfo.password),
       },
     });
     res.json({
       message: "Successfully created user.",
-      user,
+      user: sanitizeUser(user),
     });
   } catch (err) {
     res.status(500);

@@ -1,9 +1,10 @@
 import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import Joi from "joi";
+import sanitizeUser from "utils/sanitizeUser";
 
 const prisma = new PrismaClient();
-type userDTO = {
+type UserDTO = {
   id: number;
 };
 
@@ -20,7 +21,7 @@ export default async (
     if (error) {
       throw new Error(error.message);
     }
-    const userInfo = value as userDTO;
+    const userInfo = value as UserDTO;
 
     const user = await prisma.user.findOne({
       where: { id: userInfo.id },
@@ -30,8 +31,9 @@ export default async (
       res
         .status(404)
         .json({ statusCode: 404, message: "User does not exist." });
+    } else {
+      res.json({ user: sanitizeUser(user) });
     }
-    res.json(user);
   } catch (err) {
     res.status(500);
     res.json({ statusCode: 500, message: err.message });

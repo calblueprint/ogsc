@@ -1,9 +1,10 @@
 import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import Joi from "joi";
+import sanitizeUser from "utils/sanitizeUser";
 
 const prisma = new PrismaClient();
-type userDTO = {
+type UserDTO = {
   id: number;
   name: string;
   email: string;
@@ -32,14 +33,14 @@ export default async (
     if (error) {
       throw new Error(error.message);
     }
-    const userInfo = value as userDTO;
+    const userInfo = value as UserDTO;
 
     const user = await prisma.user.delete({
       where: { id: userInfo.id },
     });
     res.json({
       message: "Successfully deleted user.",
-      user,
+      user: sanitizeUser(user),
     });
   } catch (err) {
     res.status(500);

@@ -8,6 +8,16 @@ import { getInviteById } from "../invites/[id]";
 
 const prisma = new PrismaClient();
 
+export type UserDTO = {
+  name: string;
+  email: string;
+  emailVerified: Date;
+  image: string;
+  createdAt: Date;
+  updatedAt: Date;
+  password: string;
+};
+
 /**
  * All users signing up
  */
