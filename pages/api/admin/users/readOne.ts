@@ -1,30 +1,27 @@
 import { PrismaClient } from "@prisma/client";
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextApiResponse } from "next";
 import Joi from "joi";
+import { ValidatedNextApiRequest } from "interfaces";
 import sanitizeUser from "utils/sanitizeUser";
+import { validateBody } from "pages/api/helpers";
+import { adminOnlyHandler } from "../helpers";
 
 const prisma = new PrismaClient();
 type UserDTO = {
-  id: number;
+  id?: number;
 };
 
-export default async (
-  req: NextApiRequest,
+const expectedBody = Joi.object<UserDTO>({
+  id: Joi.number(),
+});
+
+const handler = async (
+  req: ValidatedNextApiRequest<UserDTO>,
   res: NextApiResponse
 ): Promise<void> => {
   try {
-    const expectedBody = Joi.object({
-      id: Joi.number().required(),
-    });
-
-    const { value, error } = expectedBody.validate(req.body);
-    if (error) {
-      throw new Error(error.message);
-    }
-    const userInfo = value as UserDTO;
-
     const user = await prisma.user.findOne({
-      where: { id: userInfo.id },
+      where: { id: req.body.id || Number(req.query.id) },
     });
 
     if (!user) {
@@ -39,3 +36,5 @@ export default async (
     res.json({ statusCode: 500, message: err.message });
   }
 };
+
+export default validateBody(adminOnlyHandler(handler), expectedBody);
