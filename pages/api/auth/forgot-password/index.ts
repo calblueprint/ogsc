@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { PrismaClient, ResetPassword } from "@prisma/client";
-import sanitizeUser from "utils/sanitizeUser";
-import { SanitizedUser } from "interfaces";
 import Joi from "joi";
+import Notifier from "lib/notify";
+import { NotificationType } from "lib/notify/types";
 
 const prisma = new PrismaClient();
 
@@ -10,7 +10,6 @@ const prisma = new PrismaClient();
  * Users who forgot their password
  */
 type ForgotPasswordUserDTO = {
-  // name: string;
   email: string;
 };
 
@@ -32,14 +31,17 @@ export const forgotPassword = async (
   // create user record
   const newResetUser = await prisma.resetPassword.create({
     data: {
-      userId: resetUser.id,
+      user: { connect: { email: user.email } },
     },
   });
   if (!newResetUser) {
     return null;
   }
   // send email with reset password token
-  // email.send(resetUser.email, newResetUser.id)
+  await Notifier.sendNotification(NotificationType.ForgotPassword, {
+    email: user.email,
+    resetPasswordToken: newResetUser.id,
+  });
   return newResetUser;
 };
 
@@ -49,7 +51,6 @@ const handler = async (
 ): Promise<void> => {
   try {
     const expectedBody = Joi.object({
-      // name: Joi.string().required(),
       email: Joi.string().email().required(),
     });
     const { value, error } = expectedBody.validate(req.body);

@@ -10,13 +10,12 @@ datasource db {
 model User {
   id                  Int                 @id @default(autoincrement())
   name                String?
-  email               String              @unique
+  email               String?             @unique
   emailVerified       DateTime?           @map("email_verified")
   image               String?
   createdAt           DateTime            @default(now()) @map("created_at")
   updatedAt           DateTime            @default(now()) @map("updated_at")
   hashedPassword      String              @map("hashed_password")
-  isAdmin             Boolean             @default(false) @map("is_admin")
   player              Player?
   resetPassword       ResetPassword[]     @relation("ResetPasswordToUsers")
   userInvites         UserInvite[]        @relation("UserInvitesToUsers")
@@ -114,11 +113,11 @@ model ViewingPermission {
 }
 
 model ResetPassword {
-  id         String   @id @default(dbgenerated())
-  created_at DateTime @default(now())
-  user_id    Int
-  is_used    Boolean  @default(false)
-  users      User     @relation("ResetPasswordToUsers", fields: [user_id], references: [id])
+  id        String   @id @default(dbgenerated())
+  createdAt DateTime @default(now()) @map("created_at")
+  userId    Int      @map("user_id")
+  isUsed    Boolean  @default(false) @map("is_used")
+  user      User     @relation("ResetPasswordToUsers", fields: [userId], references: [id])
 
   @@map("reset_password")
 }

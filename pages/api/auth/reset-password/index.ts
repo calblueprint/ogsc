@@ -20,7 +20,7 @@ type NewPasswordUserDTO = {
  * @param user - contains newPassword, resetCodeId
  */
 
-export const forgotPassword = async (
+export const resetPassword = async (
   user: NewPasswordUserDTO
 ): Promise<SanitizedUser | null> => {
   if (
@@ -35,10 +35,13 @@ export const forgotPassword = async (
   if (!resetPasswordRecord) {
     throw new Error("Invalid reset password id");
   }
+  if (resetPasswordRecord.isUsed) {
+    throw new Error("Reset password id has already been used");
+  }
 
   // update resetPassword table with new password + isUsed
   const updatedResetPasswordRecord = await prisma.resetPassword.update({
-    data: { is_used: true },
+    data: { isUsed: true },
     where: {
       id: user.resetCodeId,
     },
@@ -50,7 +53,7 @@ export const forgotPassword = async (
   const userRecord = await prisma.user.update({
     data: { hashedPassword: hash(user.newPassword) },
     where: {
-      id: resetPasswordRecord.user_id,
+      id: updatedResetPasswordRecord.userId,
     },
   });
   if (!userRecord) {
@@ -75,7 +78,7 @@ const handler = async (
     }
     const body = value as NewPasswordUserDTO;
 
-    const newUser = await forgotPassword(body);
+    const newUser = await resetPassword(body);
     if (newUser) {
       res.status(200).json(newUser);
     } else {
