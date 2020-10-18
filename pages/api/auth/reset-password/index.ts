@@ -16,7 +16,7 @@ type NewPasswordUserDTO = {
 };
 
 /**
- * Start forgot password flow
+ * Completes forgot password flow by updating record with new password
  * @param user - contains newPassword, resetCodeId
  */
 
