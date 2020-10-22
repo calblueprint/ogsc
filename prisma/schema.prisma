@@ -10,14 +10,14 @@ datasource db {
 model User {
   id                  Int                 @id @default(autoincrement())
   name                String?
-  email               String              @unique
+  email               String?             @unique
   emailVerified       DateTime?           @map("email_verified")
   image               String?
   createdAt           DateTime            @default(now()) @map("created_at")
   updatedAt           DateTime            @default(now()) @map("updated_at")
   hashedPassword      String              @map("hashed_password")
-  isAdmin             Boolean             @default(false) @map("is_admin")
   player              Player?
+  resetPassword       ResetPassword[]     @relation("ResetPasswordToUsers")
   userInvites         UserInvite[]        @relation("UserInvitesToUsers")
   viewedByPermissions ViewingPermission[] @relation("UsersToViewees")
   viewerPermissions   ViewingPermission[] @relation("UsersToViewers")
@@ -69,28 +69,27 @@ model verification_requests {
 }
 
 model Player {
-  user_id                     Int     @id
-  bio                         String?
-  academicEngagementScore     Int?    @map("academic_engagement_score")
+  user_id                    Int     @id
+  bio                        String?
+  academicEngagementScore    Int?    @map("academic_engagement_score")
   academicEngagementComments String? @map("academic_engagement_comments")
-  advisingScore               Int?    @map("advising_score")
-  advisingComments            String? @map("advising_comments")
-  athleticScore               Int?    @map("athletic_score")
-  athleticComments            String? @map("athletic_comments")
-  gpa                         Float?
-  disciplinaryActions         String? @map("disciplinary_actions")
-  schoolAbsences              String? @map("school_absences")
-  advisingAbsences            String? @map("advising_absences")
-  athleticAbsences            String? @map("athletic_absences")
-  bmi                         Float?
-  healthAndWellness           String? @map("health_and_wellness")
-  beepTest                    String? @map("beep_test")
-  mileTime                    String? @map("mile_time")
-  highlights                  String?
-  user                        User    @relation(fields: [user_id], references: [id])
+  advisingScore              Int?    @map("advising_score")
+  advisingComments           String? @map("advising_comments")
+  athleticScore              Int?    @map("athletic_score")
+  athleticComments           String? @map("athletic_comments")
+  gpa                        Float?
+  disciplinaryActions        String? @map("disciplinary_actions")
+  schoolAbsences             String? @map("school_absences")
+  advisingAbsences           String? @map("advising_absences")
+  athleticAbsences           String? @map("athletic_absences")
+  bmi                        Float?
+  healthAndWellness          String? @map("health_and_wellness")
+  beepTest                   String? @map("beep_test")
+  mileTime                   String? @map("mile_time")
+  highlights                 String?
+  user                       User    @relation(fields: [user_id], references: [id])
 
   @@map("players")
-
 }
 
 model UserInvite {
@@ -100,7 +99,6 @@ model UserInvite {
   user       User     @relation("UserInvitesToUsers", fields: [user_id], references: [id])
 
   @@map("user_invites")
-
 }
 
 model ViewingPermission {
@@ -112,5 +110,14 @@ model ViewingPermission {
   viewer            User?   @relation("UsersToViewers", fields: [viewer_id], references: [id])
 
   @@map("viewing_permissions")
+}
 
+model ResetPassword {
+  id        String   @id @default(dbgenerated())
+  createdAt DateTime @default(now()) @map("created_at")
+  userId    Int      @map("user_id")
+  isUsed    Boolean  @default(false) @map("is_used")
+  user      User     @relation("ResetPasswordToUsers", fields: [userId], references: [id])
+
+  @@map("reset_password")
 }
