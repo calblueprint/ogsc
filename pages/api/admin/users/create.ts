@@ -1,13 +1,13 @@
 import { PrismaClient, PrismaClientKnownRequestError } from "@prisma/client";
-import Joi from "joi";
 import { NextApiResponse } from "next";
+import Joi from "joi";
 
 import { ValidatedNextApiRequest } from "interfaces";
 import Notifier from "lib/notify";
 import { NotificationType } from "lib/notify/types";
-import { validateBody } from "../helpers";
-import { CreateUserDTO, CreateUserDTOValidator } from "../users";
-import { adminOnlyHandler } from "./helpers";
+import { validateBody } from "pages/api/helpers";
+import { CreateUserDTO, CreateUserDTOValidator } from "pages/api/users";
+import { adminOnlyHandler } from "../helpers";
 
 const prisma = new PrismaClient();
 
