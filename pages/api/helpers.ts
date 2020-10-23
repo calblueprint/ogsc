@@ -10,7 +10,7 @@ export const validateBody = <T>(
   res: NextApiResponse,
   ...args: unknown[]
 ): Promise<void> => {
-  const { error } = schema.validate(req.body);
+  const { error } = schema.validate(req.body || {});
   if (error) {
     res.status(400).json({ statusCode: 400, message: error.message });
     return;
