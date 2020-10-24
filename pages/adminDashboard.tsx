@@ -29,6 +29,7 @@ const AdminNavbar: React.FunctionComponent = () => {
         {Button("Donors")}
         {Button("Parents")}
       </div>
+      {/* TODO: Need to add dashboard components corresponding to each tab here */}
     </div>
   );
 };
