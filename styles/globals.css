@@ -20,7 +20,7 @@ a {
 }
 
 @font-face {
-  font-family: "Airbnb Cereal App";
+  font-family: "Airbnb Cereal App"; /* TODO: Need to change font */
   src: url("../fonts/AirbnbCereal-Medium.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
