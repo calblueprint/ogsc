@@ -6,6 +6,9 @@ module.exports = {
   purge: [],
   theme: {
     extend: {},
+    fontFamily: {
+      display: ["Airbnb Cereal App"],
+    },
   },
   variants: {},
   plugins: [],
