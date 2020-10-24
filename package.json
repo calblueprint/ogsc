@@ -22,7 +22,6 @@
     }
   },
   "dependencies": {
-    "@material-ui/icons": "^4.9.1",
     "@prisma/client": "2.8.0",
     "autoprefixer": "9.8.6",
     "db-migrate": "^0.11.11",
