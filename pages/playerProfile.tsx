@@ -30,6 +30,7 @@ const PlayerNavBar: React.FunctionComponent = () => {
         {Button("Highlights")}
       </div>
       <div className="mt-12 mb-10 text-xl">{title}</div>
+      {/* TODO: add profile content to each tab */}
     </div>
   );
 };
