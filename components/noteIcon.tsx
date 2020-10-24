@@ -1,5 +1,5 @@
 // eslint-disable-next-line camelcase
-const add_Note: React.FunctionComponent = () => (
+const noteIcon: React.FunctionComponent = () => (
   <div className="mt-4">
     <svg
       id="Layer_1"
@@ -20,4 +20,4 @@ const add_Note: React.FunctionComponent = () => (
 );
 
 // eslint-disable-next-line camelcase
-export default add_Note;
+export default noteIcon;
