@@ -44,7 +44,7 @@ const AdminView: React.FunctionComponent = () => (
         </div>
       </div>
       {AdminNavbar({})}
-      <hr />
+      <hr className="border-unselected border-opacity-50" />
     </div>
   </DashboardLayout>
 );
