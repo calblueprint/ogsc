@@ -9,8 +9,8 @@ const AdminNavbar: React.FunctionComponent = () => {
         type="button"
         className={
           title === category
-            ? "bg-gray-200 py-3 px-8 rounded-full font-bold tracking-wide"
-            : "py-3 px-8 rounded-full text-gray-500 tracking-wide"
+            ? "bg-button py-3 px-8 rounded-full font-bold tracking-wide"
+            : "py-3 px-8 rounded-full text-unselected tracking-wide"
         }
         onClick={() => {
           setTitle(category);

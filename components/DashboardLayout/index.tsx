@@ -7,7 +7,7 @@ type Props = {
 
 const DashboardLayout: React.FC<Props> = ({ children }: Props) => {
   return (
-    <div>
+    <div className="text-dark">
       <Sidebar />
       <div className="ml-56">{children}</div>
     </div>

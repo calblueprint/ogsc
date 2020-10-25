@@ -16,8 +16,8 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({
   return (
     <Link href={href} passHref>
       <a
-        className={`block text-gray-600 mb-8 font-medium ${
-          router.pathname === href ? "text-gray-900" : ""
+        className={`block mb-8 font-medium ${
+          router.pathname !== href ? "text-unselected" : ""
         }`}
       >
         {children}
@@ -29,10 +29,10 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({
 const Sidebar: React.FC = () => {
   const user = useContext(AuthContext);
   return (
-    <div className="fixed top-0 flex flex-col justify-between w-56 h-screen border-r border-gray-500">
+    <div className="fixed top-0 flex flex-col justify-between w-56 h-screen border-r border-unselected border-opacity-50">
       <div className="px-12 py-24">
         <div className="w-full flex justify-center mb-16">
-          <div className="w-20 h-20 bg-gray-500 rounded-full" />
+          <div className="w-20 h-20 bg-placeholder rounded-full" />
         </div>
         <SidebarLink href="/admin/participants">Participants</SidebarLink>
         <SidebarLink href="/admin/users">All Users</SidebarLink>
@@ -42,10 +42,10 @@ const Sidebar: React.FC = () => {
       </div>
       <div className="mb-12 px-6">
         <div className="flex items-center">
-          <div className="w-10 h-10 mr-4 bg-gray-500 rounded-full" />
+          <div className="w-10 h-10 mr-4 bg-placeholder rounded-full" />
           <div>
             <p className="font-medium">{user?.name}</p>
-            <p className="text-gray-500">Admin</p>
+            <p className="text-unselected">Admin</p>
           </div>
         </div>
       </div>
