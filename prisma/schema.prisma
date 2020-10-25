@@ -103,7 +103,7 @@ model UserInvite {
 }
 
 model ViewingPermission {
-  id                Int     @id
+  id                Int     @id @default(autoincrement())
   viewer_id         Int?
   viewee_id         Int?
   relationship_type String?
