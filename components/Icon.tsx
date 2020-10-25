@@ -42,7 +42,7 @@ const IconSvgs: Record<IconType, React.ReactElement> = {
 };
 
 type Props = {
-  className: string;
+  className?: string;
   type: IconType;
 };
 
