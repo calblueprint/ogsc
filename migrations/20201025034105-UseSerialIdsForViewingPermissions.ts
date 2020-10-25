@@ -9,7 +9,7 @@ export async function up(
 ): Promise<void> {
   db.runSql(
     `
-  CREATE SEQUENCE viewing_permissions_id_seq
+  CREATE SEQUENCE IF NOT EXISTS viewing_permissions_id_seq
     INCREMENT 1
     START 1
     MINVALUE 1
@@ -24,9 +24,6 @@ export async function up(
 
 /**
  * Remove autoincrement sequence behavior to the IDs of the viewing_permissions table.
- *
- * **Note**: This is not a safe down migration as the ID sequence will be destroyed and recreated
- * with a start value of 1.
  */
 export async function down(
   db: Base,
@@ -34,7 +31,6 @@ export async function down(
 ): Promise<void> {
   db.runSql(
     `
-  DROP SEQUENCE viewing_permissions_id_seq;
   ALTER TABLE viewing_permissions ALTER id DROP DEFAULT;
     `,
     callback
