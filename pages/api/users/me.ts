@@ -16,6 +16,10 @@ export default routeByMethod({
     }
     const user = await prisma.user.findOne({
       where: { email: session.user.email },
+      include: {
+        player: true,
+        viewerPermissions: true,
+      },
     });
 
     if (user) {
