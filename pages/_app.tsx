@@ -34,9 +34,9 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
   const [session, loadingSession] = useSession();
   const router = useRouter();
   const [user, setUser] = useState<SessionInfo["user"] | null>(null);
-  const accessingAuthenticatedRoute = router.pathname.match(
-    new RegExp(`^/(${UserRoleConstants.join("|")})`)
-  );
+  const accessingAuthenticatedRoute =
+    router.pathname.match(new RegExp(`^/(${UserRoleConstants.join("|")})`)) !==
+    null;
   const sessionInfo: SessionInfo = useMemo(
     () =>
       user ? { user, sessionType: chooseDefaultRoleType(user) } : { user },
