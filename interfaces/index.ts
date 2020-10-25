@@ -22,7 +22,8 @@ export type ValidatedNextApiHandler<T, R = unknown> = (
   ...args: unknown[]
 ) => void | Promise<void>;
 
-export type UserRole = "admin" | "mentor" | "player" | "donor";
+export const UserRoleConstants = <const>["admin", "mentor", "player", "donor"];
+export type UserRole = typeof UserRoleConstants[number];
 export const UserRoleLabel: Record<UserRole, string> = {
   admin: "Admin",
   mentor: "Mentor",
@@ -30,14 +31,15 @@ export const UserRoleLabel: Record<UserRole, string> = {
   donor: "Donor",
 };
 
+export type AuthenticatedSessionInfo = {
+  user: SanitizedUser & {
+    player: Player;
+    viewerPermissions: ViewingPermission[];
+  };
+  sessionType: UserRole;
+};
 export type SessionInfo =
-  | {
-      user: SanitizedUser & {
-        player: Player;
-        viewerPermissions: ViewingPermission[];
-      };
-      sessionType: UserRole;
-    }
+  | AuthenticatedSessionInfo
   | {
       user: null;
     };

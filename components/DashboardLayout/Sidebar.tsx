@@ -1,8 +1,8 @@
 import { useRouter } from "next/router";
 import Link from "next/link";
-import React, { useContext } from "react";
+import React from "react";
 import { UserRole, UserRoleLabel } from "interfaces";
-import { AuthContext } from "pages/_app";
+import useSessionInfo from "utils/useSessionInfo";
 
 type SidebarLinkProps = {
   href: string;
@@ -61,14 +61,14 @@ const SidebarsByRole: Record<UserRole, React.ReactNode> = {
 };
 
 const Sidebar: React.FC = () => {
-  const session = useContext(AuthContext);
+  const session = useSessionInfo();
   return (
     <div className="fixed top-0 flex flex-col justify-between w-56 h-screen border-r border-unselected border-opacity-50">
       <div className="px-12 py-24">
         <div className="w-full flex justify-center mb-16">
           <div className="w-20 h-20 bg-placeholder rounded-full" />
         </div>
-        {session.user && SidebarsByRole[session.sessionType]}
+        {SidebarsByRole[session.sessionType]}
       </div>
       <div className="mb-12 px-6">
         <div className="flex items-center">
@@ -76,7 +76,7 @@ const Sidebar: React.FC = () => {
           <div>
             <p className="font-medium">{session.user?.name}</p>
             <p className="text-unselected">
-              {session.user && UserRoleLabel[session.sessionType]}
+              {UserRoleLabel[session.sessionType]}
             </p>
           </div>
         </div>

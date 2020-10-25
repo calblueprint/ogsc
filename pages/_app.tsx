@@ -1,11 +1,18 @@
-import { SessionInfo, UserRole } from "interfaces";
+import {
+  AuthenticatedSessionInfo,
+  SessionInfo,
+  UserRole,
+  UserRoleConstants,
+} from "interfaces";
 import { useSession } from "next-auth/client";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import "../styles/globals.css";
 
-export const AuthContext = React.createContext<SessionInfo>({ user: null });
+export const AuthContext = React.createContext<AuthenticatedSessionInfo | null>(
+  null
+);
 
 function chooseDefaultRoleType(user: SessionInfo["user"]): UserRole {
   if (!user) {
@@ -27,6 +34,14 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
   const [session, loadingSession] = useSession();
   const router = useRouter();
   const [user, setUser] = useState<SessionInfo["user"] | null>(null);
+  const accessingAuthenticatedRoute = router.pathname.match(
+    new RegExp(`^/(${UserRoleConstants.join("|")})`)
+  );
+  const sessionInfo: SessionInfo = useMemo(
+    () =>
+      user ? { user, sessionType: chooseDefaultRoleType(user) } : { user },
+    [user]
+  );
 
   useEffect(() => {
     async function getUser(): Promise<void> {
@@ -39,21 +54,27 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
         setUser(loadedUser);
       } catch (err) {
         // TODO: Add some error logging
-        router.push("/api/auth/signin");
       }
     }
-    if (!loadingSession && !session) {
-      router.push("/api/auth/signin");
-    } else {
+    if (session) {
       getUser();
+    } else if (!loadingSession && accessingAuthenticatedRoute) {
+      router.push("/api/auth/signin");
     }
-  }, [loadingSession, router, session]);
+  }, [accessingAuthenticatedRoute, loadingSession, router, session]);
 
+  if (!accessingAuthenticatedRoute) {
+    return <Component {...pageProps} />;
+  }
+  if (!sessionInfo.user) {
+    // TODO: Add shimmer loading skeleton
+    return null;
+  }
   return (
     <AuthContext.Provider
       value={
         // TODO: When sessionType switching is supported, this should be a stateful value
-        user ? { user, sessionType: chooseDefaultRoleType(user) } : { user }
+        sessionInfo
       }
     >
       <Component {...pageProps} />
