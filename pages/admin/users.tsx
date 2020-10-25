@@ -1,3 +1,4 @@
+import DashboardLayout from "components/DashboardLayout";
 import { useState } from "react";
 
 const AdminNavbar: React.FunctionComponent = () => {
@@ -35,15 +36,17 @@ const AdminNavbar: React.FunctionComponent = () => {
 };
 
 const AdminView: React.FunctionComponent = () => (
-  <div className="flex mt-20 flex-wrap space-y-6 flex-col mx-16">
-    <div className="header flex">
-      <div className="player-info grid grid-rows-1">
-        <p className="pt-6 text-3xl font-display font-medium">All Users</p>
+  <DashboardLayout>
+    <div className="flex mt-20 flex-wrap space-y-6 flex-col mx-16">
+      <div className="header flex">
+        <div className="player-info grid grid-rows-1">
+          <p className="pt-6 text-3xl font-display font-medium">All Users</p>
+        </div>
       </div>
+      {AdminNavbar({})}
+      <hr />
     </div>
-    {AdminNavbar({})}
-    <hr />
-  </div>
+  </DashboardLayout>
 );
 
 export default AdminView;
