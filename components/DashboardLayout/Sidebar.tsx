@@ -18,7 +18,7 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({
     <Link href={href} passHref>
       <a
         className={`block mb-8 font-medium ${
-          router.pathname !== href ? "text-unselected" : ""
+          !router.pathname.startsWith(href) ? "text-unselected" : ""
         }`}
       >
         {children}

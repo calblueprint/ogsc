@@ -16,7 +16,7 @@ const Button: React.FC<Props> = ({
 }) => {
   return (
     <button
-      className={`bg-button flex items-center px-6 py-3 font-medium ${
+      className={`button button-normal ${
         pill ? "rounded-full" : "rounded"
       } ${className}`}
       onClick={onClick}

@@ -25,3 +25,39 @@ a {
   font-weight: normal;
   font-style: normal;
 }
+
+@layer components {
+  .button {
+    @apply flex items-center px-6 py-3 font-medium;
+  }
+
+  .button-normal {
+    @apply bg-button;
+  }
+
+  .button-primary {
+    @apply bg-unselected text-white;
+  }
+
+  .button-hollow {
+    @apply bg-transparent border-unselected border-2 text-unselected;
+  }
+
+  .input {
+    @apply border-unselected border-b-2 px-2 py-1;
+  }
+
+  .input:focus {
+    @apply border-dark outline-none bg-button;
+  }
+
+  .input-full {
+    @apply w-full max-w-lg;
+  }
+
+  @screen lg {
+    .input-full {
+      @apply w-1/2;
+    }
+  }
+}
