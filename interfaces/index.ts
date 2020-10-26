@@ -1,4 +1,4 @@
-import { User } from "@prisma/client";
+import { Player, User, ViewingPermission } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export type SanitizedUser = Omit<User, "hashedPassword">;
@@ -21,3 +21,25 @@ export type ValidatedNextApiHandler<T, R = unknown> = (
   res: NextApiResponse<R>,
   ...args: unknown[]
 ) => void | Promise<void>;
+
+export const UserRoleConstants = <const>["admin", "mentor", "player", "donor"];
+export type UserRole = typeof UserRoleConstants[number];
+export const UserRoleLabel: Record<UserRole, string> = {
+  admin: "Admin",
+  mentor: "Mentor",
+  player: "Player",
+  donor: "Donor",
+};
+
+export type AuthenticatedSessionInfo = {
+  user: SanitizedUser & {
+    player: Player;
+    viewerPermissions: ViewingPermission[];
+  };
+  sessionType: UserRole;
+};
+export type SessionInfo =
+  | AuthenticatedSessionInfo
+  | {
+      user: null;
+    };
