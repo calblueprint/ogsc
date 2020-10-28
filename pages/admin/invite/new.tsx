@@ -55,6 +55,7 @@ const AdminNewInvitePage: React.FC = () => {
                     className="mr-3"
                     type="radio"
                     name="role"
+                    id={role}
                     value={role}
                   />
                   {UserRoleLabel[role]}
