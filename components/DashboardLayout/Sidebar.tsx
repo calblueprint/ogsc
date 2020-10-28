@@ -44,6 +44,7 @@ const SidebarsByRole: Record<UserRole, React.ReactNode> = {
       <SidebarLink href="/mentor/notes">Notes</SidebarLink>
     </>
   ),
+  parent: <></>,
   player: (
     <>
       <SidebarLink href="/player/profile">Profile</SidebarLink>

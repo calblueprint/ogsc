@@ -5,7 +5,8 @@ type Props = React.PropsWithChildren<{
   iconType?: IconType;
   onClick?: React.MouseEventHandler;
   pill?: boolean;
-}>;
+}> &
+  React.HTMLAttributes<HTMLButtonElement>;
 
 const Button: React.FC<Props> = ({
   children,
@@ -13,7 +14,8 @@ const Button: React.FC<Props> = ({
   iconType,
   onClick,
   pill,
-}) => {
+  ...additionalButtonProps
+}: Props) => {
   return (
     <button
       className={`button button-normal ${
@@ -21,6 +23,7 @@ const Button: React.FC<Props> = ({
       } ${className}`}
       onClick={onClick}
       type="button"
+      {...additionalButtonProps}
     >
       {iconType && (
         <Icon
