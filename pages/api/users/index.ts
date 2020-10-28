@@ -9,16 +9,6 @@ import { getInviteById } from "../invites/[id]";
 
 const prisma = new PrismaClient();
 
-export type UserDTO = {
-  name: string;
-  email: string;
-  emailVerified: Date;
-  image: string;
-  createdAt: Date;
-  updatedAt: Date;
-  password: string;
-};
-
 /**
  * All users signing up
  */
@@ -26,6 +16,7 @@ export type CreateUserDTO = {
   name: string;
   email: string;
   password: string;
+  phoneNumber?: string;
   inviteCodeId?: string;
 };
 
@@ -33,6 +24,7 @@ export const CreateUserDTOValidator = Joi.object<CreateUserDTO>({
   name: Joi.string().required(),
   email: Joi.string().email().required(),
   password: Joi.string().min(8).required(),
+  phoneNumber: Joi.string().optional(),
   inviteCodeId: Joi.string().optional(),
 });
 
