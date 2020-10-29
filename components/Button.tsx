@@ -5,7 +5,9 @@ type Props = React.PropsWithChildren<{
   iconType?: IconType;
   onClick?: React.MouseEventHandler;
   pill?: boolean;
-}>;
+  type?: "button" | "submit" | "reset";
+}> &
+  React.HTMLAttributes<HTMLButtonElement>;
 
 const Button: React.FC<Props> = ({
   children,
@@ -13,14 +15,18 @@ const Button: React.FC<Props> = ({
   iconType,
   onClick,
   pill,
-}) => {
+  type = "button",
+  ...additionalButtonProps
+}: Props) => {
   return (
     <button
-      className={`bg-button flex items-center px-6 py-3 font-medium ${
+      className={`button button-normal ${
         pill ? "rounded-full" : "rounded"
       } ${className}`}
       onClick={onClick}
-      type="button"
+      // eslint-disable-next-line react/button-has-type
+      type={type}
+      {...additionalButtonProps}
     >
       {iconType && (
         <Icon

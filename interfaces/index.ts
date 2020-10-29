@@ -22,11 +22,18 @@ export type ValidatedNextApiHandler<T, R = unknown> = (
   ...args: unknown[]
 ) => void | Promise<void>;
 
-export const UserRoleConstants = <const>["admin", "mentor", "player", "donor"];
+export const UserRoleConstants = <const>[
+  "admin",
+  "mentor",
+  "parent",
+  "player",
+  "donor",
+];
 export type UserRole = typeof UserRoleConstants[number];
 export const UserRoleLabel: Record<UserRole, string> = {
   admin: "Admin",
   mentor: "Mentor",
+  parent: "Parent",
   player: "Player",
   donor: "Donor",
 };
