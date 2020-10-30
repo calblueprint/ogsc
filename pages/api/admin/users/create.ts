@@ -11,7 +11,10 @@ import { adminOnlyHandler } from "../helpers";
 
 const prisma = new PrismaClient();
 
-type AdminCreateUserDTO = Pick<CreateUserDTO, "email" | "name">;
+export type AdminCreateUserDTO = Pick<
+  CreateUserDTO,
+  "email" | "name" | "phoneNumber"
+>;
 const AdminCreateUserDTOValidator = CreateUserDTOValidator.keys({
   password: Joi.forbidden(),
   inviteCodeId: Joi.forbidden(),
@@ -21,12 +24,13 @@ const handler = async (
   req: ValidatedNextApiRequest<AdminCreateUserDTO>,
   res: NextApiResponse
 ): Promise<void> => {
-  const { email, name } = req.body;
+  const { email, name, phoneNumber } = req.body;
   try {
     const newUser = await prisma.user.create({
       data: {
         name,
         email,
+        phoneNumber,
         hashedPassword: "<set on first login>",
         userInvites: {
           create: {},

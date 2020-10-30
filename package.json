@@ -23,6 +23,7 @@
     }
   },
   "dependencies": {
+    "@hookform/resolvers": "^1.0.0",
     "@prisma/client": "2.8.0",
     "autoprefixer": "9.8.6",
     "db-migrate": "^0.11.11",
@@ -35,6 +36,7 @@
     "postcss-import": "^12.0.1",
     "react": "16.13.1",
     "react-dom": "16.13.1",
+    "react-hook-form": "^6.9.6",
     "tailwindcss": "^1.9.4"
   },
   "devDependencies": {

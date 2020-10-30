@@ -17,6 +17,7 @@ model User {
   updatedAt           DateTime            @default(now()) @map("updated_at")
   hashedPassword      String              @map("hashed_password")
   isAdmin             Boolean             @default(false) @map("is_admin")
+  phoneNumber         String?             @map("phone_number")
   player              Player?
   resetPassword       ResetPassword[]     @relation("ResetPasswordToUsers")
   userInvites         UserInvite[]        @relation("UserInvitesToUsers")
@@ -103,7 +104,7 @@ model UserInvite {
 }
 
 model ViewingPermission {
-  id                Int     @id
+  id                Int     @id @default(autoincrement())
   viewer_id         Int?
   viewee_id         Int?
   relationship_type String?
