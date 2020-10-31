@@ -9,12 +9,13 @@ const UserDashboardItem: React.FunctionComponent = ({
 }) => {
   return (
     <div>
-      <hr className="border-unselected border-opacity-50" />
-      <img src={image} alt="" />
-      <p>{name}</p>
-      <p>User Role</p>
-      <p>{email}</p>
-      <p>{phone}</p>
+      <div className="flex flex-row justify-between text-sm text-center">
+        <img src={image} alt="" />
+        <p>{name}</p>
+        <p>User Role</p>
+        <p>{email}</p>
+        <p>{phone}</p>
+      </div>
       <hr className="border-unselected border-opacity-50" />
     </div>
   );
@@ -43,9 +44,12 @@ const UserDashboard: React.FunctionComponent = () => {
   }, [pages]);
   return (
     <div>
-      <p>Name</p>
-      <p>Email</p>
-      <p>Phone</p>
+      <div className="flex flex-row justify-between text-sm text-center">
+        <p>Name</p>
+        <p>Email</p>
+        <p>Phone</p>
+      </div>
+      <hr className="border-unselected border-opacity-50" />
       {/* {UserDashboardItem({})} */}
       <img src="" alt="" />
       {users.map((user) => (
