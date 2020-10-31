@@ -1,6 +1,6 @@
 type TextProps = {
   title: string | null;
-  content: string | undefined | null | number;
+  content: string | null | number;
   // add prop for Last Updated
 };
 

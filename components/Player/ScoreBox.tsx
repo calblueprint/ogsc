@@ -1,7 +1,7 @@
 import Icon, { IconType } from "components/Icon";
 
 type ScoreBoxProps = {
-  score: number | undefined | null;
+  score: number | null;
   icon: IconType;
   title: string;
   // add prop for Last Updated
