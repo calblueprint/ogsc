@@ -28,9 +28,14 @@ module.exports = {
   },
   plugins: ["react", "@typescript-eslint", "prettier"],
   rules: {
+    "class-methods-use-this": "off",
     // Prettier
     "prettier/prettier": "error",
     // Typescript
+    "no-shadow": "off",
+    "no-use-before-define": "off",
+    "@typescript-eslint/no-use-before-define": ["error"],
+    "@typescript-eslint/no-shadow": ["error"],
     "@typescript-eslint/explicit-member-accessibility": "off",
     "@typescript-eslint/explicit-function-return-type": [
       "error",
@@ -38,6 +43,7 @@ module.exports = {
         allowExpressions: true,
       },
     ],
+    "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": [
       "error",
       {
