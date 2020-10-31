@@ -1,50 +1,61 @@
 import DashboardLayout from "components/DashboardLayout";
 import { useEffect, useState } from "react";
-import { User } from "@prisma/client";
 
-const UserDashboardItem: React.FunctionComponent = () => {
-  const [user, setUser] = useState<User>();
-
-  const getUser = async (id: string): Promise<void> => {
-    try {
-      const response = await fetch(
-        `http://localhost:3000/api/admin/users/${id}`,
-        {
-          method: "GET",
-          headers: { "content-type": "application/json" },
-          redirect: "follow",
-        }
-      );
-      const person: any = await response.json();
-      setUser(person.user);
-    } catch (err) {
-      throw new Error(err.message);
-    }
-  };
-  const raw = "14";
-  useEffect(() => {
-    getUser(raw);
-  }, [raw]);
+const UserDashboardItem: React.FunctionComponent = ({
+  name,
+  email,
+  image,
+  phone,
+}) => {
   return (
     <div>
       <hr className="border-unselected border-opacity-50" />
-      <img src="" alt="" />
-      <p>{user?.name}</p>
+      <img src={image} alt="" />
+      <p>{name}</p>
       <p>User Role</p>
-      <p>{user?.email}</p>
-      <p>{user?.phoneNumber}</p>
+      <p>{email}</p>
+      <p>{phone}</p>
       <hr className="border-unselected border-opacity-50" />
     </div>
   );
 };
 
 const UserDashboard: React.FunctionComponent = () => {
+  const [users, setUsers] = useState([]);
+
+  const getUsers = async (pageNumber: number): Promise<void> => {
+    try {
+      const response = await fetch("http://localhost:3000/api/admin/users", {
+        method: "GET",
+        query: pageNumber,
+        headers: { "content-type": "application/json" },
+        redirect: "follow",
+      });
+      const data = await response.json();
+      setUsers(data.users);
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  };
+  const pages = 1;
+  useEffect(() => {
+    getUsers(pages);
+  }, [pages]);
   return (
     <div>
       <p>Name</p>
       <p>Email</p>
       <p>Phone</p>
-      {UserDashboardItem({})}
+      {/* {UserDashboardItem({})} */}
+      <img src="" alt="" />
+      {users.map((user) => (
+        <UserDashboardItem
+          name={user.name}
+          email={user.email}
+          image={user.image}
+          phone={user.phoneNumber}
+        />
+      ))}
     </div>
   );
 };
