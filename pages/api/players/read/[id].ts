@@ -29,22 +29,8 @@ const handler = async (
   try {
     const expectedbody = Joi.object({
       id: Joi.number().required(),
-      bio: Joi.string().optional(),
-      academicEngagementScore: Joi.number().optional(),
-      academicEngagementComments: Joi.string().optional(),
-      advisingScore: Joi.number().optional(),
-      advisingComments: Joi.string().optional(),
-      gpa: Joi.number().optional(),
-      disciplinaryActions: Joi.string().optional(),
-      schoolAbsences: Joi.string().optional(),
-      advisingAbsences: Joi.string().optional(),
-      bmi: Joi.number().optional(),
-      healthAndWellness: Joi.string().optional(),
-      beepTest: Joi.string().optional(),
-      mileTime: Joi.string().optional(),
-      highlights: Joi.string().optional(),
     });
-    const { value, error } = expectedbody.validate(req.body);
+    const { value, error } = expectedbody.validate(req.query);
     if (error) {
       throw new Error(error.message);
     }
