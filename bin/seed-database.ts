@@ -1,10 +1,34 @@
 /* eslint-disable no-console */
-import { PrismaClient, User, UserCreateArgs } from "@prisma/client";
+import {
+  PrismaClient,
+  ProfileFieldCreateWithoutUserInput,
+  ProfileFieldKey,
+  User,
+  UserCreateArgs,
+} from "@prisma/client";
 import Faker from "faker";
 import Ora from "ora";
 import hashPassword from "../utils/hashPassword";
 
 const NUMBER_USERS = 10;
+
+function generateFieldsAcrossTimestamps(
+  key: ProfileFieldKey,
+  generateValue: () => unknown
+): ProfileFieldCreateWithoutUserInput[] {
+  return [
+    new Date("2020-10-01T12:00:00+00:00"),
+    new Date("2020-10-15T12:00:00+00:00"),
+    new Date("2020-10-30T12:00:00+00:00"),
+  ].map(
+    (date: Date) =>
+      <ProfileFieldCreateWithoutUserInput>{
+        key,
+        value: String(generateValue()),
+        createdAt: date,
+      }
+  );
+}
 
 export default async function seedDatabase(): Promise<void> {
   const prisma = new PrismaClient();
@@ -17,9 +41,16 @@ export default async function seedDatabase(): Promise<void> {
         },
       },
     });
-    await prisma.player.deleteMany({
+    await prisma.userInvite.deleteMany({
       where: {
         user_id: {
+          in: users.map((user: User) => user.id),
+        },
+      },
+    });
+    await prisma.profileField.deleteMany({
+      where: {
+        userId: {
           in: users.map((user: User) => user.id),
         },
       },
@@ -65,32 +96,90 @@ export default async function seedDatabase(): Promise<void> {
           email: `player${index}@ogsc.dev`,
           hashedPassword: hashPassword("password"),
           name: `${Faker.name.firstName()} ${Faker.name.lastName()}`,
-          player: {
-            create: {
-              bio: Faker.lorem.sentences(2),
-              academicEngagementScore: Faker.random.number(10),
-              academicEngagementComments: Faker.lorem.lines(2),
-              advisingScore: Faker.random.number(10),
-              advisingComments: Faker.lorem.lines(2),
-              athleticScore: Faker.random.number(10),
-              athleticComments: Faker.lorem.lines(2),
-              gpa: Faker.random.float({
-                max: 4,
-                precision: 0.01,
-              }),
-              disciplinaryActions: Faker.lorem.lines(2),
-              schoolAbsences: Faker.lorem.lines(2),
-              advisingAbsences: Faker.lorem.lines(2),
-              athleticAbsences: Faker.lorem.lines(2),
-              bmi: Faker.random.float({ min: 18, max: 30, precision: 0.1 }),
-              healthAndWellness: Faker.lorem.lines(2),
-              beepTest: Faker.lorem.sentence(),
-              mileTime: `${Faker.random.number({
-                min: 4,
-                max: 8,
-              })}:${Faker.random.number({ max: 60 })}`,
-              highlights: Faker.internet.url(),
-            },
+          profileFields: {
+            create: [
+              ...generateFieldsAcrossTimestamps(
+                ProfileFieldKey.AcademicEngagementScore,
+                () => Faker.random.number(10)
+              ),
+              ...generateFieldsAcrossTimestamps(
+                ProfileFieldKey.AdvisingScore,
+                () => Faker.random.number(10)
+              ),
+              ...generateFieldsAcrossTimestamps(
+                ProfileFieldKey.AthleticScore,
+                () => Faker.random.number(10)
+              ),
+              ...generateFieldsAcrossTimestamps(
+                ProfileFieldKey.BioAboutMe,
+                () => Faker.lorem.lines(2)
+              ),
+              ...generateFieldsAcrossTimestamps(
+                ProfileFieldKey.BioFavorites,
+                () => Faker.lorem.lines(2)
+              ),
+              ...generateFieldsAcrossTimestamps(
+                ProfileFieldKey.BioHobbies,
+                () => Faker.lorem.lines(2)
+              ),
+              ...generateFieldsAcrossTimestamps(
+                ProfileFieldKey.BioMostDifficultSubject,
+                () => Faker.lorem.lines(1)
+              ),
+              ...generateFieldsAcrossTimestamps(
+                ProfileFieldKey.BioParents,
+                () => Faker.lorem.sentences(1)
+              ),
+              ...generateFieldsAcrossTimestamps(
+                ProfileFieldKey.BioSiblings,
+                () => Faker.lorem.sentences(1)
+              ),
+              ...generateFieldsAcrossTimestamps(ProfileFieldKey.BMI, () =>
+                Faker.random.float({ min: 18, max: 30, precision: 0.1 })
+              ),
+              ...generateFieldsAcrossTimestamps(
+                ProfileFieldKey.DisciplinaryActions,
+                () => Faker.lorem.lines(2)
+              ),
+              ...generateFieldsAcrossTimestamps(ProfileFieldKey.GPA, () =>
+                Faker.random.float({
+                  max: 4,
+                  precision: 0.01,
+                })
+              ),
+              ...generateFieldsAcrossTimestamps(
+                ProfileFieldKey.HealthAndWellness,
+                () => Faker.lorem.lines(2)
+              ),
+              ...generateFieldsAcrossTimestamps(
+                ProfileFieldKey.Highlights,
+                () => Faker.internet.url()
+              ),
+              ...generateFieldsAcrossTimestamps(
+                ProfileFieldKey.MileTime,
+                () =>
+                  `${Faker.random.number({
+                    min: 4,
+                    max: 8,
+                  })}:${String(Faker.random.number({ max: 60 })).padStart(
+                    2,
+                    "0"
+                  )}`
+              ),
+              ...generateFieldsAcrossTimestamps(ProfileFieldKey.PacerTest, () =>
+                Faker.random.number({ min: 40, max: 100 })
+              ),
+              ...generateFieldsAcrossTimestamps(
+                ProfileFieldKey.PlayerNumber,
+                () => Faker.random.number(100)
+              ),
+              ...generateFieldsAcrossTimestamps(ProfileFieldKey.Pushups, () =>
+                Faker.random.number(100)
+              ),
+              ...generateFieldsAcrossTimestamps(ProfileFieldKey.Situps, () =>
+                Faker.random.number(100)
+              ),
+            ],
           },
         },
       };

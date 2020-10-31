@@ -18,7 +18,7 @@ model User {
   hashedPassword      String              @map("hashed_password")
   isAdmin             Boolean             @default(false) @map("is_admin")
   phoneNumber         String?             @map("phone_number")
-  player              Player?
+  profileFields       ProfileField[]      @relation("ProfileFieldToUsers")
   resetPassword       ResetPassword[]     @relation("ResetPasswordToUsers")
   userInvites         UserInvite[]        @relation("UserInvitesToUsers")
   viewedByPermissions ViewingPermission[] @relation("UsersToViewees")
@@ -70,30 +70,6 @@ model verification_requests {
   updated_at DateTime @default(now())
 }
 
-model Player {
-  user_id                    Int     @id
-  bio                        String?
-  academicEngagementScore    Int?    @map("academic_engagement_score")
-  academicEngagementComments String? @map("academic_engagement_comments")
-  advisingScore              Int?    @map("advising_score")
-  advisingComments           String? @map("advising_comments")
-  athleticScore              Int?    @map("athletic_score")
-  athleticComments           String? @map("athletic_comments")
-  gpa                        Float?
-  disciplinaryActions        String? @map("disciplinary_actions")
-  schoolAbsences             String? @map("school_absences")
-  advisingAbsences           String? @map("advising_absences")
-  athleticAbsences           String? @map("athletic_absences")
-  bmi                        Float?
-  healthAndWellness          String? @map("health_and_wellness")
-  beepTest                   String? @map("beep_test")
-  mileTime                   String? @map("mile_time")
-  highlights                 String?
-  user                       User    @relation(fields: [user_id], references: [id])
-
-  @@map("players")
-}
-
 model UserInvite {
   id         String   @id @default(dbgenerated())
   created_at DateTime @default(now())
@@ -122,4 +98,42 @@ model ResetPassword {
   user      User     @relation("ResetPasswordToUsers", fields: [userId], references: [id])
 
   @@map("reset_password")
+}
+
+model ProfileField {
+  id        Int             @id @default(autoincrement())
+  userId    Int             @map("user_id")
+  key       ProfileFieldKey
+  value     String?
+  createdAt DateTime        @default(now()) @map("created_at")
+  user      User            @relation("ProfileFieldToUsers", fields: [userId], references: [id])
+
+  @@index([createdAt], name: "idx_profile_created_at")
+  @@index([key, createdAt], name: "idx_profile_fields_key_created_at")
+  @@index([userId], name: "idx_profile_fields_user_id")
+  @@map("profile_fields")
+}
+
+enum ProfileFieldKey {
+  AcademicEngagementScore @map("academic_engagement_score")
+  AdvisingScore @map("advising_score")
+  AthleticScore @map("athletic_score")
+  BioAboutMe @map("bio_about_me")
+  BioFavorites @map("bio_favorite_subject")
+  BioHobbies @map("bio_hobbies")
+  BioMostDifficultSubject @map("bio_most_difficult_subject")
+  BioParents @map("bio_parents")
+  BioSiblings @map("bio_siblings")
+  BMI @map("bmi")
+  DisciplinaryActions @map("disciplinary_actions")
+  GPA @map("gpa")
+  HealthAndWellness @map("health_and_wellness")
+  Highlights @map("highlights")
+  MileTime @map("mile_time")
+  PacerTest @map("pacer_test")
+  PlayerNumber @map("player_number")
+  Pushups @map("pushups")
+  Situps @map("situps")
+
+   @@map("profile_field_key")
 }
