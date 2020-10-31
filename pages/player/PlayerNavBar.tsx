@@ -23,7 +23,6 @@ const getContents = (category: string, player: Player): unknown => {
             <TextLayout title="Most Difficult Subject" content={player.bio} />
             <TextLayout title="Siblings" content={player.bio} />
             <TextLayout title="Parents" content={player.bio} />
-            <TextLayout title="Favorite Fifa Game" content={player.bio} />
           </div>
         </div>
       );
@@ -87,7 +86,7 @@ const getContents = (category: string, player: Player): unknown => {
       );
     default:
       return (
-        <div className="mt-12 mb-10 text-2xl font-display">No Informaion</div>
+        <div className="mt-12 mb-10 text-2xl font-display">No Information</div>
       );
   }
 };

@@ -63,12 +63,12 @@ const PlayerProfile: React.FunctionComponent = () => {
             headers: { "content-type": "application/json" },
           }
         );
-        const player1: Player & {
+        const playerData: Player & {
           user: {
             name: string | null;
           };
         } = await response.json();
-        setPlayer(player1);
+        setPlayer(playerData);
       } catch (err) {
         throw new Error(err.message);
       }
