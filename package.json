@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "db:migrate": "ts-node -O '{ \"module\": \"commonjs\" }' $(yarn bin db-migrate)",
-    "db:migrate:create": "ts-node -O '{ \"module\": \"commonjs\" }' bin/create-migration.ts"
+    "db:migrate:create": "ts-node -O '{ \"module\": \"commonjs\" }' bin/create-migration.ts",
+    "db": "prisma studio --experimental"
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx,json}": [
@@ -22,7 +23,6 @@
     }
   },
   "dependencies": {
-    "@material-ui/icons": "^4.9.1",
     "@prisma/client": "2.8.0",
     "db-migrate": "^0.11.11",
     "db-migrate-base": "^2.3.0",
@@ -31,6 +31,7 @@
     "next-auth": "^3.1.0",
     "react": "16.13.1",
     "react-dom": "16.13.1",
+    "swr": "^0.3.7",
     "tailwindcss": "^1.9.4"
   },
   "devDependencies": {
