@@ -31,7 +31,7 @@ const UserSignUp2Page: React.FC = () => {
   });
 
   async function onSubmit(
-    values: UserSignUpForm2Values,
+    // values: UserSignUpForm2Values,
     event?: React.BaseSyntheticEvent
   ): Promise<void> {
     event?.preventDefault();
