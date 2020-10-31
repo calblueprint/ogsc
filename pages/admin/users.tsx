@@ -15,7 +15,7 @@ const UserDashboardItem: React.FunctionComponent = () => {
           redirect: "follow",
         }
       );
-      const person: User = await response.json();
+      const person: any = await response.json();
       setUser(person.user);
     } catch (err) {
       throw new Error(err.message);
