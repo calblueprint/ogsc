@@ -4,10 +4,10 @@ import ScoreBox from "../../components/Player/ScoreBox";
 import TextLayout from "../../components/Player/TextLayout";
 
 interface playerProp {
-  playerProp: Player | undefined;
+  playerProp: Player;
 }
 
-const getContents = (category: string, player: Player | undefined): unknown => {
+const getContents = (category: string, player: Player): unknown => {
   switch (category) {
     case "Overview":
       return (
@@ -17,13 +17,13 @@ const getContents = (category: string, player: Player | undefined): unknown => {
           </div>
           <div className="mb-6 text-lg font-bold">Student Bio</div>
           <div className="m-5">
-            <TextLayout title="About Me" content={player?.bio} />
-            <TextLayout title="Hobbies" content={player?.bio} />
-            <TextLayout title="Favorite Subject" content={player?.bio} />
-            <TextLayout title="Most Difficult Subject" content={player?.bio} />
-            <TextLayout title="Siblings" content={player?.bio} />
-            <TextLayout title="Parents" content={player?.bio} />
-            <TextLayout title="Favorite Fifa Game" content={player?.bio} />
+            <TextLayout title="About Me" content={player.bio} />
+            <TextLayout title="Hobbies" content={player.bio} />
+            <TextLayout title="Favorite Subject" content={player.bio} />
+            <TextLayout title="Most Difficult Subject" content={player.bio} />
+            <TextLayout title="Siblings" content={player.bio} />
+            <TextLayout title="Parents" content={player.bio} />
+            <TextLayout title="Favorite Fifa Game" content={player.bio} />
           </div>
         </div>
       );
@@ -33,17 +33,17 @@ const getContents = (category: string, player: Player | undefined): unknown => {
           <div className="mt-12 mb-10 text-2xl font-display">Engagement</div>
           <div className="grid grid-cols-3 gap-24 justify-items-stretch h-56">
             <ScoreBox
-              score={player?.academicEngagementScore}
+              score={player.academicEngagementScore}
               icon="school"
               title="School"
             />
             <ScoreBox
-              score={player?.advisingScore}
+              score={player.advisingScore}
               icon="academics"
               title="Academic Advising"
             />
             <ScoreBox
-              score={player?.athleticScore}
+              score={player.athleticScore}
               icon="athletics"
               title="Athletic"
             />
@@ -57,12 +57,12 @@ const getContents = (category: string, player: Player | undefined): unknown => {
             Academic Performance
           </div>
           <div className="mb-6 text-lg font-bold">Student Bio</div>
-          <TextLayout title="GPA" content={player?.gpa} />
+          <TextLayout title="GPA" content={player.gpa} />
           <div className="mb-5 text-sm font-light">Last Updated [the date]</div>
           <div className="mb-6 mt-16 text-lg font-bold">
             Disciplinary Actions
           </div>
-          <TextLayout title={null} content={player?.disciplinaryActions} />
+          <TextLayout title={null} content={player.disciplinaryActions} />
         </div>
       );
     case "Physical Wellness":
@@ -72,16 +72,16 @@ const getContents = (category: string, player: Player | undefined): unknown => {
             Physical Wellness
           </div>
           <div className="mb-6 text-lg font-bold">Body Mass Index</div>
-          <TextLayout title="BMI" content={player?.bmi} />
+          <TextLayout title="BMI" content={player.bmi} />
           <div className="mb-6 mt-16 text-lg font-bold">Fitness Testing</div>
-          <TextLayout title="Pacer Test" content={player?.beepTest} />
-          <TextLayout title="1 Mile Time" content={player?.mileTime} />
+          <TextLayout title="Pacer Test" content={player.beepTest} />
+          <TextLayout title="1 Mile Time" content={player.mileTime} />
           <TextLayout title="Sit-Ups" content={3} />
           <TextLayout title="Push-Ups" content={81} />
           <div className="mb-6 mt-16 text-lg font-bold">
             Health and Wellness{" "}
           </div>
-          <TextLayout title={null} content={player?.healthAndWellness} />
+          <TextLayout title={null} content={player.healthAndWellness} />
           <div className="h-16" />
         </div>
       );

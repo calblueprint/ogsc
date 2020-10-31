@@ -37,6 +37,7 @@ const handler = async (
     const player = value as ProfileDTO;
     const playerProfile = await prisma.player.findOne({
       where: { user_id: player.id },
+      include: { user: { select: { name: true } } },
     });
     if (!playerProfile) {
       res
