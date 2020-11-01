@@ -15,8 +15,8 @@ type UserSignUpFormValues = {
   email: string;
   phoneNumber?: string;
   password: string;
-  role: UserRole;
-  adminNote: string;
+  role?: UserRole;
+  adminNote?: string;
 };
 
 const UserSignUpFormSchema = Joi.object<UserSignUpFormValues>({
@@ -172,7 +172,7 @@ const UserSignUpPageOne: React.FC = () => {
                 className="button-primary text-base px-10 py-2 "
                 type="submit"
               >
-                Next step --{">"}
+                Next step &#x2192;
               </Button>
               {/* </Link> */}
             </div>
@@ -218,7 +218,7 @@ const UserSignUpPageOne: React.FC = () => {
           <div className="mb-2 flex ">
             {/* <Link href="/users/signUp"> */}
             <a href="/users/index/signUp1" className="text-base text-gray-500">
-              {"<"}-- Back
+              &#x2190; Back
             </a>
             {/* </Link> */}
           </div>
