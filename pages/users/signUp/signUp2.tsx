@@ -3,10 +3,12 @@ import Button from "components/Button";
 import FormField from "components/FormField";
 import { UserRole, UserRoleConstants, UserRoleLabel } from "interfaces";
 import Joi from "joi";
+import { useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
 import { CreateUserDTO } from "pages/api/users";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import updateAction from "./updateAction";
 
 type UserSignUpForm2Values = {
   role: UserRole;
@@ -29,9 +31,10 @@ const UserSignUpPageTwo: React.FC = () => {
   const { errors, register, handleSubmit } = useForm<UserSignUpForm2Values>({
     resolver: joiResolver(UserSignUpForm2Schema),
   });
+  const { state, action } = useStateMachine(updateAction);
 
   async function onSubmit(
-    // values: UserSignUpForm2Values,
+    values: UserSignUpForm2Values,
     event?: React.BaseSyntheticEvent
   ): Promise<void> {
     event?.preventDefault();
@@ -39,20 +42,21 @@ const UserSignUpPageTwo: React.FC = () => {
       return;
     }
     try {
+      action(values);
       const response = await fetch("/api/users/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          // email: values.email,
-          // name: `${values.firstName} ${values.lastName}`,
-          // phoneNumber: values.phoneNumber,
+          email: state.userData.email,
+          name: `${state.userData.firstName} ${state.userData.lastName}`,
+          phoneNumber: state.userData.phoneNumber,
         } as CreateUserDTO),
       });
       if (!response.ok) {
         throw await response.json();
       }
-      router.push("/admin/invite?success=true", "/admin/invite");
+      router.push("/users/signUpConfirmation");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -75,6 +79,7 @@ const UserSignUpPageTwo: React.FC = () => {
                   id={role}
                   value={role}
                   ref={register}
+                  // defaultValue={state.userData.role}
                 />
                 {UserRoleLabel[role]}
               </label>
@@ -85,16 +90,28 @@ const UserSignUpPageTwo: React.FC = () => {
             name="adminNote"
             error={errors.adminNote?.message}
           >
+            <p className="text-xs mb-3">
+              Recommended for parents and donors just so we know for sure who
+              you are!
+            </p>
             <input
               type="text"
               className="input input-full"
               name="adminNote"
               placeholder="Briefly describe your involvment in Oakland Genisis Soccer Club"
               ref={register}
+              // defaultValue={state.userData.adminNote}
             />
           </FormField>
         </fieldset>
-        <div className="mt-16 mb-32">
+        <div className="flex mt-24 mb-32 justify-between align-middle">
+          <div className="mb-2 flex ">
+            {/* <Link href="/users/signUp"> */}
+            <a href="/users/signUp" className="text-base text-gray-500">
+              &#x2190; Back
+            </a>
+            {/* </Link> */}
+          </div>
           <div className="mb-2 flex justify-end">
             <Button className="button-primary px-10 py-2" type="submit">
               Request Account

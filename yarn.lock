@@ -4527,6 +4527,11 @@ listr2@^2.6.0:
     rxjs "^6.6.2"
     through "^2.3.8"
 
+little-state-machine@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/little-state-machine/-/little-state-machine-3.1.2.tgz#4f2742db028787e4ae353150be2864873fed384a"
+  integrity sha512-vHbZRyYSMgefIzISJWbSbbdKZZVTSdOi+DiUfk4Z8jM+mL2LKsY46perBsjNmkmO5Cq2jFG541bHvCXf9kWDqg==
+
 load-json-file@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/load-json-file/-/load-json-file-2.0.0.tgz#7947e42149af80d696cbf797bcaabcfe1fe29ca8"

@@ -4,12 +4,31 @@ import FormField from "components/FormField";
 import UserSignUpFormField from "components/UserSignUpFormField";
 import { UserRole, UserRoleConstants, UserRoleLabel } from "interfaces";
 import Joi from "joi";
+import {
+  createStore,
+  StateMachineProvider,
+  useStateMachine,
+} from "little-state-machine";
 import { useRouter } from "next/router";
 import { CreateUserDTO } from "pages/api/users";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import updateAction from "./updateAction";
 
-type UserSignUpFormValues = {
+createStore({
+  userData: {
+    firstName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+    password: "",
+    role: null,
+    adminNote: "",
+  },
+});
+console.log("creating store");
+
+export type UserSignUpFormValues = {
   firstName: string;
   lastName: string;
   email: string;
@@ -44,7 +63,9 @@ const UserSignUpPageOne: React.FC = () => {
   const { errors, register, handleSubmit } = useForm<UserSignUpFormValues>({
     resolver: joiResolver(UserSignUpFormSchema),
   });
+  const { action, state } = useStateMachine(updateAction);
 
+  console.log(state);
   async function onSubmit(
     values: UserSignUpFormValues,
     event?: React.BaseSyntheticEvent
@@ -54,21 +75,8 @@ const UserSignUpPageOne: React.FC = () => {
       return;
     }
     try {
-      const response = await fetch("/api/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          name: `${values.firstName} ${values.lastName}`,
-          email: values.email,
-          password: values.password,
-          phoneNumber: values.phoneNumber,
-        } as CreateUserDTO),
-      });
-      if (!response.ok) {
-        throw await response.json();
-      }
-      router.push("/users/signUpConfirmation");
+      action(values);
+      router.push("/users/signUp/signUp2");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -81,106 +89,112 @@ const UserSignUpPageOne: React.FC = () => {
   };
 
   return (
-    <div className="form flex ml-20 mt-10 mr-32 flex-col">
-      <p className="pt-6 text-2xl h-16">Create your account</p>
-      <form className="mt-10" onSubmit={handleSubmit(onSubmit)}>
-        <fieldset>
-          <div className="flex mr-32">
-            <UserSignUpFormField
-              label="First Name"
-              name="firstName"
-              error={errors.firstName?.message}
-            >
-              <input
-                type="text"
-                className="input "
+    <StateMachineProvider>
+      <div className="form flex ml-20 mt-10 mr-32 flex-col">
+        <p className="pt-6 text-2xl h-16">Create your account</p>
+        <form className="mt-10" onSubmit={handleSubmit(onSubmit)}>
+          <fieldset>
+            <div className="flex mr-32">
+              <UserSignUpFormField
+                label="First Name"
                 name="firstName"
-                placeholder="e.g., Cristiano"
-                ref={register}
-              />
-            </UserSignUpFormField>
-            <UserSignUpFormField
-              label="Last Name"
-              name="lastName"
-              error={errors.lastName?.message}
-            >
-              <input
-                type="text"
-                className="input "
-                name="lastName"
-                placeholder="e.g., Ronaldo"
-                ref={register}
-              />
-            </UserSignUpFormField>
-          </div>
-          <div className="flex mr-32">
-            <UserSignUpFormField
-              label="Email Address"
-              name="email"
-              error={errors.email?.message}
-            >
-              <input
-                type="text"
-                className="input "
-                name="email"
-                placeholder="e.g., soccer@fifa.com"
-                ref={register}
-              />
-            </UserSignUpFormField>
-            <UserSignUpFormField
-              label="Phone Number"
-              name="phoneNumber"
-              error={errors.phoneNumber?.message}
-            >
-              <input
-                type="text"
-                className="input"
-                name="phoneNumber"
-                placeholder="e.g., 123-456-7890"
-                ref={register}
-              />
-            </UserSignUpFormField>
-          </div>
-          <UserSignUpFormField
-            label="Password"
-            name="password"
-            error={errors.password?.message}
-          >
-            <input
-              type={revealPassword ? "password" : "text"}
-              className="input input-full"
-              name="password"
-              placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;"
-              ref={register}
-            />
-            <button
-              className="text-sm text-gray-500"
-              type="button"
-              onClick={togglePassword}
-            >
-              {revealPassword ? "Show password" : "Hide password"}
-            </button>
-          </UserSignUpFormField>
-          <div className="flex mt-24 mb-32 justify-between align-middle">
-            {/* TODO: link user login page */}
-            <p className="text-base">
-              Already have an account? <b>Login here.</b>
-            </p>
-            <div className="mb-2 flex ">
-              {/* <Link href="/users/signUp2"> */}
-              <Button
-                className="button-primary text-base px-10 py-2 "
-                type="submit"
+                error={errors.firstName?.message}
               >
-                Next step &#x2192;
-              </Button>
-              {/* </Link> */}
+                <input
+                  type="text"
+                  className="input "
+                  name="firstName"
+                  placeholder="e.g., Cristiano"
+                  ref={register}
+                  // defaultValue={state.userData.firstName}
+                />
+              </UserSignUpFormField>
+              <UserSignUpFormField
+                label="Last Name"
+                name="lastName"
+                error={errors.lastName?.message}
+              >
+                <input
+                  type="text"
+                  className="input "
+                  name="lastName"
+                  placeholder="e.g., Ronaldo"
+                  ref={register}
+                  // defaultValue={state.userData.lastName}
+                />
+              </UserSignUpFormField>
             </div>
-            {error && <p className="text-red-600 text-sm">{error}</p>}
-          </div>
-          <hr />
+            <div className="flex mr-32">
+              <UserSignUpFormField
+                label="Email Address"
+                name="email"
+                error={errors.email?.message}
+              >
+                <input
+                  type="text"
+                  className="input "
+                  name="email"
+                  placeholder="e.g., soccer@fifa.com"
+                  ref={register}
+                  // defaultValue={state.userData.email}
+                />
+              </UserSignUpFormField>
+              <UserSignUpFormField
+                label="Phone Number"
+                name="phoneNumber"
+                error={errors.phoneNumber?.message}
+              >
+                <input
+                  type="text"
+                  className="input"
+                  name="phoneNumber"
+                  placeholder="e.g., 123-456-7890"
+                  ref={register}
+                  // defaultValue={state.userData.phoneNumber}
+                />
+              </UserSignUpFormField>
+            </div>
+            <UserSignUpFormField
+              label="Password"
+              name="password"
+              error={errors.password?.message}
+            >
+              <input
+                type={revealPassword ? "password" : "text"}
+                className="input input-full"
+                name="password"
+                placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;"
+                ref={register}
+                // defaultValue={state.userData.password}
+              />
+              <button
+                className="text-sm text-gray-500"
+                type="button"
+                onClick={togglePassword}
+              >
+                {revealPassword ? "Show password" : "Hide password"}
+              </button>
+            </UserSignUpFormField>
+            <div className="flex mt-24 mb-32 justify-between align-middle">
+              {/* TODO: link user login page */}
+              <p className="text-base">
+                Already have an account? <b>Login here.</b>
+              </p>
+              <div className="mb-2 flex ">
+                {/* <Link href="/users/signUp2"> */}
+                <Button
+                  className="button-primary text-base px-10 py-2 "
+                  type="submit"
+                >
+                  Next step &#x2192;
+                </Button>
+                {/* </Link> */}
+              </div>
+              {error && <p className="text-red-600 text-sm">{error}</p>}
+            </div>
+            <hr />
 
-          <FormField label="Role" name="role" error={errors.role?.message}>
+            {/* <FormField label="Role" name="role" error={errors.role?.message}>
             {UserRoleConstants.map((role: UserRole) => (
               <label className="block font-normal" htmlFor={role}>
                 <input
@@ -190,6 +204,7 @@ const UserSignUpPageOne: React.FC = () => {
                   id={role}
                   value={role}
                   ref={register}
+                  // defaultValue={state.userData.role}
                 />
                 {UserRoleLabel[role]}
               </label>
@@ -210,26 +225,17 @@ const UserSignUpPageOne: React.FC = () => {
               name="adminNote"
               placeholder="Briefly describe your involvment in Oakland Genisis Soccer Club"
               ref={register}
+              // defaultValue={state.userData.adminNote}
             />
           </FormField>
         </fieldset>
 
         <div className="flex mt-24 mb-32 justify-between align-middle">
           <div className="mb-2 flex ">
-            {/* <Link href="/users/signUp"> */}
-            <a href="/users/index/signUp1" className="text-base text-gray-500">
+            <a href="/users/signUp" className="text-base text-gray-500">
               &#x2190; Back
             </a>
-            {/* </Link> */}
           </div>
-          <div className="mb-2 flex justify-end">
-            <Button className="button-primary px-10 py-2" type="submit">
-              Request Account
-            </Button>
-          </div>
-          {error && <p className="text-red-600 text-sm">{error}</p>}
-        </div>
-        {/* <div className="mt-16 mb-32">
           <div className="mb-2 flex justify-end">
             <Button className="button-primary px-10 py-2" type="submit">
               Request Account
@@ -237,8 +243,10 @@ const UserSignUpPageOne: React.FC = () => {
           </div>
           {error && <p className="text-red-600 text-sm">{error}</p>}
         </div> */}
-      </form>
-    </div>
+          </fieldset>
+        </form>
+      </div>
+    </StateMachineProvider>
   );
 };
 
