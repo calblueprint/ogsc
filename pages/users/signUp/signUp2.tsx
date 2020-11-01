@@ -20,7 +20,7 @@ const UserSignUpForm2Schema = Joi.object<UserSignUpForm2Values>({
   adminNote: Joi.string(),
 });
 
-const UserSignUp2Page: React.FC = () => {
+const UserSignUpPageTwo: React.FC = () => {
   const router = useRouter();
 
   // TODO: Add loading state to form submission
@@ -107,4 +107,4 @@ const UserSignUp2Page: React.FC = () => {
   );
 };
 
-export default UserSignUp2Page;
+export default UserSignUpPageTwo;

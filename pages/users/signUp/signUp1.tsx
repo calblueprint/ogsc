@@ -34,12 +34,13 @@ const UserSignUpFormSchema = Joi.object<UserSignUpFormValues>({
   adminNote: Joi.string().optional(),
 });
 
-const UserSignUpPage: React.FC = () => {
+const UserSignUpPageOne: React.FC = () => {
   const router = useRouter();
 
   // TODO: Add loading state to form submission
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [revealPassword, setRevealPassword] = useState(false);
   const { errors, register, handleSubmit } = useForm<UserSignUpFormValues>({
     resolver: joiResolver(UserSignUpFormSchema),
   });
@@ -74,6 +75,10 @@ const UserSignUpPage: React.FC = () => {
       setSubmitting(false);
     }
   }
+
+  const togglePassword = (): void => {
+    setRevealPassword(!revealPassword);
+  };
 
   return (
     <div className="form flex ml-20 mt-10 mr-32 flex-col">
@@ -142,12 +147,19 @@ const UserSignUpPage: React.FC = () => {
             error={errors.password?.message}
           >
             <input
-              type="password"
+              type={revealPassword ? "password" : "text"}
               className="input input-full"
               name="password"
               placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;"
               ref={register}
             />
+            <button
+              className="text-sm text-gray-500"
+              type="button"
+              onClick={togglePassword}
+            >
+              {revealPassword ? "Show password" : "Hide password"}
+            </button>
           </UserSignUpFormField>
           <div className="flex mt-24 mb-32 justify-between align-middle">
             {/* TODO: link user login page */}
@@ -205,7 +217,7 @@ const UserSignUpPage: React.FC = () => {
         <div className="flex mt-24 mb-32 justify-between align-middle">
           <div className="mb-2 flex ">
             {/* <Link href="/users/signUp"> */}
-            <a href="/users/signUp" className="text-base text-gray-500">
+            <a href="/users/index/signUp1" className="text-base text-gray-500">
               {"<"}-- Back
             </a>
             {/* </Link> */}
@@ -230,4 +242,4 @@ const UserSignUpPage: React.FC = () => {
   );
 };
 
-export default UserSignUpPage;
+export default UserSignUpPageOne;
