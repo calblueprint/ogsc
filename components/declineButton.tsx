@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-comment-textnodes */
 /* eslint-disable react/button-has-type */
-const deleteButton: React.FunctionComponent = () => (
+const DeclineButton: React.FunctionComponent = () => (
   // eslint-disable-next-line react/jsx-no-comment-textnodes
   <div className="flex space-x-4">
     <div>
@@ -8,11 +8,6 @@ const deleteButton: React.FunctionComponent = () => (
         Decline
       </button>{" "}
     </div>
-    <div>
-      <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-        Accept
-      </button>
-    </div>
   </div>
 );
-export default deleteButton;
+export default DeclineButton;
