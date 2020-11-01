@@ -3,27 +3,11 @@ import Button from "components/Button";
 import UserSignUpFormField from "components/UserSignUpFormField";
 import { UserRole, UserRoleConstants } from "interfaces";
 import Joi from "joi";
-import {
-  createStore,
-  StateMachineProvider,
-  useStateMachine,
-} from "little-state-machine";
+import { StateMachineProvider, useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import updateAction from "./updateAction";
-
-createStore({
-  userData: {
-    firstName: "",
-    lastName: "",
-    email: "",
-    phoneNumber: "",
-    password: "",
-    role: null,
-    adminNote: "",
-  },
-});
 
 export type UserSignUpFormValues = {
   firstName: string;

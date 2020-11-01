@@ -4,7 +4,7 @@ import {
   UserRole,
   UserRoleConstants,
 } from "interfaces";
-import { StateMachineProvider } from "little-state-machine";
+import { createStore, StateMachineProvider } from "little-state-machine";
 import { useSession } from "next-auth/client";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
@@ -43,6 +43,18 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
       user ? { user, sessionType: chooseDefaultRoleType(user) } : { user },
     [user]
   );
+  const store = createStore({
+    userData: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phoneNumber: "",
+      password: "",
+      role: null,
+      adminNote: "",
+    },
+    // Add another struct specific for your use case here for state management
+  });
 
   useEffect(() => {
     async function getUser(): Promise<void> {
@@ -76,7 +88,7 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
     return null;
   }
   return (
-    <StateMachineProvider>
+    <StateMachineProvider store={store}>
       <AuthContext.Provider
         value={
           // TODO: When sessionType switching is supported, this should be a stateful value
