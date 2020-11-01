@@ -4,6 +4,7 @@ import {
   UserRole,
   UserRoleConstants,
 } from "interfaces";
+import { StateMachineProvider } from "little-state-machine";
 import { useSession } from "next-auth/client";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
@@ -64,21 +65,27 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
   }, [accessingAuthenticatedRoute, loadingSession, router, session]);
 
   if (!accessingAuthenticatedRoute) {
-    return <Component {...pageProps} />;
+    return (
+      <StateMachineProvider>
+        <Component {...pageProps} />
+      </StateMachineProvider>
+    );
   }
   if (!sessionInfo.user) {
     // TODO: Add shimmer loading skeleton
     return null;
   }
   return (
-    <AuthContext.Provider
-      value={
-        // TODO: When sessionType switching is supported, this should be a stateful value
-        sessionInfo
-      }
-    >
-      <Component {...pageProps} />
-    </AuthContext.Provider>
+    <StateMachineProvider>
+      <AuthContext.Provider
+        value={
+          // TODO: When sessionType switching is supported, this should be a stateful value
+          sessionInfo
+        }
+      >
+        <Component {...pageProps} />
+      </AuthContext.Provider>
+    </StateMachineProvider>
   );
 };
 
