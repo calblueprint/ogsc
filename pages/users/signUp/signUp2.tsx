@@ -8,7 +8,7 @@ import { useRouter } from "next/router";
 import { CreateUserDTO } from "pages/api/users";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import updateAction from "./updateAction";
+import updateAction from "utils/updateAction";
 
 type UserSignUpForm2Values = {
   role: UserRole;

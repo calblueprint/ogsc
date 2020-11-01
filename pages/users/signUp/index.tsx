@@ -7,7 +7,7 @@ import { StateMachineProvider, useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import updateAction from "./updateAction";
+import updateAction from "utils/updateAction";
 
 export type UserSignUpFormValues = {
   firstName: string;

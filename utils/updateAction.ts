@@ -1,4 +1,4 @@
-import type { UserSignUpFormValues } from ".";
+import type { UserSignUpFormValues } from "../pages/users/signUp";
 
 export default function updateAction(
   state: { userData: UserSignUpFormValues },
