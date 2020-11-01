@@ -156,7 +156,7 @@ const UserSignUpPageOne: React.FC = () => {
               error={errors.password?.message}
             >
               <input
-                type={revealPassword ? "password" : "text"}
+                type={revealPassword ? "text" : "password"}
                 className="input input-full"
                 name="password"
                 placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;"
@@ -168,7 +168,7 @@ const UserSignUpPageOne: React.FC = () => {
                 type="button"
                 onClick={togglePassword}
               >
-                {revealPassword ? "Show password" : "Hide password"}
+                {revealPassword ? "Hide password" : "Show password"}
               </button>
             </UserSignUpFormField>
             <div className="flex mt-24 mb-32 justify-between align-middle">
