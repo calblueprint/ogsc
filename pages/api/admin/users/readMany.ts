@@ -4,7 +4,7 @@ import sanitizeUser from "utils/sanitizeUser";
 
 const prisma = new PrismaClient();
 
-const USER_PAGE_SIZE = 20;
+export const USER_PAGE_SIZE = 21;
 
 export default async (
   req: NextApiRequest,
