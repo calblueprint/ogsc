@@ -1,20 +1,45 @@
 import DashboardLayout from "components/DashboardLayout";
 import { useEffect, useState } from "react";
 
-const UserDashboardItem: React.FunctionComponent = ({
+const UI_PAGE_SIZE = 7;
+const BACKEND_PAGE_SIZE = 21;
+
+const getBackendPageNumber = (uiPage: number): number[] => {
+  const pageNum = Math.floor((uiPage * UI_PAGE_SIZE) / BACKEND_PAGE_SIZE);
+  const startIndex = UI_PAGE_SIZE * (uiPage % 3);
+  return [pageNum, startIndex];
+};
+
+interface User {
+  name: string;
+  email: string;
+  image: string;
+  phoneNumber: string;
+}
+
+const UserDashboardItem: React.FunctionComponent<User> = ({
   name,
   email,
   image,
-  phone,
+  phoneNumber,
 }) => {
   return (
     <div>
-      <div className="flex flex-row justify-between text-sm text-center">
-        <img src={image} alt="" />
-        <p>{name}</p>
-        <p>User Role</p>
-        <p>{email}</p>
-        <p>{phone}</p>
+      <div className="flex flex-row justify-between text-sm h-16 items-center">
+        <div className="flex flex-row justify-between">
+          <div className="w-10 h-10 mr-4 bg-placeholder rounded-full">
+            <img src={image} alt="" />{" "}
+            {/* Not being used right now because seed data doesn't have images */}
+          </div>
+          <div className="w-32">
+            <p className="font-display">{name}</p>
+            <p>User Role</p>
+          </div>
+        </div>
+        <div className="w-56">
+          <p>{email}</p>
+        </div>
+        <p>{phoneNumber}</p>
       </div>
       <hr className="border-unselected border-opacity-50" />
     </div>
@@ -22,7 +47,8 @@ const UserDashboardItem: React.FunctionComponent = ({
 };
 
 const UserDashboard: React.FunctionComponent = () => {
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<User[]>();
+  const [index, setIndex] = useState(0);
 
   const getUsers = async (pageNumber: number): Promise<void> => {
     try {
@@ -38,26 +64,27 @@ const UserDashboard: React.FunctionComponent = () => {
       throw new Error(err.message);
     }
   };
-  const pages = 1;
+  const uiPage = 0;
   useEffect(() => {
-    getUsers(pages);
-  }, [pages]);
+    const [backendPage, startIndex] = getBackendPageNumber(uiPage);
+    getUsers(backendPage);
+    setIndex(startIndex);
+  }, [uiPage]);
   return (
     <div>
-      <div className="flex flex-row justify-between text-sm text-center">
+      <div className="flex flex-row justify-between text-sm text-center text-unselected tracking-wide">
         <p>Name</p>
         <p>Email</p>
         <p>Phone</p>
       </div>
       <hr className="border-unselected border-opacity-50" />
-      {/* {UserDashboardItem({})} */}
       <img src="" alt="" />
-      {users.map((user) => (
+      {users?.slice(index, index + UI_PAGE_SIZE).map((user) => (
         <UserDashboardItem
           name={user.name}
           email={user.email}
           image={user.image}
-          phone={user.phoneNumber}
+          phoneNumber={user.phoneNumber}
         />
       ))}
     </div>
@@ -102,9 +129,7 @@ const AdminView: React.FunctionComponent = () => (
   <DashboardLayout>
     <div className="flex mt-20 flex-wrap space-y-6 flex-col mx-16">
       <div className="header flex">
-        <div className="player-info grid grid-rows-1">
-          <p className="pt-6 text-3xl font-display font-medium">All Users</p>
-        </div>
+        <p className="pt-4 text-2xl font-display font-medium">All Users</p>
       </div>
       {AdminNavbar({})}
       <hr className="border-unselected border-opacity-50" />
