@@ -18,8 +18,8 @@ type UserSignUpForm2Values = {
 const UserSignUpForm2Schema = Joi.object<UserSignUpForm2Values>({
   role: Joi.string()
     .valid(...UserRoleConstants)
-    .required(),
-  adminNote: Joi.string(),
+    .optional(),
+  adminNote: Joi.string().optional(),
 });
 
 const UserSignUpPageTwo: React.FC = () => {
@@ -51,12 +51,13 @@ const UserSignUpPageTwo: React.FC = () => {
           email: state.userData.email,
           name: `${state.userData.firstName} ${state.userData.lastName}`,
           phoneNumber: state.userData.phoneNumber,
+          password: state.userData.password,
         } as CreateUserDTO),
       });
       if (!response.ok) {
         throw await response.json();
       }
-      router.push("/users/signUpConfirmation");
+      router.push("/users/signUp/signUpConfirmation");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -79,7 +80,7 @@ const UserSignUpPageTwo: React.FC = () => {
                   id={role}
                   value={role}
                   ref={register}
-                  // defaultValue={state.userData.role}
+                  defaultValue={state.userData.role}
                 />
                 {UserRoleLabel[role]}
               </label>
@@ -100,17 +101,20 @@ const UserSignUpPageTwo: React.FC = () => {
               name="adminNote"
               placeholder="Briefly describe your involvment in Oakland Genisis Soccer Club"
               ref={register}
-              // defaultValue={state.userData.adminNote}
+              defaultValue={state.userData.adminNote}
             />
           </FormField>
         </fieldset>
         <div className="flex mt-24 mb-32 justify-between align-middle">
           <div className="mb-2 flex ">
-            {/* <Link href="/users/signUp"> */}
-            <a href="/users/signUp" className="text-base text-gray-500">
+            <Button
+              className="button-normal px-10 py-2"
+              onClick={() => {
+                router.push("/users/signUp");
+              }}
+            >
               &#x2190; Back
-            </a>
-            {/* </Link> */}
+            </Button>
           </div>
           <div className="mb-2 flex justify-end">
             <Button className="button-primary px-10 py-2" type="submit">

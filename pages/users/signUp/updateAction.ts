@@ -1,4 +1,4 @@
-import type { UserSignUpFormValues } from "./signUp1";
+import type { UserSignUpFormValues } from ".";
 
 export default function updateAction(
   state: { userData: UserSignUpFormValues },
