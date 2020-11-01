@@ -8,7 +8,7 @@ import { useRouter } from "next/router";
 import { CreateUserDTO } from "pages/api/users";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import updateAction from "./updateAction";
+import updateAction from "utils/updateAction";
 
 type UserSignUpForm2Values = {
   role: UserRole;
@@ -59,6 +59,7 @@ const UserSignUpPageTwo: React.FC = () => {
       }
       router.push("/users/signUp/signUpConfirmation");
     } catch (err) {
+      // TODO: better error handling (especially for duplicate email)
       setError(err.message);
     } finally {
       setSubmitting(false);
