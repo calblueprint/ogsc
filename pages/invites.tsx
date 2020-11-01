@@ -1,6 +1,4 @@
-//  import DashboardLayout from "components/DashboardLayout";
 import { useEffect, useState } from "react";
-// import deleteAcceptButton from "pages/declineButton";
 import DeclineButton from "components/declineButton";
 import AcceptButton from "components/acceptButton";
 
@@ -12,10 +10,10 @@ const UserRequestDashboardItem: React.FunctionComponent<User> = ({
   return (
     <div className="d-flex flex-row">
       <div className="flex flex-row justify-between text-sm text-center">
-        <div className="d-flex flex-row">{name}</div>
-        <div className="d-flex flex-row">{email}</div>
-        <div className="d-flex flex-row">{phoneNumber}</div>
-        <div className="d-flex flex-column">
+        <div className="d-flex flex-column">{name}</div>
+        <div className="d-flex flex-column">{email}</div>
+        <div className="d-flex flex-column">{phoneNumber}</div>
+        <div className="flex flex-column">
           <DeclineButton />
         </div>
         <div className="d-flex flex-column">
@@ -56,9 +54,9 @@ const UserDashboard: React.FunctionComponent = () => {
   }, [pages]);
   return (
     <div>
-      <div className="flex flex-row justify-between text-sm text-center">
+      <div className="flex flex-row justify-between">
         <p>Name</p>
-        <p>Email</p>
+        <div className="flex flex-column">Email</div>
         <p>Phone</p>
       </div>
       <hr className="border-unselected border-opacity-50" />
@@ -78,6 +76,7 @@ const UserDashboard: React.FunctionComponent = () => {
 
 const AdminNavbar: React.FunctionComponent = () => {
   const [title, setTitle] = useState("All Users");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const Button = (category: string): unknown => {
     return (
       <button
@@ -95,33 +94,18 @@ const AdminNavbar: React.FunctionComponent = () => {
       </button>
     );
   };
-  return (
-    <div>
-      <div className="flex flex-row justify-between text-sm text-center">
-        {Button("All Roles")}
-        {Button("Admin")}
-        {Button("Players")}
-        {Button("Mentors")}
-        {Button("Donors")}
-        {Button("Parents")}
-      </div>
-      {/* TODO: Need to add dashboard components corresponding to each tab here */}
-    </div>
-  );
 };
 
 const AdminView: React.FunctionComponent = () => (
-  // <DashboardLayout>
   <div className="flex mt-20 flex-wrap space-y-6 flex-col mx-16">
     <div className="header flex">
       <div className="player-info grid grid-rows-1">
-        <p className="pt-6 text-3xl font-display font-medium">All Users</p>
+        <p className="pt-6 text-3xl font-display font-medium">User Requests</p>
       </div>
     </div>
     {AdminNavbar({})}
     <hr className="border-unselected border-opacity-50" />
     {UserDashboard({})}
   </div>
-  // </DashboardLayout>
 );
 export default AdminView;
