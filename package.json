@@ -30,6 +30,7 @@
     "db-migrate-base": "^2.3.0",
     "faker": "^5.1.0",
     "joi": "^17.2.1",
+    "little-state-machine": "^3.1.2",
     "next": "9.5.3",
     "next-auth": "^3.1.0",
     "ora": "^5.1.0",
