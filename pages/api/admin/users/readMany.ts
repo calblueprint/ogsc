@@ -1,10 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import sanitizeUser from "utils/sanitizeUser";
+import { USER_PAGE_SIZE } from "../../../../constants";
 
 const prisma = new PrismaClient();
-
-export const USER_PAGE_SIZE = 21;
 
 export default async (
   req: NextApiRequest,
@@ -13,8 +12,8 @@ export default async (
   const pageNumber: number = Number(req.query.pageNumber) || 0;
   try {
     const user = await prisma.user.findMany({
-      skip: USER_PAGE_SIZE * pageNumber,
-      take: USER_PAGE_SIZE,
+      skip: Number(USER_PAGE_SIZE) * pageNumber,
+      take: Number(USER_PAGE_SIZE),
     });
 
     if (!user) {

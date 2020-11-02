@@ -1,4 +1,13 @@
 import { useState, useEffect } from "react";
+import { USER_PAGE_SIZE } from "../constants";
+
+const UI_PAGE_SIZE = 7;
+
+const getBackendPageNumber = (uiPage: number): number[] => {
+  const pageNum = Math.floor((uiPage * UI_PAGE_SIZE) / USER_PAGE_SIZE);
+  const startIndex = UI_PAGE_SIZE * (uiPage % 3);
+  return [pageNum, startIndex];
+};
 
 interface User {
   name: string;
@@ -38,14 +47,18 @@ const UserDashboardItem: React.FunctionComponent<User> = ({
 
 const UserDashboard: React.FunctionComponent = () => {
   const [users, setUsers] = useState<User[]>();
+  const [index, setIndex] = useState(0);
 
-  const getUsers = async (): Promise<void> => {
+  const getUsers = async (pageNumber: number): Promise<void> => {
     try {
-      const response = await fetch("http://localhost:3000/api/admin/users", {
-        method: "GET",
-        headers: { "content-type": "application/json" },
-        redirect: "follow",
-      });
+      const response = await fetch(
+        `http://localhost:3000/api/admin/users?pageNumber=${pageNumber}`,
+        {
+          method: "GET",
+          headers: { "content-type": "application/json" },
+          redirect: "follow",
+        }
+      );
       const data = await response.json();
       setUsers(data.users);
     } catch (err) {
@@ -53,9 +66,12 @@ const UserDashboard: React.FunctionComponent = () => {
     }
   };
 
+  const uiPage = 0;
   useEffect(() => {
-    getUsers();
-  }, []);
+    const [backendPage, startIndex] = getBackendPageNumber(uiPage);
+    getUsers(backendPage);
+    setIndex(startIndex);
+  }, [uiPage]);
   return (
     <div>
       <div className="flex flex-row justify-between text-sm text-center text-unselected tracking-wide">
@@ -65,7 +81,7 @@ const UserDashboard: React.FunctionComponent = () => {
       </div>
       <hr className="border-unselected border-opacity-50" />
       <img src="" alt="" />
-      {users?.slice(0, 7).map((user) => (
+      {users?.slice(index, index + UI_PAGE_SIZE).map((user) => (
         <UserDashboardItem
           name={user.name}
           email={user.email}
