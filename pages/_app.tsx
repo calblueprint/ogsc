@@ -25,7 +25,7 @@ function chooseDefaultRoleType(user: SessionInfo["user"]): UserRole {
   if (user?.viewerPermissions.length > 0) {
     return "mentor";
   }
-  if (user?.player) {
+  if (user?.profile) {
     return "player";
   }
   return "donor";

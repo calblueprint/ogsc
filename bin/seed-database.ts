@@ -143,6 +143,7 @@ export default async function seedDatabase(): Promise<void> {
               ),
               ...generateFieldsAcrossTimestamps(ProfileFieldKey.GPA, () =>
                 Faker.random.float({
+                  min: 2,
                   max: 4,
                   precision: 0.01,
                 })
@@ -161,7 +162,7 @@ export default async function seedDatabase(): Promise<void> {
                   `${Faker.random.number({
                     min: 4,
                     max: 8,
-                  })}:${String(Faker.random.number({ max: 60 })).padStart(
+                  })}:${String(Faker.random.number({ max: 59 })).padStart(
                     2,
                     "0"
                   )}`
