@@ -1,7 +1,5 @@
 // eslint-disable-next-line import/no-duplicates
-import { PrismaClient } from "@prisma/client";
-// eslint-disable-next-line import/no-duplicates
-import { User } from "@prisma/client";
+import { PrismaClient, User } from "@prisma/client";
 
 const prisma = new PrismaClient();
 

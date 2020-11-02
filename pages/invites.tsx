@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import DeclineButton from "components/declineButton";
 import AcceptButton from "components/acceptButton";
 
-const UserRequestDashboardItem: React.FunctionComponent<User> = ({
+const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
   name,
   email,
   phoneNumber,
@@ -10,13 +10,13 @@ const UserRequestDashboardItem: React.FunctionComponent<User> = ({
   return (
     <div className="d-flex flex-row">
       <div className="flex flex-row justify-between text-sm text-center">
-        <div className="d-flex flex-column">{name}</div>
-        <div className="d-flex flex-column">{email}</div>
-        <div className="d-flex flex-column">{phoneNumber}</div>
-        <div className="flex flex-column">
+        <div className="d-flex flex-row">{name}</div>
+        <div className="d-flex flex-row">{email}</div>
+        <div className="d-flex flex-row">{phoneNumber}</div>
+        <div className="d-flex flex-column">
           <DeclineButton />
         </div>
-        <div className="d-flex flex-column">
+        <div className="flex flex-row justify-between">
           <AcceptButton />
         </div>
       </div>
@@ -24,7 +24,7 @@ const UserRequestDashboardItem: React.FunctionComponent<User> = ({
     </div>
   );
 };
-interface User {
+interface UserRequest {
   name: string;
   email: string;
   image: string;
@@ -32,7 +32,7 @@ interface User {
 }
 
 const UserDashboard: React.FunctionComponent = () => {
-  const [users, setUsers] = useState<User[]>();
+  const [users, setUsers] = useState<UserRequest[]>();
 
   const getUsers = async (pageNumber: number): Promise<void> => {
     try {
@@ -54,9 +54,9 @@ const UserDashboard: React.FunctionComponent = () => {
   }, [pages]);
   return (
     <div>
-      <div className="flex flex-row justify-between">
+      <div className="flex flex-column justify-between">
         <p>Name</p>
-        <div className="flex flex-column">Email</div>
+        <div className="d-flex flex-row">Email</div>
         <p>Phone</p>
       </div>
       <hr className="border-unselected border-opacity-50" />
