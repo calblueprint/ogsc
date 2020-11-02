@@ -51,27 +51,28 @@ export enum ProfileFieldValue {
   TimeElapsed = "time_elapsed",
 }
 
-export type ProfileFieldValues = {
-  [ProfileFieldKey.AcademicEngagementScore]: ProfileFieldValue.Integer;
-  [ProfileFieldKey.AdvisingScore]: ProfileFieldValue.Integer;
-  [ProfileFieldKey.AthleticScore]: ProfileFieldValue.Integer;
-  [ProfileFieldKey.BioAboutMe]: ProfileFieldValue.Text;
-  [ProfileFieldKey.BioFavorites]: ProfileFieldValue.Text;
-  [ProfileFieldKey.BioHobbies]: ProfileFieldValue.Text;
-  [ProfileFieldKey.BioMostDifficultSubject]: ProfileFieldValue.Text;
-  [ProfileFieldKey.BioParents]: ProfileFieldValue.Text;
-  [ProfileFieldKey.BioSiblings]: ProfileFieldValue.Text;
-  [ProfileFieldKey.BMI]: ProfileFieldValue.Float;
-  [ProfileFieldKey.DisciplinaryActions]: ProfileFieldValue.Text;
-  [ProfileFieldKey.GPA]: ProfileFieldValue.Float;
-  [ProfileFieldKey.HealthAndWellness]: ProfileFieldValue.Text;
-  [ProfileFieldKey.Highlights]: ProfileFieldValue.URL;
-  [ProfileFieldKey.MileTime]: ProfileFieldValue.TimeElapsed;
-  [ProfileFieldKey.PacerTest]: ProfileFieldValue.Integer;
-  [ProfileFieldKey.PlayerNumber]: ProfileFieldValue.Text;
-  [ProfileFieldKey.Pushups]: ProfileFieldValue.Integer;
-  [ProfileFieldKey.Situps]: ProfileFieldValue.Integer;
+export const ProfileFieldValues = <const>{
+  [ProfileFieldKey.AcademicEngagementScore]: ProfileFieldValue.Integer,
+  [ProfileFieldKey.AdvisingScore]: ProfileFieldValue.Integer,
+  [ProfileFieldKey.AthleticScore]: ProfileFieldValue.Integer,
+  [ProfileFieldKey.BioAboutMe]: ProfileFieldValue.Text,
+  [ProfileFieldKey.BioFavorites]: ProfileFieldValue.Text,
+  [ProfileFieldKey.BioHobbies]: ProfileFieldValue.Text,
+  [ProfileFieldKey.BioMostDifficultSubject]: ProfileFieldValue.Text,
+  [ProfileFieldKey.BioParents]: ProfileFieldValue.Text,
+  [ProfileFieldKey.BioSiblings]: ProfileFieldValue.Text,
+  [ProfileFieldKey.BMI]: ProfileFieldValue.Float,
+  [ProfileFieldKey.DisciplinaryActions]: ProfileFieldValue.Text,
+  [ProfileFieldKey.GPA]: ProfileFieldValue.Float,
+  [ProfileFieldKey.HealthAndWellness]: ProfileFieldValue.Text,
+  [ProfileFieldKey.Highlights]: ProfileFieldValue.URL,
+  [ProfileFieldKey.MileTime]: ProfileFieldValue.TimeElapsed,
+  [ProfileFieldKey.PacerTest]: ProfileFieldValue.Integer,
+  [ProfileFieldKey.PlayerNumber]: ProfileFieldValue.Text,
+  [ProfileFieldKey.Pushups]: ProfileFieldValue.Integer,
+  [ProfileFieldKey.Situps]: ProfileFieldValue.Integer,
 };
+export type ProfileFieldValues = typeof ProfileFieldValues;
 
 export type ProfileFieldValueDeserializedTypes = {
   [ProfileFieldValue.Text]: string;

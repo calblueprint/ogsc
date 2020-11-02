@@ -1,5 +1,31 @@
 import { ProfileField, ProfileFieldKey, User } from "@prisma/client";
-import { PlayerProfile } from "interfaces";
+import {
+  PlayerProfile,
+  ProfileFieldValue,
+  ProfileFieldValueDeserializedTypes,
+  ProfileFieldValues,
+} from "interfaces";
+
+export const deserializeProfileFieldValue = <T extends ProfileField>(
+  field: T
+): ProfileFieldValueDeserializedTypes[ProfileFieldValues[T["key"]]] => {
+  switch (ProfileFieldValues[field.key]) {
+    case ProfileFieldValue.Float:
+      // Observe the TS error here:
+      return Number(field.value);
+    default:
+      return field.value;
+  }
+};
+
+// See the return type of test: this works!
+const test = deserializeProfileFieldValue({
+  id: 1,
+  userId: 1,
+  createdAt: new Date(),
+  key: ProfileFieldKey.GPA,
+  value: "3",
+});
 
 export default function buildUserProfile<
   T extends User & { profileFields: ProfileField[] }
