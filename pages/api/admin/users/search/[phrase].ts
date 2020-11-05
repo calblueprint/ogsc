@@ -4,8 +4,6 @@ import sanitizeUser from "utils/sanitizeUser";
 
 const prisma = new PrismaClient();
 
-export const USER_PAGE_SIZE = 21;
-
 export function titleCase(str: string): string {
   const string = str.toLowerCase().split(" ");
   for (let i = 0; i < string.length; i += 1) {
