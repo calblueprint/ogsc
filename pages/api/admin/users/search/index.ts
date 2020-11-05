@@ -1,10 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import sanitizeUser from "utils/sanitizeUser";
+import { USER_PAGE_SIZE } from "../readMany";
 
 const prisma = new PrismaClient();
-
-export const USER_PAGE_SIZE = 21;
 
 export default async (
   req: NextApiRequest,
