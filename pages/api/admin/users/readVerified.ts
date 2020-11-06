@@ -1,13 +1,10 @@
 import { PrismaClient } from "@prisma/client";
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextApiResponse } from "next";
 import sanitizeUser from "utils/sanitizeUser";
 
 const prisma = new PrismaClient();
 
-export default async (
-  req: NextApiRequest,
-  res: NextApiResponse
-): Promise<void> => {
+export default async (res: NextApiResponse): Promise<void> => {
   try {
     const user = await prisma.user.findMany({
       where: { emailVerified: null },
