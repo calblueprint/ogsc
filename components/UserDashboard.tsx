@@ -58,37 +58,42 @@ const UserDashboard: React.FunctionComponent = () => {
   const [index, setIndex] = useState(0);
   const [uiPage, setUIPage] = useState(0);
   const [numUIPages, setNumUIPages] = useState(0);
-
-  const getUsers = async (pageNumber: number): Promise<void> => {
-    try {
-      const response = await fetch(
-        `http://localhost:3000/api/admin/users?pageNumber=${pageNumber}`,
-        {
-          method: "GET",
-          headers: { "content-type": "application/json" },
-          redirect: "follow",
-        }
-      );
-      const data = await response.json();
-      setUsers(data.users);
-      setNumUIPages(Math.ceil(data.total / UI_PAGE_SIZE));
-    } catch (err) {
-      throw new Error(err.message);
-    }
-  };
+  const [pageCache, setPageCache] = useState<Record<number, User[]>>({});
 
   useEffect(() => {
+    const getUsers = async (pageNumber: number): Promise<void> => {
+      try {
+        if (pageNumber in pageCache) {
+          // Page already in cache; no need to make a request!
+          setUsers(pageCache[pageNumber]);
+        } else {
+          const response = await fetch(
+            `http://localhost:3000/api/admin/users?pageNumber=${pageNumber}`,
+            {
+              method: "GET",
+              headers: { "content-type": "application/json" },
+              redirect: "follow",
+            }
+          );
+          const data = await response.json();
+          setUsers(data.users);
+          setNumUIPages(Math.ceil(data.total / UI_PAGE_SIZE));
+          setPageCache({
+            ...pageCache,
+            [pageNumber]: data.users,
+          });
+        }
+      } catch (err) {
+        throw new Error(err.message);
+      }
+    };
     const updateUIPage = (): void => {
       const [backendPage, startIndex] = getBackendPageNumber(uiPage);
       setIndex(startIndex);
       getUsers(backendPage);
-      // if (index === 0) {
-      //   getUsers(backendPage);
-      //   pages.push.apply(pages, users);
-      // }
     };
     updateUIPage();
-  }, [uiPage]);
+  }, [uiPage, pageCache]);
   return (
     <div>
       <div className="flex flex-row justify-between text-sm text-center text-unselected tracking-wide">
