@@ -4,6 +4,7 @@ import Modal from "components/Modal";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
+import AdminView from "./userRequest";
 
 const AdminInvitePage: React.FC = () => {
   const router = useRouter();
@@ -17,6 +18,7 @@ const AdminInvitePage: React.FC = () => {
         <Link href="/admin/invite/new">
           <Button iconType="plus">Create a new user</Button>
         </Link>
+        <AdminView />
       </div>
       <Modal open={Boolean(router.query.success)}>
         <h1 className="text-dark text-3xl font-medium mb-2">Invite Sent!</h1>
