@@ -109,8 +109,14 @@ const UserDashboard: React.FunctionComponent = () => {
       <PageNav
         currentPage={uiPage + 1}
         numPages={numUIPages}
-        prevPage={() => setUIPage(uiPage - 1)}
-        nextPage={() => setUIPage(uiPage + 1)}
+        prevPage={() => {
+          setUIPage(uiPage - 1);
+        }}
+        nextPage={() => {
+          setUIPage(uiPage + 1);
+        }}
+        prevDisabled={uiPage <= 0}
+        nextDisabled={uiPage >= numUIPages - 1}
       />
     </div>
   );
