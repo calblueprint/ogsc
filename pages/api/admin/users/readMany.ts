@@ -16,12 +16,14 @@ export default async (
       take: Number(USER_PAGE_SIZE),
     });
 
+    const userCount = await prisma.user.count();
+
     if (!user) {
       res
         .status(404)
         .json({ statusCode: 404, message: "User does not exist." });
     } else {
-      res.json({ users: user.map(sanitizeUser) });
+      res.json({ users: user.map(sanitizeUser), total: userCount });
     }
   } catch (err) {
     res.status(500);
