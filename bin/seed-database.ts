@@ -115,7 +115,7 @@ export default async function seedDatabase(): Promise<void> {
                 () => Faker.lorem.lines(2)
               ),
               ...generateFieldsAcrossTimestamps(
-                ProfileFieldKey.BioFavorites,
+                ProfileFieldKey.BioFavoriteSubject,
                 () => Faker.lorem.lines(2)
               ),
               ...generateFieldsAcrossTimestamps(
@@ -154,6 +154,10 @@ export default async function seedDatabase(): Promise<void> {
               ),
               ...generateFieldsAcrossTimestamps(
                 ProfileFieldKey.Highlights,
+                () => Faker.internet.url()
+              ),
+              ...generateFieldsAcrossTimestamps(
+                ProfileFieldKey.IntroVideo,
                 () => Faker.internet.url()
               ),
               ...generateFieldsAcrossTimestamps(
