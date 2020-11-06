@@ -1,6 +1,9 @@
 {
   "name": "ogsc",
   "version": "0.1.0",
+  "engine": {
+    "node": "12.18.3"
+  },
   "private": true,
   "scripts": {
     "dev": "next dev",
