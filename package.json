@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start -p $PORT",
+    "start": "next start -p $PORT yarn db:seed",
     "db:migrate": "ts-node -O '{ \"module\": \"commonjs\" }' $(yarn bin db-migrate)",
     "db:migrate:create": "ts-node -O '{ \"module\": \"commonjs\" }' bin/create-migration.ts",
     "db:seed": "ts-node -O '{ \"module\": \"commonjs\" }' bin/seed-database.ts"
