@@ -84,7 +84,7 @@ export type ProfileFieldValueDeserializedTypes = {
 
 export type PlayerProfile = {
   [K in ProfileFieldKey]: {
-    current: ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]] | null;
+    current: ProfileField | null;
     lastUpdated: Date | null;
     history: ProfileField[];
   };
