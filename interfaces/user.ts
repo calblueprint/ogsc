@@ -1,29 +1,29 @@
 import { ProfileField, User, ViewingPermission } from "@prisma/client";
 
 // TODO: Use Prisma-generated types for this once prisma/prisma#3252 is resolved
-export declare const ProfileFieldKey: {
-  AcademicEngagementScore: "AcademicEngagementScore";
-  AdvisingScore: "AdvisingScore";
-  AthleticScore: "AthleticScore";
-  BioAboutMe: "BioAboutMe";
-  BioFavoriteSubject: "BioFavoriteSubject";
-  BioHobbies: "BioHobbies";
-  BioMostDifficultSubject: "BioMostDifficultSubject";
-  BioParents: "BioParents";
-  BioSiblings: "BioSiblings";
-  BMI: "BMI";
-  DisciplinaryActions: "DisciplinaryActions";
-  GPA: "GPA";
-  HealthAndWellness: "HealthAndWellness";
-  Highlights: "Highlights";
-  IntroVideo: "IntroVideo";
-  MileTime: "MileTime";
-  PacerTest: "PacerTest";
-  PlayerNumber: "PlayerNumber";
-  Pushups: "Pushups";
-  Situps: "Situps";
+export const ProfileFieldKey = <const>{
+  AcademicEngagementScore: "AcademicEngagementScore",
+  AdvisingScore: "AdvisingScore",
+  AthleticScore: "AthleticScore",
+  BioAboutMe: "BioAboutMe",
+  BioFavoriteSubject: "BioFavoriteSubject",
+  BioHobbies: "BioHobbies",
+  BioMostDifficultSubject: "BioMostDifficultSubject",
+  BioParents: "BioParents",
+  BioSiblings: "BioSiblings",
+  BMI: "BMI",
+  DisciplinaryActions: "DisciplinaryActions",
+  GPA: "GPA",
+  HealthAndWellness: "HealthAndWellness",
+  Highlights: "Highlights",
+  IntroVideo: "IntroVideo",
+  MileTime: "MileTime",
+  PacerTest: "PacerTest",
+  PlayerNumber: "PlayerNumber",
+  Pushups: "Pushups",
+  Situps: "Situps",
 };
-export declare type ProfileFieldKey = typeof ProfileFieldKey[keyof typeof ProfileFieldKey];
+export type ProfileFieldKey = typeof ProfileFieldKey[keyof typeof ProfileFieldKey];
 
 export type PrivateUserFields = "hashedPassword";
 export type SanitizedUser = Omit<User, PrivateUserFields>;
@@ -85,19 +85,12 @@ export type ProfileFieldValueDeserializedTypes = {
 };
 
 export type PlayerProfile = {
-  [K in ProfileFieldKey]:
-    | {
-        key: K;
-        current: null;
-        lastUpdated: null;
-        history: ProfileField[];
-      }
-    | {
-        key: K;
-        current: ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]];
-        lastUpdated: Date;
-        history: ProfileField[];
-      };
+  [K in ProfileFieldKey]: {
+    key: K;
+    current: ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]] | null;
+    lastUpdated: Date | null;
+    history: ProfileField[];
+  };
 };
 
 export type IUser = SanitizedUser & {

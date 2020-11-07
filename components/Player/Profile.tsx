@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import { IconType } from "components/Icon";
 import { PlayerProfile, ProfileFieldKey } from "interfaces";
+import formatDate from "utils/formatDate";
 import ScoreBox from "./ScoreBox";
 import TextLayout from "./TextLayout";
 
@@ -77,32 +78,35 @@ const ProfileFieldLabels: Partial<Record<ProfileFieldKey, string>> = {
   [ProfileFieldKey.Pushups]: "Push-Ups",
 };
 
-const formatDate = (date: Date): string =>
-  `${date.getMonth() + 1}/${date.getDay() + 1}/${date.getFullYear()}`;
-
 const ProfileContext = React.createContext<Partial<PlayerProfile>>({});
 
 type ProfileContentCellProps = {
-  key: ProfileFieldKey;
+  fieldKey: ProfileFieldKey;
 };
 
 const ProfileContentCell: React.FC<ProfileContentCellProps> = ({
-  key,
+  fieldKey,
 }: ProfileContentCellProps) => {
   const profile = useContext(ProfileContext);
-  const profileField = profile[key];
-  if (!profileField || !profileField.current) {
+  const profileField = profile[fieldKey];
+  if (!profileField || !profileField.current || !profileField.lastUpdated) {
     return null;
   }
   switch (profileField.key) {
     case ProfileFieldKey.AcademicEngagementScore:
       return (
-        <ScoreBox score={profileField.current} icon="school" title="School" />
+        <ScoreBox
+          score={profileField.current}
+          lastUpdated={profileField.lastUpdated}
+          icon="school"
+          title="School"
+        />
       );
     case ProfileFieldKey.AdvisingScore:
       return (
         <ScoreBox
           score={profileField.current}
+          lastUpdated={profileField.lastUpdated}
           icon="academics"
           title="Academic Advising"
         />
@@ -111,6 +115,7 @@ const ProfileContentCell: React.FC<ProfileContentCellProps> = ({
       return (
         <ScoreBox
           score={profileField.current}
+          lastUpdated={profileField.lastUpdated}
           icon="athletics"
           title="Athletic"
         />
@@ -119,7 +124,7 @@ const ProfileContentCell: React.FC<ProfileContentCellProps> = ({
       return (
         <>
           <div className="mb-6 text-lg font-bold">Body Mass Index</div>
-          <TextLayout title="BMI">{profileField.current}</TextLayout>;
+          <TextLayout title="BMI">{profileField.current}</TextLayout>
         </>
       );
     case ProfileFieldKey.DisciplinaryActions:
@@ -134,7 +139,7 @@ const ProfileContentCell: React.FC<ProfileContentCellProps> = ({
     case ProfileFieldKey.GPA:
       return (
         <>
-          <TextLayout title="GPA">{profileField.current}</TextLayout>
+          <TextLayout title="GPA">{profileField.current.toFixed(2)}</TextLayout>
           <div className="mb-5 text-sm font-light">
             Last Updated {formatDate(profileField.lastUpdated)}
           </div>
@@ -151,7 +156,7 @@ const ProfileContentCell: React.FC<ProfileContentCellProps> = ({
       );
     default:
       return (
-        <TextLayout title={ProfileFieldLabels[key] || key}>
+        <TextLayout title={ProfileFieldLabels[fieldKey] || fieldKey}>
           {profileField.current}
         </TextLayout>
       );
@@ -174,13 +179,15 @@ const ProfileContents = <T extends ProfileCategory>({
           </div>
           <div className="mb-6 text-lg font-bold">Student Bio</div>
           <div className="m-5">
-            <ProfileContentCell key={ProfileFieldKey.BioAboutMe} />
-            <ProfileContentCell key={ProfileFieldKey.BioHobbies} />
-            <ProfileContentCell key={ProfileFieldKey.BioFavoriteSubject} />
-            <ProfileContentCell key={ProfileFieldKey.BioMostDifficultSubject} />
-            <ProfileContentCell key={ProfileFieldKey.BioSiblings} />
-            <ProfileContentCell key={ProfileFieldKey.BioParents} />
-            <ProfileContentCell key={ProfileFieldKey.IntroVideo} />
+            <ProfileContentCell fieldKey={ProfileFieldKey.BioAboutMe} />
+            <ProfileContentCell fieldKey={ProfileFieldKey.BioHobbies} />
+            <ProfileContentCell fieldKey={ProfileFieldKey.BioFavoriteSubject} />
+            <ProfileContentCell
+              fieldKey={ProfileFieldKey.BioMostDifficultSubject}
+            />
+            <ProfileContentCell fieldKey={ProfileFieldKey.BioSiblings} />
+            <ProfileContentCell fieldKey={ProfileFieldKey.BioParents} />
+            <ProfileContentCell fieldKey={ProfileFieldKey.IntroVideo} />
           </div>
         </div>
       );
@@ -189,9 +196,11 @@ const ProfileContents = <T extends ProfileCategory>({
         <div>
           <div className="mt-12 mb-10 text-2xl font-display">Engagement</div>
           <div className="grid grid-cols-3 gap-24 justify-items-stretch h-56">
-            <ProfileContentCell key={ProfileFieldKey.AcademicEngagementScore} />
-            <ProfileContentCell key={ProfileFieldKey.AdvisingScore} />
-            <ProfileContentCell key={ProfileFieldKey.AthleticScore} />
+            <ProfileContentCell
+              fieldKey={ProfileFieldKey.AcademicEngagementScore}
+            />
+            <ProfileContentCell fieldKey={ProfileFieldKey.AdvisingScore} />
+            <ProfileContentCell fieldKey={ProfileFieldKey.AthleticScore} />
           </div>
         </div>
       );
@@ -202,8 +211,8 @@ const ProfileContents = <T extends ProfileCategory>({
             Academic Performance
           </div>
           <div className="mb-6 text-lg font-bold">Student Bio</div>
-          <ProfileContentCell key={ProfileFieldKey.GPA} />
-          <ProfileContentCell key={ProfileFieldKey.DisciplinaryActions} />
+          <ProfileContentCell fieldKey={ProfileFieldKey.GPA} />
+          <ProfileContentCell fieldKey={ProfileFieldKey.DisciplinaryActions} />
         </div>
       );
     case "Physical Wellness":
@@ -212,19 +221,19 @@ const ProfileContents = <T extends ProfileCategory>({
           <div className="mt-12 mb-10 text-2xl font-display">
             Physical Wellness
           </div>
-          <ProfileContentCell key={ProfileFieldKey.BMI} />
+          <ProfileContentCell fieldKey={ProfileFieldKey.BMI} />
           <div className="mb-6 mt-16 text-lg font-bold">Fitness Testing</div>
-          <ProfileContentCell key={ProfileFieldKey.PacerTest} />
-          <ProfileContentCell key={ProfileFieldKey.MileTime} />
-          <ProfileContentCell key={ProfileFieldKey.Situps} />
-          <ProfileContentCell key={ProfileFieldKey.Pushups} />
+          <ProfileContentCell fieldKey={ProfileFieldKey.PacerTest} />
+          <ProfileContentCell fieldKey={ProfileFieldKey.MileTime} />
+          <ProfileContentCell fieldKey={ProfileFieldKey.Situps} />
+          <ProfileContentCell fieldKey={ProfileFieldKey.Pushups} />
         </div>
       );
     case ProfileCategory.Highlights:
       return (
         <div>
           <div className="mt-12 mb-10 text-2xl font-display">Highlights</div>
-          <ProfileContentCell key={ProfileFieldKey.Highlights} />
+          <ProfileContentCell fieldKey={ProfileFieldKey.Highlights} />
         </div>
       );
     default:
@@ -238,7 +247,7 @@ interface Props {
   profile: Partial<PlayerProfile>;
 }
 
-const PlayerProfile: React.FunctionComponent<Props> = ({ profile }: Props) => {
+const Profile: React.FunctionComponent<Props> = ({ profile }: Props) => {
   const [selectedCategory, setSelectedCategory] = useState(
     ProfileCategory.Overview
   );
@@ -274,4 +283,4 @@ const PlayerProfile: React.FunctionComponent<Props> = ({ profile }: Props) => {
   );
 };
 
-export default PlayerProfile;
+export default Profile;

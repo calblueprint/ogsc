@@ -1,10 +1,11 @@
-import { ProfileField, User } from "@prisma/client";
+import { ProfileField } from "@prisma/client";
 import {
   PlayerProfile,
   ProfileFieldKey,
   ProfileFieldValue,
   ProfileFieldValueDeserializedTypes,
   ProfileFieldValues,
+  SanitizedUser,
 } from "interfaces";
 
 export const deserializeProfileFieldValue = <T extends ProfileField>(
@@ -25,7 +26,7 @@ export const deserializeProfileFieldValue = <T extends ProfileField>(
 };
 
 export default function buildUserProfile<
-  T extends User & { profileFields: ProfileField[] }
+  T extends SanitizedUser & { profileFields: ProfileField[] }
 >(user: T): T & { profile: PlayerProfile | null } {
   if (user.profileFields.length === 0) {
     return { ...user, profile: null };
@@ -47,7 +48,9 @@ export default function buildUserProfile<
       transformedUser.profile[field.key].current = deserializeProfileFieldValue(
         field
       );
-      transformedUser.profile[field.key].lastUpdated = field.createdAt;
+      transformedUser.profile[field.key].lastUpdated = new Date(
+        field.createdAt
+      );
     }
     transformedUser.profile[field.key].history.push(field);
   });
