@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { UserInterface } from "interfaces";
+import { IUser } from "interfaces";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/client";
 import buildUserProfile from "utils/buildUserProfile";
@@ -25,7 +25,7 @@ export default routeByMethod({
     });
 
     if (user) {
-      const response: UserInterface = sanitizeUser(buildUserProfile(user));
+      const response: IUser = sanitizeUser(buildUserProfile(user));
       res.json(response);
     } else {
       res.status(500).json({ message: "Could not find user." });
