@@ -6,7 +6,7 @@ export declare const ProfileFieldKey: {
   AdvisingScore: "AdvisingScore";
   AthleticScore: "AthleticScore";
   BioAboutMe: "BioAboutMe";
-  BioFavorites: "BioFavorites";
+  BioFavoriteSubject: "BioFavoriteSubject";
   BioHobbies: "BioHobbies";
   BioMostDifficultSubject: "BioMostDifficultSubject";
   BioParents: "BioParents";
@@ -16,6 +16,7 @@ export declare const ProfileFieldKey: {
   GPA: "GPA";
   HealthAndWellness: "HealthAndWellness";
   Highlights: "Highlights";
+  IntroVideo: "IntroVideo";
   MileTime: "MileTime";
   PacerTest: "PacerTest";
   PlayerNumber: "PlayerNumber";
@@ -56,7 +57,7 @@ export const ProfileFieldValues = <const>{
   [ProfileFieldKey.AdvisingScore]: ProfileFieldValue.Integer,
   [ProfileFieldKey.AthleticScore]: ProfileFieldValue.Integer,
   [ProfileFieldKey.BioAboutMe]: ProfileFieldValue.Text,
-  [ProfileFieldKey.BioFavorites]: ProfileFieldValue.Text,
+  [ProfileFieldKey.BioFavoriteSubject]: ProfileFieldValue.Text,
   [ProfileFieldKey.BioHobbies]: ProfileFieldValue.Text,
   [ProfileFieldKey.BioMostDifficultSubject]: ProfileFieldValue.Text,
   [ProfileFieldKey.BioParents]: ProfileFieldValue.Text,
@@ -66,6 +67,7 @@ export const ProfileFieldValues = <const>{
   [ProfileFieldKey.GPA]: ProfileFieldValue.Float,
   [ProfileFieldKey.HealthAndWellness]: ProfileFieldValue.Text,
   [ProfileFieldKey.Highlights]: ProfileFieldValue.URL,
+  [ProfileFieldKey.IntroVideo]: ProfileFieldValue.URL,
   [ProfileFieldKey.MileTime]: ProfileFieldValue.TimeElapsed,
   [ProfileFieldKey.PacerTest]: ProfileFieldValue.Integer,
   [ProfileFieldKey.PlayerNumber]: ProfileFieldValue.Text,
@@ -83,14 +85,22 @@ export type ProfileFieldValueDeserializedTypes = {
 };
 
 export type PlayerProfile = {
-  [K in ProfileFieldKey]: {
-    current: ProfileField | null;
-    lastUpdated: Date | null;
-    history: ProfileField[];
-  };
+  [K in ProfileFieldKey]:
+    | {
+        key: K;
+        current: null;
+        lastUpdated: null;
+        history: ProfileField[];
+      }
+    | {
+        key: K;
+        current: ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]];
+        lastUpdated: Date;
+        history: ProfileField[];
+      };
 };
 
-export type UserInterface = SanitizedUser & {
+export type IUser = SanitizedUser & {
   profile: PlayerProfile | null;
   viewerPermissions: ViewingPermission[];
 };
