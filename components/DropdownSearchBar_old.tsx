@@ -5,18 +5,18 @@ import { Player, PrismaClient } from "@prisma/client";
 // const prisma = new PrismaClient();
 
 // const people: string[] = [];
-// const people = [
-//   "Wade Cooper",
-//   "Arlene Mccoy",
-//   "Devon Webb",
-//   "Tom Cook",
-//   "Tanya Fox",
-//   "Hellen Schmidt",
-//   "Caroline Schultz",
-//   "Mason Heaney",
-//   "Claudie Smitham",
-//   "Emil Schaefer",
-// ];
+const people = [
+  "Wade Cooper",
+  "Arlene Mccoy",
+  "Devon Webb",
+  "Tom Cook",
+  "Tanya Fox",
+  "Hellen Schmidt",
+  "Caroline Schultz",
+  "Mason Heaney",
+  "Claudie Smitham",
+  "Emil Schaefer",
+];
 
 // async function getPlayers(): Promise<Player[]> {
 //   try {
@@ -77,13 +77,13 @@ const DropdownSearchBar: React.FC = () => {
   // }
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setQuery(e.currentTarget.value);
-    console.log(e.currentTarget.value);
+    // console.log(e.currentTarget.value);
   };
 
   return (
     <div className="flex ">
       <div className="w-full max-w-xs pt-12">
-        <Listbox value="" onChange={() => console.log("")}>
+        <Listbox>
           {({ open }) => (
             <>
               <div className="relative">

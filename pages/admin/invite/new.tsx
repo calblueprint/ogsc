@@ -1,5 +1,4 @@
 import { joiResolver } from "@hookform/resolvers/joi";
-import { User } from "@prisma/client";
 import Button from "components/Button";
 import DashboardLayout from "components/DashboardLayout";
 import FormField from "components/FormField";
@@ -8,7 +7,7 @@ import Joi from "joi";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { AdminCreateUserDTO } from "pages/api/admin/users/create";
-import SearchBar from "components/DropdownSearchBar";
+import SearchDropdown from "components/SearchDropdown";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -18,7 +17,7 @@ type AdminInviteFormValues = {
   email: string;
   phoneNumber?: string;
   role: UserRole;
-  linkedPlayers?: User[];
+  linkedPlayers?: number[];
 };
 
 const AdminInviteFormSchema = Joi.object<AdminInviteFormValues>({
@@ -32,22 +31,7 @@ const AdminInviteFormSchema = Joi.object<AdminInviteFormValues>({
   role: Joi.string()
     .valid(...UserRoleConstants)
     .required(),
-  linkedPlayers: Joi.array()
-    .items(
-      Joi.object({
-        id: Joi.number().required(),
-        name: Joi.string().optional(),
-        email: Joi.string().required(),
-        emailVerified: Joi.date().required(),
-        image: Joi.string().optional(),
-        createdAt: Joi.date().required(),
-        updatedAt: Joi.date().required(),
-        hashedPassword: Joi.string().required(),
-        isAdmin: Joi.boolean().required(),
-        phoneNumber: Joi.string().required(),
-      })
-    )
-    .optional(),
+  linkedPlayers: Joi.array().items(Joi.number().required()).optional(),
 });
 
 const AdminNewInvitePage: React.FC = () => {
@@ -179,12 +163,13 @@ const AdminNewInvitePage: React.FC = () => {
               <p className="text-xs font-normal mt-3 mb-3">
                 {/* TODO: display different messages based on roles  */}
                 Mentors will have access to the full profile of players they are
-                mentorning, including Engagement Scores, Academics, Attendance,
+                mentoring, including Engagement Scores, Academics, Attendance,
                 and Physical Health information.
               </p>
               {/* TODO: add onClick functionality */}
               <Button iconType="plus">Add players</Button>
-              <SearchBar />
+              {/* <DropdownSearchBar /> */}
+              <SearchDropdown />
             </FormField>
           </fieldset>
           <hr />

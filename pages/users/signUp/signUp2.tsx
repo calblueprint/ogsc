@@ -92,7 +92,7 @@ const UserSignUpPageTwo: React.FC = () => {
             name="adminNote"
             error={errors.adminNote?.message}
           >
-            <p className="text-xs mb-3">
+            <p className="text-xs mb-3 font-normal">
               Recommended for parents and donors just so we know for sure who
               you are!
             </p>
