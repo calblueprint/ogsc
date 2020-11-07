@@ -56,7 +56,7 @@ const IconSvgs: Record<IconType, React.ReactElement> = {
     >
       <path
         d="M7.15039 11L2.05648 6L7.15039 0.999999"
-        stroke="#798393"
+        stroke="#2C2C2C"
         strokeWidth="1.5"
         strokeLinecap="round"
       />

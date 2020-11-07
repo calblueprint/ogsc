@@ -3,7 +3,7 @@ import UserDashboard from "components/UserDashboard";
 import { useState } from "react";
 
 const AdminNavbar: React.FunctionComponent = () => {
-  const [title, setTitle] = useState("All Users");
+  const [title, setTitle] = useState("Members");
   const Button = (category: string): unknown => {
     return (
       <button
@@ -23,7 +23,7 @@ const AdminNavbar: React.FunctionComponent = () => {
   };
   return (
     <div>
-      <div className="flex flex-row justify-between text-sm text-center">
+      <div className="flex flex-row justify-between text-sm text-center mt-8 mb-5">
         {Button("All Roles")}
         {Button("Admin")}
         {Button("Players")}
@@ -38,9 +38,9 @@ const AdminNavbar: React.FunctionComponent = () => {
 
 const AdminView: React.FunctionComponent = () => (
   <DashboardLayout>
-    <div className="flex mt-20 flex-wrap space-y-6 flex-col mx-16">
+    <div className="flex mt-24 flex-wrap flex-col mx-16">
       <div className="header flex">
-        <p className="pt-4 text-2xl font-display font-medium">All Users</p>
+        <p className="text-2xl font-display font-medium">Members</p>
       </div>
       {AdminNavbar({})}
       <hr className="border-unselected border-opacity-50" />

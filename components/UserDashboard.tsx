@@ -9,8 +9,6 @@ interface User {
   phoneNumber: string;
 }
 
-// const pages: Array<User> = [];
-
 /*
  * Takes in what page of the users dashboard you want to be displayed
  * Returns an array of pageNum and startIndex
@@ -32,7 +30,7 @@ const UserDashboardItem: React.FunctionComponent<User> = ({
 }) => {
   return (
     <div>
-      <div className="flex flex-row justify-between text-sm h-16 items-center">
+      <div className="flex flex-row justify-between text-sm h-16 items-center my-5">
         <div className="flex flex-row justify-between">
           <div className="w-10 h-10 mr-4 bg-placeholder rounded-full">
             <img src={image} alt="" />{" "}
@@ -96,7 +94,7 @@ const UserDashboard: React.FunctionComponent = () => {
   }, [uiPage, pageCache]);
   return (
     <div>
-      <div className="flex flex-row justify-between text-sm text-center text-unselected tracking-wide">
+      <div className="flex flex-row justify-between text-sm text-center text-unselected tracking-wide mt-10">
         <p>Name</p>
         <p>Email</p>
         <p>Phone</p>

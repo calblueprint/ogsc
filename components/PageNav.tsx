@@ -18,28 +18,36 @@ const PageNav: React.FunctionComponent<PageNavProps> = ({
   nextDisabled,
 }: PageNavProps) => {
   return (
-    <div>
-      <div className="flex flex-row">
+    <div className="mt-16 mb-20 mr-20">
+      <div className="flex flex-row justify-end text-sm">
         <button
           type="button"
-          className="flex flex-row mx-5 mt-5"
+          className={
+            prevDisabled
+              ? "flex flex-row items-center opacity-50"
+              : "flex flex-row items-center"
+          }
           onClick={() => prevPage()}
           disabled={prevDisabled}
         >
-          <Icon type="back" className="w-6 mx-5 mt-5 text-unselected" />
-          <p>Back</p>
+          <Icon type="back" className="mr-4" />
+          <p className="">Back</p>
         </button>
-        <p className="mx-5 mt-5">
+        <p className="opacity-50 ml-10 mr-10">
           Page {currentPage} of {numPages}
         </p>
         <button
           type="button"
-          className="flex flex-row mx-5 mt-5"
+          className={
+            nextDisabled
+              ? "flex flex-row items-center opacity-50"
+              : "flex flex-row items-center"
+          }
           onClick={() => nextPage()}
           disabled={nextDisabled}
         >
-          <p>Next</p>
-          <Icon type="next" className="w-6 mx-5 mt-5 text-unselected" />
+          <p className="">Next</p>
+          <Icon type="next" className="ml-4" />
         </button>
       </div>
     </div>
