@@ -3,8 +3,8 @@ import Icon from "components/Icon";
 interface PageNavProps {
   currentPage: number;
   numPages: number;
-  prevPage: () => void;
-  nextPage: () => void;
+  onPrevPage: () => void;
+  onNextPage: () => void;
   prevDisabled: boolean;
   nextDisabled: boolean;
 }
@@ -12,8 +12,8 @@ interface PageNavProps {
 const PageNav: React.FunctionComponent<PageNavProps> = ({
   currentPage,
   numPages,
-  prevPage,
-  nextPage,
+  onPrevPage,
+  onNextPage,
   prevDisabled,
   nextDisabled,
 }: PageNavProps) => {
@@ -24,10 +24,10 @@ const PageNav: React.FunctionComponent<PageNavProps> = ({
           type="button"
           className={
             prevDisabled
-              ? "flex flex-row items-center opacity-50"
-              : "flex flex-row items-center"
+              ? "flex flex-row items-center stroke-current text-unselected"
+              : "flex flex-row items-center stroke-current text-dark"
           }
-          onClick={() => prevPage()}
+          onClick={() => onPrevPage()}
           disabled={prevDisabled}
         >
           <Icon type="back" className="mr-4" />
@@ -40,10 +40,10 @@ const PageNav: React.FunctionComponent<PageNavProps> = ({
           type="button"
           className={
             nextDisabled
-              ? "flex flex-row items-center opacity-50"
-              : "flex flex-row items-center"
+              ? "flex flex-row items-center stroke-current text-unselected"
+              : "flex flex-row items-center stroke-current text-dark"
           }
-          onClick={() => nextPage()}
+          onClick={() => onNextPage()}
           disabled={nextDisabled}
         >
           <p className="">Next</p>

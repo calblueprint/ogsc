@@ -36,6 +36,7 @@ const AdminNavbar: React.FunctionComponent = () => {
   );
 };
 
+// TODO: Responsive Spacing
 const AdminView: React.FunctionComponent = () => (
   <DashboardLayout>
     <div className="flex mt-24 flex-wrap flex-col mx-16">

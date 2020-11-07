@@ -56,16 +56,10 @@ const IconSvgs: Record<IconType, React.ReactElement> = {
     >
       <path
         d="M7.15039 11L2.05648 6L7.15039 0.999999"
-        stroke="#2C2C2C"
         strokeWidth="1.5"
         strokeLinecap="round"
       />
-      <path
-        d="M2 5.98346L24 5.98346"
-        stroke="#798393"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
+      <path d="M2 5.98346L24 5.98346" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   ),
   next: (
@@ -78,13 +72,11 @@ const IconSvgs: Record<IconType, React.ReactElement> = {
     >
       <path
         d="M18.3203 1L23.4142 6L18.3203 11"
-        stroke="#2C2C2C"
         strokeWidth="1.5"
         strokeLinecap="round"
       />
       <path
         d="M23.4707 6.01654L1.4707 6.01654"
-        stroke="#2C2C2C"
         strokeWidth="1.5"
         strokeLinecap="round"
       />

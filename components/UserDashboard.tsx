@@ -51,6 +51,7 @@ const UserDashboardItem: React.FunctionComponent<User> = ({
   );
 };
 
+// TODO: Responsive Spacing
 const UserDashboard: React.FunctionComponent = () => {
   const [users, setUsers] = useState<User[]>();
   const [index, setIndex] = useState(0);
@@ -60,31 +61,27 @@ const UserDashboard: React.FunctionComponent = () => {
 
   useEffect(() => {
     const getUsers = async (pageNumber: number): Promise<void> => {
-      try {
-        if (pageNumber in pageCache) {
-          // Page already in cache; no need to make a request!
-          setUsers(pageCache[pageNumber]);
-        } else {
-          const response = await fetch(
-            `http://localhost:3000/api/admin/users?pageNumber=${pageNumber}`,
-            {
-              method: "GET",
-              headers: { "content-type": "application/json" },
-              redirect: "follow",
-            }
-          );
-          const data = await response.json();
-          setUsers(data.users);
-          setNumUIPages(Math.ceil(data.total / UI_PAGE_SIZE));
-          setPageCache({
-            ...pageCache,
-            [pageNumber]: data.users,
-          });
-        }
-      } catch (err) {
-        throw new Error(err.message);
+      if (pageNumber in pageCache) {
+        // Page already in cache; no need to make a request!
+        setUsers(pageCache[pageNumber]);
+      } else {
+        const response = await fetch(
+          `http://localhost:3000/api/admin/users?pageNumber=${pageNumber}`,
+          {
+            method: "GET",
+            headers: { "content-type": "application/json" },
+            redirect: "follow",
+          }
+        );
+        const data = await response.json();
+        setUsers(data.users);
+        setNumUIPages(Math.ceil(data.total / UI_PAGE_SIZE));
+        setPageCache({
+          ...pageCache,
+          [pageNumber]: data.users,
+        });
       }
-    };
+    }; // TODO: error handling
     const updateUIPage = (): void => {
       const [backendPage, startIndex] = getBackendPageNumber(uiPage);
       setIndex(startIndex);
@@ -112,10 +109,10 @@ const UserDashboard: React.FunctionComponent = () => {
       <PageNav
         currentPage={uiPage + 1}
         numPages={numUIPages}
-        prevPage={() => {
+        onPrevPage={() => {
           setUIPage(uiPage - 1);
         }}
-        nextPage={() => {
+        onNextPage={() => {
           setUIPage(uiPage + 1);
         }}
         prevDisabled={uiPage <= 0}
