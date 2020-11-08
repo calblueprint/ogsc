@@ -1,6 +1,13 @@
 import React from "react";
 
-export type IconType = "academics" | "athletics" | "school" | "note" | "plus";
+export type IconType =
+  | "academics"
+  | "athletics"
+  | "school"
+  | "note"
+  | "plus"
+  | "back"
+  | "next";
 
 const IconSvgs: Record<IconType, React.ReactElement> = {
   academics: (
@@ -37,6 +44,30 @@ const IconSvgs: Record<IconType, React.ReactElement> = {
     <svg viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
       <path d="M1 7H13" strokeWidth="1.75" strokeLinecap="round" />
       <path d="M7 1L7 13" strokeWidth="1.75" strokeLinecap="round" />
+    </svg>
+  ),
+  back: (
+    <svg viewBox="0 0 25 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M7.15039 11L2.05648 6L7.15039 0.999999"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <path d="M2 5.98346L24 5.98346" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  ),
+  next: (
+    <svg viewBox="0 0 25 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M18.3203 1L23.4142 6L18.3203 11"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <path
+        d="M23.4707 6.01654L1.4707 6.01654"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
     </svg>
   ),
 };
