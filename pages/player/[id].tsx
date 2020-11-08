@@ -1,4 +1,10 @@
-import { Absence, PrismaClient, ProfileField, User } from "@prisma/client";
+import {
+  Absence,
+  PrismaClient,
+  ProfileField,
+  User,
+  ViewingPermission,
+} from "@prisma/client";
 import DashboardLayout from "components/DashboardLayout";
 import PlayerProfile from "components/Player/Profile";
 import { NextPageContext } from "next";
@@ -7,7 +13,11 @@ import buildUserProfile from "utils/buildUserProfile";
 
 type Props = {
   player?: Omit<
-    User & { absences: Absence[]; profileFields: ProfileField[] },
+    User & {
+      absences: Absence[];
+      viewedByPermissions: ViewingPermission[];
+      profileFields: ProfileField[];
+    },
     "hashedPassword"
   >;
 };
@@ -19,7 +29,11 @@ export async function getServerSideProps(
   const id = context.query.id as string;
   const user = await prisma.user.findOne({
     where: { id: Number(id) },
-    include: { absences: true, profileFields: true, viewerPermissions: true },
+    include: {
+      absences: true,
+      profileFields: true,
+      viewedByPermissions: true,
+    },
   });
 
   if (user === null) {
@@ -63,9 +77,7 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
             </p>
           </div>
         </div>
-        {hydratedPlayer.profile && (
-          <PlayerProfile profile={hydratedPlayer.profile} />
-        )}
+        <PlayerProfile player={hydratedPlayer} />
       </div>
     </DashboardLayout>
   );

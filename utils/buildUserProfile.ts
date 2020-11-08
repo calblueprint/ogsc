@@ -1,4 +1,4 @@
-import { ProfileField } from "@prisma/client";
+import { Absence, ProfileField } from "@prisma/client";
 import {
   PlayerProfile,
   ProfileFieldKey,
@@ -26,13 +26,20 @@ export const deserializeProfileFieldValue = <T extends ProfileField>(
 };
 
 export default function buildUserProfile<
-  T extends SanitizedUser & { profileFields: ProfileField[] }
+  T extends SanitizedUser & {
+    absences?: Absence[];
+    profileFields: ProfileField[];
+  }
 >(user: T): T & { profile: PlayerProfile | null } {
   if (user.profileFields.length === 0) {
     return { ...user, profile: null };
   }
   const transformedUser: T & { profile: PlayerProfile } = {
     ...user,
+    absences: user.absences?.map((absence: Absence) => ({
+      ...absence,
+      date: new Date(absence.date),
+    })),
     profile: <PlayerProfile>(
       Object.fromEntries<PlayerProfile[ProfileFieldKey]>(
         Object.values(ProfileFieldKey).map((key: ProfileFieldKey) => [

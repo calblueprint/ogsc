@@ -1,9 +1,10 @@
 import React, { useContext, useState } from "react";
 import { IconType } from "components/Icon";
-import { PlayerProfile, ProfileFieldKey } from "interfaces";
+import { AbsenceType, IPlayer, ProfileFieldKey } from "interfaces";
 import formatDate from "utils/formatDate";
 import ScoreBox from "./ScoreBox";
 import TextLayout from "./TextLayout";
+import AbsenceTable from "./AbsenceTable";
 
 enum ProfileCategory {
   Overview = "Overview",
@@ -78,7 +79,7 @@ const ProfileFieldLabels: Partial<Record<ProfileFieldKey, string>> = {
   [ProfileFieldKey.Pushups]: "Push-Ups",
 };
 
-const ProfileContext = React.createContext<Partial<PlayerProfile>>({});
+const PlayerContext = React.createContext<IPlayer | null>(null);
 
 type ProfileContentCellProps = {
   fieldKey: ProfileFieldKey;
@@ -87,8 +88,8 @@ type ProfileContentCellProps = {
 const ProfileContentCell: React.FC<ProfileContentCellProps> = ({
   fieldKey,
 }: ProfileContentCellProps) => {
-  const profile = useContext(ProfileContext);
-  const profileField = profile[fieldKey];
+  const player = useContext(PlayerContext);
+  const profileField = player?.profile?.[fieldKey];
   if (!profileField || !profileField.current || !profileField.lastUpdated) {
     return null;
   }
@@ -170,6 +171,8 @@ type ProfileContentsProps<T extends ProfileCategory> = {
 const ProfileContents = <T extends ProfileCategory>({
   category,
 }: ProfileContentsProps<T>): JSX.Element => {
+  const player = useContext(PlayerContext);
+
   switch (category) {
     case "Overview":
       return (
@@ -229,6 +232,23 @@ const ProfileContents = <T extends ProfileCategory>({
           <ProfileContentCell fieldKey={ProfileFieldKey.Pushups} />
         </div>
       );
+    case ProfileCategory.Attendance:
+      return (
+        <div>
+          <div className="mt-12 mb-10 text-2xl font-display">Attendance</div>
+          {player?.absences &&
+            Object.values(AbsenceType).map(
+              (type: AbsenceType) =>
+                player.absences && (
+                  <AbsenceTable
+                    key={type}
+                    absenceType={type}
+                    absences={player.absences}
+                  />
+                )
+            )}
+        </div>
+      );
     case ProfileCategory.Highlights:
       return (
         <div>
@@ -244,10 +264,10 @@ const ProfileContents = <T extends ProfileCategory>({
 };
 
 interface Props {
-  profile: Partial<PlayerProfile>;
+  player: IPlayer;
 }
 
-const Profile: React.FunctionComponent<Props> = ({ profile }: Props) => {
+const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
   const [selectedCategory, setSelectedCategory] = useState(
     ProfileCategory.Overview
   );
@@ -255,13 +275,16 @@ const Profile: React.FunctionComponent<Props> = ({ profile }: Props) => {
     <div>
       <div className="flex flex-row justify-between text-sm text-center">
         {Object.values(ProfileCategory)
-          .filter((category: ProfileCategory) =>
-            ProfileFieldsByCategory[category].some(
-              (key: ProfileFieldKey) => profile[key]
-            )
+          .filter(
+            (category: ProfileCategory) =>
+              ProfileFieldsByCategory[category].some(
+                (key: ProfileFieldKey) => player.profile?.[key]
+              ) ||
+              (category === ProfileCategory.Attendance && player.absences)
           )
           .map((category: ProfileCategory) => (
             <button
+              key={category}
               type="button"
               className={
                 selectedCategory === category
@@ -276,9 +299,9 @@ const Profile: React.FunctionComponent<Props> = ({ profile }: Props) => {
             </button>
           ))}
       </div>
-      <ProfileContext.Provider value={profile}>
+      <PlayerContext.Provider value={player}>
         <ProfileContents category={selectedCategory} />
-      </ProfileContext.Provider>
+      </PlayerContext.Provider>
     </div>
   );
 };
