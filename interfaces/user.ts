@@ -109,7 +109,11 @@ export type PlayerProfile = {
 };
 
 export type IUser = SanitizedUser & {
-  profile: PlayerProfile | null;
-  absences: Absence[];
+  viewedByPermissions: ViewingPermission[];
   viewerPermissions: ViewingPermission[];
+};
+
+export type IPlayer = Omit<IUser, "viewerPermissions"> & {
+  profile: Partial<PlayerProfile> | null;
+  absences?: Absence[];
 };

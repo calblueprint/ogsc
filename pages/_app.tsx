@@ -22,10 +22,10 @@ function chooseDefaultRoleType(user: SessionInfo["user"]): UserRole {
   if (user?.isAdmin) {
     return "admin";
   }
-  if (user?.viewerPermissions.length > 0) {
+  if ("viewerPermissions" in user && user.viewerPermissions.length > 0) {
     return "mentor";
   }
-  if (user?.profile) {
+  if ("profile" in user && user.profile) {
     return "player";
   }
   return "donor";
