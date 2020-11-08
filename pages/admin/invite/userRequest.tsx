@@ -8,20 +8,20 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
 }) => {
   return (
     <div>
-      <div className="flex flex-row justify-between text-sm h-16 items-center">
-        <div className="flex flex-row justify-between">
+      <div className="grid grid-cols-3 gap-12 justify-items-start m-5">
+        <div className="flex flex-row">
           <div className="w-10 h-10 mr-4 bg-placeholder rounded-full" />
           <div className="w-32">
-            <p className="font-display">{name}</p>
+            <p className="font-display self-center">{name}</p>
             <p>User Role</p>
           </div>
         </div>
-        <div className="w-56">
-          <p>{email}</p>
+        <div>
+          <p className="self-center font-normal">{email}</p>
         </div>
         <div className="flex flex-row justify-between">
           <DeclineButton />
-          <div className="ml-10">
+          <div className="ml-5">
             <AcceptButton />
           </div>
         </div>
@@ -57,7 +57,7 @@ const UserDashboard: React.FunctionComponent = () => {
   });
   return (
     <div>
-      <div className="flex flex-row justify-between text-sm text-center text-unselected tracking-wide">
+      <div className="grid grid-cols-3 gap-12 justify-items-start m-5 font-display text-unselected">
         <p>Name</p>
         <p>Email</p>
         <p>Phone</p>
@@ -75,17 +75,15 @@ const UserDashboard: React.FunctionComponent = () => {
   );
 };
 
-const AdminView: React.FunctionComponent = () => (
-  <div className="flex mt-20 flex-wrap space-y-6 flex-col mx-16">
-    <div className="header flex">
-      <div className="player-info grid grid-rows-1">
-        <p className="pt-6 text-3xl font-display font-medium">
-          Invitation Requests
-        </p>
+const userRequestsTable: React.FunctionComponent = () => (
+  <div className="mx-0 mt-0">
+    <div className="text-3xl font-display font-medium mb-10">
+      <div className="mx-0 mt-0">
+        <p className="mx-0 mt-0">Invitation Requests</p>
       </div>
     </div>
     <hr className="border-unselected border-opacity-50" />
     {UserDashboard({})}
   </div>
 );
-export default AdminView;
+export default userRequestsTable;

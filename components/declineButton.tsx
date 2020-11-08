@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-no-comment-textnodes */
 /* eslint-disable react/button-has-type */
 const DeclineButton: React.FunctionComponent = () => (
   // eslint-disable-next-line react/jsx-no-comment-textnodes

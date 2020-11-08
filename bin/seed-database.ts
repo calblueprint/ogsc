@@ -1,4 +1,3 @@
-/* eslint-disable import/no-unresolved */
 /* eslint-disable no-console */
 import { PrismaClient, User, UserCreateArgs } from "@prisma/client";
 import Faker from "faker";

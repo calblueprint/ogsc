@@ -1,4 +1,3 @@
-/* eslint-disable import/no-unresolved */
 import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
 import DashboardLayout from "components/DashboardLayout";

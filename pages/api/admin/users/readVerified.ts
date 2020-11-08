@@ -13,7 +13,7 @@ export default async (res: NextApiResponse): Promise<void> => {
     if (!user) {
       res
         .status(404)
-        .json({ statusCode: 404, message: "User does not exist." });
+        .json({ statusCode: 204, message: "No user account requests" });
     } else {
       res.json({ users: user.map(sanitizeUser) });
     }
