@@ -4,6 +4,7 @@ import {
   UserRole,
   UserRoleConstants,
 } from "interfaces";
+import { createStore, StateMachineProvider } from "little-state-machine";
 import { useSession } from "next-auth/client";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
@@ -24,7 +25,7 @@ function chooseDefaultRoleType(user: SessionInfo["user"]): UserRole {
   if (user?.viewerPermissions.length > 0) {
     return "mentor";
   }
-  if (user?.player) {
+  if (user?.profile) {
     return "player";
   }
   return "donor";
@@ -42,6 +43,18 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
       user ? { user, sessionType: chooseDefaultRoleType(user) } : { user },
     [user]
   );
+  const store = createStore({
+    userData: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phoneNumber: "",
+      password: "",
+      role: null,
+      adminNote: "",
+    },
+    // Add another struct specific for your use case here for state management
+  });
 
   useEffect(() => {
     async function getUser(): Promise<void> {
@@ -64,21 +77,27 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
   }, [accessingAuthenticatedRoute, loadingSession, router, session]);
 
   if (!accessingAuthenticatedRoute) {
-    return <Component {...pageProps} />;
+    return (
+      <StateMachineProvider>
+        <Component {...pageProps} />
+      </StateMachineProvider>
+    );
   }
   if (!sessionInfo.user) {
     // TODO: Add shimmer loading skeleton
     return null;
   }
   return (
-    <AuthContext.Provider
-      value={
-        // TODO: When sessionType switching is supported, this should be a stateful value
-        sessionInfo
-      }
-    >
-      <Component {...pageProps} />
-    </AuthContext.Provider>
+    <StateMachineProvider store={store}>
+      <AuthContext.Provider
+        value={
+          // TODO: When sessionType switching is supported, this should be a stateful value
+          sessionInfo
+        }
+      >
+        <Component {...pageProps} />
+      </AuthContext.Provider>
+    </StateMachineProvider>
   );
 };
 
