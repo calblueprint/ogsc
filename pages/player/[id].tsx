@@ -1,84 +1,43 @@
-import { useState, useEffect } from "react";
-import { Player } from "@prisma/client";
+import { PrismaClient, ProfileField, User } from "@prisma/client";
 import DashboardLayout from "components/DashboardLayout";
-import PlayerNavBar from "pages/player/PlayerNavBar";
-import { useRouter } from "next/router";
+import PlayerProfile from "components/Player/Profile";
+import { NextPageContext } from "next";
+import sanitizeUser from "utils/sanitizeUser";
+import buildUserProfile from "utils/buildUserProfile";
 
-interface playerProp {
-  playerProp: Player & {
-    user: {
-      name: string | null;
-    };
+type Props = {
+  player?: Omit<User & { profileFields: ProfileField[] }, "hashedPassword">;
+};
+
+export async function getServerSideProps(
+  context: NextPageContext
+): Promise<{ props: Props }> {
+  const prisma = new PrismaClient();
+  const id = context.query.id as string;
+  const user = await prisma.user.findOne({
+    where: { id: Number(id) },
+    include: { profileFields: true, viewerPermissions: true },
+  });
+
+  if (user === null) {
+    // TODO: Set statusCode to 404
+    return { props: {} };
+  }
+
+  return {
+    props: {
+      player: JSON.parse(JSON.stringify(sanitizeUser(user))),
+    },
   };
 }
 
-const GetID = (): string | string[] | undefined => {
-  const router = useRouter();
-  const { id } = router.query;
-  return id;
-};
-
-const emptyPlayer: Player & {
-  user: {
-    name: string | null;
-  };
-} = {
-  user_id: 0,
-  bio: null,
-  academicEngagementScore: null,
-  academicEngagementComments: null,
-  advisingScore: null,
-  advisingComments: null,
-  athleticScore: null,
-  athleticComments: null,
-  advisingAbsences: null,
-  athleticAbsences: null,
-  gpa: null,
-  disciplinaryActions: null,
-  schoolAbsences: null,
-  bmi: null,
-  beepTest: null,
-  mileTime: null,
-  healthAndWellness: null,
-  highlights: null,
-  user: { name: null },
-};
-
-const PlayerProfile: React.FunctionComponent = () => {
-  const [player, setPlayer] = useState<
-    Player & {
-      user: {
-        name: string | null;
-      };
-    }
-  >(emptyPlayer);
-  const ID = GetID();
-  useEffect(() => {
-    async function getPlayer(): Promise<void> {
-      try {
-        const response = await fetch(
-          `http://localhost:3000/api/players/read/${ID}`,
-          {
-            method: "GET",
-            headers: { "content-type": "application/json" },
-          }
-        );
-        const playerData: Player & {
-          user: {
-            name: string | null;
-          };
-        } = await response.json();
-        setPlayer(playerData);
-      } catch (err) {
-        throw new Error(err.message);
-      }
-    }
-
-    getPlayer();
-  }, [ID]);
-  const playerPerson: playerProp = {
-    playerProp: player,
-  };
+const PlayerProfilePage: React.FunctionComponent<Props> = ({
+  player,
+}: Props) => {
+  if (!player) {
+    return <DashboardLayout>No player found</DashboardLayout>;
+  }
+  const hydratedPlayer = buildUserProfile(player);
 
   return (
     <DashboardLayout>
@@ -93,17 +52,24 @@ const PlayerProfile: React.FunctionComponent = () => {
           </div>
           <div className="player-info grid grid-rows-2">
             <p className="pt-6 text-xl font-display font-medium">
-              {player.user.name}
+              {hydratedPlayer.name}
             </p>
             <p className="pt-2 text-sm font-display font-medium">
-              #{player.user_id}
+              {hydratedPlayer.profile?.PlayerNumber.current &&
+                `#${hydratedPlayer.profile?.PlayerNumber.current}`}
             </p>
           </div>
         </div>
-        {PlayerNavBar(playerPerson)}
+        {hydratedPlayer.profile && (
+          <PlayerProfile profile={hydratedPlayer.profile} />
+        )}
       </div>
     </DashboardLayout>
   );
 };
 
-export default PlayerProfile;
+PlayerProfilePage.defaultProps = {
+  player: undefined,
+};
+
+export default PlayerProfilePage;

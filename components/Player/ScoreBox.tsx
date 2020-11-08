@@ -1,9 +1,11 @@
 import Icon, { IconType } from "components/Icon";
+import formatDate from "utils/formatDate";
 
 type ScoreBoxProps = {
   score: number | null;
   icon: IconType;
   title: string;
+  lastUpdated: Date;
   // add prop for Last Updated
 };
 
@@ -11,6 +13,7 @@ const ScoreBox: React.FunctionComponent<ScoreBoxProps> = ({
   score,
   icon,
   title,
+  lastUpdated,
 }: ScoreBoxProps) => {
   return (
     <div>
@@ -23,7 +26,7 @@ const ScoreBox: React.FunctionComponent<ScoreBoxProps> = ({
             <div className="text-sm font-bold self-center h-0">/ 10</div>
           </div>
           <div className="text-sm self-center font-medium text-unselected mb-10 mt-2">
-            Last Updated
+            Last Updated {formatDate(lastUpdated)}
           </div>
         </div>
       </div>
