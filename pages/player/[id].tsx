@@ -1,4 +1,4 @@
-import { PrismaClient, ProfileField, User } from "@prisma/client";
+import { Absence, PrismaClient, ProfileField, User } from "@prisma/client";
 import DashboardLayout from "components/DashboardLayout";
 import PlayerProfile from "components/Player/Profile";
 import { NextPageContext } from "next";
@@ -6,7 +6,10 @@ import sanitizeUser from "utils/sanitizeUser";
 import buildUserProfile from "utils/buildUserProfile";
 
 type Props = {
-  player?: Omit<User & { profileFields: ProfileField[] }, "hashedPassword">;
+  player?: Omit<
+    User & { absences: Absence[]; profileFields: ProfileField[] },
+    "hashedPassword"
+  >;
 };
 
 export async function getServerSideProps(
@@ -16,7 +19,7 @@ export async function getServerSideProps(
   const id = context.query.id as string;
   const user = await prisma.user.findOne({
     where: { id: Number(id) },
-    include: { profileFields: true, viewerPermissions: true },
+    include: { absences: true, profileFields: true, viewerPermissions: true },
   });
 
   if (user === null) {

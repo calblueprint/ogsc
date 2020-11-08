@@ -1,4 +1,4 @@
-import { ProfileField, User, ViewingPermission } from "@prisma/client";
+import { Absence, ProfileField, User, ViewingPermission } from "@prisma/client";
 
 // TODO: Use Prisma-generated types for this once prisma/prisma#3252 is resolved
 export const ProfileFieldKey = <const>{
@@ -24,6 +24,21 @@ export const ProfileFieldKey = <const>{
   Situps: "Situps",
 };
 export type ProfileFieldKey = typeof ProfileFieldKey[keyof typeof ProfileFieldKey];
+
+// TODO: Use Prisma-generated types for this once prisma/prisma#3252 is resolved
+export const AbsenceReason = <const>{
+  Excused: "Excused",
+  Unexcused: "Unexcused",
+};
+export type AbsenceReason = typeof AbsenceReason[keyof typeof AbsenceReason];
+
+// TODO: Use Prisma-generated types for this once prisma/prisma#3252 is resolved
+export const AbsenceType = <const>{
+  School: "School",
+  Academic: "Academic",
+  Athletic: "Athletic",
+};
+export type AbsenceType = typeof AbsenceType[keyof typeof AbsenceType];
 
 export type PrivateUserFields = "hashedPassword";
 export type SanitizedUser = Omit<User, PrivateUserFields>;
@@ -95,5 +110,6 @@ export type PlayerProfile = {
 
 export type IUser = SanitizedUser & {
   profile: PlayerProfile | null;
+  absences: Absence[];
   viewerPermissions: ViewingPermission[];
 };
