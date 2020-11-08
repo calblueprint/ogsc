@@ -6,16 +6,16 @@ const prisma = new PrismaClient();
 
 export default async (res: NextApiResponse): Promise<void> => {
   try {
-    const user = await prisma.user.findMany({
+    const users = await prisma.user.findMany({
       where: { emailVerified: null },
     });
 
-    if (!user) {
+    if (!users) {
       res
         .status(404)
         .json({ statusCode: 204, message: "No user account requests" });
     } else {
-      res.json({ users: user.map(sanitizeUser) });
+      res.json({ users: users.map(sanitizeUser) });
     }
   } catch (err) {
     res.status(500);

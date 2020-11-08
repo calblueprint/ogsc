@@ -19,9 +19,9 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
         <div>
           <p className="self-center font-normal">{email}</p>
         </div>
-        <div className="flex flex-row justify-between">
+        <div className="flex flex-row justify-between mx-20">
           <DeclineButton />
-          <div className="ml-5">
+          <div className="ml-4 ">
             <AcceptButton />
           </div>
         </div>

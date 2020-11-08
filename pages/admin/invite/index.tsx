@@ -4,7 +4,7 @@ import Modal from "components/Modal";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
-import UserRequestsTable from "./userRequest";
+import UserRequestsTable from "../../../components/userRequest";
 
 const AdminInvitePage: React.FC = () => {
   const router = useRouter();
@@ -18,7 +18,7 @@ const AdminInvitePage: React.FC = () => {
         <Link href="/admin/invite/new">
           <Button iconType="plus">Create a new user</Button>
         </Link>
-        <div className="mx-16 mt-24">
+        <div className="mt-10">
           <UserRequestsTable />
         </div>
       </div>
