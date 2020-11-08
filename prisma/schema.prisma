@@ -120,6 +120,7 @@ model Absence {
   userId      Int           @map("user_id")
   date        DateTime
   description String        @default("")
+  type        AbsenceType
   reason      AbsenceReason
   users       User          @relation("AbsencesToUsers", fields: [userId], references: [id])
 
@@ -157,4 +158,12 @@ enum AbsenceReason {
   Unexcused @map("unexcused")
 
    @@map("absence_reason")
+}
+
+enum AbsenceType {
+  Academic @map("academic")
+  Athletic @map("athletic")
+  School @map("school")
+
+   @@map("absence_type")
 }

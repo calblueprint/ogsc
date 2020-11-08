@@ -19,6 +19,14 @@ export async function up(
       );`,
       []
     );
+    await runSql(
+      `CREATE TYPE absence_type AS ENUM (
+        'school',
+        'academic',
+        'athletic'
+      );`,
+      []
+    );
     await createTable("absences", {
       id: {
         type: "int",
@@ -50,6 +58,10 @@ export async function up(
         defaultValue: "",
         notNull: true,
       },
+      type: {
+        type: "absence_type",
+        notNull: true,
+      },
       reason: {
         type: "absence_reason",
         notNull: true,
@@ -70,9 +82,12 @@ export async function down(
 ): Promise<void> {
   const removeIndex = promisify(db.removeIndex.bind(db));
   const dropTable = promisify<string>(db.dropTable.bind(db));
+  const runSql = promisify(db.runSql.bind(db));
+
   try {
     await removeIndex("absences", "idx_absences_user_id");
     await dropTable("absences");
+    await runSql("DROP TYPE IF EXISTS absence_type", []);
     db.runSql("DROP TYPE IF EXISTS absence_reason", callback);
   } catch (err) {
     callback(err, null);
