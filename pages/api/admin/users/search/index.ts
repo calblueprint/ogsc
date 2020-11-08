@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import sanitizeUser from "utils/sanitizeUser";
-import { USER_PAGE_SIZE } from "../readMany";
+import { USER_PAGE_SIZE } from "../../../../../constants";
 
 const prisma = new PrismaClient();
 
