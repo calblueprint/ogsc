@@ -30,7 +30,7 @@ const PageNav: React.FunctionComponent<PageNavProps> = ({
           onClick={() => onPrevPage()}
           disabled={prevDisabled}
         >
-          <Icon type="back" className="mr-4" />
+          <Icon type="back" className="mr-4 w-6 h-3" />
           <p className="">Back</p>
         </button>
         <p className="opacity-50 ml-10 mr-10">
@@ -47,7 +47,7 @@ const PageNav: React.FunctionComponent<PageNavProps> = ({
           disabled={nextDisabled}
         >
           <p className="">Next</p>
-          <Icon type="next" className="ml-4" />
+          <Icon type="next" className="ml-4 w-6 h-3" />
         </button>
       </div>
     </div>
