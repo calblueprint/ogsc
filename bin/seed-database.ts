@@ -208,6 +208,7 @@ export default async function seedDatabase(): Promise<void> {
           name: `${Faker.name.firstName()} ${Faker.name.lastName()}`,
           viewerPermissions: {
             create: {
+              relationship_type: "player",
               viewee: {
                 connect: {
                   email: `player${index}@ogsc.dev`,

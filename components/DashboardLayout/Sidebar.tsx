@@ -30,7 +30,7 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({
 const SidebarsByRole: Record<UserRole, React.ReactNode> = {
   admin: (
     <>
-      <SidebarLink href="/admin/participants">Participants</SidebarLink>
+      <SidebarLink href="/admin/players">Players</SidebarLink>
       <SidebarLink href="/admin/users">All Users</SidebarLink>
       <SidebarLink href="/admin/invite">Invite Users</SidebarLink>
       <SidebarLink href="/admin/calendar">Calendar</SidebarLink>
@@ -39,7 +39,7 @@ const SidebarsByRole: Record<UserRole, React.ReactNode> = {
   ),
   mentor: (
     <>
-      <SidebarLink href="/mentor/participants">Participants</SidebarLink>
+      <SidebarLink href="/mentor/players">Players</SidebarLink>
       <SidebarLink href="/mentor/calendar">Calendar</SidebarLink>
       <SidebarLink href="/mentor/notes">Notes</SidebarLink>
     </>
@@ -54,7 +54,7 @@ const SidebarsByRole: Record<UserRole, React.ReactNode> = {
   ),
   donor: (
     <>
-      <SidebarLink href="/donor/participants">Participants</SidebarLink>
+      <SidebarLink href="/donor/players">Players</SidebarLink>
       <SidebarLink href="/donor/calendar">Calendar</SidebarLink>
       <SidebarLink href="/donor/notes">Notes</SidebarLink>
     </>

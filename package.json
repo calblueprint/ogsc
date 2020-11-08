@@ -1,11 +1,14 @@
 {
   "name": "ogsc",
   "version": "0.1.0",
+  "engine": {
+    "node": "12.18.3"
+  },
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p $PORT",
     "db:migrate": "ts-node -O '{ \"module\": \"commonjs\" }' $(yarn bin db-migrate)",
     "db:migrate:create": "ts-node -O '{ \"module\": \"commonjs\" }' bin/create-migration.ts",
     "db:seed": "ts-node -O '{ \"module\": \"commonjs\" }' bin/seed-database.ts"
