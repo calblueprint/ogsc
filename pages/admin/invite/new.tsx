@@ -78,7 +78,9 @@ const AdminNewInvitePage: React.FC = () => {
         <p>Pending page description</p>
         <form className="mt-10" onSubmit={handleSubmit(onSubmit)}>
           <fieldset>
-            <legend className="text-lg font-medium mb-8">User Overview</legend>
+            <legend className="text-lg font-semibold mb-8">
+              Basic Information
+            </legend>
             <FormField
               label="First Name"
               name="firstName"
@@ -87,6 +89,7 @@ const AdminNewInvitePage: React.FC = () => {
               <input
                 type="text"
                 className="input input-full"
+                id="firstName"
                 name="firstName"
                 placeholder="e.g., Cristiano"
                 ref={register}
@@ -100,6 +103,7 @@ const AdminNewInvitePage: React.FC = () => {
               <input
                 type="text"
                 className="input input-full"
+                id="lastName"
                 name="lastName"
                 placeholder="e.g., Ronaldo"
                 ref={register}
@@ -113,6 +117,7 @@ const AdminNewInvitePage: React.FC = () => {
               <input
                 type="text"
                 className="input input-full"
+                id="email"
                 name="email"
                 placeholder="e.g., soccer@fifa.com"
                 ref={register}
@@ -126,6 +131,7 @@ const AdminNewInvitePage: React.FC = () => {
               <input
                 type="text"
                 className="input"
+                id="phoneNumber"
                 name="phoneNumber"
                 placeholder="e.g., 123-456-7890"
                 ref={register}
@@ -133,9 +139,12 @@ const AdminNewInvitePage: React.FC = () => {
             </FormField>
             <FormField label="Role" name="role" error={errors.role?.message}>
               {UserRoleConstants.map((role: UserRole) => (
-                <label className="block font-normal" htmlFor={role}>
+                <label
+                  className="font-medium flex items-center mb-2"
+                  htmlFor={role}
+                >
                   <input
-                    className="mr-3"
+                    className="mr-5"
                     type="radio"
                     name="role"
                     id={role}

@@ -1,10 +1,15 @@
 import React from "react";
-import { AbsenceType } from "interfaces";
+import { AbsenceReason, AbsenceType } from "interfaces";
 import { Absence } from "@prisma/client";
 
 type Props = {
   absenceType: AbsenceType;
   absences: Absence[];
+};
+
+const AbsencePillColors: Record<AbsenceReason, string> = {
+  [AbsenceReason.Excused]: "success",
+  [AbsenceReason.Unexcused]: "danger",
 };
 
 const AbsenceTable: React.FC<Props> = ({ absenceType, absences }: Props) => {
@@ -17,7 +22,7 @@ const AbsenceTable: React.FC<Props> = ({ absenceType, absences }: Props) => {
       <h2 className="text-xl font-semibold mb-4">{absenceType} Absences</h2>
       <table className="w-full mb-4">
         <thead>
-          <tr className="h-16 text-left text-unselected border-b border-unselected border-opacity-50">
+          <tr className="h-16 text-left text-unselected tr-border">
             <th className="w-3/12 pl-5 font-semibold">Date</th>
             <th className="w-3/12 font-semibold">Type</th>
             <th className="font-semibold">Description</th>
@@ -25,10 +30,7 @@ const AbsenceTable: React.FC<Props> = ({ absenceType, absences }: Props) => {
         </thead>
         <tbody>
           {filteredAbsences.map((absence: Absence) => (
-            <tr
-              key={absence.id}
-              className="h-16 border-b border-unselected border-opacity-50"
-            >
+            <tr key={absence.id} className="h-16 tr-border">
               <td className="w-3/12 pl-5">
                 {absence.date.toLocaleString("default", {
                   month: "short",
@@ -37,7 +39,13 @@ const AbsenceTable: React.FC<Props> = ({ absenceType, absences }: Props) => {
                 })}
               </td>
               <td className="w-3/12">
-                <span className="bg-button px-5 py-3 rounded-full">
+                <span
+                  className={`font-medium bg-${
+                    AbsencePillColors[absence.reason]
+                  }-muted text-${
+                    AbsencePillColors[absence.reason]
+                  } px-5 py-3 rounded-full`}
+                >
                   {absence.reason}
                 </span>
               </td>

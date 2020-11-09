@@ -11,6 +11,7 @@ module.exports = {
         unselected: "#798393",
         button: "#F5F7FA",
         placeholder: "#E0E4E9",
+        border: "#A9AFB8",
         blue: "#004284",
         "blue-muted": "#E9F4FF",
         pink: "#C72E55",

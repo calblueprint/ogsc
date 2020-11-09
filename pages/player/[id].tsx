@@ -62,9 +62,9 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
         <div className="header flex items-center">
           <div className="picture flex mr-10">
             <img
-              src="/reference to pic"
-              alt="..."
-              className="shadow rounded-full max-w-full align-middle border-none w-24 h-24"
+              src="/placeholder-profile.png"
+              alt={hydratedPlayer.name || "player"}
+              className="bg-button rounded-full max-w-full align-middle border-none w-24 h-24"
             />
           </div>
           <div className="player-info grid grid-rows-2">

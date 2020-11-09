@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { IconType } from "components/Icon";
+import Icon, { IconType } from "components/Icon";
 import { AbsenceType, IPlayer, ProfileFieldKey } from "interfaces";
 import formatDate from "utils/formatDate";
 import ScoreBox from "./ScoreBox";
@@ -9,7 +9,7 @@ import AbsenceTable from "./AbsenceTable";
 enum ProfileCategory {
   Overview = "Overview",
   Engagement = "Engagement",
-  AcademicPerformance = "Academic Performance",
+  AcademicPerformance = "Academics",
   Attendance = "Attendance",
   PhysicalWellness = "Physical Wellness",
   Highlights = "Highlights",
@@ -174,7 +174,7 @@ const ProfileContents = <T extends ProfileCategory>({
   const player = useContext(PlayerContext);
 
   switch (category) {
-    case "Overview":
+    case ProfileCategory.Overview:
       return (
         <div>
           <h1 className="mb-10 text-2xl font-semibold">Student Overview</h1>
@@ -192,7 +192,7 @@ const ProfileContents = <T extends ProfileCategory>({
           </div>
         </div>
       );
-    case "Engagement":
+    case ProfileCategory.Engagement:
       return (
         <div>
           <h1 className="mb-10 text-2xl font-semibold">Engagement</h1>
@@ -205,7 +205,7 @@ const ProfileContents = <T extends ProfileCategory>({
           </div>
         </div>
       );
-    case "Academic Performance":
+    case ProfileCategory.AcademicPerformance:
       return (
         <div>
           <h1 className="mb-10 text-2xl font-semibold">Academic Performance</h1>
@@ -214,7 +214,7 @@ const ProfileContents = <T extends ProfileCategory>({
           <ProfileContentCell fieldKey={ProfileFieldKey.DisciplinaryActions} />
         </div>
       );
-    case "Physical Wellness":
+    case ProfileCategory.PhysicalWellness:
       return (
         <div>
           <h1 className="mb-10 text-2xl font-semibold">Physical Wellness</h1>
@@ -280,15 +280,19 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
             <button
               key={category}
               type="button"
-              className={
+              className={`navigation-tab ${
                 selectedCategory === category
-                  ? "bg-button py-3 px-8 rounded-full font-bold tracking-wide"
-                  : "py-3 px-8 rounded-full text-unselected tracking-wide"
-              }
+                  ? "navigation-tab-highlighted"
+                  : ""
+              }`}
               onClick={() => {
                 setSelectedCategory(category);
               }}
             >
+              <Icon
+                className="w-4 mr-5 fill-current stroke-current"
+                type={ProfileCategoryIcons[category]}
+              />
               {category}
             </button>
           ))}
