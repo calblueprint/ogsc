@@ -290,7 +290,7 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
               }}
             >
               <Icon
-                className="w-4 mr-5 fill-current stroke-current"
+                className="w-4 h-4 mr-5 fill-current stroke-current"
                 type={ProfileCategoryIcons[category]}
               />
               {category}
