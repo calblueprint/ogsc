@@ -66,7 +66,7 @@ const UserDashboard: React.FunctionComponent = () => {
         setUsers(pageCache[pageNumber]);
       } else {
         const response = await fetch(
-          `http://localhost:3000/api/admin/users?pageNumber=${pageNumber}`,
+          `/api/admin/users?pageNumber=${pageNumber}`,
           {
             method: "GET",
             headers: { "content-type": "application/json" },

@@ -47,7 +47,7 @@ const PlayerDashboard: React.FunctionComponent<SearchProps> = ({
   useEffect(() => {
     const getPlayers = async (): Promise<void> => {
       try {
-        const apiLink = `http://localhost:3000/api/admin/users/search/${phrase}`;
+        const apiLink = `/api/admin/users/search/${phrase}`;
         const response = await fetch(apiLink);
         const data = await response.json();
         setPlayers(data.users);
