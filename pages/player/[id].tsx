@@ -59,7 +59,7 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
   return (
     <DashboardLayout>
       <div className="flex mt-20 flex-wrap space-y-6 flex-col mx-16">
-        <div className="header flex">
+        <div className="header flex items-center">
           <div className="picture flex mr-10">
             <img
               src="/reference to pic"
@@ -68,10 +68,8 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
             />
           </div>
           <div className="player-info grid grid-rows-2">
-            <p className="pt-6 text-xl font-display font-medium">
-              {hydratedPlayer.name}
-            </p>
-            <p className="pt-2 text-sm font-display font-medium">
+            <p className="pt-6 text-2xl font-semibold">{hydratedPlayer.name}</p>
+            <p className="pt-2 text-sm font-medium">
               {hydratedPlayer.profile?.PlayerNumber.current &&
                 `#${hydratedPlayer.profile?.PlayerNumber.current}`}
             </p>

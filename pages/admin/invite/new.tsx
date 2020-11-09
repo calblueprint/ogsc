@@ -74,9 +74,7 @@ const AdminNewInvitePage: React.FC = () => {
   return (
     <DashboardLayout>
       <div className="mx-16 mt-24">
-        <h1 className="text-3xl font-display font-medium mb-2">
-          Add a new user
-        </h1>
+        <h1 className="text-3xl font-semibold mb-2">Add a new user</h1>
         <p>Pending page description</p>
         <form className="mt-10" onSubmit={handleSubmit(onSubmit)}>
           <fieldset>

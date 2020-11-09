@@ -28,7 +28,7 @@ const PlayerDashboardItem: React.FunctionComponent<Player> = ({
               <img src={image} alt="" />{" "}
               {/* Not being used right now because seed data doesn't have images */}
             </div>
-            <p className="font-display self-center">{name}</p>
+            <p className="font-semibold self-center">{name}</p>
           </div>
           <p className="self-center font-normal">#{id}</p>
           <p className="self-center font-normal">{team || "Fifa"}</p>
@@ -60,7 +60,7 @@ const PlayerDashboard: React.FunctionComponent<SearchProps> = ({
   return (
     <div>
       <div>
-        <div className="grid grid-cols-3 gap-12 justify-items-start m-5 font-display text-unselected">
+        <div className="grid grid-cols-3 gap-12 justify-items-start m-5 font-semibold text-unselected">
           <p>Name</p>
           <p>Player #</p>
           <p>Team</p>

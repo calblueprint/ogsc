@@ -177,9 +177,7 @@ const ProfileContents = <T extends ProfileCategory>({
     case "Overview":
       return (
         <div>
-          <div className="mt-12 mb-10 text-2xl font-display">
-            Student Overview
-          </div>
+          <h1 className="mb-10 text-2xl font-semibold">Student Overview</h1>
           <div className="mb-6 text-lg font-bold">Student Bio</div>
           <div className="m-5">
             <ProfileContentCell fieldKey={ProfileFieldKey.BioAboutMe} />
@@ -197,7 +195,7 @@ const ProfileContents = <T extends ProfileCategory>({
     case "Engagement":
       return (
         <div>
-          <div className="mt-12 mb-10 text-2xl font-display">Engagement</div>
+          <h1 className="mb-10 text-2xl font-semibold">Engagement</h1>
           <div className="grid grid-cols-3 gap-24 justify-items-stretch h-56">
             <ProfileContentCell
               fieldKey={ProfileFieldKey.AcademicEngagementScore}
@@ -210,9 +208,7 @@ const ProfileContents = <T extends ProfileCategory>({
     case "Academic Performance":
       return (
         <div>
-          <div className="mt-12 mb-10 text-2xl font-display">
-            Academic Performance
-          </div>
+          <h1 className="mb-10 text-2xl font-semibold">Academic Performance</h1>
           <div className="mb-6 text-lg font-bold">Student Bio</div>
           <ProfileContentCell fieldKey={ProfileFieldKey.GPA} />
           <ProfileContentCell fieldKey={ProfileFieldKey.DisciplinaryActions} />
@@ -221,9 +217,7 @@ const ProfileContents = <T extends ProfileCategory>({
     case "Physical Wellness":
       return (
         <div>
-          <div className="mt-12 mb-10 text-2xl font-display">
-            Physical Wellness
-          </div>
+          <h1 className="mb-10 text-2xl font-semibold">Physical Wellness</h1>
           <ProfileContentCell fieldKey={ProfileFieldKey.BMI} />
           <div className="mb-6 mt-16 text-lg font-bold">Fitness Testing</div>
           <ProfileContentCell fieldKey={ProfileFieldKey.PacerTest} />
@@ -235,7 +229,7 @@ const ProfileContents = <T extends ProfileCategory>({
     case ProfileCategory.Attendance:
       return (
         <div>
-          <div className="mt-12 mb-10 text-2xl font-display">Attendance</div>
+          <h1 className="mb-10 text-2xl font-semibold">Attendance</h1>
           {player?.absences &&
             Object.values(AbsenceType).map(
               (type: AbsenceType) =>
@@ -252,13 +246,13 @@ const ProfileContents = <T extends ProfileCategory>({
     case ProfileCategory.Highlights:
       return (
         <div>
-          <div className="mt-12 mb-10 text-2xl font-display">Highlights</div>
+          <h1 className="mb-10 text-2xl font-semibold">Highlights</h1>
           <ProfileContentCell fieldKey={ProfileFieldKey.Highlights} />
         </div>
       );
     default:
       return (
-        <div className="mt-12 mb-10 text-2xl font-display">No Information</div>
+        <div className="mt-12 mb-10 text-2xl font-semibold">No Information</div>
       );
   }
 };
@@ -299,6 +293,7 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
             </button>
           ))}
       </div>
+      <hr className="my-10" />
       <PlayerContext.Provider value={player}>
         <ProfileContents category={selectedCategory} />
       </PlayerContext.Provider>

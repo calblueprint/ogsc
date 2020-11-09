@@ -17,10 +17,10 @@ const AbsenceTable: React.FC<Props> = ({ absenceType, absences }: Props) => {
       <h2 className="text-xl font-semibold mb-4">{absenceType} Absences</h2>
       <table className="w-full mb-4">
         <thead>
-          <tr className="h-16 text-left font-semibold text-unselected border-b border-unselected border-opacity-50">
-            <th className="w-3/12 pl-5">Date</th>
-            <th className="w-3/12">Type</th>
-            <th>Description</th>
+          <tr className="h-16 text-left text-unselected border-b border-unselected border-opacity-50">
+            <th className="w-3/12 pl-5 font-semibold">Date</th>
+            <th className="w-3/12 font-semibold">Type</th>
+            <th className="font-semibold">Description</th>
           </tr>
         </thead>
         <tbody>

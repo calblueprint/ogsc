@@ -41,7 +41,7 @@ const AdminView: React.FunctionComponent = () => (
   <DashboardLayout>
     <div className="flex mt-24 flex-wrap flex-col mx-16">
       <div className="header flex">
-        <p className="text-2xl font-display font-medium">Members</p>
+        <p className="text-2xl font-semibold">Members</p>
       </div>
       {AdminNavbar({})}
       <hr className="border-unselected border-opacity-50" />
