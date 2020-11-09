@@ -124,14 +124,14 @@ const ProfileContentCell: React.FC<ProfileContentCellProps> = ({
     case ProfileFieldKey.BMI:
       return (
         <>
-          <div className="mb-6 text-lg font-bold">Body Mass Index</div>
+          <div className="mb-6 text-lg font-semibold">Body Mass Index</div>
           <TextLayout title="BMI">{profileField.current}</TextLayout>
         </>
       );
     case ProfileFieldKey.DisciplinaryActions:
       return (
         <>
-          <div className="mb-6 mt-16 text-lg font-bold">
+          <div className="mb-6 mt-16 text-lg font-semibold">
             Disciplinary Actions
           </div>
           <TextLayout title={null}>{profileField.current}</TextLayout>
@@ -149,7 +149,7 @@ const ProfileContentCell: React.FC<ProfileContentCellProps> = ({
     case ProfileFieldKey.HealthAndWellness:
       return (
         <>
-          <div className="mb-6 mt-16 text-lg font-bold">
+          <div className="mb-6 mt-16 text-lg font-semibold">
             Health and Wellness
           </div>
           <TextLayout title={null}>{profileField.current}</TextLayout>
@@ -178,18 +178,16 @@ const ProfileContents = <T extends ProfileCategory>({
       return (
         <div>
           <h1 className="mb-10 text-2xl font-semibold">Student Overview</h1>
-          <div className="mb-6 text-lg font-bold">Student Bio</div>
-          <div className="m-5">
-            <ProfileContentCell fieldKey={ProfileFieldKey.BioAboutMe} />
-            <ProfileContentCell fieldKey={ProfileFieldKey.BioHobbies} />
-            <ProfileContentCell fieldKey={ProfileFieldKey.BioFavoriteSubject} />
-            <ProfileContentCell
-              fieldKey={ProfileFieldKey.BioMostDifficultSubject}
-            />
-            <ProfileContentCell fieldKey={ProfileFieldKey.BioSiblings} />
-            <ProfileContentCell fieldKey={ProfileFieldKey.BioParents} />
-            <ProfileContentCell fieldKey={ProfileFieldKey.IntroVideo} />
-          </div>
+          <div className="mb-6 text-lg font-semibold">Student Bio</div>
+          <ProfileContentCell fieldKey={ProfileFieldKey.BioAboutMe} />
+          <ProfileContentCell fieldKey={ProfileFieldKey.BioHobbies} />
+          <ProfileContentCell fieldKey={ProfileFieldKey.BioFavoriteSubject} />
+          <ProfileContentCell
+            fieldKey={ProfileFieldKey.BioMostDifficultSubject}
+          />
+          <ProfileContentCell fieldKey={ProfileFieldKey.BioSiblings} />
+          <ProfileContentCell fieldKey={ProfileFieldKey.BioParents} />
+          <ProfileContentCell fieldKey={ProfileFieldKey.IntroVideo} />
         </div>
       );
     case ProfileCategory.Engagement:
@@ -209,7 +207,7 @@ const ProfileContents = <T extends ProfileCategory>({
       return (
         <div>
           <h1 className="mb-10 text-2xl font-semibold">Academic Performance</h1>
-          <div className="mb-6 text-lg font-bold">Student Bio</div>
+          <div className="mb-6 text-lg font-semibold">Grade Point Average</div>
           <ProfileContentCell fieldKey={ProfileFieldKey.GPA} />
           <ProfileContentCell fieldKey={ProfileFieldKey.DisciplinaryActions} />
         </div>
@@ -219,7 +217,9 @@ const ProfileContents = <T extends ProfileCategory>({
         <div>
           <h1 className="mb-10 text-2xl font-semibold">Physical Wellness</h1>
           <ProfileContentCell fieldKey={ProfileFieldKey.BMI} />
-          <div className="mb-6 mt-16 text-lg font-bold">Fitness Testing</div>
+          <div className="mb-6 mt-16 text-lg font-semibold">
+            Fitness Testing
+          </div>
           <ProfileContentCell fieldKey={ProfileFieldKey.PacerTest} />
           <ProfileContentCell fieldKey={ProfileFieldKey.MileTime} />
           <ProfileContentCell fieldKey={ProfileFieldKey.Situps} />
