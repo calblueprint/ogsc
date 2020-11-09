@@ -12,7 +12,7 @@
     "db:migrate": "ts-node -O '{ \"module\": \"commonjs\" }' $(yarn bin db-migrate)",
     "db:migrate:create": "ts-node -O '{ \"module\": \"commonjs\" }' bin/create-migration.ts",
     "db:seed": "ts-node -O '{ \"module\": \"commonjs\" }' bin/seed-database.ts",
-    "heroku-postbuild": "yarn db:migrate up"
+    "heroku-postbuild": "yarn build && yarn db:migrate up"
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx,json}": [
