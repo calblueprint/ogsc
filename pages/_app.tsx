@@ -36,7 +36,7 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
   const router = useRouter();
   const [user, setUser] = useState<SessionInfo["user"] | null>(null);
   const accessingAuthenticatedRoute =
-    router.pathname.match(new RegExp(`^/(${UserRoleConstants.join("|")})`)) !==
+    router.asPath.match(new RegExp(`^/(${UserRoleConstants.join("|")})`)) !==
     null;
   const sessionInfo: SessionInfo = useMemo(
     () =>

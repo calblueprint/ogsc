@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import useSessionInfo from "utils/useSessionInfo";
 
 interface Player {
   name: string;
@@ -18,7 +19,8 @@ const PlayerDashboardItem: React.FunctionComponent<Player> = ({
   id,
   image,
 }) => {
-  const link = `/player/${id}`;
+  const session = useSessionInfo();
+  const link = `/${session.sessionType}/players/${id}`;
   return (
     <Link href={link}>
       <div role="button">

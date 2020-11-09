@@ -15,7 +15,7 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({
   children,
 }: SidebarLinkProps) => {
   const router = useRouter();
-  const highlighted = router.pathname.startsWith(href);
+  const highlighted = router.asPath.startsWith(href);
 
   return (
     <>
