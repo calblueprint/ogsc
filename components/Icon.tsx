@@ -5,6 +5,7 @@ export type IconType =
   | "athletics"
   | "book"
   | "calendar"
+  | "chevron"
   | "lightning"
   | "school"
   | "shoe"
@@ -48,6 +49,16 @@ const IconSvgs: Record<IconType, React.ReactElement> = {
       <path
         d="M12.5514 1.9558H10.371V1.50835C10.371 1.18368 10.1062 0.9 9.78505 0.9C9.46394 0.9 9.19906 1.18368 9.19906 1.50835V1.9558H4.83832V1.50835C4.83832 1.18368 4.57344 0.9 4.25234 0.9C3.93123 0.9 3.66635 1.18368 3.66635 1.50835V1.9558H1.48598C1.16488 1.9558 0.9 2.23949 0.9 2.56415V12.4917C0.9 12.8163 1.16488 13.1 1.48598 13.1H12.514C12.8351 13.1 13.1 12.8163 13.1 12.4917V2.56415C13.1 2.40006 13.033 2.24959 12.9339 2.1402C12.8356 2.03163 12.6982 1.9558 12.5514 1.9558ZM11.9654 3.1334V3.911H2.07196V3.1334H11.9654ZM2.07196 11.8833V5.08859H11.9654V11.8833H2.07196Z"
         strokeWidth="0.2"
+      />
+    </svg>
+  ),
+  chevron: (
+    <svg viewBox="0 0 9 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M1 1L4.53554 4.53554L8.07107 1"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   ),
@@ -159,7 +170,9 @@ type Props = {
 };
 
 const Icon: React.FC<Props> = ({ className, type }: Props) => {
-  return React.cloneElement(IconSvgs[type], { className });
+  return React.cloneElement(IconSvgs[type], {
+    className,
+  });
 };
 
 export default Icon;
