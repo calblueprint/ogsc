@@ -1,8 +1,10 @@
 import DevelopmentConsoleNotifier from "./development";
+import SendgridNotifier from "./sendgrid";
 import { Notifier } from "./types";
 
-// TODO: Add additional logic here to select the right notifier
-const notifier: Notifier = new DevelopmentConsoleNotifier();
+const notifier: Notifier = process.env.SENDGRID_API_KEY
+  ? new SendgridNotifier()
+  : new DevelopmentConsoleNotifier();
 
 async function setupNotifier(): Promise<void> {
   try {
