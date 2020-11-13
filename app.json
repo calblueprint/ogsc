@@ -13,7 +13,7 @@
         }
       },
       "scripts": {
-        "release": "yarn heroku-review-app-init && yarn db:migrate && yarn db:seed"
+        "release": "yarn heroku-review-app-init"
       }
     }
   }

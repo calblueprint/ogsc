@@ -8,12 +8,13 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:scripts": "tsc --project tsconfig.scripts.json",
     "start": "next start -p $PORT",
     "db:migrate": "ts-node -O '{ \"module\": \"commonjs\" }' $(yarn bin db-migrate)",
     "db:migrate:create": "ts-node -O '{ \"module\": \"commonjs\" }' bin/create-migration.ts",
     "db:seed": "ts-node -O '{ \"module\": \"commonjs\" }' bin/seed-database.ts",
-    "heroku-postbuild": "yarn build && yarn db:migrate up",
-    "heroku-review-app-init": "ts-node -O '{ \"module\": \"commonjs\" }' bin/set-nextauth-url.ts"
+    "heroku-postbuild": "yarn build && yarn build:scripts && yarn db:migrate up",
+    "heroku-review-app-init": "node build/bin/set-nextauth-url.js && node build/bin/seed-database.js"
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx,json}": [
