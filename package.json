@@ -1,14 +1,18 @@
 {
   "name": "ogsc",
   "version": "0.1.0",
+  "engine": {
+    "node": "12.18.3"
+  },
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p $PORT",
     "db:migrate": "ts-node -O '{ \"module\": \"commonjs\" }' $(yarn bin db-migrate)",
     "db:migrate:create": "ts-node -O '{ \"module\": \"commonjs\" }' bin/create-migration.ts",
-    "db:seed": "ts-node -O '{ \"module\": \"commonjs\" }' bin/seed-database.ts"
+    "db:seed": "ts-node -O '{ \"module\": \"commonjs\" }' bin/seed-database.ts",
+    "heroku-postbuild": "yarn build && yarn db:migrate up"
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx,json}": [
@@ -30,6 +34,7 @@
     "db-migrate-base": "^2.3.0",
     "faker": "^5.1.0",
     "joi": "^17.2.1",
+    "little-state-machine": "^3.1.2",
     "next": "9.5.3",
     "next-auth": "^3.1.0",
     "ora": "^5.1.0",
