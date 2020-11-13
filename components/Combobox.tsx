@@ -35,8 +35,8 @@ const Combobox: React.FC = () => {
     getComboboxProps,
     highlightedIndex,
     getItemProps,
-    selectedItem, // entry that has been selected
-    selectItem, // to reset selectedItem
+    selectedItem,
+    selectItem,
   } = useCombobox({
     isOpen: focused,
     items: inputPlayers,
@@ -45,7 +45,7 @@ const Combobox: React.FC = () => {
     }, 300),
   });
 
-  // TODO: write a removeFromArray function for updating players shown after selecting + delete functionality
+  // TODO: write a removeFromArray function for delete functionality
 
   useEffect(() => {
     async function fetchData(): Promise<void> {

@@ -76,6 +76,14 @@ const AdminNewInvitePage: React.FC = () => {
     }
   }
 
+  const showCombobox = (): string => {
+    return roleChosen === "mentor" ||
+      roleChosen === "parent" ||
+      roleChosen === "donor"
+      ? ""
+      : "hidden";
+  };
+
   return (
     <DashboardLayout>
       <div className="mx-16 mt-24">
@@ -154,16 +162,7 @@ const AdminNewInvitePage: React.FC = () => {
                 </label>
               ))}
             </FormField>
-            {/* TODO: display below only after role is chosen */}
-            <div
-              className={` ${
-                roleChosen === "mentor" ||
-                roleChosen === "parent" ||
-                roleChosen === "donor"
-                  ? ""
-                  : "hidden"
-              }`}
-            >
+            <div className={showCombobox()}>
               <legend className="text-lg font-medium mb-10 mt-16">
                 Role Information
               </legend>
@@ -173,13 +172,7 @@ const AdminNewInvitePage: React.FC = () => {
                 error="" // TODO: fix this
               >
                 <p
-                  className={`text-xs font-normal mt-3 mb-3 ${
-                    roleChosen === "mentor" ||
-                    roleChosen === "parent" ||
-                    roleChosen === "donor"
-                      ? ""
-                      : "hidden"
-                  }`}
+                  className={`text-xs font-normal mt-3 mb-3 ${showCombobox()}`}
                 >
                   {(() => {
                     switch (roleChosen) {
