@@ -9,7 +9,6 @@ import { useSession } from "next-auth/client";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
-import "semantic-ui-css/semantic.min.css";
 import "../styles/globals.css";
 
 export const AuthContext = React.createContext<AuthenticatedSessionInfo | null>(

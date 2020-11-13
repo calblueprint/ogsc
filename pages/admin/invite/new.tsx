@@ -7,9 +7,9 @@ import Joi from "joi";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { AdminCreateUserDTO } from "pages/api/admin/users/create";
-import SearchDropdown from "components/SearchDropdown";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import Combobox from "components/Combobox";
 
 type AdminInviteFormValues = {
   firstName: string;
@@ -40,6 +40,8 @@ const AdminNewInvitePage: React.FC = () => {
   // TODO: Add loading state to form submission
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [roleChosen, setRoleChosen] = useState("");
+
   const { errors, register, handleSubmit } = useForm<AdminInviteFormValues>({
     resolver: joiResolver(AdminInviteFormSchema),
   });
@@ -146,31 +148,55 @@ const AdminNewInvitePage: React.FC = () => {
                     id={role}
                     value={role}
                     ref={register}
+                    onChange={(event) => setRoleChosen(event.target.value)}
                   />
                   {UserRoleLabel[role]}
                 </label>
               ))}
             </FormField>
             {/* TODO: display below only after role is chosen */}
-            <legend className="text-lg font-medium mb-10 mt-16">
-              Role Information
-            </legend>
-            <FormField
-              label="Linked Players"
-              name="linkedPlayers"
-              error={errors.linkedPlayers?.message}
+            <div
+              className={` ${
+                roleChosen === "mentor" ||
+                roleChosen === "parent" ||
+                roleChosen === "donor"
+                  ? ""
+                  : "hidden"
+              }`}
             >
-              <p className="text-xs font-normal mt-3 mb-3">
-                {/* TODO: display different messages based on roles  */}
-                Mentors will have access to the full profile of players they are
-                mentoring, including Engagement Scores, Academics, Attendance,
-                and Physical Health information.
-              </p>
-              {/* TODO: add onClick functionality */}
-              <Button iconType="plus">Add players</Button>
-              {/* <DropdownSearchBar /> */}
-              <SearchDropdown />
-            </FormField>
+              <legend className="text-lg font-medium mb-10 mt-16">
+                Role Information
+              </legend>
+              <FormField
+                label="Linked Players"
+                name="linkedPlayers"
+                error="" // TODO: fix this
+              >
+                <p
+                  className={`text-xs font-normal mt-3 mb-3 ${
+                    roleChosen === "mentor" ||
+                    roleChosen === "parent" ||
+                    roleChosen === "donor"
+                      ? ""
+                      : "hidden"
+                  }`}
+                >
+                  {(() => {
+                    switch (roleChosen) {
+                      case "mentor":
+                        return "Mentors will have access to the full profile of players they are mentoring, including Engagement Scores, Academics, Attendance, and Physical Health information.";
+                      case "parent":
+                        return "Parents will have access to the full profile of their children, including Engagement Scores, Academics, Attendance, and Physical Health information.";
+                      case "donor":
+                        return "Donors will have access to extended profiles of players they’re sponsoring, including Engagement Scores, Academics, and Physical Health information.";
+                      default:
+                        return "error";
+                    }
+                  })()}
+                </p>
+                <Combobox />
+              </FormField>
+            </div>
           </fieldset>
           <hr />
           <div className="my-10">

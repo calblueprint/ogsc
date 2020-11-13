@@ -1,21 +1,30 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useCombobox } from "downshift";
 import { User } from "@prisma/client";
+import debounce from "lodash.debounce";
 import Button from "./Button";
 
-// const TEST_DATA = ["apple", "banana", "orange"];
-
-/*
-PROBLEMS: 
-1) availablePlayers is empty at onInputValueChange
-2) useeffect hook error idgi
-3) query?
-*/
+const getInputPlayers = async (
+  inputValue: string | undefined,
+  selectedPlayers: string[]
+): Promise<string[]> => {
+  try {
+    const apiLink = `http://localhost:3000/api/admin/users/search/${inputValue}`;
+    const response = await fetch(apiLink);
+    const data = await response.json();
+    return data.users
+      .map((player: User) => player.name)
+      .filter(function removeSelected(item: string) {
+        return !selectedPlayers.includes(item);
+      });
+  } catch (err) {
+    throw new Error(err.message);
+  }
+};
 
 const Combobox: React.FC = () => {
-  let availablePlayers: string[] = []; // players that havent been chosen yet
-  const [inputPlayers, setInputPlayers] = useState<string[]>(availablePlayers); // players that are shown at the dropdown
-  const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]); // players that have been chosen so far
+  const [inputPlayers, setInputPlayers] = useState<string[]>([]);
+  const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
   const input = useRef<HTMLInputElement | null>(null);
@@ -31,54 +40,29 @@ const Combobox: React.FC = () => {
   } = useCombobox({
     isOpen: focused,
     items: inputPlayers,
-    onInputValueChange: ({ inputValue }) => {
-      console.log(inputValue);
-      console.log(availablePlayers.length);
-      setInputPlayers(
-        availablePlayers.filter((item) =>
-          item.toLowerCase().startsWith(inputValue?.toLowerCase() || "")
-        )
-      );
-    },
+    onInputValueChange: debounce(async ({ inputValue }) => {
+      setInputPlayers(await getInputPlayers(inputValue, selectedPlayers));
+    }, 300),
   });
 
   // TODO: write a removeFromArray function for updating players shown after selecting + delete functionality
 
-  // const useMountEffect = (): void => {
   useEffect(() => {
-    if (!focused) {
-      const getAllPlayers = async (): Promise<void> => {
-        try {
-          const apiLink = `http://localhost:3000/api/admin/users/search`;
-          const response = await fetch(apiLink);
-          const data = await response.json();
-          availablePlayers = data.users.map((player: User) => player.name);
-          for (let i = 0; i < availablePlayers.length; i += 1) {
-            console.log(availablePlayers[i]);
-          }
-          setInputPlayers(availablePlayers);
-        } catch (err) {
-          throw new Error(err.message);
-        }
-      };
-      getAllPlayers();
+    async function fetchData(): Promise<void> {
+      if (focused) {
+        input.current?.focus();
+        setInputPlayers(await getInputPlayers(" ", selectedPlayers));
+      } else {
+        input.current?.blur();
+        setQuery("");
+      }
     }
-  }, [focused]);
-  // };
-  // useMountEffect();
-
-  useEffect(() => {
-    if (focused) {
-      input.current?.focus();
-    } else {
-      input.current?.blur();
-    }
-  }, [focused]);
+    fetchData();
+  }, [focused, selectedPlayers]);
 
   useEffect(() => {
     if (selectedItem) {
       setSelectedPlayers(() => [...selectedPlayers, selectedItem]);
-      // TODO: delete selected from availablePlayers
       setFocused(false);
       setQuery("");
       selectItem("");
