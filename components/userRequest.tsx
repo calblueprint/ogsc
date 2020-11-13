@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
-import DeclineButton from "components/declineButton";
-import AcceptButton from "components/acceptButton";
+import Button from "components/Button";
+// import DeclineButton from "components/declineButton";
+// import AcceptButton from "components/acceptButton";
 
 const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
   name,
   email,
+  phoneNumber,
 }) => {
   return (
     <div>
-      <div className="grid grid-cols-3 gap-12 justify-items-start m-5">
+      <div className="grid grid-cols-4 gap-10 justify-items-start m-5">
         <div className="flex flex-row">
           <div className="w-10 h-10 mr-4 bg-placeholder rounded-full" />
           <div className="w-32">
@@ -19,10 +21,23 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
         <div>
           <p className="self-center font-normal">{email}</p>
         </div>
-        <div className="flex flex-row justify-between mx-20">
-          <DeclineButton />
-          <div className="ml-4 ">
-            <AcceptButton />
+        <div>
+          <p className="self-center font-normal">{phoneNumber}</p>
+        </div>
+        <div>
+          <div className="flex space-x-4">
+            <div>
+              <Button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Decline
+              </Button>
+            </div>
+            <div className="ml-4 ">
+              <div>
+                <Button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                  Accept
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -57,7 +72,7 @@ const UserDashboard: React.FunctionComponent = () => {
   });
   return (
     <div>
-      <div className="grid grid-cols-3 gap-12 justify-items-start m-5 font-display text-unselected">
+      <div className="grid grid-cols-4 gap-12 justify-items-start m-5 font-display text-unselected">
         <p>Name</p>
         <p>Email</p>
         <p>Phone</p>
