@@ -12,7 +12,9 @@
           "required": true
         }
       },
-      "postdeploy": "yarn heroku-review-app-init && yarn db:migrate && yarn db:seed"
+      "scripts": {
+        "release": "yarn heroku-review-app-init && yarn db:migrate && yarn db:seed"
+      }
     }
   }
 }
