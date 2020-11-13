@@ -11,12 +11,16 @@ module.exports = {
         unselected: "#A9AFB8",
         button: "#F5F7FA",
         placeholder: "#E0E4E9",
+        bghover: "#F7F9FB",
       },
     },
     fontFamily: {
       display: ["Airbnb Cereal App"],
     },
   },
-  variants: {},
+  variants: {
+    margin: ["hover"],
+    backgroundColor: ["hover"],
+  },
   plugins: [],
 };
