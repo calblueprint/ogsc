@@ -14,7 +14,7 @@ const AdminView: React.FunctionComponent = () => {
           <p className="pt-4 text-2xl font-display font-medium">All Players</p>
           <Link href="/admin/players/playerForm">
             <Button
-              className="font-display text-sm px-6 bg-lightBlue text-darkBlue rounded-lg h-10"
+              className="font-display text-sm px-6 bg-blue-muted text-blue rounded-lg h-10"
               iconType="plus"
             >
               Create new profile
