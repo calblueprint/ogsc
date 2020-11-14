@@ -2,9 +2,9 @@ import React, { useContext, useState } from "react";
 import Icon, { IconType } from "components/Icon";
 import { AbsenceType, IPlayer, ProfileFieldKey } from "interfaces";
 import formatDate from "utils/formatDate";
-import ScoreBox from "./ScoreBox";
 import TextLayout from "./TextLayout";
 import AbsenceTable from "./AbsenceTable";
+import ValueHistoryView from "./ValueHistoryView";
 
 enum ProfileCategory {
   Overview = "Overview",
@@ -77,6 +77,9 @@ const ProfileFieldLabels: Partial<Record<ProfileFieldKey, string>> = {
   [ProfileFieldKey.MileTime]: "1 Mile Time",
   [ProfileFieldKey.Situps]: "Sit-Ups",
   [ProfileFieldKey.Pushups]: "Push-Ups",
+  [ProfileFieldKey.AcademicEngagementScore]: "School Engagement",
+  [ProfileFieldKey.AdvisingScore]: "Academic Advising Engagement",
+  [ProfileFieldKey.AthleticScore]: "Athletics Engagement",
 };
 
 const PlayerContext = React.createContext<IPlayer | null>(null);
@@ -96,31 +99,37 @@ const ProfileContentCell: React.FC<ProfileContentCellProps> = ({
   switch (profileField.key) {
     case ProfileFieldKey.AcademicEngagementScore:
       return (
-        <ScoreBox
-          score={profileField.current}
-          lastUpdated={profileField.lastUpdated}
+        <ValueHistoryView
           icon="school"
-          title="School"
+          primaryColor="pink"
+          fieldLabel={
+            ProfileFieldLabels.AcademicEngagementScore || "Engagement"
+          }
+          shortFieldLabel="Engagement"
+          values={profileField.history}
         />
       );
     case ProfileFieldKey.AdvisingScore:
       return (
-        <ScoreBox
-          score={profileField.current}
-          lastUpdated={profileField.lastUpdated}
+        <ValueHistoryView
           icon="academics"
-          title="Academic Advising"
+          primaryColor="gold"
+          fieldLabel={ProfileFieldLabels.AdvisingScore || "Engagement"}
+          shortFieldLabel="Engagement"
+          values={profileField.history}
         />
       );
     case ProfileFieldKey.AthleticScore:
       return (
-        <ScoreBox
-          score={profileField.current}
-          lastUpdated={profileField.lastUpdated}
+        <ValueHistoryView
           icon="athletics"
-          title="Athletic"
+          primaryColor="blue"
+          fieldLabel={ProfileFieldLabels.AthleticScore || "Engagement"}
+          shortFieldLabel="Engagement"
+          values={profileField.history}
         />
       );
+
     case ProfileFieldKey.BMI:
       return (
         <>
@@ -194,11 +203,15 @@ const ProfileContents = <T extends ProfileCategory>({
       return (
         <div>
           <h1 className="mb-10 text-2xl font-semibold">Engagement</h1>
-          <div className="grid grid-cols-3 gap-24 justify-items-stretch h-56">
+          <div className="mb-16">
             <ProfileContentCell
               fieldKey={ProfileFieldKey.AcademicEngagementScore}
             />
+          </div>
+          <div className="mb-16">
             <ProfileContentCell fieldKey={ProfileFieldKey.AdvisingScore} />
+          </div>
+          <div className="mb-16">
             <ProfileContentCell fieldKey={ProfileFieldKey.AthleticScore} />
           </div>
         </div>
