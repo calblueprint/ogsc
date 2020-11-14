@@ -1,14 +1,15 @@
 import React, { useContext, useState } from "react";
-import { IconType } from "components/Icon";
-import { PlayerProfile, ProfileFieldKey } from "interfaces";
+import Icon, { IconType } from "components/Icon";
+import { AbsenceType, IPlayer, ProfileFieldKey } from "interfaces";
 import formatDate from "utils/formatDate";
 import ScoreBox from "./ScoreBox";
 import TextLayout from "./TextLayout";
+import AbsenceTable from "./AbsenceTable";
 
 enum ProfileCategory {
   Overview = "Overview",
   Engagement = "Engagement",
-  AcademicPerformance = "Academic Performance",
+  AcademicPerformance = "Academics",
   Attendance = "Attendance",
   PhysicalWellness = "Physical Wellness",
   Highlights = "Highlights",
@@ -78,7 +79,7 @@ const ProfileFieldLabels: Partial<Record<ProfileFieldKey, string>> = {
   [ProfileFieldKey.Pushups]: "Push-Ups",
 };
 
-const ProfileContext = React.createContext<Partial<PlayerProfile>>({});
+const PlayerContext = React.createContext<IPlayer | null>(null);
 
 type ProfileContentCellProps = {
   fieldKey: ProfileFieldKey;
@@ -87,8 +88,8 @@ type ProfileContentCellProps = {
 const ProfileContentCell: React.FC<ProfileContentCellProps> = ({
   fieldKey,
 }: ProfileContentCellProps) => {
-  const profile = useContext(ProfileContext);
-  const profileField = profile[fieldKey];
+  const player = useContext(PlayerContext);
+  const profileField = player?.profile?.[fieldKey];
   if (!profileField || !profileField.current || !profileField.lastUpdated) {
     return null;
   }
@@ -123,14 +124,14 @@ const ProfileContentCell: React.FC<ProfileContentCellProps> = ({
     case ProfileFieldKey.BMI:
       return (
         <>
-          <div className="mb-6 text-lg font-bold">Body Mass Index</div>
+          <div className="mb-6 text-lg font-semibold">Body Mass Index</div>
           <TextLayout title="BMI">{profileField.current}</TextLayout>
         </>
       );
     case ProfileFieldKey.DisciplinaryActions:
       return (
         <>
-          <div className="mb-6 mt-16 text-lg font-bold">
+          <div className="mb-6 mt-16 text-lg font-semibold">
             Disciplinary Actions
           </div>
           <TextLayout title={null}>{profileField.current}</TextLayout>
@@ -148,7 +149,7 @@ const ProfileContentCell: React.FC<ProfileContentCellProps> = ({
     case ProfileFieldKey.HealthAndWellness:
       return (
         <>
-          <div className="mb-6 mt-16 text-lg font-bold">
+          <div className="mb-6 mt-16 text-lg font-semibold">
             Health and Wellness
           </div>
           <TextLayout title={null}>{profileField.current}</TextLayout>
@@ -170,31 +171,29 @@ type ProfileContentsProps<T extends ProfileCategory> = {
 const ProfileContents = <T extends ProfileCategory>({
   category,
 }: ProfileContentsProps<T>): JSX.Element => {
+  const player = useContext(PlayerContext);
+
   switch (category) {
-    case "Overview":
+    case ProfileCategory.Overview:
       return (
         <div>
-          <div className="mt-12 mb-10 text-2xl font-display">
-            Student Overview
-          </div>
-          <div className="mb-6 text-lg font-bold">Student Bio</div>
-          <div className="m-5">
-            <ProfileContentCell fieldKey={ProfileFieldKey.BioAboutMe} />
-            <ProfileContentCell fieldKey={ProfileFieldKey.BioHobbies} />
-            <ProfileContentCell fieldKey={ProfileFieldKey.BioFavoriteSubject} />
-            <ProfileContentCell
-              fieldKey={ProfileFieldKey.BioMostDifficultSubject}
-            />
-            <ProfileContentCell fieldKey={ProfileFieldKey.BioSiblings} />
-            <ProfileContentCell fieldKey={ProfileFieldKey.BioParents} />
-            <ProfileContentCell fieldKey={ProfileFieldKey.IntroVideo} />
-          </div>
+          <h1 className="mb-10 text-2xl font-semibold">Student Overview</h1>
+          <div className="mb-6 text-lg font-semibold">Student Bio</div>
+          <ProfileContentCell fieldKey={ProfileFieldKey.BioAboutMe} />
+          <ProfileContentCell fieldKey={ProfileFieldKey.BioHobbies} />
+          <ProfileContentCell fieldKey={ProfileFieldKey.BioFavoriteSubject} />
+          <ProfileContentCell
+            fieldKey={ProfileFieldKey.BioMostDifficultSubject}
+          />
+          <ProfileContentCell fieldKey={ProfileFieldKey.BioSiblings} />
+          <ProfileContentCell fieldKey={ProfileFieldKey.BioParents} />
+          <ProfileContentCell fieldKey={ProfileFieldKey.IntroVideo} />
         </div>
       );
-    case "Engagement":
+    case ProfileCategory.Engagement:
       return (
         <div>
-          <div className="mt-12 mb-10 text-2xl font-display">Engagement</div>
+          <h1 className="mb-10 text-2xl font-semibold">Engagement</h1>
           <div className="grid grid-cols-3 gap-24 justify-items-stretch h-56">
             <ProfileContentCell
               fieldKey={ProfileFieldKey.AcademicEngagementScore}
@@ -204,50 +203,65 @@ const ProfileContents = <T extends ProfileCategory>({
           </div>
         </div>
       );
-    case "Academic Performance":
+    case ProfileCategory.AcademicPerformance:
       return (
         <div>
-          <div className="mt-12 mb-10 text-2xl font-display">
-            Academic Performance
-          </div>
-          <div className="mb-6 text-lg font-bold">Student Bio</div>
+          <h1 className="mb-10 text-2xl font-semibold">Academic Performance</h1>
+          <div className="mb-6 text-lg font-semibold">Grade Point Average</div>
           <ProfileContentCell fieldKey={ProfileFieldKey.GPA} />
           <ProfileContentCell fieldKey={ProfileFieldKey.DisciplinaryActions} />
         </div>
       );
-    case "Physical Wellness":
+    case ProfileCategory.PhysicalWellness:
       return (
         <div>
-          <div className="mt-12 mb-10 text-2xl font-display">
-            Physical Wellness
-          </div>
+          <h1 className="mb-10 text-2xl font-semibold">Physical Wellness</h1>
           <ProfileContentCell fieldKey={ProfileFieldKey.BMI} />
-          <div className="mb-6 mt-16 text-lg font-bold">Fitness Testing</div>
+          <div className="mb-6 mt-16 text-lg font-semibold">
+            Fitness Testing
+          </div>
           <ProfileContentCell fieldKey={ProfileFieldKey.PacerTest} />
           <ProfileContentCell fieldKey={ProfileFieldKey.MileTime} />
           <ProfileContentCell fieldKey={ProfileFieldKey.Situps} />
           <ProfileContentCell fieldKey={ProfileFieldKey.Pushups} />
         </div>
       );
+    case ProfileCategory.Attendance:
+      return (
+        <div>
+          <h1 className="mb-10 text-2xl font-semibold">Attendance</h1>
+          {player?.absences &&
+            Object.values(AbsenceType).map(
+              (type: AbsenceType) =>
+                player.absences && (
+                  <AbsenceTable
+                    key={type}
+                    absenceType={type}
+                    absences={player.absences}
+                  />
+                )
+            )}
+        </div>
+      );
     case ProfileCategory.Highlights:
       return (
         <div>
-          <div className="mt-12 mb-10 text-2xl font-display">Highlights</div>
+          <h1 className="mb-10 text-2xl font-semibold">Highlights</h1>
           <ProfileContentCell fieldKey={ProfileFieldKey.Highlights} />
         </div>
       );
     default:
       return (
-        <div className="mt-12 mb-10 text-2xl font-display">No Information</div>
+        <div className="mt-12 mb-10 text-2xl font-semibold">No Information</div>
       );
   }
 };
 
 interface Props {
-  profile: Partial<PlayerProfile>;
+  player: IPlayer;
 }
 
-const Profile: React.FunctionComponent<Props> = ({ profile }: Props) => {
+const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
   const [selectedCategory, setSelectedCategory] = useState(
     ProfileCategory.Overview
   );
@@ -255,30 +269,38 @@ const Profile: React.FunctionComponent<Props> = ({ profile }: Props) => {
     <div>
       <div className="flex flex-row justify-between text-sm text-center">
         {Object.values(ProfileCategory)
-          .filter((category: ProfileCategory) =>
-            ProfileFieldsByCategory[category].some(
-              (key: ProfileFieldKey) => profile[key]
-            )
+          .filter(
+            (category: ProfileCategory) =>
+              ProfileFieldsByCategory[category].some(
+                (key: ProfileFieldKey) => player.profile?.[key]
+              ) ||
+              (category === ProfileCategory.Attendance && player.absences)
           )
           .map((category: ProfileCategory) => (
             <button
+              key={category}
               type="button"
-              className={
+              className={`navigation-tab ${
                 selectedCategory === category
-                  ? "bg-button py-3 px-8 rounded-full font-bold tracking-wide"
-                  : "py-3 px-8 rounded-full text-unselected tracking-wide"
-              }
+                  ? "navigation-tab-highlighted"
+                  : ""
+              }`}
               onClick={() => {
                 setSelectedCategory(category);
               }}
             >
+              <Icon
+                className="w-4 h-4 mr-5 fill-current stroke-current"
+                type={ProfileCategoryIcons[category]}
+              />
               {category}
             </button>
           ))}
       </div>
-      <ProfileContext.Provider value={profile}>
+      <hr className="my-10" />
+      <PlayerContext.Provider value={player}>
         <ProfileContents category={selectedCategory} />
-      </ProfileContext.Provider>
+      </PlayerContext.Provider>
     </div>
   );
 };

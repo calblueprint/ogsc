@@ -1,6 +1,6 @@
 import { User } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
-import { IUser, UserRole } from "./user";
+import { IPlayer, IUser, UserRole } from "./user";
 
 export * from "./user";
 
@@ -24,7 +24,7 @@ export type ValidatedNextApiHandler<T, R = unknown> = (
 ) => void | Promise<void>;
 
 export type AuthenticatedSessionInfo = {
-  user: IUser;
+  user: IUser | IPlayer;
   sessionType: UserRole;
 };
 export type SessionInfo =

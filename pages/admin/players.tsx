@@ -9,7 +9,7 @@ const AdminView: React.FunctionComponent = () => {
     <DashboardLayout>
       <div className="flex mt-20 flex-wrap space-y-6 flex-col mx-16">
         <div className="header flex">
-          <p className="pt-4 text-2xl font-display font-medium">All Players</p>
+          <p className="pt-4 text-2xl font-semibold">All Players</p>
         </div>
         <div className="grid grid-cols-4 gap-8">
           <div className="col-span-3">
