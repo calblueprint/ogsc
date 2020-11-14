@@ -27,6 +27,8 @@ interface EditUserProps {
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+console.log("hello");
+
 // type ModalProps = React.PropsWithChildren<{
 //   open?: boolean;
 // }>;
