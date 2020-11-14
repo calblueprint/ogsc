@@ -60,7 +60,7 @@ const ValueHistoryView: React.FC<Props> = ({
   primaryColor,
   values,
 }: Props) => {
-  const [historyView, setHistoryView] = useState<"graph" | "table">("table");
+  const [historyView, setHistoryView] = useState<"graph" | "table">("graph");
 
   const deserializedValues = values.map(
     (field: IProfileField<NumericProfileFields>) => ({
@@ -183,7 +183,7 @@ const ValueHistoryView: React.FC<Props> = ({
           </svg>
           <VictoryChart
             containerComponent={
-              <VictoryVoronoiContainer className="-mt-8" voronoiDimension="x" />
+              <VictoryVoronoiContainer voronoiDimension="x" />
             }
             theme={{
               ...VictoryTheme.grayscale,
@@ -316,7 +316,8 @@ const ValueHistoryView: React.FC<Props> = ({
                   data: {
                     stroke: ({ active }) =>
                       active ? colors.palette[primaryColor] : "transparent",
-                    strokeDasharray: "5, 5",
+                    strokeDasharray: "6, 4",
+                    strokeWidth: 1.5,
                   },
                 }}
                 data={[
