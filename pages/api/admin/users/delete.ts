@@ -7,7 +7,7 @@ import { validateBody } from "pages/api/helpers";
 import { adminOnlyHandler } from "../helpers";
 
 const prisma = new PrismaClient();
-type DeleteUserDTO = {
+export type DeleteUserDTO = {
   id?: number;
 };
 
