@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { ProfileField } from "@prisma/client";
+import Button from "components/Button";
 import Icon, { IconType } from "components/Icon";
 import {
   IProfileField,
@@ -47,6 +48,8 @@ const ValueHistoryView: React.FC<Props> = ({
   primaryColor,
   values,
 }: Props) => {
+  const [historyView, setHistoryView] = useState<"graph" | "table">("table");
+
   const averageValue =
     values.reduce(
       (total: number, field: ProfileField) =>
@@ -91,7 +94,59 @@ const ValueHistoryView: React.FC<Props> = ({
             <option>Last 6 Months</option>
           </select>
         </div>
+        <div className="flex">
+          <Button
+            className={`bg-transparent navigation-tab rounded-full border-none py-2 mr-2 leading-7 ${
+              historyView === "graph"
+                ? `bg-${primaryColor}-muted text-${primaryColor} font-semibold`
+                : ""
+            }`}
+            onClick={() => setHistoryView("graph")}
+          >
+            Graph
+          </Button>
+          <Button
+            className={`bg-transparent navigation-tab rounded-full border-none py-2 leading-7 ${
+              historyView === "table"
+                ? `bg-${primaryColor}-muted text-${primaryColor} font-semibold`
+                : ""
+            }`}
+            onClick={() => setHistoryView("table")}
+          >
+            Table
+          </Button>
+        </div>
       </div>
+      {historyView === "table" && (
+        <table className="w-full mt-4">
+          <thead>
+            <tr className="h-10 text-left text-unselected tr-border">
+              <th className="w-3/12 pl-5 font-semibold">Date</th>
+              <th className="w-3/12 font-semibold">Score</th>
+              <th className="font-semibold">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {values.map((field: IProfileField<NumericProfileFields>) => (
+              <tr key={field.id} className="h-16 tr-border">
+                <td className="w-3/12 pl-5">
+                  {new Date(field.createdAt).toLocaleString("default", {
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </td>
+                <td className="w-3/12">
+                  {deserializeProfileFieldValue<
+                    ProfileField,
+                    NumericProfileFields
+                  >(field)}
+                </td>
+                <td />
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };
