@@ -11,6 +11,7 @@ import Joi from "joi";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { useForm } from "react-hook-form";
+import Modal from "components/Modal";
 
 interface AdminEditUserFormValues {
   firstName: string;
@@ -26,17 +27,17 @@ interface EditUserProps {
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-type ModalProps = React.PropsWithChildren<{
-  open?: boolean;
-}>;
+// type ModalProps = React.PropsWithChildren<{
+//   open?: boolean;
+// }>;
 
-const Modal: React.FC<ModalProps> = ({ children, open }: ModalProps) => {
-  return open ? (
-    <div className="absolute top-0 left-0 w-screen h-screen bg-dark bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white rounded w-3/4 px-10 pt-12 pb-8">{children}</div>
-    </div>
-  ) : null;
-};
+// const Modal: React.FC<ModalProps> = ({ children, open }: ModalProps) => {
+//   return open ? (
+//     <div className="absolute top-0 left-0 w-screen h-screen bg-dark bg-opacity-50 flex justify-center items-center">
+//       <div className="bg-white rounded w-3/4 px-10 pt-12 pb-8">{children}</div>
+//     </div>
+//   ) : null;
+// };
 
 const AdminEditUserFormSchema = Joi.object<AdminEditUserFormValues>({
   firstName: Joi.string().trim().required(),
@@ -57,7 +58,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
   setIsEditing,
 }) => {
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState();
+  const [error, setError] = useState("");
   const { errors, register, handleSubmit } = useForm<AdminEditUserFormValues>({
     resolver: joiResolver(AdminEditUserFormSchema),
   });
@@ -71,6 +72,8 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
       return;
     }
     try {
+      console.log("inside onsubmit");
+      console.log(values.phoneNumber);
       const response = await fetch(`/api/admin/users/${user?.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -82,9 +85,11 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
         } as UpdateUserDTO),
       });
       if (!response.ok) {
+        console.log("Failed!!!");
         throw await response.json();
       }
     } catch (err) {
+      console.log("ERROR:", err);
       setError(err.message);
     } finally {
       setSubmitting(false);
@@ -107,7 +112,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
                 <input
                   type="text"
                   className="input input-full"
-                  name="lastName"
+                  name="firstName"
                   defaultValue={user?.name?.split(" ")[0]}
                   placeholder="e.g., Cristiano"
                   ref={register}
@@ -116,7 +121,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
                 <input
                   type="text"
                   className="input input-full"
-                  name="lastName"
+                  name="firstName"
                   placeholder="e.g., Cristiano"
                   ref={register}
                 />
@@ -221,6 +226,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
                 className="button-primary px-10 py-2 mr-5"
                 type="submit"
                 onClick={() => {
+                  console.log("inside onclick");
                   setIsEditing(false);
                 }}
               >
