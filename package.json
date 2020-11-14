@@ -8,11 +8,13 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:scripts": "tsc --project tsconfig.scripts.json",
     "start": "next start -p $PORT",
     "db:migrate": "ts-node -O '{ \"module\": \"commonjs\" }' $(yarn bin db-migrate)",
     "db:migrate:create": "ts-node -O '{ \"module\": \"commonjs\" }' bin/create-migration.ts",
     "db:seed": "ts-node -O '{ \"module\": \"commonjs\" }' bin/seed-database.ts",
-    "heroku-postbuild": "yarn build && yarn db:migrate up"
+    "heroku-postbuild": "yarn build && yarn build:scripts && yarn db:migrate up",
+    "heroku-review-app-init": "node build/bin/set-nextauth-url.js && node build/bin/seed-database.js"
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx,json}": [
@@ -38,6 +40,7 @@
     "little-state-machine": "^3.1.2",
     "next": "9.5.3",
     "next-auth": "^3.1.0",
+    "node-fetch": "^2.6.1",
     "ora": "^5.1.0",
     "postcss-import": "^12.0.1",
     "react": "16.13.1",
@@ -51,6 +54,7 @@
     "@types/faker": "^5.1.3",
     "@types/next-auth": "^3.1.10",
     "@types/node": "^14.11.1",
+    "@types/node-fetch": "^2.5.7",
     "@types/react": "^16.9.49",
     "@types/react-dom": "^16.9.8",
     "@typescript-eslint/eslint-plugin": "^4.2.0",

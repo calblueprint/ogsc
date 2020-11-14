@@ -51,6 +51,13 @@ export default async function seedDatabase(): Promise<void> {
         },
       },
     });
+    await prisma.absence.deleteMany({
+      where: {
+        userId: {
+          in: users.map((user: User) => user.id),
+        },
+      },
+    });
     await prisma.profileField.deleteMany({
       where: {
         userId: {
