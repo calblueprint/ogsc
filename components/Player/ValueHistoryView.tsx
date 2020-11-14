@@ -81,6 +81,17 @@ const ValueHistoryView: React.FC<Props> = ({
           </p>
         </div>
       </div>
+      <div className="mt-5 flex justify-between items-center text-sm">
+        <div className="font-semibold">
+          <label htmlFor="viewing-window">{fieldLabel} History for</label>
+          <select className="ml-3 select" id="viewing-window">
+            <option>This Year</option>
+            <option>This Month</option>
+            <option>Last 30 Days</option>
+            <option>Last 6 Months</option>
+          </select>
+        </div>
+      </div>
     </div>
   );
 };
