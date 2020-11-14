@@ -37,7 +37,7 @@ const UserDashboardItem: React.FunctionComponent<User> = ({
             {/* Not being used right now because seed data doesn't have images */}
           </div>
           <div className="w-32">
-            <p className="font-display">{name}</p>
+            <p className="font-semibold">{name}</p>
             <p>User Role</p>
           </div>
         </div>
