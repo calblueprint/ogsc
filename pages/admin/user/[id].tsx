@@ -11,7 +11,6 @@ import Joi from "joi";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { useForm } from "react-hook-form";
-import Modal from "components/Modal";
 
 interface AdminEditUserFormValues {
   firstName: string;
@@ -27,19 +26,17 @@ interface EditUserProps {
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-console.log("hello");
+type ModalProps = React.PropsWithChildren<{
+  open?: boolean;
+}>;
 
-// type ModalProps = React.PropsWithChildren<{
-//   open?: boolean;
-// }>;
-
-// const Modal: React.FC<ModalProps> = ({ children, open }: ModalProps) => {
-//   return open ? (
-//     <div className="absolute top-0 left-0 w-screen h-screen bg-dark bg-opacity-50 flex justify-center items-center">
-//       <div className="bg-white rounded w-3/4 px-10 pt-12 pb-8">{children}</div>
-//     </div>
-//   ) : null;
-// };
+const Modal: React.FC<ModalProps> = ({ children, open }: ModalProps) => {
+  return open ? (
+    <div className="absolute top-0 left-0 w-screen h-screen bg-dark bg-opacity-50 flex justify-center items-center">
+      <div className="bg-white rounded w-3/4 px-10 pt-12 pb-8">{children}</div>
+    </div>
+  ) : null;
+};
 
 const AdminEditUserFormSchema = Joi.object<AdminEditUserFormValues>({
   firstName: Joi.string().trim().required(),
@@ -74,8 +71,6 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
       return;
     }
     try {
-      console.log("inside onsubmit");
-      console.log(values.phoneNumber);
       const response = await fetch(`/api/admin/users/${user?.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -87,14 +82,13 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
         } as UpdateUserDTO),
       });
       if (!response.ok) {
-        console.log("Failed!!!");
         throw await response.json();
       }
     } catch (err) {
-      console.log("ERROR:", err);
       setError(err.message);
     } finally {
       setSubmitting(false);
+      setIsEditing(false);
     }
   }
   return (
@@ -224,24 +218,10 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
           <hr />
           <div className="my-10">
             <div className="mb-2 flex">
-              <Button
-                className="button-primary px-10 py-2 mr-5"
-                type="submit"
-                onClick={() => {
-                  console.log("inside onclick");
-                  setIsEditing(false);
-                }}
-              >
+              <Button className="button-primary px-10 py-2 mr-5" type="submit">
                 Save
               </Button>
-              <Button
-                className="button-hollow px-10 py-2"
-                onClick={() => {
-                  setIsEditing(false);
-                }}
-              >
-                Cancel
-              </Button>
+              <Button className="button-hollow px-10 py-2">Cancel</Button>
             </div>
             {error && <p className="text-red-600 text-sm">{error}</p>}
           </div>
@@ -319,7 +299,7 @@ const UserProfile: React.FunctionComponent = () => {
             <p>List</p>
           </div>
         </div>
-        {EditUser({ isEditing, setIsEditing, user })}
+        {EditUser({ user, isEditing, setIsEditing })}
       </div>
     </DashboardLayout>
   );
