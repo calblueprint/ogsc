@@ -1,4 +1,16 @@
 import React, { useState } from "react";
+import {
+  VictoryArea,
+  VictoryAxis,
+  VictoryChart,
+  VictoryGroup,
+  VictoryLabel,
+  VictoryLine,
+  VictoryScatter,
+  VictoryTheme,
+  VictoryTooltip,
+  VictoryVoronoiContainer,
+} from "victory";
 import { ProfileField } from "@prisma/client";
 import Button from "components/Button";
 import Icon, { IconType } from "components/Icon";
@@ -50,15 +62,22 @@ const ValueHistoryView: React.FC<Props> = ({
 }: Props) => {
   const [historyView, setHistoryView] = useState<"graph" | "table">("table");
 
+  const deserializedValues = values.map(
+    (field: IProfileField<NumericProfileFields>) => ({
+      ...field,
+      value: deserializeProfileFieldValue<ProfileField, NumericProfileFields>(
+        field
+      ),
+      createdAt: new Date(field.createdAt),
+    })
+  );
   const averageValue =
-    values.reduce(
-      (total: number, field: ProfileField) =>
-        total +
-        (deserializeProfileFieldValue<ProfileField, NumericProfileFields>(
-          field
-        ) ?? 0),
+    deserializedValues.reduce(
+      (total: number, field: typeof deserializedValues[number]) =>
+        total + (field.value ?? 0),
       0
     ) / values.filter((field: ProfileField) => field.value !== null).length;
+  const mutedPrimaryColor = `${primaryColor}-muted` as keyof typeof colors.mutedPalette;
 
   return (
     <div>
@@ -127,7 +146,7 @@ const ValueHistoryView: React.FC<Props> = ({
             </tr>
           </thead>
           <tbody>
-            {values.map((field: IProfileField<NumericProfileFields>) => (
+            {deserializedValues.map((field) => (
               <tr key={field.id} className="h-16 tr-border">
                 <td className="w-3/12 pl-5">
                   {new Date(field.createdAt).toLocaleString("default", {
@@ -135,17 +154,179 @@ const ValueHistoryView: React.FC<Props> = ({
                     year: "numeric",
                   })}
                 </td>
-                <td className="w-3/12">
-                  {deserializeProfileFieldValue<
-                    ProfileField,
-                    NumericProfileFields
-                  >(field)}
-                </td>
+                <td className="w-3/12">{field.value}</td>
                 <td />
               </tr>
             ))}
           </tbody>
         </table>
+      )}
+      {historyView === "graph" && (
+        <>
+          <svg style={{ height: 0 }}>
+            <defs>
+              <linearGradient
+                id={`${primaryColor}ChartFill`}
+                gradientTransform="rotate(90)"
+              >
+                <stop
+                  offset="0%"
+                  stopColor={colors.mutedPalette[mutedPrimaryColor]}
+                />
+                <stop
+                  offset="100%"
+                  stopColor={colors.mutedPalette[mutedPrimaryColor]}
+                  stopOpacity={0.05}
+                />
+              </linearGradient>
+            </defs>
+          </svg>
+          <VictoryChart
+            containerComponent={
+              <VictoryVoronoiContainer className="-mt-8" voronoiDimension="x" />
+            }
+            theme={{
+              ...VictoryTheme.grayscale,
+              axis: {
+                style: {
+                  grid: {
+                    fill: "none",
+                    stroke: "transparent",
+                  },
+                },
+              },
+            }}
+            width={800}
+            height={250}
+          >
+            <VictoryAxis
+              style={{
+                grid: {
+                  stroke: colors.border,
+                  pointerEvents: "painted",
+                  strokeWidth: 0.5,
+                  strokeDasharray: "3, 5",
+                },
+                axis: {
+                  stroke: colors.unselected,
+                  strokeWidth: 0.5,
+                },
+                tickLabels: {
+                  fill: colors.unselected,
+                  fontFamily: "Montserrat",
+                  fontWeight: "600",
+                  fontSize: "8px",
+                  padding: "12",
+                },
+              }}
+              tickValues={Array(11)
+                .fill(0)
+                .map((_, index: number) => index)}
+              tickFormat={(x) => (![0, 5, 10].includes(x) ? "" : x)}
+              dependentAxis
+            />
+            <VictoryAxis
+              style={{
+                axis: {
+                  stroke: colors.unselected,
+                  strokeWidth: 0.5,
+                },
+                tickLabels: {
+                  fill: colors.unselected,
+                  fontFamily: "Montserrat",
+                  fontWeight: "600",
+                  fontSize: "8px",
+                  padding: "12",
+                },
+              }}
+              scale="time"
+              tickValues={Array(12)
+                .fill(null)
+                .map((_, index: number) => new Date(`${index + 1}-15-2020`))}
+              tickFormat={(x) =>
+                new Date(x).toLocaleDateString("default", {
+                  month: "short",
+                })
+              }
+            />
+            <VictoryGroup
+              data={deserializedValues.map((datum) => ({
+                x: datum.createdAt,
+                y: datum.value,
+                label: `${datum.value} points`,
+              }))}
+              domain={{
+                x: [new Date("01-01-2020"), new Date("12-31-2020")],
+                y: [0, 10],
+              }}
+              labelComponent={
+                <VictoryTooltip
+                  labelComponent={
+                    <VictoryLabel
+                      style={{
+                        fill: "#FFFFFF",
+                        fontFamily: "Montserrat",
+                        fontSize: "8px",
+                        fontWeight: 600,
+                      }}
+                    />
+                  }
+                  flyoutStyle={{
+                    fill: colors.palette[primaryColor],
+                    strokeWidth: 0,
+                  }}
+                  pointerLength={5}
+                  dy={-8}
+                />
+              }
+            >
+              <VictoryArea
+                style={{
+                  data: {
+                    fill: `url(#${primaryColor}ChartFill)`,
+                    strokeWidth: 0,
+                  },
+                }}
+              />
+              <VictoryLine
+                animate={{
+                  onLoad: { duration: 1000 },
+                }}
+                style={{
+                  data: {
+                    stroke: colors.palette[primaryColor],
+                    strokeWidth: 1.5,
+                  },
+                }}
+              />
+              <VictoryScatter
+                size={({ active }) => (active ? 4 : 0)}
+                style={{
+                  data: {
+                    fill: colors.palette[primaryColor],
+                    stroke: "#FFFFFF",
+                    strokeWidth: 2,
+                  },
+                }}
+              />
+            </VictoryGroup>
+            {deserializedValues.map((datum) => (
+              <VictoryLine
+                style={{
+                  data: {
+                    stroke: ({ active }) =>
+                      active ? colors.palette[primaryColor] : "transparent",
+                    strokeDasharray: "5, 5",
+                  },
+                }}
+                data={[
+                  { x: datum.createdAt, y: 0 },
+                  { x: datum.createdAt, y: datum.value },
+                ]}
+              />
+            ))}
+          </VictoryChart>
+        </>
       )}
     </div>
   );
