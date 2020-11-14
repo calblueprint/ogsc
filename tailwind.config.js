@@ -19,9 +19,5 @@ module.exports = {
       display: ["Airbnb Cereal App"],
     },
   },
-  variants: {
-    margin: ["hover"],
-    backgroundColor: ["hover"],
-  },
   plugins: [],
 };

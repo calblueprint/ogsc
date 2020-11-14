@@ -56,8 +56,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
   isEditing,
   setIsEditing,
 }) => {
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState();
   const { errors, register, handleSubmit } = useForm<AdminEditUserFormValues>({
     resolver: joiResolver(AdminEditUserFormSchema),
   });
@@ -84,7 +83,6 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
       if (!response.ok) {
         throw await response.json();
       }
-      // router.push("/admin/invite?success=true", "/admin/invite");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -104,60 +102,100 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
               name="firstName"
               error={errors.firstName?.message}
             >
-              <input
-                type="text"
-                className="input input-full"
-                name="firstName"
-                value={user?.name?.split(" ")[0]}
-                placeholder="e.g., Cristiano"
-                ref={register}
-              />
+              {user?.name ? (
+                <input
+                  type="text"
+                  className="input input-full"
+                  name="lastName"
+                  defaultValue={user?.name?.split(" ")[0]}
+                  placeholder="e.g., Cristiano"
+                  ref={register}
+                />
+              ) : (
+                <input
+                  type="text"
+                  className="input input-full"
+                  name="lastName"
+                  placeholder="e.g., Cristiano"
+                  ref={register}
+                />
+              )}
             </FormField>
             <FormField
               label="Last Name"
               name="lastName"
               error={errors.lastName?.message}
             >
-              <input
-                type="text"
-                className="input input-full"
-                name="lastName"
-                value={
-                  user?.name?.split(" ").length === 1
-                    ? undefined
-                    : user?.name?.substr(user?.name?.indexOf(" ") + 1)
-                }
-                placeholder="e.g., Ronaldo"
-                ref={register}
-              />
+              {user?.name ? (
+                <input
+                  type="text"
+                  className="input input-full"
+                  name="lastName"
+                  defaultValue={
+                    user?.name?.split(" ").length === 1
+                      ? undefined
+                      : user?.name?.substr(user?.name?.indexOf(" ") + 1)
+                  }
+                  placeholder="e.g., Ronaldo"
+                  ref={register}
+                />
+              ) : (
+                <input
+                  type="text"
+                  className="input input-full"
+                  name="lastName"
+                  placeholder="e.g., Ronaldo"
+                  ref={register}
+                />
+              )}
             </FormField>
             <FormField
               label="Email Address"
               name="email"
               error={errors.email?.message}
             >
-              <input
-                type="text"
-                className="input input-full"
-                name="email"
-                value={user?.email}
-                placeholder="e.g., soccer@fifa.com"
-                ref={register}
-              />
+              {user?.email ? (
+                <input
+                  type="text"
+                  className="input input-full"
+                  name="email"
+                  defaultValue={user?.email}
+                  placeholder="e.g., soccer@fifa.com"
+                  ref={register}
+                />
+              ) : (
+                <input
+                  type="text"
+                  className="input"
+                  name="phoneNumber"
+                  placeholder="e.g., 123-456-7890"
+                  ref={register}
+                />
+              )}
             </FormField>
             <FormField
               label="Phone Number"
               name="phoneNumber"
               error={errors.phoneNumber?.message}
             >
-              <input
-                type="text"
-                className="input"
-                name="phoneNumber"
-                value={user?.phoneNumber ? user?.phoneNumber : undefined}
-                placeholder="e.g., 123-456-7890"
-                ref={register}
-              />
+              {user?.phoneNumber ? (
+                <input
+                  type="text"
+                  className="input"
+                  name="phoneNumber"
+                  defaultValue={user?.phoneNumber}
+                  placeholder="e.g., 123-456-7890"
+                  ref={register}
+                />
+              ) : (
+                <input
+                  type="text"
+                  className="input"
+                  name="phoneNumber"
+                  placeholder="e.g., 123-456-7890"
+                  ref={register}
+                />
+              )}
             </FormField>
             <FormField label="Role" name="role" error={errors.role?.message}>
               {UserRoleConstants.map((role: UserRole) => (
@@ -167,7 +205,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
                     type="radio"
                     name="role"
                     id={role}
-                    value={role}
+                    defaultValue={role}
                     ref={register}
                   />
                   {UserRoleLabel[role]}
