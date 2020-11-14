@@ -9,10 +9,11 @@ import { adminOnlyHandler } from "../helpers";
 
 const prisma = new PrismaClient();
 
-type UpdateUserDTO = {
+export type UpdateUserDTO = {
   id?: number;
   name?: string;
   email?: string;
+  phoneNumber?: string;
   emailVerified?: Date;
   image?: string;
 };
@@ -21,6 +22,7 @@ const expectedBody = Joi.object<UpdateUserDTO>({
   id: Joi.number(),
   name: Joi.string(),
   email: Joi.string(),
+  phoneNumber: Joi.string(),
   emailVerified: Joi.date(),
   image: Joi.string(),
 });
@@ -36,6 +38,7 @@ const handler = async (
       data: {
         name: userInfo.name,
         email: userInfo.email,
+        phoneNumber: userInfo.phoneNumber,
         emailVerified: userInfo.emailVerified,
         image: userInfo.image,
       },
