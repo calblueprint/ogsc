@@ -9,6 +9,7 @@ import { useRouter } from "next/router";
 import { AdminCreateUserDTO } from "pages/api/admin/users/create";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import Combobox from "components/Combobox";
 
 type AdminInviteFormValues = {
   firstName: string;
@@ -16,6 +17,7 @@ type AdminInviteFormValues = {
   email: string;
   phoneNumber?: string;
   role: UserRole;
+  linkedPlayers?: number[];
 };
 
 const AdminInviteFormSchema = Joi.object<AdminInviteFormValues>({
@@ -29,6 +31,7 @@ const AdminInviteFormSchema = Joi.object<AdminInviteFormValues>({
   role: Joi.string()
     .valid(...UserRoleConstants)
     .required(),
+  linkedPlayers: Joi.array().items(Joi.number().required()).optional(),
 });
 
 const AdminNewInvitePage: React.FC = () => {
@@ -37,6 +40,8 @@ const AdminNewInvitePage: React.FC = () => {
   // TODO: Add loading state to form submission
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [roleChosen, setRoleChosen] = useState("");
+
   const { errors, register, handleSubmit } = useForm<AdminInviteFormValues>({
     resolver: joiResolver(AdminInviteFormSchema),
   });
@@ -70,6 +75,14 @@ const AdminNewInvitePage: React.FC = () => {
       setSubmitting(false);
     }
   }
+
+  const showCombobox = (): string => {
+    return roleChosen === "mentor" ||
+      roleChosen === "parent" ||
+      roleChosen === "donor"
+      ? ""
+      : "hidden";
+  };
 
   return (
     <DashboardLayout>
@@ -150,11 +163,40 @@ const AdminNewInvitePage: React.FC = () => {
                     id={role}
                     value={role}
                     ref={register}
+                    onChange={(event) => setRoleChosen(event.target.value)}
                   />
                   {UserRoleLabel[role]}
                 </label>
               ))}
             </FormField>
+            <div className={showCombobox()}>
+              <legend className="text-lg font-medium mb-10 mt-16">
+                Role Information
+              </legend>
+              <FormField
+                label="Linked Players"
+                name="linkedPlayers"
+                error="" // TODO: fix this
+              >
+                <p
+                  className={`text-xs font-normal mt-3 mb-3 ${showCombobox()}`}
+                >
+                  {(() => {
+                    switch (roleChosen) {
+                      case "mentor":
+                        return "Mentors will have access to the full profile of players they are mentoring, including Engagement Scores, Academics, Attendance, and Physical Health information.";
+                      case "parent":
+                        return "Parents will have access to the full profile of their children, including Engagement Scores, Academics, Attendance, and Physical Health information.";
+                      case "donor":
+                        return "Donors will have access to extended profiles of players they’re sponsoring, including Engagement Scores, Academics, and Physical Health information.";
+                      default:
+                        return "error";
+                    }
+                  })()}
+                </p>
+                <Combobox />
+              </FormField>
+            </div>
           </fieldset>
           <hr />
           <div className="my-10">
