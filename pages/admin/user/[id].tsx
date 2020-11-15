@@ -30,6 +30,7 @@ type ModalProps = React.PropsWithChildren<{
   open?: boolean;
 }>;
 
+// TODO: Make some styling changes
 const Modal: React.FC<ModalProps> = ({ children, open }: ModalProps) => {
   return open ? (
     <div className="absolute top-0 left-0 w-screen h-screen bg-dark bg-opacity-50 flex justify-center items-center">
