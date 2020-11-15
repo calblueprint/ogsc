@@ -32,7 +32,7 @@ const UserDashboardItem: React.FunctionComponent<User> = ({
 }) => {
   return (
     <a href={`user/${id.toString()}`}>
-      <div className="flex flex-row justify-between text-sm h-16 items-center py-10 hover:bg-bghover">
+      <div className="flex flex-row justify-between text-sm h-16 items-center py-10 hover:bg-hover">
         {/* TODO: FIX PADDING ABOVE */}
         <div className="flex flex-row justify-between">
           <div className="w-10 h-10 mr-4 bg-placeholder rounded-full">

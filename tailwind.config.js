@@ -11,8 +11,8 @@ module.exports = {
         unselected: "#A9AFB8",
         button: "#F5F7FA",
         placeholder: "#E0E4E9",
-        bghover: "#F7F9FB",
-        bluetitle: "004284",
+        hover: "#F7F9FB",
+        blue: "004284",
       },
     },
     fontFamily: {

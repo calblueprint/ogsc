@@ -288,21 +288,21 @@ const UserProfile: React.FunctionComponent = () => {
           <div className="pb-16 pt-">
             <h2 className="text-lg pb-5">Basic Information</h2>
             <div className="flex flex-row text-sm pb-6">
-              <p className="text-bluetitle mr-20 w-24">Email Address</p>
+              <p className="text-blue mr-20 w-24">Email Address</p>
               <p>{user?.email}</p>
             </div>
             <div className="flex flex-row text-sm pb-6">
-              <p className="text-bluetitle mr-20 w-24">Phone Number</p>
+              <p className="text-blue mr-20 w-24">Phone Number</p>
               <p>{user?.phoneNumber}</p>
             </div>
             <div className="flex flex-row text-sm">
-              <p className="text-bluetitle mr-20 w-24">User Role</p>
+              <p className="text-blue mr-20 w-24">User Role</p>
               <p>Role</p>
             </div>
           </div>
           <h2 className="text-lg pb-5">Mentor Information</h2>
           <div className="flex flex-row text-sm">
-            <p className="text-bluetitle mr-20 w-24">Menteed Players</p>
+            <p className="text-blue mr-20 w-24">Menteed Players</p>
             <p>List</p>
           </div>
         </div>
