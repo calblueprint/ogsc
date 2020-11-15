@@ -169,8 +169,8 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
                 <input
                   type="text"
                   className="input"
-                  name="phoneNumber"
-                  placeholder="e.g., 123-456-7890"
+                  name="email"
+                  placeholder="e.g., soccer@fifa.com"
                   ref={register}
                 />
               )}
@@ -221,7 +221,14 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
               <Button className="button-primary px-10 py-2 mr-5" type="submit">
                 Save
               </Button>
-              <Button className="button-hollow px-10 py-2">Cancel</Button>
+              <Button
+                className="button-hollow px-10 py-2"
+                onClick={() => {
+                  setIsEditing(false);
+                }}
+              >
+                Cancel
+              </Button>
             </div>
             {error && <p className="text-red-600 text-sm">{error}</p>}
           </div>
