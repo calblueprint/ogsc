@@ -11,6 +11,8 @@ module.exports = {
         unselected: "#798393",
         button: "#F5F7FA",
         placeholder: "#E0E4E9",
+        hover: "#F7F9FB",
+        blue: "004284",
         lightBlue: "#E9F4FF",
         darkBlue: "#004284",
         hoverState: "#F7F9FB",
@@ -41,6 +43,5 @@ module.exports = {
       ],
     },
   },
-  variants: {},
   plugins: [],
 };
