@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^0.2.0",
-    "@hookform/resolvers": "^1.0.0",
+    "@hookform/resolvers": "^1.0.1",
     "@prisma/client": "2.11.0",
     "@sendgrid/mail": "^7.4.0",
     "autoprefixer": "9.8.6",
