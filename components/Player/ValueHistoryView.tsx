@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import dayjs from "dayjs";
 import {
   VictoryArea,
   VictoryAxis,
@@ -53,6 +54,39 @@ type Props = {
   values: IProfileField<NumericProfileFields>[];
 };
 
+enum IntervalWindow {
+  LastSixMonths,
+  LastTwelveMonths,
+  ThisYear,
+  AllTime,
+}
+
+const IntervalWindowLabels: Record<IntervalWindow, string> = {
+  [IntervalWindow.LastSixMonths]: "Last 6 Months",
+  [IntervalWindow.LastTwelveMonths]: "Last 12 Months",
+  [IntervalWindow.ThisYear]: "This Year",
+  [IntervalWindow.AllTime]: "All Time",
+};
+
+const IntervalWindowBoundaries: Record<
+  IntervalWindow,
+  [Date | null, Date | null]
+> = {
+  [IntervalWindow.LastSixMonths]: [
+    dayjs().subtract(6, "month").toDate(),
+    dayjs().toDate(),
+  ],
+  [IntervalWindow.LastTwelveMonths]: [
+    dayjs().subtract(12, "month").toDate(),
+    dayjs().toDate(),
+  ],
+  [IntervalWindow.ThisYear]: [
+    dayjs().startOf("year").toDate(),
+    dayjs().endOf("year").toDate(),
+  ],
+  [IntervalWindow.AllTime]: [null, null],
+};
+
 const ValueHistoryView: React.FC<Props> = ({
   fieldLabel,
   shortFieldLabel,
@@ -61,6 +95,10 @@ const ValueHistoryView: React.FC<Props> = ({
   values,
 }: Props) => {
   const [historyView, setHistoryView] = useState<"graph" | "table">("graph");
+  const [intervalWindow, setIntervalWindow] = useState<IntervalWindow>(
+    IntervalWindow.LastSixMonths
+  );
+  const [startDate, endDate] = IntervalWindowBoundaries[intervalWindow];
 
   const deserializedValues = values.map(
     (field: IProfileField<NumericProfileFields>) => ({
@@ -71,12 +109,22 @@ const ValueHistoryView: React.FC<Props> = ({
       createdAt: new Date(field.createdAt),
     })
   );
+  const filteredValues = deserializedValues.filter(({ createdAt }) =>
+    startDate && endDate
+      ? dayjs(createdAt).isBefore(endDate) &&
+        dayjs(createdAt).isAfter(startDate)
+      : true
+  );
+
   const averageValue =
-    deserializedValues.reduce(
-      (total: number, field: typeof deserializedValues[number]) =>
+    filteredValues.reduce(
+      (total: number, field: typeof filteredValues[number]) =>
         total + (field.value ?? 0),
       0
-    ) / values.filter((field: ProfileField) => field.value !== null).length;
+    ) /
+    filteredValues.filter(
+      (field: typeof filteredValues[number]) => field.value !== null
+    ).length;
   const mutedPrimaryColor = `${primaryColor}-muted` as keyof typeof colors.mutedPalette;
 
   return (
@@ -106,11 +154,18 @@ const ValueHistoryView: React.FC<Props> = ({
       <div className="mt-5 flex justify-between items-center text-sm">
         <div className="font-semibold">
           <label htmlFor="viewing-window">{fieldLabel} History for</label>
-          <select className="ml-3 select" id="viewing-window">
-            <option>This Year</option>
-            <option>This Month</option>
-            <option>Last 30 Days</option>
-            <option>Last 6 Months</option>
+          <select
+            className="ml-3 select"
+            id="viewing-window"
+            onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
+              setIntervalWindow(Number(event.target.value) as IntervalWindow)
+            }
+          >
+            {Object.entries(IntervalWindowLabels).map(
+              ([interval, label]: [string, string]) => (
+                <option value={interval}>{label}</option>
+              )
+            )}
           </select>
         </div>
         <div className="flex">
@@ -146,7 +201,7 @@ const ValueHistoryView: React.FC<Props> = ({
             </tr>
           </thead>
           <tbody>
-            {deserializedValues.map((field) => (
+            {filteredValues.map((field) => (
               <tr key={field.id} className="h-16 tr-border">
                 <td className="w-3/12 pl-5">
                   {new Date(field.createdAt).toLocaleString("default", {
@@ -198,6 +253,13 @@ const ValueHistoryView: React.FC<Props> = ({
             }}
             width={800}
             height={250}
+            domain={{
+              x: startDate && endDate ? [startDate, endDate] : undefined,
+              y: [0, 10],
+            }}
+            scale={{
+              x: "time",
+            }}
           >
             <VictoryAxis
               style={{
@@ -239,14 +301,25 @@ const ValueHistoryView: React.FC<Props> = ({
                   padding: "12",
                 },
               }}
-              scale="time"
-              tickValues={Array(12)
-                .fill(null)
-                .map((_, index: number) => new Date(`${index + 1}-15-2020`))}
-              tickFormat={(x) =>
-                new Date(x).toLocaleDateString("default", {
-                  month: "short",
-                })
+              tickFormat={
+                startDate && endDate
+                  ? (x) =>
+                      new Date(x).toLocaleDateString("default", {
+                        month: "short",
+                      })
+                  : undefined
+              }
+              tickValues={
+                startDate && endDate
+                  ? Array(dayjs(endDate).diff(dayjs(startDate), "month") + 1)
+                      .fill(null)
+                      .map((_, index) =>
+                        dayjs(startDate)
+                          .startOf("month")
+                          .add(index, "month")
+                          .toDate()
+                      )
+                  : undefined
               }
             />
             <VictoryGroup
@@ -255,10 +328,6 @@ const ValueHistoryView: React.FC<Props> = ({
                 y: datum.value,
                 label: `${datum.value} points`,
               }))}
-              domain={{
-                x: [new Date("01-01-2020"), new Date("12-31-2020")],
-                y: [0, 10],
-              }}
               labelComponent={
                 <VictoryTooltip
                   labelComponent={
@@ -281,6 +350,7 @@ const ValueHistoryView: React.FC<Props> = ({
               }
             >
               <VictoryArea
+                animate
                 style={{
                   data: {
                     fill: `url(#${primaryColor}ChartFill)`,
@@ -289,9 +359,7 @@ const ValueHistoryView: React.FC<Props> = ({
                 }}
               />
               <VictoryLine
-                animate={{
-                  onLoad: { duration: 1000 },
-                }}
+                animate
                 style={{
                   data: {
                     stroke: colors.palette[primaryColor],
