@@ -87,6 +87,7 @@ export default async function seedDatabase(): Promise<void> {
       data: {
         name: "Admin User",
         email: "admin@ogsc.dev",
+        phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
         hashedPassword: hashPassword("password"),
         isAdmin: true,
       },
@@ -106,6 +107,7 @@ export default async function seedDatabase(): Promise<void> {
           email: `player${index}@ogsc.dev`,
           hashedPassword: hashPassword("password"),
           name: `${Faker.name.firstName()} ${Faker.name.lastName()}`,
+          phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
           absences: {
             create: Object.values(AbsenceType).flatMap((type: AbsenceType) =>
               Array<Absence | null>(Faker.random.number(3))
@@ -233,6 +235,7 @@ export default async function seedDatabase(): Promise<void> {
           email: `mentor${index}@ogsc.dev`,
           hashedPassword: hashPassword("password"),
           name: `${Faker.name.firstName()} ${Faker.name.lastName()}`,
+          phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
           viewerPermissions: {
             create: {
               relationship_type: "player",

@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 import Button from "components/Button";
+import { DeleteUserDTO } from "pages/api/admin/users/delete";
+
+// import { UpdateUserDTO } from "pages/api/admin/users/update";
+// const prisma = new PrismaClient();
 // import DeclineButton from "components/declineButton";
 // import AcceptButton from "components/acceptButton";
 
@@ -7,7 +11,46 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
   name,
   email,
   phoneNumber,
+  id,
+  onDelete,
+  onAccept,
 }) => {
+  const deleteUser = async (): Promise<void> => {
+    try {
+      const response = await fetch("/api/admin/users/delete", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          id,
+        } as DeleteUserDTO),
+      });
+      if (!response.ok) {
+        throw await response.json();
+      }
+      onDelete();
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  };
+  const acceptUser = async (): Promise<void> => {
+    try {
+      const response = await fetch("/api/admin/users/update", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          id,
+        } as DeleteUserDTO),
+      });
+      if (!response.ok) {
+        throw await response.json();
+      }
+      onAccept();
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  };
   return (
     <div>
       <div className="grid grid-cols-4 gap-10 justify-items-start m-5">
@@ -27,13 +70,19 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
         <div>
           <div className="flex space-x-4">
             <div>
-              <Button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+              <Button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                onClick={deleteUser}
+              >
                 Decline
               </Button>
             </div>
             <div className="ml-4 ">
               <div>
-                <Button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                <Button
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                  onClick={acceptUser}
+                >
                   Accept
                 </Button>
               </div>
@@ -49,9 +98,13 @@ interface UserRequest {
   name: string;
   email: string;
   phoneNumber: string;
+  id: number;
+  onDelete: () => void;
+  onAccept: () => void;
 }
 
 const UserDashboard: React.FunctionComponent = () => {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   const [users, setUsers] = useState<UserRequest[]>();
 
   const getUsers = async (): Promise<void> => {
@@ -67,9 +120,10 @@ const UserDashboard: React.FunctionComponent = () => {
       throw new Error(err.message);
     }
   };
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   useEffect(() => {
     getUsers();
-  });
+  }, []);
   return (
     <div>
       <div className="grid grid-cols-4 gap-12 justify-items-start m-5 font-display text-unselected">
@@ -84,6 +138,9 @@ const UserDashboard: React.FunctionComponent = () => {
           name={user.name}
           email={user.email}
           phoneNumber={user.phoneNumber}
+          id={user.id}
+          onDelete={getUsers}
+          onAccept={getUsers}
         />
       ))}
     </div>
