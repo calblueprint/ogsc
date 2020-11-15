@@ -9,7 +9,7 @@ const Card: React.FC<Props> = ({ children, text, onDelete }: Props) => {
   return (
     <div className="rounded-md border border-gray-500 my-3 w-1/3">
       <div className="flex justify-between p-2">
-        <div className="">{text}</div>
+        <div>{text}</div>
         <button
           type="button"
           className="text-gray-500 hover:font-bold hover:text-black"
