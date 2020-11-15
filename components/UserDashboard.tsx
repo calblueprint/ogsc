@@ -40,7 +40,7 @@ const UserDashboardItem: React.FunctionComponent<User> = ({
             {/* Not being used right now because seed data doesn't have images */}
           </div>
           <div className="w-32">
-            <p className="font-display">{name}</p>
+            <p className="font-semibold">{name}</p>
             <p>User Role</p>
           </div>
         </div>
@@ -69,7 +69,7 @@ const UserDashboard: React.FunctionComponent = () => {
         setUsers(pageCache[pageNumber]);
       } else {
         const response = await fetch(
-          `http://localhost:3000/api/admin/users?pageNumber=${pageNumber}`,
+          `/api/admin/users?pageNumber=${pageNumber}`,
           {
             method: "GET",
             headers: { "content-type": "application/json" },

@@ -22,10 +22,10 @@ function chooseDefaultRoleType(user: SessionInfo["user"]): UserRole {
   if (user?.isAdmin) {
     return "admin";
   }
-  if (user?.viewerPermissions.length > 0) {
+  if ("viewerPermissions" in user && user.viewerPermissions.length > 0) {
     return "mentor";
   }
-  if (user?.profile) {
+  if ("profile" in user && user.profile) {
     return "player";
   }
   return "donor";
@@ -36,7 +36,7 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
   const router = useRouter();
   const [user, setUser] = useState<SessionInfo["user"] | null>(null);
   const accessingAuthenticatedRoute =
-    router.pathname.match(new RegExp(`^/(${UserRoleConstants.join("|")})`)) !==
+    router.asPath.match(new RegExp(`^/(${UserRoleConstants.join("|")})`)) !==
     null;
   const sessionInfo: SessionInfo = useMemo(
     () =>
@@ -52,6 +52,31 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
       password: "",
       role: null,
       adminNote: "",
+    },
+    playerData: {
+      playerNumber: null,
+      age: null,
+      aboutMe: null,
+      hobbies: null,
+      favoriteSubject: null,
+      mostDifficultSubject: null,
+      siblings: null,
+      parents: null,
+      schoolScore: null,
+      academicScore: null,
+      athleticsScore: null,
+      gpa: null,
+      disciplinaryActions: null,
+      school: null,
+      academic: null,
+      athletics: null,
+      bmi: null,
+      beepTest: null,
+      mileTime: null,
+      sitUps: null,
+      pushUps: null,
+      healthWellness: null,
+      video: null,
     },
     // Add another struct specific for your use case here for state management
   });

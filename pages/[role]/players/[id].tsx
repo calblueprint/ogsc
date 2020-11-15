@@ -1,4 +1,10 @@
-import { PrismaClient, ProfileField, User } from "@prisma/client";
+import {
+  Absence,
+  PrismaClient,
+  ProfileField,
+  User,
+  ViewingPermission,
+} from "@prisma/client";
 import DashboardLayout from "components/DashboardLayout";
 import PlayerProfile from "components/Player/Profile";
 import { NextPageContext } from "next";
@@ -6,7 +12,14 @@ import sanitizeUser from "utils/sanitizeUser";
 import buildUserProfile from "utils/buildUserProfile";
 
 type Props = {
-  player?: Omit<User & { profileFields: ProfileField[] }, "hashedPassword">;
+  player?: Omit<
+    User & {
+      absences: Absence[];
+      viewedByPermissions: ViewingPermission[];
+      profileFields: ProfileField[];
+    },
+    "hashedPassword"
+  >;
 };
 
 export async function getServerSideProps(
@@ -16,7 +29,11 @@ export async function getServerSideProps(
   const id = context.query.id as string;
   const user = await prisma.user.findOne({
     where: { id: Number(id) },
-    include: { profileFields: true, viewerPermissions: true },
+    include: {
+      absences: true,
+      profileFields: true,
+      viewedByPermissions: true,
+    },
   });
 
   if (user === null) {
@@ -42,27 +59,23 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
   return (
     <DashboardLayout>
       <div className="flex mt-20 flex-wrap space-y-6 flex-col mx-16">
-        <div className="header flex">
+        <div className="header flex items-center">
           <div className="picture flex mr-10">
             <img
-              src="/reference to pic"
-              alt="..."
-              className="shadow rounded-full max-w-full align-middle border-none w-24 h-24"
+              src="/placeholder-profile.png"
+              alt={hydratedPlayer.name || "player"}
+              className="bg-button rounded-full max-w-full align-middle border-none w-24 h-24"
             />
           </div>
           <div className="player-info grid grid-rows-2">
-            <p className="pt-6 text-xl font-display font-medium">
-              {hydratedPlayer.name}
-            </p>
-            <p className="pt-2 text-sm font-display font-medium">
+            <p className="pt-6 text-2xl font-semibold">{hydratedPlayer.name}</p>
+            <p className="pt-2 text-sm font-medium">
               {hydratedPlayer.profile?.PlayerNumber.current &&
                 `#${hydratedPlayer.profile?.PlayerNumber.current}`}
             </p>
           </div>
         </div>
-        {hydratedPlayer.profile && (
-          <PlayerProfile profile={hydratedPlayer.profile} />
-        )}
+        <PlayerProfile player={hydratedPlayer} />
       </div>
     </DashboardLayout>
   );

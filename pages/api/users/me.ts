@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { IUser } from "interfaces";
+import { IPlayer, IUser } from "interfaces";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/client";
 import buildUserProfile from "utils/buildUserProfile";
@@ -19,13 +19,15 @@ export default routeByMethod({
     const user = await prisma.user.findOne({
       where: { email: session.user.email },
       include: {
+        absences: true,
         profileFields: true,
         viewerPermissions: true,
+        viewedByPermissions: true,
       },
     });
 
     if (user) {
-      const response: IUser = sanitizeUser(buildUserProfile(user));
+      const response: IUser | IPlayer = sanitizeUser(buildUserProfile(user));
       res.json(response);
     } else {
       res.status(500).json({ message: "Could not find user." });
