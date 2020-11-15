@@ -110,9 +110,7 @@ const Combobox: React.FC = () => {
               inputPlayers.map((item: string, index: number) => (
                 <li
                   className={`${
-                    highlightedIndex === index
-                      ? "bg-blue-600 text-white border-blue-600"
-                      : ""
+                    highlightedIndex === index ? "bg-lightBlue" : ""
                   } px-3 py-2 border-b`}
                   key={`${item}`}
                   {...getItemProps({
