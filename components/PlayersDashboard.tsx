@@ -23,7 +23,8 @@ const PlayerDashboardItem: React.FunctionComponent<Player> = ({
   const link = `/${session.sessionType}/players/${id}`;
   return (
     <Link href={link}>
-      <div role="button">
+      <div role="button" className=" hover:bg-hoverState">
+        <hr className="border-unselected border-opacity-50" />
         <div className="grid grid-cols-3 gap-12 justify-items-start m-5">
           <div className="flex flex-row">
             <div className="w-10 h-10 mr-4 bg-placeholder rounded-full">
@@ -35,7 +36,7 @@ const PlayerDashboardItem: React.FunctionComponent<Player> = ({
           <p className="self-center font-normal">#{id}</p>
           <p className="self-center font-normal">{team || "Fifa"}</p>
         </div>
-        <hr className="border-unselected border-opacity-50" />
+        <hr className="border-unselected border-opacity-0" />
       </div>
     </Link>
   );
@@ -68,7 +69,7 @@ const PlayerDashboard: React.FunctionComponent<SearchProps> = ({
           <p>Team</p>
         </div>
       </div>
-      <hr className="border-unselected border-opacity-50 m-4" />
+      <hr className="border-unselected border-opacity-0" />
       {players?.slice(0, 7).map((player) => (
         <PlayerDashboardItem
           name={player.name}
