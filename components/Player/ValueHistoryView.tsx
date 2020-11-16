@@ -326,26 +326,53 @@ const ValueHistoryView: React.FC<Props> = ({
               data={deserializedValues.map((datum) => ({
                 x: datum.createdAt,
                 y: datum.value,
-                label: `${datum.value} points`,
+                label: [
+                  datum.createdAt.toLocaleDateString("default", {
+                    month: "short",
+                    year: "numeric",
+                  }),
+                  datum.value === 1
+                    ? `${datum.value} point`
+                    : `${datum.value} points`,
+                ],
               }))}
               labelComponent={
                 <VictoryTooltip
                   labelComponent={
                     <VictoryLabel
-                      style={{
-                        fill: "#FFFFFF",
-                        fontFamily: "Montserrat",
-                        fontSize: "8px",
-                        fontWeight: 600,
-                      }}
+                      lineHeight={[1.5, 1]}
+                      style={[
+                        {
+                          fill: "#FFFFFF",
+                          fontFamily: "Montserrat",
+                          fontSize: "6px",
+                          fontWeight: 500,
+                          opacity: 0.8,
+                        },
+                        {
+                          fill: "#FFFFFF",
+                          fontFamily: "Montserrat",
+                          fontSize: "8px",
+                          fontWeight: 600,
+                        },
+                      ]}
                     />
                   }
                   flyoutStyle={{
                     fill: colors.palette[primaryColor],
                     strokeWidth: 0,
                   }}
+                  cornerRadius={3}
+                  flyoutPadding={{
+                    top: -3,
+                    bottom: -3,
+                    left: 5,
+                    right: -5,
+                  }}
                   pointerLength={5}
+                  pointerWidth={6}
                   dy={-8}
+                  style={{ textAnchor: "start" }}
                 />
               }
             >
