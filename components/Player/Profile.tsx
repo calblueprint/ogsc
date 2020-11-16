@@ -1,7 +1,6 @@
 import React, { useContext, useState } from "react";
 import Icon, { IconType } from "components/Icon";
 import { AbsenceType, IPlayer, ProfileFieldKey } from "interfaces";
-import formatDate from "utils/formatDate";
 import TextLayout from "./TextLayout";
 import AbsenceTable from "./AbsenceTable";
 import ValueHistoryView from "./ValueHistoryView";
@@ -80,6 +79,7 @@ const ProfileFieldLabels: Partial<Record<ProfileFieldKey, string>> = {
   [ProfileFieldKey.AcademicEngagementScore]: "School Engagement",
   [ProfileFieldKey.AdvisingScore]: "Academic Advising Engagement",
   [ProfileFieldKey.AthleticScore]: "Athletics Engagement",
+  [ProfileFieldKey.GPA]: "Grade Point Average",
 };
 
 const PlayerContext = React.createContext<IPlayer | null>(null);
@@ -107,6 +107,7 @@ const ProfileContentCell: React.FC<ProfileContentCellProps> = ({
           }
           shortFieldLabel="Engagement"
           values={profileField.history}
+          valueLabel="point"
         />
       );
     case ProfileFieldKey.AdvisingScore:
@@ -117,16 +118,18 @@ const ProfileContentCell: React.FC<ProfileContentCellProps> = ({
           fieldLabel={ProfileFieldLabels.AdvisingScore || "Engagement"}
           shortFieldLabel="Engagement"
           values={profileField.history}
+          valueLabel="point"
         />
       );
     case ProfileFieldKey.AthleticScore:
       return (
         <ValueHistoryView
           icon="athletics"
-          primaryColor="blue"
+          primaryColor="purple"
           fieldLabel={ProfileFieldLabels.AthleticScore || "Engagement"}
           shortFieldLabel="Engagement"
           values={profileField.history}
+          valueLabel="point"
         />
       );
 
@@ -148,12 +151,14 @@ const ProfileContentCell: React.FC<ProfileContentCellProps> = ({
       );
     case ProfileFieldKey.GPA:
       return (
-        <>
-          <TextLayout title="GPA">{profileField.current.toFixed(2)}</TextLayout>
-          <div className="mb-5 text-sm font-light">
-            Last Updated {formatDate(profileField.lastUpdated)}
-          </div>
-        </>
+        <ValueHistoryView
+          icon="book"
+          primaryColor="blue"
+          fieldLabel={ProfileFieldLabels.GPA || "GPA"}
+          shortFieldLabel="GPA"
+          values={profileField.history}
+          valueRange={[2, 4]}
+        />
       );
     case ProfileFieldKey.HealthAndWellness:
       return (
@@ -220,7 +225,6 @@ const ProfileContents = <T extends ProfileCategory>({
       return (
         <div>
           <h1 className="mb-10 text-2xl font-semibold">Academic Performance</h1>
-          <div className="mb-6 text-lg font-semibold">Grade Point Average</div>
           <ProfileContentCell fieldKey={ProfileFieldKey.GPA} />
           <ProfileContentCell fieldKey={ProfileFieldKey.DisciplinaryActions} />
         </div>

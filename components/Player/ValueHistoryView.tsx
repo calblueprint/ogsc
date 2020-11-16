@@ -52,6 +52,17 @@ type Props = {
   primaryColor: keyof typeof colors.palette;
 
   values: IProfileField<NumericProfileFields>[];
+
+  /**
+   * Specify the range of possible valules as [minimum, maximum].
+   */
+  valueRange?: [number, number];
+
+  /**
+   * Specify a noun and optionally, its pluaral form for what a value should be labeled as in a
+   * chart, i.e. "3 **points**", "20 **pacers**".
+   */
+  valueLabel?: string | [string, string];
 };
 
 enum IntervalWindow {
@@ -93,6 +104,8 @@ const ValueHistoryView: React.FC<Props> = ({
   icon,
   primaryColor,
   values,
+  valueLabel = ["", ""],
+  valueRange = [0, 10],
 }: Props) => {
   const [historyView, setHistoryView] = useState<"graph" | "table">("graph");
   const [intervalWindow, setIntervalWindow] = useState<IntervalWindow>(
@@ -143,8 +156,8 @@ const ValueHistoryView: React.FC<Props> = ({
           <p
             className={`text-2xl text-${primaryColor} font-semibold leading-none mb-1`}
           >
-            {averageValue.toFixed(1)}{" "}
-            <span className="text-dark text-base">/ 10</span>
+            {averageValue.toFixed(1)}
+            <span className="text-dark text-base">/ {valueRange[1]}</span>
           </p>
           <p className="text-sm text-unselected">
             Average {shortFieldLabel || fieldLabel}
@@ -255,7 +268,7 @@ const ValueHistoryView: React.FC<Props> = ({
             height={250}
             domain={{
               x: startDate && endDate ? [startDate, endDate] : undefined,
-              y: [0, 10],
+              y: valueRange,
             }}
             scale={{
               x: "time",
@@ -281,10 +294,7 @@ const ValueHistoryView: React.FC<Props> = ({
                   padding: "12",
                 },
               }}
-              tickValues={Array(11)
-                .fill(0)
-                .map((_, index: number) => index)}
-              tickFormat={(x) => (![0, 5, 10].includes(x) ? "" : x)}
+              tickCount={valueRange[1] - valueRange[0] + 1}
               dependentAxis
             />
             <VictoryAxis
@@ -332,8 +342,12 @@ const ValueHistoryView: React.FC<Props> = ({
                     year: "numeric",
                   }),
                   datum.value === 1
-                    ? `${datum.value} point`
-                    : `${datum.value} points`,
+                    ? `${datum.value} ${valueLabel}`
+                    : `${datum.value} ${
+                        Array.isArray(valueLabel)
+                          ? valueLabel[1]
+                          : `${valueLabel}s`
+                      }`,
                 ],
               }))}
               labelComponent={
@@ -367,7 +381,7 @@ const ValueHistoryView: React.FC<Props> = ({
                     top: -3,
                     bottom: -3,
                     left: 5,
-                    right: -5,
+                    right: -10,
                   }}
                   pointerLength={5}
                   pointerWidth={6}
@@ -377,7 +391,7 @@ const ValueHistoryView: React.FC<Props> = ({
               }
             >
               <VictoryArea
-                animate
+                animate={{ duration: 500 }}
                 style={{
                   data: {
                     fill: `url(#${primaryColor}ChartFill)`,
@@ -386,7 +400,7 @@ const ValueHistoryView: React.FC<Props> = ({
                 }}
               />
               <VictoryLine
-                animate
+                animate={{ duration: 500 }}
                 style={{
                   data: {
                     stroke: colors.palette[primaryColor],
@@ -430,6 +444,8 @@ const ValueHistoryView: React.FC<Props> = ({
 
 ValueHistoryView.defaultProps = {
   shortFieldLabel: undefined,
+  valueRange: [0, 10],
+  valueLabel: ["", ""],
 };
 
 export default ValueHistoryView;
