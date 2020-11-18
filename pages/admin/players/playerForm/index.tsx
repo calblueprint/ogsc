@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form";
 import updateAction from "utils/updateActionPlayer";
 import DashboardLayout from "components/DashboardLayout";
 import PlayerFormLayout from "components/Player/PlayerFormLayout";
+import PlayerComboBox from "components/Player/PlayerComboBox";
 
 export type PlayerProfileFormValues = {
   [ProfileFieldKey.PlayerNumber]: string;
@@ -59,10 +60,13 @@ const PlayerProfileFormSchema = Joi.object<PlayerProfileFormValues>({
   IntroVideo: Joi.string().empty("").default(null),
 });
 
+const ExistingUser = ["Yes", "No"];
+
 const UserSignUpPageOne: React.FC = () => {
   const router = useRouter();
 
   // TODO: Add loading state to form submission
+  const [existingUser, setExistingUser] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const { errors, register, handleSubmit } = useForm<PlayerProfileFormValues>({
@@ -101,6 +105,34 @@ const UserSignUpPageOne: React.FC = () => {
           </p>
           <form className="mt-10" onSubmit={handleSubmit(onSubmit)}>
             <fieldset>
+              <div className="mb-16">
+                <p className="text-sm font-semibold mb-2">
+                  Does this participant have an existing account as a user?
+                </p>
+                <p className="text-sm font-light mb-4">
+                  If the participant already has a user account, their user
+                  account will be linked to their participant profile and
+                  existing info will be auto-filled.
+                </p>
+                {ExistingUser.map((option) => (
+                  <label
+                    className="font-medium flex items-center mb-2"
+                    htmlFor={option}
+                  >
+                    <input
+                      className="mr-5"
+                      type="radio"
+                      name="role"
+                      id={option}
+                      value={option}
+                      ref={register}
+                      onChange={(event) => setExistingUser(event.target.value)}
+                    />
+                    <p className="text-sm ml-3 font-medium">{option}</p>
+                  </label>
+                ))}
+                {existingUser === "Yes" ? <PlayerComboBox /> : null}
+              </div>
               <div className="grid grid-rows-2 mr-32">
                 <PlayerFormField
                   label="Player Number"
@@ -132,19 +164,19 @@ const UserSignUpPageOne: React.FC = () => {
                 </PlayerFormField>
               </div>
               <hr className="border-unselected border-opacity-50 my-16" />
-              <div className="flex mb-32 justify-between align-middle">
-                <div className="mb-2 flex">
+              <div className="flex mb-32">
+                <div className="mb-2 flex justify-between w-full">
+                  <Button
+                    className="text-blue bg-white text-sm px-8 py-2 ml-10 rounded-md tracking-wide"
+                    type="submit"
+                  >
+                    Back
+                  </Button>
                   <Button
                     className="bg-blue text-sm px-5 py-2 text-white tracking-wide rounded-md"
                     type="submit"
                   >
-                    Save + Continue
-                  </Button>
-                  <Button
-                    className="border-2 border-blue text-blue bg-white text-sm px-12 py-2 ml-10 rounded-md tracking-wide"
-                    type="submit"
-                  >
-                    Cancel
+                    Next Step
                   </Button>
                 </div>
                 {error && <p className="text-red-600 text-sm">{error}</p>}
