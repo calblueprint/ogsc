@@ -81,13 +81,13 @@ const UserSignUpPageOne: React.FC = () => {
                 <div className="flex mb-32 justify-between align-middle">
                   <div className="mb-2 flex">
                     <Button
-                      className="bg-darkBlue text-base px-5 py-2 text-white tracking-wide rounded-md"
+                      className="bg-blue text-base px-5 py-2 text-white tracking-wide rounded-md"
                       type="submit"
                     >
                       Save + Continue
                     </Button>
                     <Button
-                      className="border-2 border-darkBlue text-darkBlue bg-white text-base px-12 py-2 ml-10 rounded-md tracking-wide"
+                      className="border-2 border-blue text-blue bg-white text-base px-12 py-2 ml-10 rounded-md tracking-wide"
                       type="submit"
                     >
                       Cancel

@@ -34,6 +34,7 @@
     "@prisma/client": "2.8.0",
     "@sendgrid/mail": "^7.4.0",
     "autoprefixer": "9.8.6",
+    "dayjs": "^1.9.6",
     "db-migrate": "^0.11.11",
     "db-migrate-base": "^2.3.0",
     "downshift": "^6.0.6",
@@ -49,9 +50,8 @@
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-hook-form": "^6.9.6",
-    "semantic-ui-css": "^2.4.1",
-    "semantic-ui-react": "^2.0.1",
-    "tailwindcss": "^1.9.4"
+    "tailwindcss": "^1.9.4",
+    "victory": "^35.3.5"
   },
   "devDependencies": {
     "@prisma/cli": "2.8.0",
