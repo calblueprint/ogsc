@@ -11,13 +11,10 @@ model User {
   id                  Int                 @id @default(autoincrement())
   name                String?
   email               String              @unique
-  // This type is currently not supported.
-  // email_verified   timestamptz?
+  email_verified      DateTime?
   image               String?
-  // This type is currently not supported.
-  // created_at       timestamptz         @default(dbgenerated())
-  // This type is currently not supported.
-  // updated_at       timestamptz         @default(dbgenerated())
+  created_at          DateTime            @default(now())
+  updated_at          DateTime            @default(now())
   hashedPassword      String              @map("hashed_password")
   isAdmin             Boolean             @default(false) @map("is_admin")
   phoneNumber         String?             @map("phone_number")
@@ -38,20 +35,17 @@ model migrations {
 }
 
 model accounts {
-  id                      Int          @id @default(autoincrement())
-  compound_id             String       @unique
-  user_id                 Int
-  provider_type           String
-  provider_id             String
-  provider_account_id     String
-  refresh_token           String?
-  access_token            String?
-  // This type is currently not supported.
-  // access_token_expires timestamptz?
-  // This type is currently not supported.
-  // created_at           timestamptz  @default(dbgenerated())
-  // This type is currently not supported.
-  // updated_at           timestamptz  @default(dbgenerated())
+  id                   Int       @id @default(autoincrement())
+  compound_id          String    @unique
+  user_id              Int
+  provider_type        String
+  provider_id          String
+  provider_account_id  String
+  refresh_token        String?
+  access_token         String?
+  access_token_expires DateTime?
+  created_at           DateTime  @default(now())
+  updated_at           DateTime  @default(now())
 
   @@index([provider_account_id], name: "provider_account_id")
   @@index([provider_id], name: "provider_id")
@@ -59,28 +53,22 @@ model accounts {
 }
 
 model sessions {
-  id            Int         @id @default(autoincrement())
+  id            Int      @id @default(autoincrement())
   user_id       Int
-  // This type is currently not supported.
-  // expires    timestamptz
-  session_token String      @unique
-  access_token  String      @unique
-  // This type is currently not supported.
-  // created_at timestamptz @default(dbgenerated())
-  // This type is currently not supported.
-  // updated_at timestamptz @default(dbgenerated())
+  expires       DateTime
+  session_token String   @unique
+  access_token  String   @unique
+  created_at    DateTime @default(now())
+  updated_at    DateTime @default(now())
 }
 
 model verification_requests {
-  id            Int         @id @default(autoincrement())
-  identifier    String
-  token         String      @unique
-  // This type is currently not supported.
-  // expires    timestamptz
-  // This type is currently not supported.
-  // created_at timestamptz @default(dbgenerated())
-  // This type is currently not supported.
-  // updated_at timestamptz @default(dbgenerated())
+  id         Int      @id @default(autoincrement())
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
 }
 
 model UserInvite {
@@ -141,26 +129,26 @@ model Absence {
 }
 
 enum ProfileFieldKey {
-  BioAboutMe @map("bio_about_me")
-  BioHobbies @map("bio_hobbies")
-  BioFavoriteSubject @map("bio_favorite_subject")
-  BioMostDifficultSubject @map("bio_most_difficult_subject")
-  BioSiblings @map("bio_siblings")
-  BioParents @map("bio_parents")
-  IntroVideo @map("intro_video")
   AcademicEngagementScore @map("academic_engagement_score")
   AdvisingScore @map("advising_score")
   AthleticScore @map("athletic_score")
-  GPA @map("gpa")
-  DisciplinaryActions @map("disciplinary_actions")
+  BioAboutMe @map("bio_about_me")
+  BioFavoriteSubject @map("bio_favorite_subject")
+  BioHobbies @map("bio_hobbies")
+  BioMostDifficultSubject @map("bio_most_difficult_subject")
+  BioParents @map("bio_parents")
+  BioSiblings @map("bio_siblings")
   BMI @map("bmi")
-  PacerTest @map("pacer_test")
-  MileTime @map("mile_time")
-  Situps @map("situps")
-  Pushups @map("pushups")
+  DisciplinaryActions @map("disciplinary_actions")
+  GPA @map("gpa")
   HealthAndWellness @map("health_and_wellness")
   Highlights @map("highlights")
+  IntroVideo @map("intro_video")
+  MileTime @map("mile_time")
+  PacerTest @map("pacer_test")
   PlayerNumber @map("player_number")
+  Pushups @map("pushups")
+  Situps @map("situps")
 
    @@map("profile_field_key")
 }
@@ -173,9 +161,9 @@ enum AbsenceReason {
 }
 
 enum AbsenceType {
-  School @map("school")
   Academic @map("academic")
   Athletic @map("athletic")
+  School @map("school")
 
    @@map("absence_type")
 }

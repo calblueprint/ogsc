@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form";
 import updateAction from "utils/updateActionPlayer";
 import DashboardLayout from "components/DashboardLayout";
 import PlayerFormLayout from "components/Player/PlayerFormLayout";
-import { PlayerProfileFormValues } from ".";
+import type { PlayerProfileFormValues } from ".";
 
 export type PhysicalWellnessFormValues = Pick<
   PlayerProfileFormValues,

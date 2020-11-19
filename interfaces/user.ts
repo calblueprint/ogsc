@@ -99,12 +99,19 @@ export type ProfileFieldValueDeserializedTypes = {
   [ProfileFieldValue.TimeElapsed]: string;
 };
 
+export type IProfileField<K extends ProfileFieldKey> = Omit<
+  ProfileField,
+  "key"
+> & {
+  key: K;
+};
+
 export type PlayerProfile = {
   [K in ProfileFieldKey]: {
     key: K;
     current: ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]] | null;
     lastUpdated: Date | null;
-    history: ProfileField[];
+    history: IProfileField<K>[];
   };
 };
 
