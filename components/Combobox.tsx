@@ -42,7 +42,7 @@ const Combobox: React.FC<Props> = ({
     highlightedIndex,
     getItemProps,
     selectedItem,
-    selectItem,
+    reset,
   } = useCombobox({
     isOpen: focused,
     items: inputPlayers,
@@ -69,9 +69,9 @@ const Combobox: React.FC<Props> = ({
       setSelectedPlayers(() => [...selectedPlayers, selectedItem]);
       setFocused(false);
       setQuery("");
-      selectItem(null);
+      reset();
     }
-  }, [selectItem, selectedItem, selectedPlayers, setSelectedPlayers]);
+  }, [reset, selectedItem, selectedPlayers, setSelectedPlayers]);
 
   const onDelete = (user: User): void => {
     setSelectedPlayers(
