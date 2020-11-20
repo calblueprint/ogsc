@@ -33,7 +33,7 @@
     "@hookform/resolvers": "^1.0.0",
     "@prisma/client": "2.8.0",
     "@sendgrid/mail": "^7.4.0",
-    "autoprefixer": "9.8.6",
+    "autoprefixer": "^9.8.6",
     "db-migrate": "^0.11.11",
     "db-migrate-base": "^2.3.0",
     "downshift": "^6.0.6",
