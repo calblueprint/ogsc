@@ -18,7 +18,7 @@ const BarTab: React.FunctionComponent<BarProps> = ({
         <div
           className={
             fill
-              ? "bg-darkBlue h-2 rounded-full"
+              ? "bg-blue h-2 rounded-full"
               : "bg-placeholder h-2 rounded-full"
           }
         />

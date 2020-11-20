@@ -23,7 +23,7 @@ const PlayerDashboardItem: React.FunctionComponent<Player> = ({
   const link = `/${session.sessionType}/players/${id}`;
   return (
     <Link href={link}>
-      <div role="button" className=" hover:bg-hoverState">
+      <div role="button" className=" hover:bg-hover">
         <hr className="border-unselected border-opacity-50" />
         <div className="grid grid-cols-3 gap-12 justify-items-start m-5">
           <div className="flex flex-row">
