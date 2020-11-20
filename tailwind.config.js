@@ -1,3 +1,6 @@
+/* eslint-disable */
+const colors = require("./constants/colors");
+
 module.exports = {
   future: {
     // removeDeprecatedGapUtilities: true,
@@ -7,27 +10,13 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        dark: "#2C2C2C",
-        unselected: "#798393",
-        button: "#F5F7FA",
-        placeholder: "#E0E4E9",
-        hover: "#F7F9FB",
-        lightBlue: "#E9F4FF",
-        darkBlue: "#004284",
-        hoverState: "#F7F9FB",
-        border: "#A9AFB8",
-        blue: "#004284",
-        "blue-muted": "#E9F4FF",
-        pink: "#C72E55",
-        "pink-muted": "#FAE4E9",
-        gold: "#C0952A",
-        "gold-muted": "#FBEECE",
-        purple: "#3442BF",
-        "purple-muted": "#E3E6FF",
-        danger: "#5C0018",
-        "danger-muted": "#FAE4E9",
-        success: "#206000",
-        "success-muted": "#DDF4D3",
+        ...Object.fromEntries(
+          Object.entries(colors).filter(
+            ([name]) => name !== "palette" || name !== "mutedPalette"
+          )
+        ),
+        ...colors.palette,
+        ...colors.mutedPalette,
       },
     },
     fontFamily: {
