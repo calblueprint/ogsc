@@ -49,6 +49,14 @@ a {
     @apply w-full max-w-lg;
   }
 
+  .select {
+    @apply text-unselected border-unselected border rounded pl-4 pr-10 py-2 font-semibold appearance-none;
+    background-image: url(/chevron.svg);
+    background-position: calc(100% - 1rem) center;
+    background-repeat: no-repeat;
+    background-size: 10px;
+  }
+
   .tr-border {
     border-bottom-width: 0.5px;
     @apply border-border border-opacity-50;

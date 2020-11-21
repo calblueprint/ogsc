@@ -1,5 +1,6 @@
 import { Absence, ProfileField } from "@prisma/client";
 import {
+  IProfileField,
   PlayerProfile,
   ProfileFieldKey,
   ProfileFieldValue,
@@ -8,10 +9,13 @@ import {
   SanitizedUser,
 } from "interfaces";
 
-export const deserializeProfileFieldValue = <T extends ProfileField>(
+export const deserializeProfileFieldValue = <
+  T extends ProfileField,
+  K extends ProfileFieldKey = T["key"]
+>(
   field: T
-): ProfileFieldValueDeserializedTypes[ProfileFieldValues[T["key"]]] | null => {
-  type Deserialized = ProfileFieldValueDeserializedTypes[ProfileFieldValues[T["key"]]];
+): ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]] | null => {
+  type Deserialized = ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]];
   switch (ProfileFieldValues[field.key]) {
     case ProfileFieldValue.Float:
       return Number(field.value) as Deserialized;
@@ -59,7 +63,9 @@ export default function buildUserProfile<
         field.createdAt
       );
     }
-    transformedUser.profile[field.key].history.push(field);
+    (transformedUser.profile[field.key].history as IProfileField<
+      typeof field.key
+    >[]).push(field);
   });
   return transformedUser;
 }

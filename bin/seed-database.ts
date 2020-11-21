@@ -19,18 +19,27 @@ function generateFieldsAcrossTimestamps(
   key: ProfileFieldKey,
   generateValue: () => unknown
 ): ProfileFieldCreateWithoutUserInput[] {
-  return [
-    new Date("2020-10-01T12:00:00+00:00"),
-    new Date("2020-10-15T12:00:00+00:00"),
-    new Date("2020-10-30T12:00:00+00:00"),
-  ].map(
-    (date: Date) =>
-      <ProfileFieldCreateWithoutUserInput>{
-        key,
-        value: String(generateValue()),
-        createdAt: date,
-      }
-  );
+  return Array(12)
+    .fill(null)
+    .map(
+      (_, index: number) =>
+        new Date(
+          `2020-${String(index + 1).padStart(2, "0")}-${String(
+            Faker.random.number({
+              min: 1,
+              max: 28,
+            })
+          ).padStart(2, "0")}T12:00:00+00:00`
+        )
+    )
+    .map(
+      (date: Date) =>
+        <ProfileFieldCreateWithoutUserInput>{
+          key,
+          value: String(generateValue()),
+          createdAt: date,
+        }
+    );
 }
 
 export default async function seedDatabase(): Promise<void> {
