@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import Button from "components/Button";
 import { DeleteUserDTO } from "pages/api/admin/users/delete";
+import { User } from "@prisma/client";
 
-// import { UpdateUserDTO } from "pages/api/admin/users/update";
+import { UpdateUserDTO } from "pages/api/admin/users/update";
 // const prisma = new PrismaClient();
 // import DeclineButton from "components/declineButton";
 // import AcceptButton from "components/acceptButton";
@@ -36,12 +37,12 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
   const acceptUser = async (): Promise<void> => {
     try {
       const response = await fetch("/api/admin/users/update", {
-        method: "GET",
+        method: "UPDATE",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          id,
-        } as DeleteUserDTO),
+          emailVerified: true,
+        } as UpdateUserDTO),
       });
       if (!response.ok) {
         throw await response.json();
@@ -115,7 +116,8 @@ const UserDashboard: React.FunctionComponent = () => {
         redirect: "follow",
       });
       const data = await response.json();
-      setUsers(data.users);
+      // data.users.filter((player: User) => player.emailVerified);
+      setUsers(data.users.filter((player: User) => !player.emailVerified));
     } catch (err) {
       throw new Error(err.message);
     }

@@ -9,11 +9,11 @@ import { adminOnlyHandler } from "../helpers";
 
 const prisma = new PrismaClient();
 
-type UpdateUserDTO = {
+export type UpdateUserDTO = {
   id?: number;
   name?: string;
   email?: string;
-  emailVerified?: Date;
+  emailVerified?: boolean;
   image?: string;
 };
 
