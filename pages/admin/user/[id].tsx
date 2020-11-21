@@ -24,6 +24,7 @@ interface EditUserProps {
   user?: User;
   isEditing: boolean;
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
+  currentRole?: string | string[];
 }
 
 type ModalProps = React.PropsWithChildren<{
@@ -56,6 +57,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
   user,
   isEditing,
   setIsEditing,
+  currentRole,
 }) => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -208,7 +210,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
                     type="radio"
                     name="role"
                     id={role}
-                    defaultValue={role}
+                    defaultValue={(currentRole as string).toLowerCase()}
                     ref={register}
                   />
                   {UserRoleLabel[role]}
@@ -243,7 +245,7 @@ const UserProfile: React.FunctionComponent = () => {
   const [user, setUser] = useState<User>();
   const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
-  const { id } = router.query;
+  const { id, role } = router.query;
 
   useEffect(() => {
     const getUser = async (): Promise<void> => {
@@ -269,7 +271,7 @@ const UserProfile: React.FunctionComponent = () => {
           </div>
           <div>
             <p className="text-2xl">{user?.name}</p>
-            <p className="text-sm">Role</p>
+            <p className="text-sm">{role}</p>
           </div>
         </div>
         <hr className="border-unselected border-opacity-50 pb-10" />
@@ -298,7 +300,7 @@ const UserProfile: React.FunctionComponent = () => {
             </div>
             <div className="flex flex-row text-sm">
               <p className="text-blue mr-20 w-24">User Role</p>
-              <p>Role</p>
+              <p>{role}</p>
             </div>
           </div>
           <h2 className="text-lg pb-5">Mentor Information</h2>
@@ -307,7 +309,7 @@ const UserProfile: React.FunctionComponent = () => {
             <p>List</p>
           </div>
         </div>
-        {EditUser({ user, isEditing, setIsEditing })}
+        {EditUser({ user, isEditing, setIsEditing, currentRole: role })}
       </div>
     </DashboardLayout>
   );

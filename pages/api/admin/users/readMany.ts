@@ -14,6 +14,9 @@ export default async (
     const user = await prisma.user.findMany({
       skip: Number(USER_PAGE_SIZE) * pageNumber,
       take: Number(USER_PAGE_SIZE),
+      include: {
+        viewerPermissions: true,
+      },
     });
 
     const userCount = await prisma.user.count();
