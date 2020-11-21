@@ -1,7 +1,7 @@
 import React from "react";
 
 type Props = React.PropsWithChildren<{
-  text: string;
+  text: string | null;
   onDelete: React.MouseEventHandler;
 }>;
 
