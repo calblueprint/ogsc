@@ -3,7 +3,7 @@ import PageNav from "components/PageNav";
 import { ViewingPermission } from "@prisma/client";
 import { USER_PAGE_SIZE, UI_PAGE_SIZE } from "../constants";
 
-interface UserDashboardProps {
+interface UserDashboardValues {
   id: number;
   name: string;
   email: string;
@@ -11,6 +11,10 @@ interface UserDashboardProps {
   phoneNumber: string;
   viewerPermissions: ViewingPermission[];
   role: string | undefined;
+}
+
+interface UserDashboardProps {
+  userRole: string;
 }
 
 interface User {
@@ -66,14 +70,20 @@ const UserDashboardItem: React.FunctionComponent<User> = ({
 };
 
 // TODO: Responsive Spacing
-const UserDashboard: React.FunctionComponent = () => {
-  const [users, setUsers] = useState<UserDashboardProps[]>();
+const UserDashboard: React.FunctionComponent<UserDashboardProps> = ({
+  userRole,
+}) => {
+  const [users, setUsers] = useState<UserDashboardValues[]>();
   const [index, setIndex] = useState(0);
   const [uiPage, setUIPage] = useState(0);
   const [numUIPages, setNumUIPages] = useState(0);
   const [pageCache, setPageCache] = useState<
-    Record<number, UserDashboardProps[]>
+    Record<number, UserDashboardValues[]>
   >({});
+
+  useEffect(() => {
+    setPageCache({});
+  }, [userRole]);
 
   useEffect(() => {
     const getUsers = async (pageNumber: number): Promise<void> => {
@@ -81,8 +91,9 @@ const UserDashboard: React.FunctionComponent = () => {
         // Page already in cache; no need to make a request!
         setUsers(pageCache[pageNumber]);
       } else {
+        console.log("Getting new users for type:", userRole);
         const response = await fetch(
-          `/api/admin/users?pageNumber=${pageNumber}`,
+          `/api/admin/users?pageNumber=${pageNumber}&role=${userRole}`,
           {
             method: "GET",
             headers: { "content-type": "application/json" },
@@ -90,6 +101,7 @@ const UserDashboard: React.FunctionComponent = () => {
           }
         );
         const data = await response.json();
+        console.log(data.users);
         setUsers(data.users);
         setNumUIPages(Math.ceil(data.total / UI_PAGE_SIZE));
         setPageCache({
@@ -104,7 +116,7 @@ const UserDashboard: React.FunctionComponent = () => {
       getUsers(backendPage);
     };
     updateUIPage();
-  }, [uiPage, pageCache]);
+  }, [uiPage, pageCache, userRole]);
   return (
     <div>
       <div className="flex flex-row justify-between text-sm text-center text-unselected tracking-wide mt-10">
