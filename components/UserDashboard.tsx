@@ -83,6 +83,7 @@ const UserDashboard: React.FunctionComponent<UserDashboardProps> = ({
 
   useEffect(() => {
     setPageCache({});
+    setUIPage(0);
   }, [userRole]);
 
   useEffect(() => {
