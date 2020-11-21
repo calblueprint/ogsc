@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { FindManyUserArgs, PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import sanitizeUser from "utils/sanitizeUser";
 import { USER_PAGE_SIZE } from "../../../../constants";
@@ -11,11 +11,12 @@ export default async (
 ): Promise<void> => {
   const pageNumber: number = Number(req.query.pageNumber) || 0;
   const userRole: string = String(req.query.role) || "All Roles";
+  const search: string = String(req.query.search) || " ";
   try {
-    let filterArgs = {};
+    let filterArgs: FindManyUserArgs = {};
 
     if (userRole === "All Roles") {
-      filterArgs = {};
+      filterArgs = { ...filterArgs };
     } else if (userRole === "Admin") {
       filterArgs = {
         where: {
@@ -35,6 +36,17 @@ export default async (
         },
       };
     }
+
+    filterArgs = {
+      ...filterArgs,
+      where: {
+        ...filterArgs.where,
+        name: {
+          contains: search,
+          mode: "insensitive",
+        },
+      },
+    };
 
     const users = await prisma.user.findMany({
       ...filterArgs,

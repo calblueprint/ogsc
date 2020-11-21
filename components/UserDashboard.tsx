@@ -15,6 +15,7 @@ interface UserDashboardValues {
 
 interface UserDashboardProps {
   userRole: string;
+  phrase: string;
 }
 
 interface User {
@@ -72,6 +73,7 @@ const UserDashboardItem: React.FunctionComponent<User> = ({
 // TODO: Responsive Spacing
 const UserDashboard: React.FunctionComponent<UserDashboardProps> = ({
   userRole,
+  phrase,
 }) => {
   const [users, setUsers] = useState<UserDashboardValues[]>();
   const [index, setIndex] = useState(0);
@@ -84,7 +86,7 @@ const UserDashboard: React.FunctionComponent<UserDashboardProps> = ({
   useEffect(() => {
     setPageCache({});
     setUIPage(0);
-  }, [userRole]);
+  }, [userRole, phrase]);
 
   useEffect(() => {
     const getUsers = async (pageNumber: number): Promise<void> => {
@@ -92,9 +94,8 @@ const UserDashboard: React.FunctionComponent<UserDashboardProps> = ({
         // Page already in cache; no need to make a request!
         setUsers(pageCache[pageNumber]);
       } else {
-        console.log("Getting new users for type:", userRole);
         const response = await fetch(
-          `/api/admin/users?pageNumber=${pageNumber}&role=${userRole}`,
+          `/api/admin/users?pageNumber=${pageNumber}&role=${userRole}&search=${phrase}`,
           {
             method: "GET",
             headers: { "content-type": "application/json" },
@@ -102,7 +103,6 @@ const UserDashboard: React.FunctionComponent<UserDashboardProps> = ({
           }
         );
         const data = await response.json();
-        console.log(data.users);
         setUsers(data.users);
         setNumUIPages(Math.ceil(data.total / UI_PAGE_SIZE));
         setPageCache({
@@ -117,7 +117,7 @@ const UserDashboard: React.FunctionComponent<UserDashboardProps> = ({
       getUsers(backendPage);
     };
     updateUIPage();
-  }, [uiPage, pageCache, userRole]);
+  }, [uiPage, pageCache, userRole, phrase]);
   return (
     <div>
       <div className="flex flex-row justify-between text-sm text-center text-unselected tracking-wide mt-10">
