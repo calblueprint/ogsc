@@ -1,4 +1,3 @@
-// import Link from "next/link";
 import { useRouter } from "next/router";
 import DashboardLayout from "components/DashboardLayout";
 import { User } from "@prisma/client";
@@ -25,6 +24,7 @@ interface EditUserProps {
   isEditing: boolean;
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
   currentRole?: string | string[];
+  setUser: (user: User) => void;
 }
 
 type ModalProps = React.PropsWithChildren<{
@@ -58,9 +58,11 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
   isEditing,
   setIsEditing,
   currentRole,
+  setUser,
 }) => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [currRole, setCurrRole] = useState(currentRole);
   const { errors, register, handleSubmit } = useForm<AdminEditUserFormValues>({
     resolver: joiResolver(AdminEditUserFormSchema),
   });
@@ -86,6 +88,8 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
       });
       if (!response.ok) {
         throw await response.json();
+      } else {
+        setUser((await response.json()).user);
       }
     } catch (err) {
       setError(err.message);
@@ -210,7 +214,9 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
                     type="radio"
                     name="role"
                     id={role}
-                    defaultValue={(currentRole as string).toLowerCase()}
+                    defaultValue={role}
+                    onChange={() => setCurrRole(UserRoleLabel[role])}
+                    checked={currRole === UserRoleLabel[role]}
                     ref={register}
                   />
                   {UserRoleLabel[role]}
@@ -309,7 +315,13 @@ const UserProfile: React.FunctionComponent = () => {
             <p>List</p>
           </div>
         </div>
-        {EditUser({ user, isEditing, setIsEditing, currentRole: role })}
+        {EditUser({
+          user,
+          isEditing,
+          setIsEditing,
+          currentRole: role,
+          setUser,
+        })}
       </div>
     </DashboardLayout>
   );
