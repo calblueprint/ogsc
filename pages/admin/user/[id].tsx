@@ -255,14 +255,11 @@ const UserProfile: React.FunctionComponent = () => {
 
   useEffect(() => {
     const getUser = async (): Promise<void> => {
-      const response = await fetch(
-        `http://localhost:3000/api/admin/users/${id}`,
-        {
-          method: "GET",
-          headers: { "content-type": "application/json" },
-          redirect: "follow",
-        }
-      );
+      const response = await fetch(`/api/admin/users/${id}`, {
+        method: "GET",
+        headers: { "content-type": "application/json" },
+        redirect: "follow",
+      });
       const data = await response.json();
       setUser(data.user);
     };
