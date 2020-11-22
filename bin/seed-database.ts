@@ -99,6 +99,11 @@ export default async function seedDatabase(): Promise<void> {
         phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
         hashedPassword: hashPassword("password"),
         isAdmin: true,
+        viewerPermissions: {
+          create: {
+            relationship_type: "Admin",
+          },
+        },
       },
     });
     adminCreateMessage.text = "Created the admin user.";
@@ -119,7 +124,7 @@ export default async function seedDatabase(): Promise<void> {
           phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
           viewerPermissions: {
             create: {
-              relationship_type: "Player to Player",
+              relationship_type: "Player",
               viewee: {
                 connect: {
                   email: `player${index}@ogsc.dev`,
