@@ -1,6 +1,22 @@
 import { useState, useEffect } from "react";
 import PageNav from "components/PageNav";
+import { ViewingPermission } from "@prisma/client";
 import { USER_PAGE_SIZE, UI_PAGE_SIZE } from "../constants";
+
+interface UserDashboardValues {
+  id: number;
+  name: string;
+  email: string;
+  image: string;
+  phoneNumber: string;
+  viewerPermissions: ViewingPermission[];
+  role: string | undefined;
+}
+
+interface UserDashboardProps {
+  userRole: string;
+  phrase: string;
+}
 
 interface User {
   id: number;
@@ -8,6 +24,7 @@ interface User {
   email: string;
   image: string;
   phoneNumber: string;
+  role: string | undefined;
 }
 
 /*
@@ -29,25 +46,24 @@ const UserDashboardItem: React.FunctionComponent<User> = ({
   email,
   image,
   phoneNumber,
+  role,
 }) => {
   return (
-    <a href={`user/${id.toString()}`}>
+    <a href={`user/${id.toString()}?role=${role}`}>
       <div className="flex flex-row justify-between text-sm h-16 items-center py-10 hover:bg-hover">
         {/* TODO: FIX PADDING ABOVE */}
-        <div className="flex flex-row justify-between">
+        <div className="flex flex-row justify-between self-center">
           <div className="w-10 h-10 mr-4 bg-placeholder rounded-full">
             <img src={image} alt="" />{" "}
             {/* Not being used right now because seed data doesn't have images */}
           </div>
           <div className="w-32">
             <p className="font-semibold">{name}</p>
-            <p>User Role</p>
+            <p>{role}</p>
           </div>
         </div>
-        <div className="w-56">
-          <p>{email}</p>
-        </div>
-        <p>{phoneNumber}</p>
+        <p className="self-center">{email}</p>
+        <p className="self-center">{phoneNumber}</p>
       </div>
       <hr className="border-unselected border-opacity-50" />
     </a>
@@ -55,12 +71,22 @@ const UserDashboardItem: React.FunctionComponent<User> = ({
 };
 
 // TODO: Responsive Spacing
-const UserDashboard: React.FunctionComponent = () => {
-  const [users, setUsers] = useState<User[]>();
+const UserDashboard: React.FunctionComponent<UserDashboardProps> = ({
+  userRole,
+  phrase,
+}) => {
+  const [users, setUsers] = useState<UserDashboardValues[]>();
   const [index, setIndex] = useState(0);
   const [uiPage, setUIPage] = useState(0);
   const [numUIPages, setNumUIPages] = useState(0);
-  const [pageCache, setPageCache] = useState<Record<number, User[]>>({});
+  const [pageCache, setPageCache] = useState<
+    Record<number, UserDashboardValues[]>
+  >({});
+
+  useEffect(() => {
+    setPageCache({});
+    setUIPage(0);
+  }, [userRole, phrase]);
 
   useEffect(() => {
     const getUsers = async (pageNumber: number): Promise<void> => {
@@ -69,7 +95,7 @@ const UserDashboard: React.FunctionComponent = () => {
         setUsers(pageCache[pageNumber]);
       } else {
         const response = await fetch(
-          `/api/admin/users?pageNumber=${pageNumber}`,
+          `/api/admin/users?pageNumber=${pageNumber}&role=${userRole}&search=${phrase}`,
           {
             method: "GET",
             headers: { "content-type": "application/json" },
@@ -91,7 +117,7 @@ const UserDashboard: React.FunctionComponent = () => {
       getUsers(backendPage);
     };
     updateUIPage();
-  }, [uiPage, pageCache]);
+  }, [uiPage, pageCache, userRole, phrase]);
   return (
     <div>
       <div className="flex flex-row justify-between text-sm text-center text-unselected tracking-wide mt-10">
@@ -108,6 +134,11 @@ const UserDashboard: React.FunctionComponent = () => {
           email={user.email}
           image={user.image}
           phoneNumber={user.phoneNumber}
+          role={
+            user.viewerPermissions[0]
+              ? user.viewerPermissions[0].relationship_type?.split(" ")[0]
+              : "Admin"
+          }
         />
       ))}
       <PageNav

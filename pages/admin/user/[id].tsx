@@ -1,4 +1,3 @@
-// import Link from "next/link";
 import { useRouter } from "next/router";
 import DashboardLayout from "components/DashboardLayout";
 import { User } from "@prisma/client";
@@ -24,6 +23,8 @@ interface EditUserProps {
   user?: User;
   isEditing: boolean;
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
+  currentRole?: string | string[];
+  setUser: (user: User) => void;
 }
 
 type ModalProps = React.PropsWithChildren<{
@@ -56,9 +57,12 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
   user,
   isEditing,
   setIsEditing,
+  currentRole,
+  setUser,
 }) => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [currRole, setCurrRole] = useState(currentRole);
   const { errors, register, handleSubmit } = useForm<AdminEditUserFormValues>({
     resolver: joiResolver(AdminEditUserFormSchema),
   });
@@ -84,6 +88,8 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
       });
       if (!response.ok) {
         throw await response.json();
+      } else {
+        setUser((await response.json()).user);
       }
     } catch (err) {
       setError(err.message);
@@ -209,6 +215,8 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
                     name="role"
                     id={role}
                     defaultValue={role}
+                    onChange={() => setCurrRole(UserRoleLabel[role])}
+                    checked={currRole === UserRoleLabel[role]}
                     ref={register}
                   />
                   {UserRoleLabel[role]}
@@ -243,7 +251,7 @@ const UserProfile: React.FunctionComponent = () => {
   const [user, setUser] = useState<User>();
   const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
-  const { id } = router.query;
+  const { id, role } = router.query;
 
   useEffect(() => {
     const getUser = async (): Promise<void> => {
@@ -269,7 +277,7 @@ const UserProfile: React.FunctionComponent = () => {
           </div>
           <div>
             <p className="text-2xl">{user?.name}</p>
-            <p className="text-sm">Role</p>
+            <p className="text-sm">{role}</p>
           </div>
         </div>
         <hr className="border-unselected border-opacity-50 pb-10" />
@@ -298,7 +306,7 @@ const UserProfile: React.FunctionComponent = () => {
             </div>
             <div className="flex flex-row text-sm">
               <p className="text-blue mr-20 w-24">User Role</p>
-              <p>Role</p>
+              <p>{role}</p>
             </div>
           </div>
           <h2 className="text-lg pb-5">Mentor Information</h2>
@@ -307,7 +315,13 @@ const UserProfile: React.FunctionComponent = () => {
             <p>List</p>
           </div>
         </div>
-        {EditUser({ user, isEditing, setIsEditing })}
+        {EditUser({
+          user,
+          isEditing,
+          setIsEditing,
+          currentRole: role,
+          setUser,
+        })}
       </div>
     </DashboardLayout>
   );
