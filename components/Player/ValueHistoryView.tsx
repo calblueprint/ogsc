@@ -29,6 +29,8 @@ type NumericProfileFields = Exclude<
     [K in ProfileFieldKey]: ProfileFieldValues[K] extends
       | ProfileFieldValue.Integer
       | ProfileFieldValue.Float
+      | ProfileFieldValue.IntegerWithComment
+      | ProfileFieldValue.FloatWithComment
       ? K
       : never;
   }[ProfileFieldKey],
@@ -114,13 +116,21 @@ const ValueHistoryView: React.FC<Props> = ({
   const [startDate, endDate] = IntervalWindowBoundaries[intervalWindow];
 
   const deserializedValues = values.map(
-    (field: IProfileField<NumericProfileFields>) => ({
-      ...field,
-      value: deserializeProfileFieldValue<ProfileField, NumericProfileFields>(
-        field
-      ),
-      createdAt: new Date(field.createdAt),
-    })
+    (field: IProfileField<NumericProfileFields>) => {
+      const deserialized = deserializeProfileFieldValue<
+        ProfileField,
+        NumericProfileFields
+      >(field);
+      return {
+        ...field,
+        ...(typeof deserialized === "number"
+          ? {}
+          : { comment: deserialized?.comment }),
+        value:
+          typeof deserialized === "number" ? deserialized : deserialized?.value,
+        createdAt: new Date(field.createdAt),
+      };
+    }
   );
   const filteredValues = deserializedValues.filter(({ createdAt }) =>
     startDate && endDate
@@ -223,7 +233,7 @@ const ValueHistoryView: React.FC<Props> = ({
                   })}
                 </td>
                 <td className="w-3/12">{field.value}</td>
-                <td />
+                <td>{field.comment}</td>
               </tr>
             ))}
           </tbody>
