@@ -5,7 +5,12 @@ import React, { useState, useEffect } from "react";
 import Icon from "components/Icon";
 import Button from "components/Button";
 import FormField from "components/FormField";
-import { UserRole, UserRoleConstants, UserRoleLabel } from "interfaces";
+import {
+  UserRole,
+  UserRoleConstants,
+  UserRoleLabel,
+  RoleLabel,
+} from "interfaces";
 import Joi from "joi";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
@@ -20,21 +25,17 @@ interface AdminEditUserFormValues {
 }
 
 interface EditUserProps {
-  user?: UpdateUserDTO;
+  user?: User;
   isEditing: boolean;
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
   currentRole?: string | string[];
-  setUser: (user: UpdateUserDTO) => void;
+  setUser: (user: User) => void;
+  setNewRole: (newRole: string) => void;
 }
 
 type ModalProps = React.PropsWithChildren<{
   open?: boolean;
 }>;
-
-// interface fillArrayProps {
-//   value: string;
-//   len: number;
-// }
 
 // TODO: Make some styling changes
 const Modal: React.FC<ModalProps> = ({ children, open }: ModalProps) => {
@@ -58,25 +59,13 @@ const AdminEditUserFormSchema = Joi.object<AdminEditUserFormValues>({
     .required(),
 });
 
-/* helper function: returns an array with len amount of values
- * i.e. fillArray("hi", 3) should return ["hi", "hi", "hi"]
- */
-// const fillArray: React.FunctionComponent<fillArrayProps> = ({ value, len }) => {
-//   if (len == 0) {
-//     return [];
-//   }
-//   let a = [value];
-//   while (a.length * 2 <= len) a = a.concat(a);
-//   if (a.length < len) a = a.concat(a.slice(0, len - a.length));
-//   return a;
-// };
-
 const EditUser: React.FunctionComponent<EditUserProps> = ({
   user,
   isEditing,
   setIsEditing,
   currentRole,
   setUser,
+  setNewRole,
 }) => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -122,6 +111,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
         throw await response.json();
       } else {
         setUser((await response.json()).user);
+        setNewRole(UserRoleLabel[values.role]);
       }
     } catch (err) {
       setError(err.message);
@@ -284,6 +274,7 @@ const UserProfile: React.FunctionComponent = () => {
   const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
   const { id, role } = router.query;
+  const [newRole, setNewRole] = useState("");
 
   useEffect(() => {
     const getUser = async (): Promise<void> => {
@@ -294,6 +285,7 @@ const UserProfile: React.FunctionComponent = () => {
       });
       const data = await response.json();
       setUser(data.user);
+      setNewRole(RoleLabel[data.user.viewerPermissions[0].relationship_type]);
     };
     getUser();
   }, [id]);
@@ -306,7 +298,7 @@ const UserProfile: React.FunctionComponent = () => {
           </div>
           <div>
             <p className="text-2xl">{user?.name}</p>
-            <p className="text-sm">{role}</p>
+            <p className="text-sm">{newRole}</p>
           </div>
         </div>
         <hr className="border-unselected border-opacity-50 pb-10" />
@@ -335,7 +327,7 @@ const UserProfile: React.FunctionComponent = () => {
             </div>
             <div className="flex flex-row text-sm">
               <p className="text-blue mr-20 w-24">User Role</p>
-              <p>{role}</p>
+              <p>{newRole}</p>
             </div>
           </div>
           <h2 className="text-lg pb-5">Mentor Information</h2>
@@ -350,6 +342,7 @@ const UserProfile: React.FunctionComponent = () => {
           setIsEditing,
           currentRole: role,
           setUser,
+          setNewRole,
         })}
       </div>
     </DashboardLayout>

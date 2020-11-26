@@ -53,6 +53,9 @@ const handler = async (
                     not: null,
                   },
                 },
+                create: {
+                  relationship_type: "Admin",
+                },
               },
             },
           })
