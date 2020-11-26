@@ -59,6 +59,7 @@ export const UserRoleLabel: Record<UserRole, string> = {
   donor: "Donor",
 };
 
+// used to map relationship_type from viewing permissions table to appropriate user role
 export const RoleLabel: Record<string, string> = {
   Admin: "Admin",
   Player: "Player",
