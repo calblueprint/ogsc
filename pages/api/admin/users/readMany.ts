@@ -23,6 +23,18 @@ export default async (
           isAdmin: true,
         },
       };
+    } else if (userRole === "Players") {
+      filterArgs = {
+        where: {
+          viewerPermissions: {
+            some: {
+              relationship_type: {
+                equals: `${userRole.substr(0, userRole.length - 1)}`,
+              },
+            },
+          },
+        },
+      };
     } else {
       filterArgs = {
         where: {

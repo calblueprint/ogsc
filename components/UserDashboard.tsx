@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import PageNav from "components/PageNav";
 import { ViewingPermission } from "@prisma/client";
 import { USER_PAGE_SIZE, UI_PAGE_SIZE } from "../constants";
+import { RoleLabel } from "../interfaces";
 
 interface UserDashboardValues {
   id: number;
@@ -135,9 +136,9 @@ const UserDashboard: React.FunctionComponent<UserDashboardProps> = ({
           image={user.image}
           phoneNumber={user.phoneNumber}
           role={
-            user.viewerPermissions[0]
-              ? user.viewerPermissions[0].relationship_type?.split(" ")[0]
-              : "Admin"
+            user.viewerPermissions[0].relationship_type
+              ? RoleLabel[user.viewerPermissions[0].relationship_type]
+              : "Unknown User Role"
           }
         />
       ))}
