@@ -1,7 +1,4 @@
-import {
-  PrismaClient,
-  ViewingPermissionUpdateManyWithoutViewerInput,
-} from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { ValidatedNextApiRequest } from "interfaces";
 import Joi from "joi";
 import { NextApiResponse } from "next";
@@ -19,7 +16,7 @@ export type UpdateUserDTO = {
   phoneNumber?: string;
   emailVerified?: Date;
   image?: string;
-  viewerPermissions?: ViewingPermissionUpdateManyWithoutViewerInput;
+  role?: string;
 };
 
 const expectedBody = Joi.object<UpdateUserDTO>({
@@ -29,26 +26,58 @@ const expectedBody = Joi.object<UpdateUserDTO>({
   phoneNumber: Joi.string(),
   emailVerified: Joi.date(),
   image: Joi.string(),
-  viewerPermissions: Joi.array().items(Joi.object()).optional(),
+  role: Joi.string(),
 });
 
+// NOTE: deletes all viewer permissions if changing role to Admin
 const handler = async (
   req: ValidatedNextApiRequest<UpdateUserDTO>,
   res: NextApiResponse
 ): Promise<void> => {
   try {
     const userInfo = req.body;
-    const user = await prisma.user.update({
-      where: { id: userInfo.id || Number(req.query.id) },
-      data: {
-        name: userInfo.name,
-        email: userInfo.email,
-        phoneNumber: userInfo.phoneNumber,
-        emailVerified: userInfo.emailVerified,
-        image: userInfo.image,
-        viewerPermissions: userInfo.viewerPermissions,
-      },
-    });
+    const user =
+      userInfo.role === "Admin"
+        ? await prisma.user.update({
+            where: { id: userInfo.id || Number(req.query.id) },
+            data: {
+              name: userInfo.name,
+              email: userInfo.email,
+              phoneNumber: userInfo.phoneNumber,
+              emailVerified: userInfo.emailVerified,
+              image: userInfo.image,
+              isAdmin: true,
+              viewerPermissions: {
+                deleteMany: {
+                  relationship_type: {
+                    not: null,
+                  },
+                },
+              },
+            },
+          })
+        : await prisma.user.update({
+            where: { id: userInfo.id || Number(req.query.id) },
+            data: {
+              name: userInfo.name,
+              email: userInfo.email,
+              phoneNumber: userInfo.phoneNumber,
+              emailVerified: userInfo.emailVerified,
+              image: userInfo.image,
+              viewerPermissions: {
+                updateMany: {
+                  data: {
+                    relationship_type: userInfo.role,
+                  },
+                  where: {
+                    relationship_type: {
+                      not: null,
+                    },
+                  },
+                },
+              },
+            },
+          });
     if (!user) {
       res
         .status(404)

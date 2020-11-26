@@ -20,16 +20,21 @@ interface AdminEditUserFormValues {
 }
 
 interface EditUserProps {
-  user?: User;
+  user?: UpdateUserDTO;
   isEditing: boolean;
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
   currentRole?: string | string[];
-  setUser: (user: User) => void;
+  setUser: (user: UpdateUserDTO) => void;
 }
 
 type ModalProps = React.PropsWithChildren<{
   open?: boolean;
 }>;
+
+// interface fillArrayProps {
+//   value: string;
+//   len: number;
+// }
 
 // TODO: Make some styling changes
 const Modal: React.FC<ModalProps> = ({ children, open }: ModalProps) => {
@@ -52,6 +57,19 @@ const AdminEditUserFormSchema = Joi.object<AdminEditUserFormValues>({
     .valid(...UserRoleConstants)
     .required(),
 });
+
+/* helper function: returns an array with len amount of values
+ * i.e. fillArray("hi", 3) should return ["hi", "hi", "hi"]
+ */
+// const fillArray: React.FunctionComponent<fillArrayProps> = ({ value, len }) => {
+//   if (len == 0) {
+//     return [];
+//   }
+//   let a = [value];
+//   while (a.length * 2 <= len) a = a.concat(a);
+//   if (a.length < len) a = a.concat(a.slice(0, len - a.length));
+//   return a;
+// };
 
 const EditUser: React.FunctionComponent<EditUserProps> = ({
   user,
@@ -76,16 +94,30 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
       return;
     }
     try {
-      const response = await fetch(`/api/admin/users/${user?.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          email: values.email,
-          name: `${values.firstName} ${values.lastName}`,
-          phoneNumber: values.phoneNumber,
-        } as UpdateUserDTO),
-      });
+      const response =
+        values.role === "admin" || values.role === "player"
+          ? await fetch(`/api/admin/users/${user?.id}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+              body: JSON.stringify({
+                name: `${values.firstName} ${values.lastName}`,
+                email: values.email,
+                phoneNumber: values.phoneNumber,
+                role: `${UserRoleLabel[values.role]}`,
+              } as UpdateUserDTO),
+            })
+          : await fetch(`/api/admin/users/${user?.id}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+              body: JSON.stringify({
+                name: `${values.firstName} ${values.lastName}`,
+                email: values.email,
+                phoneNumber: values.phoneNumber,
+                role: `${UserRoleLabel[values.role]} to Player`,
+              } as UpdateUserDTO),
+            });
       if (!response.ok) {
         throw await response.json();
       } else {
