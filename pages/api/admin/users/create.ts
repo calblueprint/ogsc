@@ -5,7 +5,6 @@ import { ValidatedNextApiRequest } from "interfaces";
 import Notifier from "lib/notify";
 import { NotificationType } from "lib/notify/types";
 import { validateBody } from "pages/api/helpers";
-import { ViewingPermissionDTO } from "pages/api/admin/viewingPermissions/create";
 import { adminOnlyHandler } from "../helpers";
 
 const prisma = new PrismaClient();
@@ -41,35 +40,21 @@ const handler = async (
         userInvites: {
           create: {},
         },
+        viewerPermissions: {
+          create: linkedPlayers?.map((playerID: number) => ({
+            relationship_type: role,
+            viewee: {
+              connect: {
+                id: playerID,
+              },
+            },
+          })),
+        },
       },
       include: {
         userInvites: true,
       },
     });
-    if (linkedPlayers && role) {
-      const promises = [];
-      for (let i = 0; i < linkedPlayers.length; i += 1) {
-        const playerID = linkedPlayers[i];
-        try {
-          promises.push(
-            fetch("/api/viewingPermissions", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              credentials: "include",
-              body: JSON.stringify({
-                viewerId: newUser.id,
-                vieweeId: playerID,
-                relationshipType: role,
-              } as ViewingPermissionDTO),
-            })
-          );
-        } catch (err) {
-          throw new Error(err.message);
-        }
-      }
-      await Promise.all(promises);
-    }
-
     await Notifier.sendNotification(NotificationType.SignUpInvitation, {
       email,
       inviteCodeId: newUser.userInvites[0].id,
