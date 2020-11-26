@@ -59,16 +59,13 @@ export const UserRoleLabel: Record<UserRole, string> = {
   donor: "Donor",
 };
 
-export const RelationshipTypeConstants = <const>[
-  "Admin",
-  "Player",
-  "Parent to Player",
-  "Mentor to Player",
-  "Donor to Player",
-];
-
-// Use this to figure out what a user's role is from the user's viewerPermissions
-export type Role = typeof RelationshipTypeConstants[number];
+export enum Role {
+  Admin = 'admin',
+  Player = 'player',
+  ParentToPlayer = 'parent',
+  MentorToPlayer = 'mentor',
+  DonorToPlayer = 'donor
+}
 export const RoleLabel: Record<Role, string> = {
   Admin: "Admin",
   Player: "Player",
