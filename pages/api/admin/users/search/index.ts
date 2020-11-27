@@ -17,7 +17,7 @@ export default async (
       where: {
         viewedByPermissions: {
           some: {
-            relationship_type: "player",
+            relationship_type: "Player",
           },
         },
       },
