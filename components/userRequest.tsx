@@ -1,12 +1,8 @@
 import { useEffect, useState } from "react";
 import Button from "components/Button";
 import { DeleteUserDTO } from "pages/api/admin/users/delete";
-import { User } from "@prisma/client";
-
 import { UpdateUserDTO } from "pages/api/admin/users/update";
-// const prisma = new PrismaClient();
-// import DeclineButton from "components/declineButton";
-// import AcceptButton from "components/acceptButton";
+import { User } from "@prisma/client";
 
 const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
   name,
@@ -41,7 +37,7 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          emailVerified: true,
+          emailVerified: new Date(),
         } as UpdateUserDTO),
       });
       if (!response.ok) {
@@ -116,8 +112,9 @@ const UserDashboard: React.FunctionComponent = () => {
         redirect: "follow",
       });
       const data = await response.json();
-      // data.users.filter((player: User) => player.emailVerified);
-      setUsers(data.users.filter((player: User) => !player.emailVerified));
+      setUsers(
+        data.users.filter((player: User) => player.emailVerified === null)
+      );
     } catch (err) {
       throw new Error(err.message);
     }
