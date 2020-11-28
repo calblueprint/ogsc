@@ -103,12 +103,12 @@ interface UserRequest {
   onAccept: () => void;
 }
 
-const UserDashboard: React.FunctionComponent = () => {
-  // eslint-disable-next-line @typescript-eslint/no-shadow
+const UserRequestsDashboard: React.FunctionComponent = () => {
   const [users, setUsers] = useState<UserRequest[]>();
 
   const getUsers = async (): Promise<void> => {
     try {
+      // FIX THIS TO FETCH USER INVITEs only
       const response = await fetch("/api/admin/users", {
         method: "GET",
         headers: { "content-type": "application/json" },
@@ -120,7 +120,6 @@ const UserDashboard: React.FunctionComponent = () => {
       throw new Error(err.message);
     }
   };
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   useEffect(() => {
     getUsers();
   }, []);
@@ -155,7 +154,7 @@ const userRequestsTable: React.FunctionComponent = () => (
       </div>
     </div>
     <hr className="border-unselected border-opacity-50" />
-    {UserDashboard({})}
+    {UserRequestsDashboard({})}
   </div>
 );
 export default userRequestsTable;

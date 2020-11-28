@@ -42,7 +42,7 @@ const handler = async (
         },
         viewerPermissions: {
           create: linkedPlayers?.map((playerID: number) => ({
-            relationship_type: role,
+            relationship_type: role?.concat(" to Player"),
             viewee: {
               connect: {
                 id: playerID,

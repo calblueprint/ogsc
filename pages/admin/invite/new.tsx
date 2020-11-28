@@ -65,7 +65,7 @@ const AdminNewInvitePage: React.FC = () => {
           email: values.email,
           name: `${values.firstName} ${values.lastName}`,
           phoneNumber: values.phoneNumber,
-          role: values.role,
+          role: UserRoleLabel[values.role],
           linkedPlayers: selectedPlayers.map((user) => user.id),
         } as AdminCreateUserDTO),
       });
