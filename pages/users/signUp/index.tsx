@@ -158,7 +158,8 @@ const UserSignUpPageOne: React.FC = () => {
             <div className="flex mt-24 mb-32 justify-between align-middle">
               {/* TODO: link user login page */}
               <p className="text-base">
-                Already have an account? <b>Login here.</b>
+                Already have an account?{" "}
+                <b className="text-blue">Login here.</b>
               </p>
               <div className="mb-2 flex ">
                 <Button
