@@ -6,7 +6,6 @@ type Props = React.PropsWithChildren<{
   onClick?: React.MouseEventHandler;
   pill?: boolean;
   type?: "button" | "submit" | "reset";
-  right?: boolean;
 }> &
   React.HTMLAttributes<HTMLButtonElement>;
 
@@ -17,7 +16,6 @@ const Button: React.FC<Props> = ({
   onClick,
   pill,
   type = "button",
-  right,
   ...additionalButtonProps
 }: Props) => {
   return (
@@ -30,23 +28,13 @@ const Button: React.FC<Props> = ({
       type={type}
       {...additionalButtonProps}
     >
-      {right
-        ? null
-        : iconType && (
-            <Icon
-              className="fill-current stroke-current h-4 mr-5"
-              type={iconType}
-            />
-          )}
+      {iconType && (
+        <Icon
+          className="fill-current stroke-current h-4 mr-5"
+          type={iconType}
+        />
+      )}
       {children}
-      {right
-        ? iconType && (
-            <Icon
-              className="fill-current stroke-current h-4 ml-5 mr-2"
-              type={iconType}
-            />
-          )
-        : null}
     </button>
   );
 };
