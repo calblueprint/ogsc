@@ -99,6 +99,11 @@ export default async function seedDatabase(): Promise<void> {
         phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
         hashedPassword: hashPassword("password"),
         isAdmin: true,
+        viewerPermissions: {
+          create: {
+            relationship_type: "Admin",
+          },
+        },
       },
     });
     adminCreateMessage.text = "Created the admin user.";
@@ -119,7 +124,7 @@ export default async function seedDatabase(): Promise<void> {
           phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
           viewerPermissions: {
             create: {
-              relationship_type: "Player to Player",
+              relationship_type: "Player",
               viewee: {
                 connect: {
                   email: `player${index}@ogsc.dev`,
@@ -148,15 +153,27 @@ export default async function seedDatabase(): Promise<void> {
             create: [
               ...generateFieldsAcrossTimestamps(
                 ProfileFieldKey.AcademicEngagementScore,
-                () => Faker.random.number(10)
+                () =>
+                  JSON.stringify({
+                    comment: Faker.lorem.lines(1),
+                    value: Faker.random.number(10),
+                  })
               ),
               ...generateFieldsAcrossTimestamps(
                 ProfileFieldKey.AdvisingScore,
-                () => Faker.random.number(10)
+                () =>
+                  JSON.stringify({
+                    comment: Faker.lorem.lines(1),
+                    value: Faker.random.number(10),
+                  })
               ),
               ...generateFieldsAcrossTimestamps(
                 ProfileFieldKey.AthleticScore,
-                () => Faker.random.number(10)
+                () =>
+                  JSON.stringify({
+                    comment: Faker.lorem.lines(1),
+                    value: Faker.random.number(10),
+                  })
               ),
               ...generateFieldsAcrossTimestamps(
                 ProfileFieldKey.BioAboutMe,
@@ -190,10 +207,13 @@ export default async function seedDatabase(): Promise<void> {
                 () => Faker.lorem.lines(2)
               ),
               ...generateFieldsAcrossTimestamps(ProfileFieldKey.GPA, () =>
-                Faker.random.float({
-                  min: 2,
-                  max: 4,
-                  precision: 0.01,
+                JSON.stringify({
+                  comment: Faker.lorem.lines(1),
+                  value: Faker.random.float({
+                    min: 2,
+                    max: 4,
+                    precision: 0.01,
+                  }),
                 })
               ),
               ...generateFieldsAcrossTimestamps(

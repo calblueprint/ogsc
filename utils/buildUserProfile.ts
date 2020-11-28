@@ -16,16 +16,40 @@ export const deserializeProfileFieldValue = <
   field: T
 ): ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]] | null => {
   type Deserialized = ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]];
-  switch (ProfileFieldValues[field.key]) {
-    case ProfileFieldValue.Float:
-      return Number(field.value) as Deserialized;
-    case ProfileFieldValue.Integer:
-      return Math.floor(Number(field.value)) as Deserialized;
-    case ProfileFieldValue.Text:
-    case ProfileFieldValue.TimeElapsed:
-    case ProfileFieldValue.URL:
-    default:
-      return field.value as Deserialized;
+  const targetValueType = ProfileFieldValues[field.key];
+
+  try {
+    switch (targetValueType) {
+      case ProfileFieldValue.Float:
+        return Number(field.value) as Deserialized;
+      case ProfileFieldValue.Integer:
+        return Math.floor(Number(field.value)) as Deserialized;
+      case ProfileFieldValue.FloatWithComment:
+      case ProfileFieldValue.IntegerWithComment: {
+        if (!field.value) {
+          return null;
+        }
+        const parsed = JSON.parse(field.value);
+        if (typeof parsed !== "object" || !("value" in parsed)) {
+          return null;
+        }
+        return {
+          comment: parsed.comment,
+          value:
+            targetValueType === ProfileFieldValue.IntegerWithComment
+              ? Math.floor(Number(parsed.value))
+              : Number(parsed.value),
+        } as Deserialized;
+      }
+      case ProfileFieldValue.Text:
+      case ProfileFieldValue.TimeElapsed:
+      case ProfileFieldValue.URL:
+      default:
+        return field.value as Deserialized;
+    }
+  } catch (err) {
+    // TODO: Log out this error
+    return null;
   }
 };
 
