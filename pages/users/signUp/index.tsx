@@ -163,7 +163,7 @@ const UserSignUpPageOne: React.FC = () => {
               </p>
               <div className="mb-2 flex ">
                 <Button
-                  className="button-primary text-base px-10 py-2 "
+                  className="button-primary text-base px-10 py-2"
                   type="submit"
                 >
                   Next step &#x2192;
