@@ -10,6 +10,7 @@ import { AdminCreateUserDTO } from "pages/api/admin/users/create";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import Combobox from "components/Combobox";
+import { User } from "@prisma/client";
 
 type AdminInviteFormValues = {
   firstName: string;
@@ -41,6 +42,7 @@ const AdminNewInvitePage: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [roleChosen, setRoleChosen] = useState("");
+  const [selectedPlayers, setSelectedPlayers] = useState<User[]>([]);
 
   const { errors, register, handleSubmit } = useForm<AdminInviteFormValues>({
     resolver: joiResolver(AdminInviteFormSchema),
@@ -63,6 +65,8 @@ const AdminNewInvitePage: React.FC = () => {
           email: values.email,
           name: `${values.firstName} ${values.lastName}`,
           phoneNumber: values.phoneNumber,
+          role: values.role,
+          linkedPlayers: selectedPlayers.map((user) => user.id),
         } as AdminCreateUserDTO),
       });
       if (!response.ok) {
@@ -194,7 +198,10 @@ const AdminNewInvitePage: React.FC = () => {
                     }
                   })()}
                 </p>
-                <Combobox />
+                <Combobox
+                  selectedPlayers={selectedPlayers}
+                  setSelectedPlayers={setSelectedPlayers}
+                />
               </FormField>
             </div>
           </fieldset>

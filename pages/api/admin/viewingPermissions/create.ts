@@ -8,7 +8,6 @@ import { adminOnlyHandler } from "../helpers";
 const prisma = new PrismaClient();
 
 export type ViewingPermissionDTO = {
-  // id: number;
   viewerId: number;
   vieweeId: number;
   relationshipType: string;
