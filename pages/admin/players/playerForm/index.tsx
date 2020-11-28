@@ -11,8 +11,8 @@ import updateActionPlayer from "utils/updateActionPlayer";
 import updateActionForm from "utils/updateActionForm";
 import DashboardLayout from "components/DashboardLayout";
 import PlayerFormLayout from "components/Player/PlayerFormLayout";
-import ComboBox from "components/Player/PlayerComboBox";
-import NewPlayerInvitePage from "components/Player/newPlayer";
+import ComboBox from "components/Player/PlayerForm/PlayerComboBox";
+import NewPlayerInvitePage from "components/Player/PlayerForm/newPlayer";
 import Icon from "components/Icon";
 
 const ExistingUser = ["Yes", "No"];

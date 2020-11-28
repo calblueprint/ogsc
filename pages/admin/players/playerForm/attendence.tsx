@@ -1,6 +1,6 @@
 import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
-import AddAbsences from "components/Player/AddAbsences";
+import AddAbsences from "components/Player/PlayerForm/AddAbsences";
 import Joi from "joi";
 import { useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
@@ -11,6 +11,7 @@ import DashboardLayout from "components/DashboardLayout";
 import PlayerFormLayout from "components/Player/PlayerFormLayout";
 import Icon from "components/Icon";
 import Card from "components/Card";
+import { formatAbsence } from "components/Player/PlayerForm/FormItems";
 
 export type AbsenceFormValues = {
   schoolAbsences: string[];
@@ -26,7 +27,6 @@ const PlayerProfileFormSchema = Joi.object<AbsenceFormValues>({
 
 const UserSignUpPageOne: React.FC = () => {
   const router = useRouter();
-  // TODO: Add loading state to form submission
   const { action, state } = useStateMachine(updateActionPlayer);
   const [hidden, setHidden] = useState(false);
   const [schoolAbsences, SetSchoolAbsences] = useState<string[]>(
@@ -100,21 +100,30 @@ const UserSignUpPageOne: React.FC = () => {
           </p>
           {schoolAbsences &&
             schoolAbsences.map((value: string) => (
-              <Card text={value} onDelete={() => SchoolOnDelete(value)} />
+              <Card
+                text={formatAbsence(value)}
+                onDelete={() => SchoolOnDelete(value)}
+              />
             ))}
           <p className="text-sm font-light pb-3">
             Academic Absences: {advisingAbsences.length}
           </p>
           {advisingAbsences &&
             advisingAbsences.map((value: string) => (
-              <Card text={value} onDelete={() => AdvisingOnDelete(value)} />
+              <Card
+                text={formatAbsence(value)}
+                onDelete={() => AdvisingOnDelete(value)}
+              />
             ))}
           <p className="text-sm font-light pb-3">
             Athletics Absences: {athleticAbsences.length}
           </p>
           {athleticAbsences &&
             athleticAbsences.map((value: string) => (
-              <Card text={value} onDelete={() => AthleticOnDelete(value)} />
+              <Card
+                text={formatAbsence(value)}
+                onDelete={() => AthleticOnDelete(value)}
+              />
             ))}
           <form className="mt-10 " onSubmit={handleSubmit(onSubmit)}>
             <fieldset>

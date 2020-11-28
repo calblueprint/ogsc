@@ -8,9 +8,10 @@ import { useForm } from "react-hook-form";
 import updateActionPlayer from "utils/updateActionPlayer";
 import DashboardLayout from "components/DashboardLayout";
 import PlayerFormLayout from "components/Player/PlayerFormLayout";
-import AddScoreField from "components/Player/AddScoreField";
+import AddScoreField from "components/Player/PlayerForm/AddScoreField";
 import Card from "components/Card";
 import Icon from "components/Icon";
+import { formatText } from "components/Player/PlayerForm/FormItems";
 import type { PlayerProfileFormValues } from ".";
 
 export type EngagementFormValues = Pick<
@@ -116,21 +117,30 @@ const UserSignUpPageOne: React.FC = () => {
           </p>
           {schoolScores &&
             schoolScores.map((value: string) => (
-              <Card text={value} onDelete={() => SchoolOnDelete(value)} />
+              <Card
+                text={formatText(value)}
+                onDelete={() => SchoolOnDelete(value)}
+              />
             ))}
           <p className="text-sm font-light pb-3">
             Academic Advising engagement score: {totalScore(advisingScores)}
           </p>
           {advisingScores &&
             advisingScores.map((value: string) => (
-              <Card text={value} onDelete={() => AdvisingOnDelete(value)} />
+              <Card
+                text={formatText(value)}
+                onDelete={() => AdvisingOnDelete(value)}
+              />
             ))}
           <p className="text-sm font-light pb-3">
             Athletics engagement score: {totalScore(athleticScores)}
           </p>
           {athleticScores &&
             athleticScores.map((value: string) => (
-              <Card text={value} onDelete={() => AthleticOnDelete(value)} />
+              <Card
+                text={formatText(value)}
+                onDelete={() => AthleticOnDelete(value)}
+              />
             ))}
           <form className="mt-10 " onSubmit={handleSubmit(onSubmit)}>
             <fieldset>

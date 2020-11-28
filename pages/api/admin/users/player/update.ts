@@ -80,9 +80,21 @@ const handler = async (
         key === "AcademicEngagementScore" ||
         key === "AdvisingScore" ||
         key === "AthleticScore" ||
-        key === "GPA" ||
-        key === "DisciplinaryActions"
+        key === "GPA"
       ) {
+        const content = value as string[];
+        content.forEach((object) => {
+          const date = new Date(object.split("-")[1]);
+          const number = object.split("-")[0];
+          const comment =
+            object.split("-").length === 3 ? object.split("-")[2] : "";
+          newProfileFields.push({
+            key,
+            value: JSON.stringify({ comment, value: number }),
+            createdAt: date,
+          });
+        });
+      } else if (key === "DisciplinaryActions") {
         const content = value as string[];
         content.forEach((object) => {
           const date = new Date(object.split("-")[1]);

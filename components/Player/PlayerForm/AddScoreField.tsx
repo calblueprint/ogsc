@@ -1,35 +1,8 @@
 import Button from "components/Button";
 import { useState } from "react";
 import Joi from "joi";
-import DateComboBox from "components/Player/DateComboBox";
-
-function getYears(): string[] {
-  const date: Date = new Date();
-  const year: number = date.getFullYear();
-  const yearList: string[] = [];
-  for (let x = 0; x < 10; x += 1) {
-    const newYear = year - x;
-    yearList.push(newYear.toString());
-  }
-  return yearList;
-}
-
-export const years = getYears();
-
-export const months = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
+import DateComboBox from "components/Player/PlayerForm/DateComboBox";
+import { years, months } from "components/Player/PlayerForm/FormItems";
 
 type Props = React.PropsWithChildren<{
   setHidden: React.Dispatch<React.SetStateAction<boolean>>;
@@ -54,6 +27,7 @@ const AddScoreField: React.FC<Props> = ({
   const [score, SetScore] = useState<string>("");
   const [selectMonth, SetSelectMonth] = useState<string>("");
   const [selectYear, SetSelectYear] = useState<string>("");
+  const [comment, SetComment] = useState<string>("");
   const [error, setError] = useState("");
 
   const check = (): void => {
@@ -80,7 +54,7 @@ const AddScoreField: React.FC<Props> = ({
     try {
       check();
       const dateShown = `${selectMonth} ${selectYear}`;
-      const value = `${score} - ${dateShown}`;
+      const value = `${score} - ${dateShown} - ${comment}`;
       if (field === "School") {
         setSchoolScores(() => [...schoolScores, value]);
       } else if (field === "Advising") {
@@ -124,7 +98,15 @@ const AddScoreField: React.FC<Props> = ({
             setState={SetSelectYear}
           />
         </div>
-        <div className="flex flex-row gap-6">
+        <p className="text-sm font-semibold mb-3 mt-10">Comments</p>
+        <input
+          type="text"
+          className="input text-sm w-full font-light"
+          name="comments"
+          placeholder="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+          onChange={(event) => SetComment(event.target.value)}
+        />
+        <div className="flex flex-row gap-6 mt-10">
           <Button
             iconType="plus"
             className="py-2 px-5 text-sm"

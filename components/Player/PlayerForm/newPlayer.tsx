@@ -8,7 +8,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import updateAction from "utils/updateAction";
 import { useStateMachine } from "little-state-machine";
-import type { UserSignUpFormValues } from "../../pages/users/signUp";
+import type { UserSignUpFormValues } from "../../../pages/users/signUp";
 
 const AdminInviteFormSchema = Joi.object<UserSignUpFormValues>({
   firstName: Joi.string().trim().required(),

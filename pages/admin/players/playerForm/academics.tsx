@@ -8,11 +8,12 @@ import { useForm } from "react-hook-form";
 import updateActionPlayer from "utils/updateActionPlayer";
 import DashboardLayout from "components/DashboardLayout";
 import PlayerFormLayout from "components/Player/PlayerFormLayout";
-import GPAScoreField from "components/Player/AddGPAField";
-import DisciplinaryField from "components/Player/DisciplinaryField";
+import GPAScoreField from "components/Player/PlayerForm/AddGPAField";
+import DisciplinaryField from "components/Player/PlayerForm/DisciplinaryField";
 import { totalScore } from "pages/admin/players/playerForm/engagement";
 import Card from "components/Card";
 import Icon from "components/Icon";
+import { formatText, formatDA } from "components/Player/PlayerForm/FormItems";
 import type { PlayerProfileFormValues } from ".";
 
 export type AcademicFormValues = Pick<
@@ -92,7 +93,7 @@ const UserSignUpPageOne: React.FC = () => {
           </p>
           {listGPA &&
             listGPA.map((value: string) => (
-              <Card text={value} onDelete={() => OnDelete(value)} />
+              <Card text={formatText(value)} onDelete={() => OnDelete(value)} />
             ))}
           <form onSubmit={handleSubmit(onSubmit)}>
             <fieldset>
@@ -118,7 +119,10 @@ const UserSignUpPageOne: React.FC = () => {
               </p>
               {DisciplinaryActionList &&
                 DisciplinaryActionList.map((value: string) => (
-                  <Card text={value} onDelete={() => OnDeleteAction(value)} />
+                  <Card
+                    text={formatDA(value)}
+                    onDelete={() => OnDeleteAction(value)}
+                  />
                 ))}
               <Button
                 iconType="plus"

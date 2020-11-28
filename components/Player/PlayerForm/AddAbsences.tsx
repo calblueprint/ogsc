@@ -1,9 +1,8 @@
 import Button from "components/Button";
 import { useState } from "react";
 import Joi from "joi";
-import DateComboBox from "components/Player/DateComboBox";
-import { years, months } from "components/Player/AddScoreField";
-import { getDays } from "components/Player/DisciplinaryField";
+import DateComboBox from "components/Player/PlayerForm/DateComboBox";
+import { years, months, getDays } from "components/Player/PlayerForm/FormItems";
 
 type Props = React.PropsWithChildren<{
   setHidden: React.Dispatch<React.SetStateAction<boolean>>;
@@ -67,7 +66,7 @@ const AddAbsencesField: React.FC<Props> = ({
     event?.preventDefault();
     try {
       check();
-      const dateShown = `${selectMonth} ${selectDay} ${selectYear}`;
+      const dateShown = `${selectDay} ${selectMonth} ${selectYear}`;
       const value = `${dateShown} - ${type} - ${description}`;
       if (field === "School") {
         setSchoolAbsences(() => [...schoolAbsences, value]);

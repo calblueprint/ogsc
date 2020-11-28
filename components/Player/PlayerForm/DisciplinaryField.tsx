@@ -1,28 +1,14 @@
-import { years, months } from "components/Player/AddScoreField";
+import { years, months, getDays } from "components/Player/PlayerForm/FormItems";
 import Button from "components/Button";
 import { useState } from "react";
 import Joi from "joi";
-import DateComboBox from "components/Player/DateComboBox";
+import DateComboBox from "components/Player/PlayerForm/DateComboBox";
 
 type Props = React.PropsWithChildren<{
   setHidden: React.Dispatch<React.SetStateAction<boolean>>;
   DisciplinaryActions: string[];
   SetDisciplinaryActions: React.Dispatch<React.SetStateAction<string[]>>;
 }>;
-
-const getDaysinMonth = (month: number): number => {
-  return new Date(new Date().getFullYear(), month, 0).getDate();
-};
-
-export const getDays = (month: string): string[] => {
-  let dayNum = 31;
-  if (month !== "") {
-    const monthNum = months.indexOf(month);
-    dayNum = getDaysinMonth(monthNum + 1);
-  }
-  const days = Array.from({ length: dayNum }, (_, i) => (i + 1).toString());
-  return days;
-};
 
 const DAScoreField: React.FC<Props> = ({
   setHidden,

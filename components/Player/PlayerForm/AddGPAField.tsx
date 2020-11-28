@@ -1,8 +1,8 @@
-import { years, months } from "components/Player/AddScoreField";
+import { years, months } from "components/Player/PlayerForm/FormItems";
 import Button from "components/Button";
 import { useState } from "react";
 import Joi from "joi";
-import DateComboBox from "components/Player/DateComboBox";
+import DateComboBox from "components/Player/PlayerForm/DateComboBox";
 
 type Props = React.PropsWithChildren<{
   setHidden: React.Dispatch<React.SetStateAction<boolean>>;
@@ -18,6 +18,7 @@ const GPAScoreField: React.FC<Props> = ({
   const [GPA, SetGPA] = useState<string>("");
   const [selectMonth, SetSelectMonth] = useState<string>("");
   const [selectYear, SetSelectYear] = useState<string>("");
+  const [comment, SetComment] = useState<string>("");
   const [error, setError] = useState("");
 
   const check = (): void => {
@@ -39,7 +40,7 @@ const GPAScoreField: React.FC<Props> = ({
     try {
       check();
       const dateShown = `${selectMonth} ${selectYear}`;
-      const value = `${GPA} - ${dateShown}`;
+      const value = `${GPA} - ${dateShown} - ${comment}`;
       setListGPA(() => [...listGPA, value]);
       setHidden(false);
     } catch (err) {
@@ -71,7 +72,15 @@ const GPAScoreField: React.FC<Props> = ({
             setState={SetSelectYear}
           />
         </div>
-        <div className="flex flex-row gap-6">
+        <p className="text-sm font-semibold mb-3 mt-10">Comments</p>
+        <input
+          type="text"
+          className="input text-sm w-full font-light"
+          name="comments"
+          placeholder="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+          onChange={(event) => SetComment(event.target.value)}
+        />
+        <div className="flex flex-row gap-6 mt-10">
           <Button
             iconType="plus"
             className="py-2 px-5 text-sm"
