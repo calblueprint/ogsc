@@ -2,25 +2,34 @@ import React, { useEffect, useRef, useState } from "react";
 import { useCombobox } from "downshift";
 import { User } from "@prisma/client";
 import debounce from "lodash.debounce";
+import Card from "components/Card";
+import PlayerFormField from "components/PlayerFormField";
 
 const getInputPlayers = async (
   inputValue: string | undefined
-): Promise<string[]> => {
+): Promise<User[]> => {
   try {
-    const apiLink = `http://localhost:3000/api/admin/users/search/${inputValue}`;
+    const apiLink = `/api/admin/users/search/${inputValue}`;
     const response = await fetch(apiLink);
     const data = await response.json();
-    return data.users.map((player: User) => player.name);
+    return data.users.map((player: User) => player);
   } catch (err) {
     throw new Error(err.message);
   }
 };
+type Props = React.PropsWithChildren<{
+  selectedPlayer: User | null;
+  setSelectedPlayer: React.Dispatch<React.SetStateAction<User | null>>;
+  setPlayerID: React.Dispatch<React.SetStateAction<number>>;
+}>;
 
-const Combobox: React.FC = () => {
-  const [inputPlayers, setInputPlayers] = useState<string[]>([]);
+const Combobox: React.FC<Props> = ({
+  selectedPlayer,
+  setSelectedPlayer,
+  setPlayerID,
+}: Props) => {
+  const [inputPlayers, setInputPlayers] = useState<User[]>([]);
   const [dropState, setDropState] = useState<boolean>(false);
-  const [selectedPlayer, setSelectedPlayer] = useState<string>();
-  // const [query, setQuery] = useState("");
   const input = useRef<HTMLInputElement | null>(null);
   const {
     isOpen,
@@ -30,7 +39,7 @@ const Combobox: React.FC = () => {
     highlightedIndex,
     getItemProps,
     selectedItem,
-    // selectItem,
+    reset,
   } = useCombobox({
     isOpen: dropState,
     items: inputPlayers,
@@ -39,7 +48,68 @@ const Combobox: React.FC = () => {
     }, 300),
   });
 
-  // TODO: write a removeFromArray function for delete functionality
+  function clearSelectedPlayer(): void {
+    setSelectedPlayer(null);
+    reset();
+  }
+
+  const preFilledForm = (
+    <div>
+      {selectedPlayer && (
+        <div>
+          <Card
+            text={selectedPlayer?.name}
+            onDelete={() => clearSelectedPlayer()}
+          />
+          <PlayerFormField label="First Name" name="firstName">
+            <input
+              type="text"
+              className="input text-sm"
+              name="firstName"
+              placeholder={selectedPlayer?.name?.split(" ")[0]}
+              defaultValue={selectedPlayer?.name?.split(" ")[0]}
+            />
+          </PlayerFormField>
+          <PlayerFormField label="Last Name" name="lastName">
+            <input
+              type="text"
+              className="input text-sm"
+              name="lastName"
+              placeholder={selectedPlayer?.name?.split(" ")[1]}
+              defaultValue={selectedPlayer?.name?.split(" ")[1]}
+            />
+          </PlayerFormField>
+          <PlayerFormField label="Email Address" name="email">
+            <input
+              type="text"
+              className="input text-sm"
+              name="email"
+              placeholder={selectedPlayer?.email}
+              defaultValue={selectedPlayer?.email}
+            />
+          </PlayerFormField>
+          <PlayerFormField label="Phone Number" name="phoneNumber">
+            <input
+              type="text"
+              className="input text-sm"
+              name="phoneNumber"
+              placeholder={
+                selectedPlayer?.phoneNumber
+                  ? selectedPlayer?.phoneNumber
+                  : "N/A"
+              }
+              defaultValue={
+                selectedPlayer?.phoneNumber
+                  ? selectedPlayer?.phoneNumber
+                  : undefined
+              }
+            />
+          </PlayerFormField>
+          {setPlayerID(selectedPlayer?.id)}
+        </div>
+      )}
+    </div>
+  );
 
   useEffect(() => {
     async function fetchData(): Promise<void> {
@@ -47,21 +117,19 @@ const Combobox: React.FC = () => {
       setInputPlayers(await getInputPlayers("  "));
     }
     fetchData();
-  }, [selectedPlayer]);
+  }, []);
 
   useEffect(() => {
     if (selectedItem) {
       setSelectedPlayer(selectedItem);
+      setPlayerID(selectedItem.id);
     }
-  }, [selectedItem, selectedPlayer]);
+  }, [selectedItem, setSelectedPlayer, setPlayerID]);
 
   return (
     <div className="container  w-4/5 mt-3">
       <div className="relative">
-        <pre className="text-xs">
-          selected: {JSON.stringify(selectedPlayer)}
-        </pre>
-
+        {selectedPlayer && selectedPlayer !== null ? preFilledForm : null}
         <div>
           <div {...getComboboxProps()}>
             <input
@@ -73,24 +141,24 @@ const Combobox: React.FC = () => {
                   setDropState(true);
                 },
               })}
-              className={`w-2/5 text-base form-input leading-10 border border-border rounded-lg ${
-                selectedItem ? "hidden" : ""
+              className={`w-1/3 text-base form-input leading-10 border border-border rounded-lg ${
+                selectedPlayer ? "hidden" : ""
               }`}
             />
           </div>
           <ul
             {...getMenuProps()}
-            className={`absolute w-1/4 bg-white border border-b-0 rounded-sm mt-2 ${
+            className={`absolute w-1/3 bg-white border border-b-0 rounded-sm mt-2 ${
               !isOpen ? "hidden" : ""
             }`}
           >
             {isOpen &&
-              inputPlayers.map((item: string, index: number) => (
+              inputPlayers.map((item: User, index: number) => (
                 <li
                   className={`${
                     highlightedIndex === index ? "bg-lightBlue" : ""
                   } px-3 py-2 border-b`}
-                  key={`${item}`}
+                  key={`${item.name}`}
                   {...getItemProps({
                     item,
                     index,
@@ -98,7 +166,7 @@ const Combobox: React.FC = () => {
                       event.preventDefault(),
                   })}
                 >
-                  {item}
+                  {item.name}
                 </li>
               ))}
           </ul>

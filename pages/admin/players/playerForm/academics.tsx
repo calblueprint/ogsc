@@ -1,14 +1,18 @@
 import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
-import PlayerFormField from "components/PlayerFormField";
 import Joi from "joi";
 import { useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import updateAction from "utils/updateActionPlayer";
+import updateActionPlayer from "utils/updateActionPlayer";
 import DashboardLayout from "components/DashboardLayout";
 import PlayerFormLayout from "components/Player/PlayerFormLayout";
+import GPAScoreField from "components/Player/AddGPAField";
+import DisciplinaryField from "components/Player/DisciplinaryField";
+import { totalScore } from "pages/admin/players/playerForm/engagement";
+import Card from "components/Card";
+import Icon from "components/Icon";
 import type { PlayerProfileFormValues } from ".";
 
 export type AcademicFormValues = Pick<
@@ -23,14 +27,22 @@ const PlayerProfileFormSchema = Joi.object<AcademicFormValues>({
 
 const UserSignUpPageOne: React.FC = () => {
   const router = useRouter();
-
-  // TODO: Add loading state to form submission
+  const { action, state } = useStateMachine(updateActionPlayer);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const { errors, register, handleSubmit } = useForm<AcademicFormValues>({
+  const [hiddenGPA, setHiddenGPA] = useState(false);
+  const [hiddenDA, setHiddenDA] = useState(false);
+  const [listGPA, setListGPA] = useState<string[]>(
+    state.playerData.GPA ? state.playerData.GPA : []
+  );
+  const [DisciplinaryActionList, SetDisciplinaryActions] = useState<string[]>(
+    state.playerData.DisciplinaryActions
+      ? state.playerData.DisciplinaryActions
+      : []
+  );
+  const { handleSubmit } = useForm<AcademicFormValues>({
     resolver: joiResolver(PlayerProfileFormSchema),
   });
-  const { action, state } = useStateMachine(updateAction);
 
   async function onSubmit(
     values: AcademicFormValues,
@@ -42,6 +54,10 @@ const UserSignUpPageOne: React.FC = () => {
     }
     try {
       action(values);
+      action({
+        GPA: listGPA,
+        DisciplinaryActions: DisciplinaryActionList,
+      });
       router.push("/admin/players/playerForm/attendence");
     } catch (err) {
       setError(err.message);
@@ -49,6 +65,15 @@ const UserSignUpPageOne: React.FC = () => {
       setSubmitting(false);
     }
   }
+  const OnDelete = (value: string): void => {
+    setListGPA(listGPA.filter((gpa: string) => gpa !== value));
+  };
+
+  const OnDeleteAction = (value: string): void => {
+    SetDisciplinaryActions(
+      DisciplinaryActionList.filter((dAction: string) => dAction !== value)
+    );
+  };
 
   return (
     <DashboardLayout>
@@ -61,39 +86,75 @@ const UserSignUpPageOne: React.FC = () => {
           <p className="pt-10 text-xl tracking-wider font-medium">
             Grade Point Average
           </p>
-          <form className="mt-10 " onSubmit={handleSubmit(onSubmit)}>
+          <p className="text-sm font-semibold pb-3 pt-10">GPA</p>
+          <p className="text-sm font-light pb-3">
+            Overall Grade Point Average: {totalScore(listGPA)}
+          </p>
+          {listGPA &&
+            listGPA.map((value: string) => (
+              <Card text={value} onDelete={() => OnDelete(value)} />
+            ))}
+          <form onSubmit={handleSubmit(onSubmit)}>
             <fieldset>
-              <PlayerFormField
-                label="GPA"
-                name="GPA"
-                error={errors.GPA?.message}
+              <Button
+                iconType="plus"
+                onClick={() => setHiddenGPA(true)}
+                className={`text-sm ${hiddenGPA ? "hidden" : ""}`}
               >
-                <input
-                  type="text"
-                  className="input text-sm"
-                  name="GPA"
-                  placeholder="e.g., 3.7"
-                  ref={register}
-                  defaultValue={state.playerData.GPA}
+                Add Grade Point Average
+              </Button>
+              {hiddenGPA ? (
+                <GPAScoreField
+                  setHidden={setHiddenGPA}
+                  listGPA={listGPA}
+                  setListGPA={setListGPA}
                 />
-              </PlayerFormField>
+              ) : null}
+              <p className="text-sm font-semibold pb-3 pt-10">
+                Disciplinary Actions
+              </p>
+              <p className="text-sm font-light pb-3">
+                Total Disciplinary Actions: {DisciplinaryActionList.length}
+              </p>
+              {DisciplinaryActionList &&
+                DisciplinaryActionList.map((value: string) => (
+                  <Card text={value} onDelete={() => OnDeleteAction(value)} />
+                ))}
+              <Button
+                iconType="plus"
+                onClick={() => setHiddenDA(true)}
+                className={`text-sm ${hiddenDA ? "hidden" : ""}`}
+              >
+                Add Disciplinary Actions
+              </Button>
+              {hiddenDA ? (
+                <DisciplinaryField
+                  setHidden={setHiddenDA}
+                  DisciplinaryActions={DisciplinaryActionList}
+                  SetDisciplinaryActions={SetDisciplinaryActions}
+                />
+              ) : null}
+              {error && <p className="text-red-600 text-sm">{error}</p>}
               <hr className="border-unselected border-opacity-50 my-16" />
-              <div className="flex mb-32 justify-between align-middle">
-                <div className="mb-2 flex">
+              <div className="flex mb-32">
+                <div className="mb-2 flex justify-between w-full">
                   <Button
-                    className="bg-blue text-base px-5 py-2 text-white tracking-wide rounded-md"
-                    type="submit"
+                    className="text-blue bg-white text-sm py-2 rounded-md tracking-wide"
+                    onClick={() =>
+                      router.push("/admin/players/playerForm/engagement")
+                    }
                   >
-                    Save + Continue
+                    <Icon className="mr-6 w-8 stroke-current" type="back" />
+                    Back
                   </Button>
                   <Button
-                    className="border-2 border-blue text-blue bg-white text-base px-12 py-2 ml-10 rounded-md tracking-wide"
+                    className="bg-blue text-sm px-5 py-2 text-white tracking-wide rounded-md"
                     type="submit"
                   >
-                    Cancel
+                    Next Step
+                    <Icon className="ml-6 w-8 stroke-current" type="next" />
                   </Button>
                 </div>
-                {error && <p className="text-red-600 text-sm">{error}</p>}
               </div>
               <hr />
             </fieldset>

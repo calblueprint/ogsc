@@ -1,4 +1,4 @@
-import type { ProfileFieldKey } from "@prisma/client";
+import type { ProfileFieldKey, User } from "@prisma/client";
 import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
 import PlayerFormField from "components/PlayerFormField";
@@ -7,10 +7,15 @@ import { useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import updateAction from "utils/updateActionPlayer";
+import updateActionPlayer from "utils/updateActionPlayer";
+import updateActionForm from "utils/updateActionForm";
 import DashboardLayout from "components/DashboardLayout";
 import PlayerFormLayout from "components/Player/PlayerFormLayout";
-import PlayerComboBox from "components/Player/PlayerComboBox";
+import ComboBox from "components/Player/PlayerComboBox";
+import NewPlayerInvitePage from "components/Player/newPlayer";
+import Icon from "components/Icon";
+
+const ExistingUser = ["Yes", "No"];
 
 export type PlayerProfileFormValues = {
   [ProfileFieldKey.PlayerNumber]: string;
@@ -21,11 +26,11 @@ export type PlayerProfileFormValues = {
   [ProfileFieldKey.BioMostDifficultSubject]: string;
   [ProfileFieldKey.BioSiblings]: string;
   [ProfileFieldKey.BioParents]: string;
-  [ProfileFieldKey.AcademicEngagementScore]: string;
-  [ProfileFieldKey.AdvisingScore]: string;
-  [ProfileFieldKey.AthleticScore]: string;
-  [ProfileFieldKey.GPA]: string;
-  [ProfileFieldKey.DisciplinaryActions]: string;
+  [ProfileFieldKey.AcademicEngagementScore]: string[];
+  [ProfileFieldKey.AdvisingScore]: string[];
+  [ProfileFieldKey.AthleticScore]: string[];
+  [ProfileFieldKey.GPA]: string[];
+  [ProfileFieldKey.DisciplinaryActions]: string[];
   [ProfileFieldKey.BMI]: string;
   [ProfileFieldKey.PacerTest]: string;
   [ProfileFieldKey.MileTime]: string;
@@ -36,7 +41,14 @@ export type PlayerProfileFormValues = {
   [ProfileFieldKey.IntroVideo]: string;
 };
 
-const PlayerProfileFormSchema = Joi.object<PlayerProfileFormValues>({
+export type ExistingUserType = {
+  choice: string;
+  player: User;
+};
+
+const PlayerProfileFormSchema = Joi.object<
+  PlayerProfileFormValues & ExistingUserType
+>({
   PlayerNumber: Joi.string(),
   age: Joi.string(),
   BioAboutMe: Joi.string().empty("").default(null),
@@ -45,11 +57,13 @@ const PlayerProfileFormSchema = Joi.object<PlayerProfileFormValues>({
   BioMostDifficultSubject: Joi.string().empty("").default(null),
   BioSiblings: Joi.string().empty("").default(null),
   BioParents: Joi.string().empty("").default(null),
-  AcademicEngagementScore: Joi.string().empty("").default(null),
-  AdvisingScore: Joi.string().empty("").default(null),
-  AthleticScore: Joi.string().empty("").default(null),
-  GPA: Joi.string().empty("").default(null),
-  DisciplinaryActions: Joi.string().empty("").default(null),
+  AcademicEngagementScore: Joi.array()
+    .items(Joi.string().required())
+    .optional(),
+  AdvisingScore: Joi.array().items(Joi.string().required()).optional(),
+  AthleticScore: Joi.array().items(Joi.string().required()).optional(),
+  GPA: Joi.array().items(Joi.string().required()).optional(),
+  DisciplinaryActions: Joi.array().items(Joi.string().required()).optional(),
   BMI: Joi.string().empty("").default(null),
   PacerTest: Joi.string().empty("").default(null),
   MileTime: Joi.string().empty("").default(null),
@@ -58,21 +72,30 @@ const PlayerProfileFormSchema = Joi.object<PlayerProfileFormValues>({
   HealthAndWellness: Joi.string().empty("").default(null),
   Highlights: Joi.string().empty("").default(null),
   IntroVideo: Joi.string().empty("").default(null),
+  choice: Joi.string()
+    .valid(...ExistingUser)
+    .required(),
 });
-
-const ExistingUser = ["Yes", "No"];
 
 const UserSignUpPageOne: React.FC = () => {
   const router = useRouter();
-
-  // TODO: Add loading state to form submission
-  const [existingUser, setExistingUser] = useState("");
+  const { state } = useStateMachine();
+  const { actions } = useStateMachine({
+    updateActionPlayer,
+    updateActionForm,
+  });
+  const [selectedPlayer, setSelectedPlayer] = useState<User | null>(
+    state.playerForm.player
+  );
+  const [existingUser, setExistingUser] = useState(state.playerForm.choice);
+  const [playerID, setPlayerID] = useState<number>(0);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const { errors, register, handleSubmit } = useForm<PlayerProfileFormValues>({
+  const { errors, register, handleSubmit } = useForm<
+    PlayerProfileFormValues & ExistingUserType
+  >({
     resolver: joiResolver(PlayerProfileFormSchema),
   });
-  const { action, state } = useStateMachine(updateAction);
 
   async function onSubmit(
     values: PlayerProfileFormValues,
@@ -83,7 +106,15 @@ const UserSignUpPageOne: React.FC = () => {
       return;
     }
     try {
-      action(values);
+      if (selectedPlayer === null && existingUser === "Yes") {
+        throw new Error("You must select or create a player to continue");
+      }
+      actions.updateActionPlayer(values);
+      actions.updateActionPlayer({ id: playerID });
+      actions.updateActionForm({
+        choice: existingUser,
+        player: selectedPlayer,
+      });
       router.push("/admin/players/playerForm/overview");
     } catch (err) {
       setError(err.message);
@@ -114,24 +145,56 @@ const UserSignUpPageOne: React.FC = () => {
                   account will be linked to their participant profile and
                   existing info will be auto-filled.
                 </p>
-                {ExistingUser.map((option) => (
+                <PlayerFormField
+                  label=""
+                  name="choice"
+                  error={errors.choice?.message}
+                >
                   <label
                     className="font-medium flex items-center mb-2"
-                    htmlFor={option}
+                    htmlFor="choice"
                   >
                     <input
                       className="mr-5"
                       type="radio"
-                      name="role"
-                      id={option}
-                      value={option}
+                      name="choice"
+                      id="Yes"
+                      value="Yes"
                       ref={register}
+                      defaultChecked={state.playerForm.choice === "Yes"}
                       onChange={(event) => setExistingUser(event.target.value)}
                     />
-                    <p className="text-sm ml-3 font-medium">{option}</p>
+                    <p className="text-sm ml-3 font-medium">Yes</p>
                   </label>
-                ))}
-                {existingUser === "Yes" ? <PlayerComboBox /> : null}
+                  <label
+                    className="font-medium flex items-center mb-2"
+                    htmlFor="choice"
+                  >
+                    <input
+                      className="mr-5"
+                      type="radio"
+                      name="choice"
+                      id="No"
+                      value="No"
+                      ref={register}
+                      defaultChecked={state.playerForm.choice === "No"}
+                      onChange={(event) => setExistingUser(event.target.value)}
+                    />
+                    <p className="text-sm ml-3 font-medium">No</p>
+                  </label>
+                  {existingUser === "Yes" ? (
+                    <div>
+                      <ComboBox
+                        selectedPlayer={selectedPlayer}
+                        setSelectedPlayer={setSelectedPlayer}
+                        setPlayerID={setPlayerID}
+                      />
+                    </div>
+                  ) : null}
+                  {existingUser === "No" ? (
+                    <NewPlayerInvitePage setPlayerID={setPlayerID} />
+                  ) : null}
+                </PlayerFormField>
               </div>
               <div className="grid grid-rows-2 mr-32">
                 <PlayerFormField
@@ -163,13 +226,15 @@ const UserSignUpPageOne: React.FC = () => {
                   />
                 </PlayerFormField>
               </div>
+              {error && <p className="text-red-600 text-sm">{error}</p>}
               <hr className="border-unselected border-opacity-50 my-16" />
               <div className="flex mb-32">
                 <div className="mb-2 flex justify-between w-full">
                   <Button
-                    className="text-blue bg-white text-sm px-8 py-2 ml-10 rounded-md tracking-wide"
-                    type="submit"
+                    className="text-blue bg-white text-sm py-2 rounded-md tracking-wide"
+                    onClick={() => router.push("/admin/players")}
                   >
+                    <Icon className="mr-6 w-8 stroke-current" type="back" />
                     Back
                   </Button>
                   <Button
@@ -177,9 +242,9 @@ const UserSignUpPageOne: React.FC = () => {
                     type="submit"
                   >
                     Next Step
+                    <Icon className="ml-6 w-8 stroke-current" type="next" />
                   </Button>
                 </div>
-                {error && <p className="text-red-600 text-sm">{error}</p>}
               </div>
               <hr />
             </fieldset>

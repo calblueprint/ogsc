@@ -1,40 +1,51 @@
 import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
-import PlayerFormField from "components/PlayerFormField";
+import AddAbsences from "components/Player/AddAbsences";
 import Joi from "joi";
 import { useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import updateAction from "utils/updateActionPlayer";
+import updateActionPlayer from "utils/updateActionPlayer";
 import DashboardLayout from "components/DashboardLayout";
 import PlayerFormLayout from "components/Player/PlayerFormLayout";
-import type { PlayerProfileFormValues } from ".";
+import Icon from "components/Icon";
+import Card from "components/Card";
 
-export type AttendenceFormValues = Pick<
-  PlayerProfileFormValues,
-  "AcademicEngagementScore" | "AdvisingScore" | "AthleticScore"
->;
+export type AbsenceFormValues = {
+  schoolAbsences: string[];
+  academicAbsences: string[];
+  athleticAbsences: string[];
+};
 
-const PlayerProfileFormSchema = Joi.object<AttendenceFormValues>({
-  AcademicEngagementScore: Joi.string().empty("").default(null),
-  AdvisingScore: Joi.string().empty("").default(null),
-  AthleticScore: Joi.string().empty("").default(null),
+const PlayerProfileFormSchema = Joi.object<AbsenceFormValues>({
+  schoolAbsences: Joi.array().items(Joi.string().required()).optional(),
+  academicAbsences: Joi.array().items(Joi.string().required()).optional(),
+  athleticAbsences: Joi.array().items(Joi.string().required()).optional(),
 });
 
 const UserSignUpPageOne: React.FC = () => {
   const router = useRouter();
-
   // TODO: Add loading state to form submission
+  const { action, state } = useStateMachine(updateActionPlayer);
+  const [hidden, setHidden] = useState(false);
+  const [schoolAbsences, SetSchoolAbsences] = useState<string[]>(
+    state.playerData.SchoolAbsences ? state.playerData.SchoolAbsences : []
+  );
+  const [advisingAbsences, SetAdvisingAbsences] = useState<string[]>(
+    state.playerData.AdvisingAbsences ? state.playerData.AdvisingAbsences : []
+  );
+  const [athleticAbsences, SetAthleticAbsences] = useState<string[]>(
+    state.playerData.AthleticAbsences ? state.playerData.AthleticAbsences : []
+  );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const { errors, register, handleSubmit } = useForm<AttendenceFormValues>({
+  const { handleSubmit } = useForm<AbsenceFormValues>({
     resolver: joiResolver(PlayerProfileFormSchema),
   });
-  const { action, state } = useStateMachine(updateAction);
 
   async function onSubmit(
-    values: AttendenceFormValues,
+    values: AbsenceFormValues,
     event?: React.BaseSyntheticEvent
   ): Promise<void> {
     event?.preventDefault();
@@ -43,6 +54,11 @@ const UserSignUpPageOne: React.FC = () => {
     }
     try {
       action(values);
+      action({
+        SchoolAbsences: schoolAbsences,
+        AdvisingAbsences: advisingAbsences,
+        AthleticAbsences: athleticAbsences,
+      });
       router.push("/admin/players/playerForm/physicalWellness");
     } catch (err) {
       setError(err.message);
@@ -50,6 +66,23 @@ const UserSignUpPageOne: React.FC = () => {
       setSubmitting(false);
     }
   }
+  const SchoolOnDelete = (value: string): void => {
+    SetSchoolAbsences(
+      schoolAbsences.filter((score: string) => score !== value)
+    );
+  };
+
+  const AdvisingOnDelete = (value: string): void => {
+    SetAdvisingAbsences(
+      advisingAbsences.filter((score: string) => score !== value)
+    );
+  };
+
+  const AthleticOnDelete = (value: string): void => {
+    SetAthleticAbsences(
+      athleticAbsences.filter((score: string) => score !== value)
+    );
+  };
 
   return (
     <DashboardLayout>
@@ -59,42 +92,71 @@ const UserSignUpPageOne: React.FC = () => {
         </p>
         <p className="font-light mt-2">Description Here</p>
         <PlayerFormLayout tabNum={5}>
-          <p className="pt-10 text-xl tracking-wider font-medium">
+          <p className="pt-10 pb-4 text-xl tracking-wider font-medium">
             School Absences
           </p>
+          <p className="text-sm font-light pb-3">
+            School Absences: {schoolAbsences.length}
+          </p>
+          {schoolAbsences &&
+            schoolAbsences.map((value: string) => (
+              <Card text={value} onDelete={() => SchoolOnDelete(value)} />
+            ))}
+          <p className="text-sm font-light pb-3">
+            Academic Absences: {advisingAbsences.length}
+          </p>
+          {advisingAbsences &&
+            advisingAbsences.map((value: string) => (
+              <Card text={value} onDelete={() => AdvisingOnDelete(value)} />
+            ))}
+          <p className="text-sm font-light pb-3">
+            Athletics Absences: {athleticAbsences.length}
+          </p>
+          {athleticAbsences &&
+            athleticAbsences.map((value: string) => (
+              <Card text={value} onDelete={() => AthleticOnDelete(value)} />
+            ))}
           <form className="mt-10 " onSubmit={handleSubmit(onSubmit)}>
             <fieldset>
-              <PlayerFormField
-                label="Placeholder"
-                name="AdvisingScore"
-                error={errors.AdvisingScore?.message}
+              <Button
+                iconType="plus"
+                onClick={() => setHidden(true)}
+                className={`text-sm ${hidden ? "hidden" : ""}`}
               >
-                <input
-                  type="text"
-                  className="input text-sm"
-                  name="AdvisingScore"
-                  placeholder="This is a placeholder"
-                  ref={register}
-                  defaultValue={state.playerData.AdvisingScore}
+                Add Absence
+              </Button>
+              {hidden ? (
+                <AddAbsences
+                  setHidden={setHidden}
+                  advisingAbsences={advisingAbsences}
+                  athleticAbsences={athleticAbsences}
+                  schoolAbsences={schoolAbsences}
+                  setAdvisingAbsences={SetAdvisingAbsences}
+                  setAthleticAbsences={SetAthleticAbsences}
+                  setSchoolAbsences={SetSchoolAbsences}
                 />
-              </PlayerFormField>
+              ) : null}
+              {error && <p className="text-red-600 text-sm">{error}</p>}
               <hr className="border-unselected border-opacity-50 my-16" />
-              <div className="flex mb-32 justify-between align-middle">
-                <div className="mb-2 flex">
+              <div className="flex mb-32">
+                <div className="mb-2 flex justify-between w-full">
                   <Button
-                    className="bg-blue text-base px-5 py-2 text-white tracking-wide rounded-md"
-                    type="submit"
+                    className="text-blue bg-white text-sm py-2 rounded-md tracking-wide"
+                    onClick={() =>
+                      router.push("/admin/players/playerForm/academics")
+                    }
                   >
-                    Save + Continue
+                    <Icon className="mr-6 w-8 stroke-current" type="back" />
+                    Back
                   </Button>
                   <Button
-                    className="border-2 border-blue text-blue bg-white text-base px-12 py-2 ml-10 rounded-md tracking-wide"
+                    className="bg-blue text-sm px-5 py-2 text-white tracking-wide rounded-md"
                     type="submit"
                   >
-                    Cancel
+                    Next Step
+                    <Icon className="ml-6 w-8 stroke-current" type="next" />
                   </Button>
                 </div>
-                {error && <p className="text-red-600 text-sm">{error}</p>}
               </div>
               <hr />
             </fieldset>

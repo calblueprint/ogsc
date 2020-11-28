@@ -6,9 +6,10 @@ import { useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import updateAction from "utils/updateActionPlayer";
+import updateActionPlayer from "utils/updateActionPlayer";
 import DashboardLayout from "components/DashboardLayout";
 import PlayerFormLayout from "components/Player/PlayerFormLayout";
+import Icon from "components/Icon";
 import type { PlayerProfileFormValues } from "./index";
 
 export type OverviewFormValues = Pick<
@@ -32,14 +33,12 @@ const PlayerProfileFormSchema = Joi.object<OverviewFormValues>({
 
 const UserSignUpPageOne: React.FC = () => {
   const router = useRouter();
-
-  // TODO: Add loading state to form submission
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const { errors, register, handleSubmit } = useForm<OverviewFormValues>({
     resolver: joiResolver(PlayerProfileFormSchema),
   });
-  const { action, state } = useStateMachine(updateAction);
+  const { action, state } = useStateMachine(updateActionPlayer);
 
   async function onSubmit(
     values: OverviewFormValues,
@@ -158,23 +157,25 @@ const UserSignUpPageOne: React.FC = () => {
                   />
                 </PlayerFormField>
               </div>
+              {error && <p className="text-red-600 text-sm">{error}</p>}
               <hr className="border-unselected border-opacity-50 my-16" />
-              <div className="flex mb-32 justify-between align-middle">
-                <div className="mb-2 flex">
+              <div className="flex mb-32">
+                <div className="mb-2 flex justify-between w-full">
                   <Button
-                    className="bg-blue text-base px-5 py-2 text-white tracking-wide rounded-md"
-                    type="submit"
+                    className="text-blue bg-white text-sm py-2 rounded-md tracking-wide"
+                    onClick={() => router.push("/admin/players/playerForm")}
                   >
-                    Save + Continue
+                    <Icon className="mr-6 w-8 stroke-current" type="back" />
+                    Back
                   </Button>
                   <Button
-                    className="border-2 border-blue text-blue bg-white text-base px-12 py-2 ml-10 rounded-md tracking-wide"
+                    className="bg-blue text-sm px-5 py-2 text-white tracking-wide rounded-md"
                     type="submit"
                   >
-                    Cancel
+                    Next Step
+                    <Icon className="ml-6 w-8 stroke-current" type="next" />
                   </Button>
                 </div>
-                {error && <p className="text-red-600 text-sm">{error}</p>}
               </div>
               <hr />
             </fieldset>

@@ -42,6 +42,7 @@
     "joi": "^17.2.1",
     "little-state-machine": "^3.1.2",
     "lodash.debounce": "^4.0.8",
+    "moment": "^2.29.1",
     "next": "9.5.3",
     "next-auth": "^3.1.0",
     "node-fetch": "^2.6.1",

@@ -29,11 +29,23 @@ const expectedBody = Joi.object<PlayerProfileFormValues & PlayerUserDTO>({
   [ProfileFieldKey.BioMostDifficultSubject]: Joi.string().allow(null),
   [ProfileFieldKey.BioSiblings]: Joi.string().allow(null),
   [ProfileFieldKey.BioParents]: Joi.string().allow(null),
-  [ProfileFieldKey.AcademicEngagementScore]: Joi.string().allow(null),
-  [ProfileFieldKey.AdvisingScore]: Joi.string().allow(null),
-  [ProfileFieldKey.AthleticScore]: Joi.string().allow(null),
-  [ProfileFieldKey.GPA]: Joi.string().allow(null),
-  [ProfileFieldKey.DisciplinaryActions]: Joi.string().allow(null),
+  [ProfileFieldKey.AcademicEngagementScore]: Joi.array()
+    .items(Joi.string())
+    .optional()
+    .allow(null),
+  [ProfileFieldKey.AdvisingScore]: Joi.array()
+    .items(Joi.string())
+    .optional()
+    .allow(null),
+  [ProfileFieldKey.AthleticScore]: Joi.array()
+    .items(Joi.string())
+    .optional()
+    .allow(null),
+  [ProfileFieldKey.GPA]: Joi.array().items(Joi.string()).optional().allow(null),
+  [ProfileFieldKey.DisciplinaryActions]: Joi.array()
+    .items(Joi.string())
+    .optional()
+    .allow(null),
   [ProfileFieldKey.BMI]: Joi.string().allow(null),
   [ProfileFieldKey.PacerTest]: Joi.string().allow(null),
   [ProfileFieldKey.MileTime]: Joi.string().allow(null),
@@ -50,7 +62,7 @@ const handler = async (
 ): Promise<void> => {
   try {
     const userInfo = req.body;
-    const profileFields = new Map<ProfileFieldKey, string>();
+    const profileFields = new Map<ProfileFieldKey, string | string[]>();
     Object.keys(userInfo).map((key) => {
       if (userInfo[key as ProfileFieldKey] && key !== "id" && key !== "age") {
         profileFields.set(
@@ -63,13 +75,31 @@ const handler = async (
 
     const newProfileFields: ProfileFieldCreateWithoutUserInput[] = [];
 
-    profileFields.forEach((value, key) =>
-      newProfileFields.push({
-        key,
-        value,
-      })
-    );
-
+    profileFields.forEach((value, key) => {
+      if (
+        key === "AcademicEngagementScore" ||
+        key === "AdvisingScore" ||
+        key === "AthleticScore" ||
+        key === "GPA" ||
+        key === "DisciplinaryActions"
+      ) {
+        const content = value as string[];
+        content.forEach((object) => {
+          const date = new Date(object.split("-")[1]);
+          const info = object.split("-")[0];
+          newProfileFields.push({
+            key,
+            value: info,
+            createdAt: date,
+          });
+        });
+      } else {
+        newProfileFields.push({
+          key,
+          value: value.toString(),
+        });
+      }
+    });
     const user = await prisma.user.update({
       where: { id: userInfo.id || Number(req.query.id) },
       data: {

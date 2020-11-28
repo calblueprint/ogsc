@@ -6,7 +6,6 @@ import Button from "../../../components/Button";
 
 const AdminView: React.FunctionComponent = () => {
   const [phrase, setPhrase] = useState<string>(" ");
-
   return (
     <DashboardLayout>
       <div className="flex mt-20 flex-wrap space-y-6 flex-col mx-16">

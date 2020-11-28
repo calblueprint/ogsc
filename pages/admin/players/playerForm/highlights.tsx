@@ -6,9 +6,13 @@ import { useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import updateAction from "utils/updateActionPlayer";
+import updateActionPlayer from "utils/updateActionPlayer";
 import DashboardLayout from "components/DashboardLayout";
 import PlayerFormLayout from "components/Player/PlayerFormLayout";
+import Icon from "components/Icon";
+import type { AbsenceFormValues } from "pages/admin/players/playerForm/attendence";
+import updateActionForm from "utils/updateActionForm";
+import updateAction from "utils/updateAction";
 import type { PlayerProfileFormValues } from ".";
 import type { PlayerUserDTO } from "../../../api/admin/users/player/update";
 
@@ -27,7 +31,11 @@ const UserSignUpPageOne: React.FC = () => {
   const { errors, register, handleSubmit } = useForm<HighlightsFormValues>({
     resolver: joiResolver(PlayerProfileFormSchema),
   });
-  const { action, state } = useStateMachine(updateAction);
+  const { actions, state } = useStateMachine({
+    updateAction,
+    updateActionPlayer,
+    updateActionForm,
+  });
 
   async function onSubmit(
     values: HighlightsFormValues,
@@ -38,13 +46,13 @@ const UserSignUpPageOne: React.FC = () => {
       return;
     }
     try {
-      action(values);
+      actions.updateActionPlayer(values);
       const response = await fetch("/api/admin/users/player/update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          id: 158,
+          id: state.playerData.id,
           PlayerNumber: state.playerData.PlayerNumber,
           age: state.playerData.age,
           BioAboutMe: state.playerData.BioAboutMe,
@@ -70,7 +78,63 @@ const UserSignUpPageOne: React.FC = () => {
       if (!response.ok) {
         throw await response.json();
       }
-      router.push("/admin/players/");
+      const response2 = await fetch("/api/admin/users/player/updateAbsences", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          id: state.playerData.id,
+          schoolAbsences: state.playerData.SchoolAbsences,
+          academicAbsences: state.playerData.AdvisingAbsences,
+          athleticAbsences: state.playerData.AthleticAbsences,
+        } as AbsenceFormValues & PlayerUserDTO),
+      });
+      if (!response2.ok) {
+        throw await response.json();
+      }
+      actions.updateActionPlayer({
+        id: null,
+        PlayerNumber: null,
+        age: null,
+        BioAboutMe: null,
+        BioHobbies: null,
+        BioFavoriteSubject: null,
+        BioMostDifficultSubject: null,
+        BioSiblings: null,
+        BioParents: null,
+        AcademicEngagementScore: [],
+        AdvisingScore: [],
+        AthleticScore: [],
+        GPA: [],
+        DisciplinaryActions: [],
+        SchoolAbsences: [],
+        AdvisingAbsences: [],
+        AthleticAbsences: [],
+        BMI: null,
+        PacerTest: null,
+        MileTime: null,
+        Situps: null,
+        Pushups: null,
+        HealthAndWellness: null,
+        Highlights: null,
+      });
+      actions.updateActionForm({
+        choice: "",
+        player: null,
+      });
+      actions.updateAction({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phoneNumber: "",
+        password: "",
+        role: null,
+        adminNote: "",
+      });
+      router.push(
+        `/admin/players/${state.playerData.id}?success=true`,
+        `/admin/players/${state.playerData.id}`
+      );
     } catch (err) {
       setError(err.message);
     } finally {
@@ -104,23 +168,27 @@ const UserSignUpPageOne: React.FC = () => {
                   defaultValue={state.playerData.Highlights}
                 />
               </PlayerFormField>
+              {error && <p className="text-red-600 text-sm">{error}</p>}
               <hr className="border-unselected border-opacity-50 my-16" />
-              <div className="flex mb-32 justify-between align-middle">
-                <div className="mb-2 flex">
+              <div className="flex mb-32">
+                <div className="mb-2 flex justify-between w-full">
                   <Button
-                    className="bg-blue text-base px-12 py-2 text-white tracking-wide rounded-md"
+                    className="text-blue bg-white text-sm py-2 rounded-md tracking-wide"
+                    onClick={() =>
+                      router.push("/admin/players/playerForm/physicalWellness")
+                    }
+                  >
+                    <Icon className="mr-6 w-8 stroke-current" type="back" />
+                    Back
+                  </Button>
+                  <Button
+                    className="bg-blue text-sm px-5 py-2 text-white tracking-wide rounded-md"
                     type="submit"
                   >
                     Submit
-                  </Button>
-                  <Button
-                    className="border-2 border-blue text-blue bg-white text-base px-12 py-2 ml-10 rounded-md tracking-wide"
-                    type="submit"
-                  >
-                    Cancel
+                    <Icon className="ml-6 w-8 stroke-current" type="next" />
                   </Button>
                 </div>
-                {error && <p className="text-red-600 text-sm">{error}</p>}
               </div>
               <hr />
             </fieldset>

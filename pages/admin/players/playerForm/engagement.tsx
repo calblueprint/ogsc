@@ -1,14 +1,16 @@
 import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
-import PlayerFormField from "components/PlayerFormField";
 import Joi from "joi";
 import { useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import updateAction from "utils/updateActionPlayer";
+import updateActionPlayer from "utils/updateActionPlayer";
 import DashboardLayout from "components/DashboardLayout";
 import PlayerFormLayout from "components/Player/PlayerFormLayout";
+import AddScoreField from "components/Player/AddScoreField";
+import Card from "components/Card";
+import Icon from "components/Icon";
 import type { PlayerProfileFormValues } from ".";
 
 export type EngagementFormValues = Pick<
@@ -16,22 +18,48 @@ export type EngagementFormValues = Pick<
   "AcademicEngagementScore" | "AdvisingScore" | "AthleticScore"
 >;
 
+export const totalScore = (allScores: string[]): number => {
+  let total = 0;
+  const { length } = allScores;
+  if (allScores && length > 0) {
+    for (let x = 0; x < length; x += 1) {
+      const scoreString = allScores[x].split(" ")[0];
+      const score: number = +scoreString;
+      total += score;
+    }
+    total /= length;
+  }
+  return total;
+};
+
 const PlayerProfileFormSchema = Joi.object<EngagementFormValues>({
-  AcademicEngagementScore: Joi.string().empty("").default(null),
-  AdvisingScore: Joi.string().empty("").default(null),
-  AthleticScore: Joi.string().empty("").default(null),
+  AcademicEngagementScore: Joi.array()
+    .items(Joi.string().required())
+    .optional(),
+  AdvisingScore: Joi.array().items(Joi.string().required()).optional(),
+  AthleticScore: Joi.array().items(Joi.string().required()).optional(),
 });
 
 const UserSignUpPageOne: React.FC = () => {
   const router = useRouter();
-
-  // TODO: Add loading state to form submission
+  const { action, state } = useStateMachine(updateActionPlayer);
+  const [hidden, setHidden] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [schoolScores, SetSchoolScores] = useState<string[]>(
+    state.playerData.AcademicEngagementScore
+      ? state.playerData.AcademicEngagementScore
+      : []
+  );
+  const [advisingScores, SetAdvisingScores] = useState<string[]>(
+    state.playerData.AdvisingScore ? state.playerData.AdvisingScore : []
+  );
+  const [athleticScores, SetAthleticScores] = useState<string[]>(
+    state.playerData.AthleticScore ? state.playerData.AthleticScore : []
+  );
   const [error, setError] = useState("");
-  const { errors, register, handleSubmit } = useForm<EngagementFormValues>({
+  const { handleSubmit } = useForm<EngagementFormValues>({
     resolver: joiResolver(PlayerProfileFormSchema),
   });
-  const { action, state } = useStateMachine(updateAction);
 
   async function onSubmit(
     values: EngagementFormValues,
@@ -43,6 +71,11 @@ const UserSignUpPageOne: React.FC = () => {
     }
     try {
       action(values);
+      action({
+        AcademicEngagementScore: schoolScores,
+        AdvisingScore: advisingScores,
+        AthleticScore: athleticScores,
+      });
       router.push("/admin/players/playerForm/academics");
     } catch (err) {
       setError(err.message);
@@ -50,6 +83,22 @@ const UserSignUpPageOne: React.FC = () => {
       setSubmitting(false);
     }
   }
+
+  const SchoolOnDelete = (value: string): void => {
+    SetSchoolScores(schoolScores.filter((score: string) => score !== value));
+  };
+
+  const AdvisingOnDelete = (value: string): void => {
+    SetAdvisingScores(
+      advisingScores.filter((score: string) => score !== value)
+    );
+  };
+
+  const AthleticOnDelete = (value: string): void => {
+    SetAthleticScores(
+      athleticScores.filter((score: string) => score !== value)
+    );
+  };
 
   return (
     <DashboardLayout>
@@ -59,42 +108,71 @@ const UserSignUpPageOne: React.FC = () => {
         </p>
         <p className="font-light mt-2">Description Here</p>
         <PlayerFormLayout tabNum={3}>
-          <p className="pt-10 text-xl tracking-wider font-medium">
-            School Engagement
+          <p className="pt-10 text-xl tracking-wider font-medium pb-3">
+            Engagement Scores
           </p>
+          <p className="text-sm font-light pb-3">
+            School engagement score: {totalScore(schoolScores)}
+          </p>
+          {schoolScores &&
+            schoolScores.map((value: string) => (
+              <Card text={value} onDelete={() => SchoolOnDelete(value)} />
+            ))}
+          <p className="text-sm font-light pb-3">
+            Academic Advising engagement score: {totalScore(advisingScores)}
+          </p>
+          {advisingScores &&
+            advisingScores.map((value: string) => (
+              <Card text={value} onDelete={() => AdvisingOnDelete(value)} />
+            ))}
+          <p className="text-sm font-light pb-3">
+            Athletics engagement score: {totalScore(athleticScores)}
+          </p>
+          {athleticScores &&
+            athleticScores.map((value: string) => (
+              <Card text={value} onDelete={() => AthleticOnDelete(value)} />
+            ))}
           <form className="mt-10 " onSubmit={handleSubmit(onSubmit)}>
             <fieldset>
-              <PlayerFormField
-                label="Placeholder"
-                name="AcademicEngagementScore"
-                error={errors.AcademicEngagementScore?.message}
+              <Button
+                iconType="plus"
+                onClick={() => setHidden(true)}
+                className={`text-sm ${hidden ? "hidden" : ""}`}
               >
-                <input
-                  type="text"
-                  className="input text-sm"
-                  name="AcademicEngagementScore"
-                  placeholder="This is a placeholder"
-                  ref={register}
-                  defaultValue={state.playerData.AcademicEngagementScore}
+                Add Engagement Score
+              </Button>
+              {hidden ? (
+                <AddScoreField
+                  setHidden={setHidden}
+                  advisingScores={advisingScores}
+                  schoolScores={schoolScores}
+                  athleticScores={athleticScores}
+                  setAdvisingScores={SetAdvisingScores}
+                  setSchoolScores={SetSchoolScores}
+                  setAthleticScores={SetAthleticScores}
                 />
-              </PlayerFormField>
+              ) : null}
+              {error && <p className="text-red-600 text-sm">{error}</p>}
               <hr className="border-unselected border-opacity-50 my-16" />
-              <div className="flex mb-32 justify-between align-middle">
-                <div className="mb-2 flex">
+              <div className="flex mb-32">
+                <div className="mb-2 flex justify-between w-full">
                   <Button
-                    className="bg-blue text-base px-5 py-2 text-white tracking-wide rounded-md"
-                    type="submit"
+                    className="text-blue bg-white text-sm py-2 rounded-md tracking-wide"
+                    onClick={() =>
+                      router.push("/admin/players/playerForm/overview")
+                    }
                   >
-                    Save + Continue
+                    <Icon className="mr-6 w-8 stroke-current" type="back" />
+                    Back
                   </Button>
                   <Button
-                    className="border-2 border-blue text-blue bg-white text-base px-12 py-2 ml-10 rounded-md tracking-wide"
+                    className="bg-blue text-sm px-5 py-2 text-white tracking-wide rounded-md"
                     type="submit"
                   >
-                    Cancel
+                    Next Step
+                    <Icon className="ml-6 w-8 stroke-current" type="next" />
                   </Button>
                 </div>
-                {error && <p className="text-red-600 text-sm">{error}</p>}
               </div>
               <hr />
             </fieldset>

@@ -54,6 +54,7 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
       adminNote: "",
     },
     playerData: {
+      id: null,
       PlayerNumber: null,
       age: null,
       BioAboutMe: null,
@@ -62,11 +63,14 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
       BioMostDifficultSubject: null,
       BioSiblings: null,
       BioParents: null,
-      AcademicEngagementScore: null,
-      AdvisingScore: null,
-      AthleticScore: null,
-      GPA: null,
-      DisciplinaryActions: null,
+      AcademicEngagementScore: [],
+      AdvisingScore: [],
+      AthleticScore: [],
+      GPA: [],
+      DisciplinaryActions: [],
+      SchoolAbsences: [],
+      AdvisingAbsences: [],
+      AthleticAbsences: [],
       BMI: null,
       PacerTest: null,
       MileTime: null,
@@ -74,6 +78,10 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
       Pushups: null,
       HealthAndWellness: null,
       Highlights: null,
+    },
+    playerForm: {
+      choice: "",
+      player: null,
     },
     // Add another struct specific for your use case here for state management
   });
