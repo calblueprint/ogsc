@@ -78,6 +78,14 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
       healthWellness: null,
       video: null,
     },
+    acceptUserData: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phoneNumber: "",
+      password: "",
+      confirmPassword: "",
+    },
     // Add another struct specific for your use case here for state management
   });
 

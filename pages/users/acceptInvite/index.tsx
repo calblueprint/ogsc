@@ -1,53 +1,69 @@
 import { joiResolver } from "@hookform/resolvers/joi";
+import { User } from "@prisma/client";
 import Button from "components/Button";
 import UserSignUpFormField from "components/UserSignUpFormField";
-import { UserRole, UserRoleConstants } from "interfaces";
 import Joi from "joi";
 import { StateMachineProvider, useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import updateActionSignUp from "utils/updateActionSignUp";
+import updateActionAcceptInvite from "utils/updateActionAcceptInvite";
 
-export type UserSignUpFormValues = {
+export type UserAcceptInviteFormValues = {
   firstName: string;
   lastName: string;
   email: string;
-  phoneNumber?: string;
-  password: string;
-  role?: UserRole;
-  adminNote?: string;
+  phoneNumber: string;
 };
 
-const UserSignUpFormSchema = Joi.object<UserSignUpFormValues>({
+const UserAcceptInviteFormSchema = Joi.object<UserAcceptInviteFormValues>({
   firstName: Joi.string().trim().required(),
   lastName: Joi.string().trim().required(),
   email: Joi.string()
     .trim()
     .email({ tlds: { allow: false } })
     .required(),
-  phoneNumber: Joi.string().optional(),
-  password: Joi.forbidden().required(),
-  role: Joi.string()
-    .valid(...UserRoleConstants)
-    .optional(),
-  adminNote: Joi.string().optional(),
+  phoneNumber: Joi.string().required(),
 });
 
-const UserSignUpPageOne: React.FC = () => {
+const UserAcceptInvitePageOne: React.FC = () => {
   const router = useRouter();
+  const [user, setUser] = useState<User>();
+  const inviteCodeId = router.query.inviteCode;
+
+  // console.log(router.query);
+
+  useEffect(() => {
+    const getUser = async (): Promise<void> => {
+      const response = await fetch(`/api/invites/${inviteCodeId}`, {
+        method: "GET",
+        headers: { "content-type": "application/json" },
+        redirect: "follow",
+      });
+      const data = await response.json();
+      console.log(data);
+      console.log(data.user);
+      setUser(data.user);
+    };
+    getUser();
+  }, [inviteCodeId]);
+
+  if (!user) {
+    // create error page?
+  }
 
   // TODO: Add loading state to form submission
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [revealPassword, setRevealPassword] = useState(false);
-  const { errors, register, handleSubmit } = useForm<UserSignUpFormValues>({
-    resolver: joiResolver(UserSignUpFormSchema),
+  const { errors, register, handleSubmit } = useForm<
+    UserAcceptInviteFormValues
+  >({
+    resolver: joiResolver(UserAcceptInviteFormSchema),
   });
-  const { action, state } = useStateMachine(updateActionSignUp);
+  const { action, state } = useStateMachine(updateActionAcceptInvite);
 
   async function onSubmit(
-    values: UserSignUpFormValues,
+    values: UserAcceptInviteFormValues,
     event?: React.BaseSyntheticEvent
   ): Promise<void> {
     event?.preventDefault();
@@ -56,7 +72,9 @@ const UserSignUpPageOne: React.FC = () => {
     }
     try {
       action(values);
-      router.push("/users/signUp/signUp2");
+      router.push(
+        `/users/acceptInvite/acceptInvite2?inviteCode=${inviteCodeId}`
+      );
     } catch (err) {
       setError(err.message);
     } finally {
@@ -64,14 +82,12 @@ const UserSignUpPageOne: React.FC = () => {
     }
   }
 
-  const togglePassword = (): void => {
-    setRevealPassword(!revealPassword);
-  };
-
   return (
     <StateMachineProvider>
       <div className="form flex ml-20 mt-10 mr-32 flex-col">
-        <p className="pt-6 text-2xl h-16">Create your account</p>
+        <p className="pt-6 text-2xl h-16">
+          Complete your account setup, {user?.name}
+        </p>
         <form className="mt-10" onSubmit={handleSubmit(onSubmit)}>
           <fieldset>
             <div className="flex mr-32">
@@ -82,11 +98,13 @@ const UserSignUpPageOne: React.FC = () => {
               >
                 <input
                   type="text"
-                  className="input "
+                  className="input"
                   name="firstName"
-                  placeholder="e.g., Cristiano"
+                  // placeholder="e.g., Cristiano"
                   ref={register}
-                  defaultValue={state.userData.firstName}
+                  defaultValue={
+                    state.acceptUserData.firstName || user?.name?.split(" ")[0]
+                  }
                 />
               </UserSignUpFormField>
               <UserSignUpFormField
@@ -96,11 +114,13 @@ const UserSignUpPageOne: React.FC = () => {
               >
                 <input
                   type="text"
-                  className="input "
+                  className="input"
                   name="lastName"
                   placeholder="e.g., Ronaldo"
                   ref={register}
-                  defaultValue={state.userData.lastName}
+                  defaultValue={
+                    state.acceptUserData.lastName || user?.name?.split(" ")[0]
+                  }
                 />
               </UserSignUpFormField>
             </div>
@@ -112,11 +132,12 @@ const UserSignUpPageOne: React.FC = () => {
               >
                 <input
                   type="text"
-                  className="input "
+                  className="input"
                   name="email"
-                  placeholder="e.g., soccer@fifa.com"
+                  // placeholder={user?.email}
                   ref={register}
-                  defaultValue={state.userData.email}
+                  defaultValue={user?.email}
+                  // disabled
                 />
               </UserSignUpFormField>
               <UserSignUpFormField
@@ -130,36 +151,13 @@ const UserSignUpPageOne: React.FC = () => {
                   name="phoneNumber"
                   placeholder="e.g., 123-456-7890"
                   ref={register}
-                  defaultValue={state.userData.phoneNumber}
+                  defaultValue={
+                    state.acceptUserData.phoneNumber || user?.phoneNumber
+                  }
                 />
               </UserSignUpFormField>
             </div>
-            <UserSignUpFormField
-              label="Password"
-              name="password"
-              error={errors.password?.message}
-            >
-              <input
-                type={revealPassword ? "text" : "password"}
-                className="input input-full"
-                name="password"
-                placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;"
-                ref={register}
-                defaultValue={state.userData.password}
-              />
-              <button
-                className="text-sm text-gray-500"
-                type="button"
-                onClick={togglePassword}
-              >
-                {revealPassword ? "Hide password" : "Show password"}
-              </button>
-            </UserSignUpFormField>
-            <div className="flex mt-24 mb-32 justify-between align-middle">
-              {/* TODO: link user login page */}
-              <p className="text-base">
-                Already have an account? <b>Login here.</b>
-              </p>
+            <div className="flex mt-24 mb-32 justify-end align-middle">
               <div className="mb-2 flex ">
                 <Button
                   className="button-primary text-base px-10 py-2 "
@@ -177,4 +175,4 @@ const UserSignUpPageOne: React.FC = () => {
   );
 };
 
-export default UserSignUpPageOne;
+export default UserAcceptInvitePageOne;
