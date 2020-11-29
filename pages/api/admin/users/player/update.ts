@@ -1,4 +1,9 @@
-import { PrismaClient, ProfileFieldKey } from "@prisma/client";
+import {
+  PrismaClient,
+  ProfileFieldKey,
+  ProfileFieldCreateWithoutUserInput,
+} from "@prisma/client";
+
 import { ValidatedNextApiRequest } from "interfaces";
 import Joi from "joi";
 import { NextApiResponse } from "next";
@@ -10,35 +15,45 @@ import { adminOnlyHandler } from "../../helpers";
 
 const prisma = new PrismaClient();
 
-type PlayerUserDTO = {
+export type PlayerUserDTO = {
   id: number;
 };
 
 const expectedBody = Joi.object<PlayerProfileFormValues & PlayerUserDTO>({
   id: Joi.number().required(),
-  playerNumber: Joi.string(),
+  [ProfileFieldKey.PlayerNumber]: Joi.string(),
   age: Joi.string(),
-  aboutMe: Joi.string(),
-  hobbies: Joi.string(),
-  favoriteSubject: Joi.string(),
-  mostDifficultSubject: Joi.string(),
-  siblings: Joi.string(),
-  parents: Joi.string(),
-  schoolScore: Joi.string(),
-  academicScore: Joi.string(),
-  athleticsScore: Joi.string(),
-  gpa: Joi.string(),
-  disciplinaryActions: Joi.string(),
-  school: Joi.string(),
-  academic: Joi.string(),
-  athletics: Joi.string(),
-  bmi: Joi.string(),
-  beepTest: Joi.string(),
-  mileTime: Joi.string(),
-  sitUps: Joi.string(),
-  pushUps: Joi.string(),
-  healthWellness: Joi.string(),
-  video: Joi.string(),
+  [ProfileFieldKey.BioAboutMe]: Joi.string().allow(null),
+  [ProfileFieldKey.BioHobbies]: Joi.string().allow(null),
+  [ProfileFieldKey.BioFavoriteSubject]: Joi.string().allow(null),
+  [ProfileFieldKey.BioMostDifficultSubject]: Joi.string().allow(null),
+  [ProfileFieldKey.BioSiblings]: Joi.string().allow(null),
+  [ProfileFieldKey.BioParents]: Joi.string().allow(null),
+  [ProfileFieldKey.AcademicEngagementScore]: Joi.array()
+    .items(Joi.string())
+    .optional()
+    .allow(null),
+  [ProfileFieldKey.AdvisingScore]: Joi.array()
+    .items(Joi.string())
+    .optional()
+    .allow(null),
+  [ProfileFieldKey.AthleticScore]: Joi.array()
+    .items(Joi.string())
+    .optional()
+    .allow(null),
+  [ProfileFieldKey.GPA]: Joi.array().items(Joi.string()).optional().allow(null),
+  [ProfileFieldKey.DisciplinaryActions]: Joi.array()
+    .items(Joi.string())
+    .optional()
+    .allow(null),
+  [ProfileFieldKey.BMI]: Joi.string().allow(null),
+  [ProfileFieldKey.PacerTest]: Joi.string().allow(null),
+  [ProfileFieldKey.MileTime]: Joi.string().allow(null),
+  [ProfileFieldKey.Situps]: Joi.string().allow(null),
+  [ProfileFieldKey.Pushups]: Joi.string().allow(null),
+  [ProfileFieldKey.HealthAndWellness]: Joi.string().allow(null),
+  [ProfileFieldKey.Highlights]: Joi.string().allow(null),
+  [ProfileFieldKey.IntroVideo]: Joi.string().allow(null),
 });
 
 const handler = async (
@@ -47,48 +62,61 @@ const handler = async (
 ): Promise<void> => {
   try {
     const userInfo = req.body;
+    const profileFields = new Map<ProfileFieldKey, string | string[]>();
+    Object.keys(userInfo).map((key) => {
+      if (userInfo[key as ProfileFieldKey] && key !== "id" && key !== "age") {
+        profileFields.set(
+          key as ProfileFieldKey,
+          userInfo[key as ProfileFieldKey]
+        );
+      }
+      return null;
+    });
+
+    const newProfileFields: ProfileFieldCreateWithoutUserInput[] = [];
+
+    profileFields.forEach((value, key) => {
+      if (
+        key === "AcademicEngagementScore" ||
+        key === "AdvisingScore" ||
+        key === "AthleticScore" ||
+        key === "GPA"
+      ) {
+        const content = value as string[];
+        content.forEach((object) => {
+          const date = new Date(object.split("-")[1]);
+          const number = object.split("-")[0];
+          const comment =
+            object.split("-").length === 3 ? object.split("-")[2] : "";
+          newProfileFields.push({
+            key,
+            value: JSON.stringify({ comment, value: number }),
+            createdAt: date,
+          });
+        });
+      } else if (key === "DisciplinaryActions") {
+        const content = value as string[];
+        content.forEach((object) => {
+          const date = new Date(object.split("-")[1]);
+          const info = object.split("-")[0];
+          newProfileFields.push({
+            key,
+            value: info,
+            createdAt: date,
+          });
+        });
+      } else {
+        newProfileFields.push({
+          key,
+          value: value.toString(),
+        });
+      }
+    });
     const user = await prisma.user.update({
       where: { id: userInfo.id || Number(req.query.id) },
       data: {
         profileFields: {
-          create: [
-            { key: ProfileFieldKey.BioAboutMe, value: userInfo.aboutMe },
-            { key: ProfileFieldKey.BioHobbies, value: userInfo.hobbies },
-            {
-              key: ProfileFieldKey.BioFavoriteSubject,
-              value: userInfo.favoriteSubject,
-            },
-            {
-              key: ProfileFieldKey.BioMostDifficultSubject,
-              value: userInfo.mostDifficultSubject,
-            },
-            { key: ProfileFieldKey.BioSiblings, value: userInfo.siblings },
-            { key: ProfileFieldKey.BioParents, value: userInfo.parents },
-            {
-              key: ProfileFieldKey.AcademicEngagementScore,
-              value: userInfo.academicScore,
-            },
-            { key: ProfileFieldKey.AdvisingScore, value: userInfo.schoolScore },
-            {
-              key: ProfileFieldKey.AthleticScore,
-              value: userInfo.athleticsScore,
-            },
-            { key: ProfileFieldKey.GPA, value: userInfo.gpa },
-            {
-              key: ProfileFieldKey.DisciplinaryActions,
-              value: userInfo.disciplinaryActions,
-            },
-            { key: ProfileFieldKey.BMI, value: userInfo.bmi },
-            { key: ProfileFieldKey.PacerTest, value: userInfo.beepTest },
-            { key: ProfileFieldKey.MileTime, value: userInfo.mileTime },
-            { key: ProfileFieldKey.Situps, value: userInfo.sitUps },
-            { key: ProfileFieldKey.Pushups, value: userInfo.pushUps },
-            {
-              key: ProfileFieldKey.HealthAndWellness,
-              value: userInfo.healthWellness,
-            },
-            { key: ProfileFieldKey.Highlights, value: userInfo.video },
-          ],
+          create: newProfileFields,
         },
       },
     });

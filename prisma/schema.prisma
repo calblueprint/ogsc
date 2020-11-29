@@ -11,10 +11,10 @@ model User {
   id                  Int                 @id @default(autoincrement())
   name                String?
   email               String              @unique
-  emailVerified       DateTime?           @map("email_verified")
+  email_verified      DateTime?
   image               String?
-  createdAt           DateTime            @default(now()) @map("created_at")
-  updatedAt           DateTime            @default(now()) @map("updated_at")
+  created_at          DateTime            @default(now())
+  updated_at          DateTime            @default(now())
   hashedPassword      String              @map("hashed_password")
   isAdmin             Boolean             @default(false) @map("is_admin")
   phoneNumber         String?             @map("phone_number")
