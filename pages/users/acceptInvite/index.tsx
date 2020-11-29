@@ -12,7 +12,7 @@ import updateActionAcceptInvite from "utils/updateActionAcceptInvite";
 export type UserAcceptInviteFormValues = {
   firstName: string;
   lastName: string;
-  email: string;
+  email?: string;
   phoneNumber: string;
 };
 
@@ -22,7 +22,7 @@ const UserAcceptInviteFormSchema = Joi.object<UserAcceptInviteFormValues>({
   email: Joi.string()
     .trim()
     .email({ tlds: { allow: false } })
-    .required(),
+    .optional(),
   phoneNumber: Joi.string().required(),
 });
 
@@ -41,8 +41,9 @@ const UserAcceptInvitePageOne: React.FC = () => {
         redirect: "follow",
       });
       const data = await response.json();
-      console.log(data);
-      console.log(data.user);
+      if (data.acceptedAt) {
+        // error page
+      }
       setUser(data.user);
     };
     getUser();
@@ -100,7 +101,7 @@ const UserAcceptInvitePageOne: React.FC = () => {
                   type="text"
                   className="input"
                   name="firstName"
-                  // placeholder="e.g., Cristiano"
+                  placeholder="e.g., Cristiano"
                   ref={register}
                   defaultValue={
                     state.acceptUserData.firstName || user?.name?.split(" ")[0]
@@ -119,25 +120,21 @@ const UserAcceptInvitePageOne: React.FC = () => {
                   placeholder="e.g., Ronaldo"
                   ref={register}
                   defaultValue={
-                    state.acceptUserData.lastName || user?.name?.split(" ")[0]
+                    state.acceptUserData.lastName || user?.name?.split(" ")[1]
                   }
                 />
               </UserSignUpFormField>
             </div>
             <div className="flex mr-32">
-              <UserSignUpFormField
-                label="Email Address"
-                name="email"
-                error={errors.email?.message}
-              >
+              <UserSignUpFormField label="Email Address" name="email" error="">
                 <input
                   type="text"
                   className="input"
                   name="email"
-                  // placeholder={user?.email}
+                  placeholder={user?.email}
                   ref={register}
                   defaultValue={user?.email}
-                  // disabled
+                  disabled
                 />
               </UserSignUpFormField>
               <UserSignUpFormField

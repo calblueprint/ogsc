@@ -5,6 +5,7 @@ import FormField from "components/FormField";
 import Joi from "joi";
 import { useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
+import { CreateUserDTO } from "pages/api/users";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import updateActionAcceptInvite from "utils/updateActionAcceptInvite";
@@ -34,8 +35,6 @@ const UserAcceptInvitePageTwo: React.FC = () => {
         redirect: "follow",
       });
       const data = await response.json();
-      console.log(data);
-      console.log(data.user);
       setUser(data.user);
     };
     getUser();
@@ -49,7 +48,6 @@ const UserAcceptInvitePageTwo: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [revealPassword, setRevealPassword] = useState(false);
-  const [passwordMatch, setPasswordMatch] = useState(true);
 
   const { errors, register, handleSubmit } = useForm<
     UserAcceptInviteForm2Values
@@ -73,20 +71,23 @@ const UserAcceptInvitePageTwo: React.FC = () => {
         setError("Passwords do not match");
         return;
       }
-      // const response = await fetch("/api/users/", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   credentials: "include",
-      //   body: JSON.stringify({
-      //     email: state.userData.email,
-      //     name: `${state.userData.firstName} ${state.userData.lastName}`,
-      //     phoneNumber: state.userData.phoneNumber,
-      //     password: state.userData.password,
-      //   } as CreateUserDTO),
-      // });
+
+      const response = await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          name: `${state.acceptUserData.firstName} ${state.acceptUserData.lastName}`,
+          email: user?.email,
+          password: state.acceptUserData.password,
+          phoneNumber: state.acceptUserData.phoneNumber,
+          inviteCodeId,
+        } as CreateUserDTO),
+      });
       if (!response.ok) {
         throw await response.json();
       }
+      // TODO: user dashboard view doesn't exist yet
       router.push("/users/signUp/signUpConfirmation");
     } catch (err) {
       // TODO: better error handling (especially for duplicate email)
@@ -149,7 +150,7 @@ const UserAcceptInvitePageTwo: React.FC = () => {
           </FormField>
         </fieldset>
         <div className="flex mt-24 mb-32 justify-between align-middle">
-          <div className="mb-2 flex ">
+          <div className="flex">
             <Button
               className="button-normal px-10 py-2"
               onClick={() => {
@@ -159,7 +160,7 @@ const UserAcceptInvitePageTwo: React.FC = () => {
               &#x2190; Back
             </Button>
           </div>
-          <div className="mb-2 flex justify-end">
+          <div className="flex justify-end">
             <Button className="button-primary px-10 py-2" type="submit">
               Submit
             </Button>

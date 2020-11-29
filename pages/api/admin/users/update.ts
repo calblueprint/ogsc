@@ -19,6 +19,7 @@ export type UpdateUserDTO = {
   phoneNumber?: string;
   emailVerified?: Date;
   image?: string;
+  hashedPassword?: string;
   viewerPermissions?: ViewingPermissionUpdateManyWithoutViewerInput;
 };
 
@@ -29,6 +30,7 @@ const expectedBody = Joi.object<UpdateUserDTO>({
   phoneNumber: Joi.string(),
   emailVerified: Joi.date(),
   image: Joi.string(),
+  hashedPassword: Joi.string(),
   viewerPermissions: Joi.array().items(Joi.object()).optional(),
 });
 
@@ -46,6 +48,7 @@ const handler = async (
         phoneNumber: userInfo.phoneNumber,
         emailVerified: userInfo.emailVerified,
         image: userInfo.image,
+        hashedPassword: userInfo.hashedPassword,
         viewerPermissions: userInfo.viewerPermissions,
       },
     });
