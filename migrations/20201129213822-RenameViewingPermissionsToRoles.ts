@@ -31,6 +31,7 @@ export async function up(
       "DELETE FROM roles WHERE type != 'player' AND type != 'mentor' AND type != 'parent' AND type != 'donor'",
       []
     );
+    await runSql("ALTER TABLE roles ALTER COLUMN user_id SET NOT NULL", []);
     await runSql("ALTER TABLE roles ALTER COLUMN type SET NOT NULL", []);
     db.runSql(
       "ALTER TABLE roles ALTER COLUMN type TYPE user_role USING type::user_role",
@@ -59,6 +60,7 @@ export async function down(
     );
     await runSql(`DROP TYPE IF EXISTS user_role;`, []);
     await runSql("ALTER TABLE roles ALTER COLUMN type DROP NOT NULL", []);
+    await runSql("ALTER TABLE roles ALTER COLUMN user_id DROP NOT NULL", []);
     await renameColumn("roles", "user_id", "viewer_id");
     await renameColumn("roles", "related_player_id", "viewee_id");
     await renameColumn("roles", "type", "relationship_type");
