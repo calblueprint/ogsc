@@ -82,11 +82,11 @@ model UserInvite {
 
 model ViewingPermission {
   id                Int     @id @default(autoincrement())
-  viewer_id         Int
+  viewer_id         Int?
   viewee_id         Int?
   relationship_type String?
   viewee            User?   @relation("UsersToViewees", fields: [viewee_id], references: [id])
-  viewer            User    @relation("UsersToViewers", fields: [viewer_id], references: [id])
+  viewer            User?   @relation("UsersToViewers", fields: [viewer_id], references: [id])
 
   @@map("viewing_permissions")
 }
