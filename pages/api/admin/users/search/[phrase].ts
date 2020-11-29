@@ -18,7 +18,7 @@ export default async (
         },
         viewedByPermissions: {
           some: {
-            relationship_type: "player",
+            relationship_type: "Player",
           },
         },
       },

@@ -73,13 +73,16 @@ export enum ProfileFieldValue {
   URL = "url",
   Integer = "integer",
   Float = "float",
+  IntegerWithComment = "integer_with_comment",
+  FloatWithComment = "float_with_comment",
   TimeElapsed = "time_elapsed",
 }
 
 export const ProfileFieldValues = <const>{
-  [ProfileFieldKey.AcademicEngagementScore]: ProfileFieldValue.Integer,
-  [ProfileFieldKey.AdvisingScore]: ProfileFieldValue.Integer,
-  [ProfileFieldKey.AthleticScore]: ProfileFieldValue.Integer,
+  [ProfileFieldKey.AcademicEngagementScore]:
+    ProfileFieldValue.IntegerWithComment,
+  [ProfileFieldKey.AdvisingScore]: ProfileFieldValue.IntegerWithComment,
+  [ProfileFieldKey.AthleticScore]: ProfileFieldValue.IntegerWithComment,
   [ProfileFieldKey.BioAboutMe]: ProfileFieldValue.Text,
   [ProfileFieldKey.BioFavoriteSubject]: ProfileFieldValue.Text,
   [ProfileFieldKey.BioHobbies]: ProfileFieldValue.Text,
@@ -88,7 +91,7 @@ export const ProfileFieldValues = <const>{
   [ProfileFieldKey.BioSiblings]: ProfileFieldValue.Text,
   [ProfileFieldKey.BMI]: ProfileFieldValue.Float,
   [ProfileFieldKey.DisciplinaryActions]: ProfileFieldValue.Text,
-  [ProfileFieldKey.GPA]: ProfileFieldValue.Float,
+  [ProfileFieldKey.GPA]: ProfileFieldValue.FloatWithComment,
   [ProfileFieldKey.HealthAndWellness]: ProfileFieldValue.Text,
   [ProfileFieldKey.Highlights]: ProfileFieldValue.URL,
   [ProfileFieldKey.IntroVideo]: ProfileFieldValue.URL,
@@ -100,11 +103,20 @@ export const ProfileFieldValues = <const>{
 };
 export type ProfileFieldValues = typeof ProfileFieldValues;
 
+type WithComment = {
+  /**
+   * An optional description to provide context about the value or to add commentary.
+   */
+  comment?: string;
+};
+
 export type ProfileFieldValueDeserializedTypes = {
   [ProfileFieldValue.Text]: string;
   [ProfileFieldValue.URL]: string;
   [ProfileFieldValue.Integer]: number;
+  [ProfileFieldValue.IntegerWithComment]: WithComment & { value: number };
   [ProfileFieldValue.Float]: number;
+  [ProfileFieldValue.FloatWithComment]: WithComment & { value: number };
   [ProfileFieldValue.TimeElapsed]: string;
 };
 

@@ -29,7 +29,7 @@ export default async (
           viewerPermissions: {
             some: {
               relationship_type: {
-                equals: `${userRole.substr(0, userRole.length - 1)}`,
+                equals: `Player`,
               },
             },
           },

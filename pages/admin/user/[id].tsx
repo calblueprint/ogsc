@@ -15,6 +15,7 @@ import Joi from "joi";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { useForm } from "react-hook-form";
+import Combobox from "components/Combobox";
 
 interface AdminEditUserFormValues {
   firstName: string;
@@ -70,6 +71,8 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [currRole, setCurrRole] = useState(currentRole);
+  const [roleChosen, setRoleChosen] = useState("");
+  const [selectedPlayers, setSelectedPlayers] = useState<User[]>([]);
   const { errors, register, handleSubmit } = useForm<AdminEditUserFormValues>({
     resolver: joiResolver(AdminEditUserFormSchema),
   });
@@ -120,6 +123,19 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
       setIsEditing(false);
     }
   }
+  const showCombobox = (): string => {
+    return roleChosen === "mentor" ||
+      roleChosen === "parent" ||
+      roleChosen === "donor"
+      ? ""
+      : "hidden";
+  };
+
+  const handleRoleChange = (role: string, value: string): void => {
+    setCurrRole(role);
+    setRoleChosen(value);
+  };
+
   return (
     <Modal open={Boolean(isEditing)}>
       <div className="mx-16 mt-24">
@@ -237,7 +253,9 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
                     name="role"
                     id={role}
                     defaultValue={role}
-                    onChange={() => setCurrRole(UserRoleLabel[role])}
+                    onChange={(event) =>
+                      handleRoleChange(UserRoleLabel[role], event.target.value)
+                    }
                     checked={currRole === UserRoleLabel[role]}
                     ref={register}
                   />
@@ -245,6 +263,37 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
                 </label>
               ))}
             </FormField>
+            <div className={showCombobox()}>
+              <legend className="text-lg font-medium mb-10 mt-16">
+                Role Information
+              </legend>
+              <FormField
+                label="Linked Players"
+                name="linkedPlayers"
+                error="" // TODO: fix this
+              >
+                <p
+                  className={`text-xs font-normal mt-3 mb-3 ${showCombobox()}`}
+                >
+                  {(() => {
+                    switch (roleChosen) {
+                      case "mentor":
+                        return "Mentors will have access to the full profile of players they are mentoring, including Engagement Scores, Academics, Attendance, and Physical Health information.";
+                      case "parent":
+                        return "Parents will have access to the full profile of their children, including Engagement Scores, Academics, Attendance, and Physical Health information.";
+                      case "donor":
+                        return "Donors will have access to extended profiles of players they’re sponsoring, including Engagement Scores, Academics, and Physical Health information.";
+                      default:
+                        return "error";
+                    }
+                  })()}
+                </p>
+                <Combobox
+                  selectedPlayers={selectedPlayers}
+                  setSelectedPlayers={setSelectedPlayers}
+                />
+              </FormField>
+            </div>
           </fieldset>
           <hr />
           <div className="my-10">
