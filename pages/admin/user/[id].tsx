@@ -1,4 +1,4 @@
-import { useRouter } from "next/router";
+import { NextRouter, useRouter } from "next/router";
 import DashboardLayout from "components/DashboardLayout";
 import { User } from "@prisma/client";
 import React, { useState, useEffect } from "react";
@@ -14,6 +14,7 @@ import {
 import Joi from "joi";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
+import { DeleteUserDTO } from "pages/api/admin/users/delete";
 import { useForm } from "react-hook-form";
 import Combobox from "components/Combobox";
 
@@ -34,12 +35,19 @@ interface EditUserProps {
   setNewRole: (newRole: string) => void;
 }
 
-type ModalProps = React.PropsWithChildren<{
+interface DeleteConfirmationProps {
+  user?: User;
+  isDeleting: boolean;
+  setIsDeleting: React.Dispatch<React.SetStateAction<boolean>>;
+  router: NextRouter;
+}
+
+type MyModalProps = React.PropsWithChildren<{
   open?: boolean;
 }>;
 
 // TODO: Make some styling changes
-const Modal: React.FC<ModalProps> = ({ children, open }: ModalProps) => {
+const MyModal: React.FC<MyModalProps> = ({ children, open }: MyModalProps) => {
   return open ? (
     <div className="absolute top-0 left-0 w-screen h-screen bg-dark bg-opacity-50 flex justify-center items-center">
       <div className="bg-white rounded w-3/4 px-10 pt-12 pb-8">{children}</div>
@@ -60,6 +68,52 @@ const AdminEditUserFormSchema = Joi.object<AdminEditUserFormValues>({
     .required(),
 });
 
+const DeleteConfirmation: React.FunctionComponent<DeleteConfirmationProps> = ({
+  user,
+  isDeleting,
+  setIsDeleting,
+  router,
+}) => {
+  async function onDelete(): Promise<void> {
+    const response = await fetch(`/api/admin/users/${user?.id}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        id: user?.id,
+      } as DeleteUserDTO),
+    });
+    if (!response.ok) {
+      throw await response.json();
+    }
+    setIsDeleting(false);
+    router.push("/admin/users");
+  }
+  return (
+    <MyModal open={Boolean(isDeleting)}>
+      <p>Are you sure you want to delete this user?</p>
+      <div className="mb-2 flex">
+        <Button
+          className="button-primary px-10 py-2 mr-5"
+          onClick={() => {
+            onDelete();
+          }}
+        >
+          Delete
+        </Button>
+        <Button
+          className="button-hollow px-10 py-2"
+          onClick={() => {
+            setIsDeleting(false);
+          }}
+        >
+          Cancel
+        </Button>
+      </div>
+    </MyModal>
+  );
+};
+
 const EditUser: React.FunctionComponent<EditUserProps> = ({
   user,
   isEditing,
@@ -71,11 +125,14 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [currRole, setCurrRole] = useState(currentRole);
-  const [roleChosen, setRoleChosen] = useState("");
+  const [roleChosen, setRoleChosen] = useState(
+    (currentRole as string).toLowerCase()
+  );
   const [selectedPlayers, setSelectedPlayers] = useState<User[]>([]);
   const { errors, register, handleSubmit } = useForm<AdminEditUserFormValues>({
     resolver: joiResolver(AdminEditUserFormSchema),
   });
+  console.log("current role:", currentRole);
 
   async function onSubmit(
     values: AdminEditUserFormValues,
@@ -137,7 +194,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
   };
 
   return (
-    <Modal open={Boolean(isEditing)}>
+    <MyModal open={Boolean(isEditing)}>
       <div className="mx-16 mt-24">
         <h1 className="text-3xl font-display font-medium mb-2">
           Basic Information
@@ -314,13 +371,14 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
           </div>
         </form>
       </div>
-    </Modal>
+    </MyModal>
   );
 };
 
 const UserProfile: React.FunctionComponent = () => {
   const [user, setUser] = useState<User>();
   const [isEditing, setIsEditing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
   const { id, role } = router.query;
   const [newRole, setNewRole] = useState("");
@@ -365,7 +423,7 @@ const UserProfile: React.FunctionComponent = () => {
         </div>
         <div>
           <div className="pb-16 pt-">
-            <h2 className="text-lg pb-5">Basic Information</h2>
+            <h2 className="text-lg pb-5 font-semibold">Basic Information</h2>
             <div className="flex flex-row text-sm pb-6">
               <p className="text-blue mr-20 w-24">Email Address</p>
               <p>{user?.email}</p>
@@ -379,12 +437,31 @@ const UserProfile: React.FunctionComponent = () => {
               <p>{newRole}</p>
             </div>
           </div>
-          <h2 className="text-lg pb-5">Mentor Information</h2>
-          <div className="flex flex-row text-sm">
+          <h2 className="text-lg pb-5 font-semibold">Mentor Information</h2>
+          <div className="flex flex-row text-sm pb-16">
             <p className="text-blue mr-20 w-24">Menteed Players</p>
             <p>List</p>
           </div>
+          <p className="text-lg font-semibold pb-10">Account Changes</p>
+          <p className="font-semibold text-sm pb-3">Close Account</p>
+          <p className="text-sm font-normal">
+            Delete this user&apos;s account and account data
+          </p>
+          <Button
+            className="button-primary mt-7 mb-52 mr-5 text-danger bg-danger-muted"
+            onClick={() => {
+              setIsDeleting(true);
+            }}
+          >
+            Close Account
+          </Button>
         </div>
+        {DeleteConfirmation({
+          user,
+          isDeleting,
+          setIsDeleting,
+          router,
+        })}
         {EditUser({
           user,
           isEditing,
