@@ -136,6 +136,7 @@ const UserDashboard: React.FunctionComponent<UserDashboardProps> = ({
           image={user.image}
           phoneNumber={user.phoneNumber}
           role={
+            user.viewerPermissions[0] &&
             user.viewerPermissions[0].relationship_type
               ? RoleLabel[user.viewerPermissions[0].relationship_type]
               : "Unknown User Role"
