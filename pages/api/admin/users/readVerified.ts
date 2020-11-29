@@ -3,13 +3,11 @@ import { NextApiResponse } from "next";
 import sanitizeUser from "utils/sanitizeUser";
 
 const prisma = new PrismaClient();
-
 export default async (res: NextApiResponse): Promise<void> => {
   try {
     const users = await prisma.user.findMany({
       where: { emailVerified: null },
     });
-
     if (!users) {
       res
         .status(404)
