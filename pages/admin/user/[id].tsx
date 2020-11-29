@@ -132,7 +132,6 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
   const { errors, register, handleSubmit } = useForm<AdminEditUserFormValues>({
     resolver: joiResolver(AdminEditUserFormSchema),
   });
-  console.log("current role:", currentRole);
 
   async function onSubmit(
     values: AdminEditUserFormValues,
