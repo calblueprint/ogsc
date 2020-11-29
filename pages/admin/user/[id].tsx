@@ -268,8 +268,8 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
                 Role Information
               </legend>
               <FormField
-                label="Linked Players"
-                name="linkedPlayers"
+                label="Menteed Players"
+                name="menteedPlayers"
                 error="" // TODO: fix this
               >
                 <p
