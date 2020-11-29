@@ -1,4 +1,4 @@
-import { Absence, ProfileField, User, ViewingPermission } from "@prisma/client";
+import { Absence, ProfileField, Role, User } from "@prisma/client";
 
 // TODO: Use Prisma-generated types for this once prisma/prisma#3252 is resolved
 export const ProfileFieldKey = <const>{
@@ -39,6 +39,15 @@ export const AbsenceType = <const>{
   Athletic: "Athletic",
 };
 export type AbsenceType = typeof AbsenceType[keyof typeof AbsenceType];
+
+// TODO: Use Prisma-generated types for this once prisma/prisma#3252 is resolved
+export const UserRoleType = <const>{
+  Donor: "Donor",
+  Mentor: "Mentor",
+  Parent: "Parent",
+  Player: "Player",
+};
+export type UserRoleType = typeof UserRoleType[keyof typeof UserRoleType];
 
 export type PrivateUserFields = "hashedPassword";
 export type SanitizedUser = Omit<User, PrivateUserFields>;
@@ -137,8 +146,12 @@ export type PlayerProfile = {
 };
 
 export type IUser = SanitizedUser & {
-  viewedByPermissions: ViewingPermission[];
-  viewerPermissions: ViewingPermission[];
+  roles: Role[];
+  /**
+   * Upstream roles refer to roles that a player is related to, i.e. a player's parents, mentors
+   * and sponsors (donors).
+   */
+  upstreamRoles: Role[];
 };
 
 export type IPlayer = Omit<IUser, "viewerPermissions"> & {
