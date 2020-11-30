@@ -50,7 +50,9 @@ const GPAScoreField: React.FC<Props> = ({
 
   return (
     <fieldset>
-      <div className="border border-border rounded-lg p-10">
+      <p className="text-2xl font-semibold mb-3">Add Grade Point Average</p>
+      <hr className="pb-8" />
+      <div>
         <p className="text-sm font-semibold mb-3">Quarter GPA</p>
         <input
           type="text"
@@ -60,7 +62,7 @@ const GPAScoreField: React.FC<Props> = ({
           onChange={(event) => SetGPA(event.target.value)}
         />
         <p className="text-sm font-semibold mb-3 mt-10">Month/Year</p>
-        <div className="grid grid-cols-5 mb-10">
+        <div className="grid grid-cols-4 mb-10">
           <DateComboBox
             items={months}
             placeholder="Month"
