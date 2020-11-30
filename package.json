@@ -69,7 +69,7 @@
     "db-migrate-pg": "^1.2.2",
     "db-migrate-plugin-typescript": "ethanlee16/plugin-typescript",
     "eslint": "^7.10.0",
-    "eslint-config-airbnb": "^18.2.0",
+    "eslint-config-airbnb": "^18.2.1",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-json": "^2.1.2",
