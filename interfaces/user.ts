@@ -1,4 +1,4 @@
-import { Absence, ProfileField, Role, User } from "@prisma/client";
+import { Absence, ProfileField, User } from "@prisma/client";
 
 // TODO: Use Prisma-generated types for this once prisma/prisma#3252 is resolved
 export const ProfileFieldKey = <const>{
@@ -42,6 +42,7 @@ export type AbsenceType = typeof AbsenceType[keyof typeof AbsenceType];
 
 // TODO: Use Prisma-generated types for this once prisma/prisma#3252 is resolved
 export const UserRoleType = <const>{
+  Admin: "Admin",
   Donor: "Donor",
   Mentor: "Mentor",
   Parent: "Parent",
@@ -52,29 +53,12 @@ export type UserRoleType = typeof UserRoleType[keyof typeof UserRoleType];
 export type PrivateUserFields = "hashedPassword";
 export type SanitizedUser = Omit<User, PrivateUserFields>;
 
-export const UserRoleConstants = <const>[
-  "admin",
-  "mentor",
-  "parent",
-  "player",
-  "donor",
-];
-export type UserRole = typeof UserRoleConstants[number];
-export const UserRoleLabel: Record<UserRole, string> = {
-  admin: "Admin",
-  mentor: "Mentor",
-  parent: "Parent",
-  player: "Player",
-  donor: "Donor",
-};
-
-// used to map relationship_type from viewing permissions table to appropriate user role
-export const RoleLabel: Record<string, string> = {
-  Admin: "Admin",
-  Player: "Player",
-  "Parent to Player": "Parent",
-  "Mentor to Player": "Mentor",
-  "Donor to Player": "Donor",
+export const UserRoleLabel: Record<UserRoleType, string> = {
+  [UserRoleType.Admin]: "Admin",
+  [UserRoleType.Mentor]: "Mentor",
+  [UserRoleType.Parent]: "Parent",
+  [UserRoleType.Player]: "Player",
+  [UserRoleType.Donor]: "Donor",
 };
 
 export enum ProfileFieldValue {
@@ -145,16 +129,16 @@ export type PlayerProfile = {
   };
 };
 
-export type IUser = SanitizedUser & {
-  roles: Role[];
-  /**
-   * Upstream roles refer to roles that a player is related to, i.e. a player's parents, mentors
-   * and sponsors (donors).
-   */
-  upstreamRoles: Role[];
+export type DefaultRole = {
+  type: UserRoleType;
+  relatedPlayerIds: number[];
 };
 
-export type IPlayer = Omit<IUser, "viewerPermissions"> & {
+export type IUser = SanitizedUser & {
+  defaultRole?: DefaultRole;
+};
+
+export type IPlayer = Omit<IUser, "roles"> & {
   profile: Partial<PlayerProfile> | null;
   absences?: Absence[];
 };

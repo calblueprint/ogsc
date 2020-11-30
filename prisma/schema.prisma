@@ -16,7 +16,6 @@ model User {
   createdAt      DateTime        @default(now()) @map("created_at")
   updatedAt      DateTime        @default(now()) @map("updated_at")
   hashedPassword String          @map("hashed_password")
-  isAdmin        Boolean         @default(false) @map("is_admin")
   phoneNumber    String?         @map("phone_number")
   absences       Absence[]       @relation("AbsencesToUsers")
   profileFields  ProfileField[]  @relation("ProfileFieldToUsers")
@@ -169,6 +168,7 @@ enum AbsenceType {
 }
 
 enum UserRoleType {
+  Admin @map("admin")
   Donor @map("donor")
   Mentor @map("mentor")
   Parent @map("parent")

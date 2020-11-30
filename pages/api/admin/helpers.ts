@@ -1,7 +1,8 @@
 import { PrismaClient } from "@prisma/client";
-import { AuthenticatedNextApiHandler } from "interfaces";
+import { AuthenticatedNextApiHandler, UserRoleType } from "interfaces";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/client";
+import flattenUserRoles from "utils/flattenUserRoles";
 
 const prisma = new PrismaClient();
 
@@ -16,8 +17,12 @@ export const adminOnlyHandler = (
   }
   const user = await prisma.user.findOne({
     where: { email: session.user.email },
+    include: { roles: true },
   });
-  if (user === null || !user.isAdmin) {
+  if (
+    user === null ||
+    flattenUserRoles(user).defaultRole?.type === UserRoleType.Admin
+  ) {
     res.statusCode = 401;
     res.json({
       message:

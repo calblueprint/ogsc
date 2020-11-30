@@ -98,7 +98,11 @@ export default async function seedDatabase(): Promise<void> {
         email: "admin@ogsc.dev",
         phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
         hashedPassword: hashPassword("password"),
-        isAdmin: true,
+        roles: {
+          create: {
+            type: UserRoleType.Admin,
+          },
+        },
       },
     });
     adminCreateMessage.text = "Created the admin user.";
