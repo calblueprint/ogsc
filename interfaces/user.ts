@@ -135,10 +135,10 @@ export type DefaultRole = {
 };
 
 export type IUser = SanitizedUser & {
-  defaultRole?: DefaultRole;
+  defaultRole: DefaultRole;
 };
 
-export type IPlayer = Omit<IUser, "roles"> & {
+export type IPlayer = IUser & {
   profile: Partial<PlayerProfile> | null;
   absences?: Absence[];
 };

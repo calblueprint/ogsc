@@ -1,48 +1,35 @@
 import { FindManyUserArgs, PrismaClient } from "@prisma/client";
+import { IUser, UserRoleType } from "interfaces";
 import { NextApiRequest, NextApiResponse } from "next";
+import flattenUserRoles from "utils/flattenUserRoles";
 import sanitizeUser from "utils/sanitizeUser";
 import { USER_PAGE_SIZE } from "../../../../constants";
 
 const prisma = new PrismaClient();
+
+export type ReadManyUsersDTO = {
+  users: IUser[];
+  total: number;
+};
 
 export default async (
   req: NextApiRequest,
   res: NextApiResponse
 ): Promise<void> => {
   const pageNumber: number = Number(req.query.pageNumber) || 0;
-  const userRole: string = String(req.query.role) || "All Roles";
+  const userRole = req.query.role as UserRoleType | undefined;
   const search: string = String(req.query.search) || " ";
   try {
     let filterArgs: FindManyUserArgs = {};
 
-    if (userRole === "All Roles") {
-      filterArgs = { ...filterArgs };
-    } else if (userRole === "Admin") {
+    if (userRole) {
       filterArgs = {
+        ...filterArgs,
         where: {
-          isAdmin: true,
-        },
-      };
-    } else if (userRole === "Players") {
-      filterArgs = {
-        where: {
-          viewerPermissions: {
+          ...filterArgs.where,
+          roles: {
             some: {
-              relationship_type: {
-                equals: `Player`,
-              },
-            },
-          },
-        },
-      };
-    } else {
-      filterArgs = {
-        where: {
-          viewerPermissions: {
-            some: {
-              relationship_type: {
-                equals: `${userRole.substr(0, userRole.length - 1)} to Player`,
-              },
+              type: userRole,
             },
           },
         },
@@ -63,7 +50,7 @@ export default async (
     const users = await prisma.user.findMany({
       ...filterArgs,
       include: {
-        viewerPermissions: true,
+        roles: true,
       },
       skip: Number(USER_PAGE_SIZE) * pageNumber,
       take: Number(USER_PAGE_SIZE),
@@ -75,7 +62,10 @@ export default async (
         .status(404)
         .json({ statusCode: 404, message: "User does not exist." });
     } else {
-      res.json({ users: users.map(sanitizeUser), total: userCount });
+      res.json({
+        users: users.map(sanitizeUser).map(flattenUserRoles),
+        total: userCount,
+      } as ReadManyUsersDTO);
     }
   } catch (err) {
     res.status(500);

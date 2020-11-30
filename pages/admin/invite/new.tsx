@@ -2,7 +2,7 @@ import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
 import DashboardLayout from "components/DashboardLayout";
 import FormField from "components/FormField";
-import { UserRole, UserRoleConstants, UserRoleLabel } from "interfaces";
+import { UserRoleLabel, UserRoleType } from "interfaces";
 import Joi from "joi";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -17,7 +17,7 @@ type AdminInviteFormValues = {
   lastName: string;
   email: string;
   phoneNumber?: string;
-  role: UserRole;
+  role: UserRoleType;
   linkedPlayers?: number[];
 };
 
@@ -30,7 +30,7 @@ const AdminInviteFormSchema = Joi.object<AdminInviteFormValues>({
     .required(),
   phoneNumber: Joi.string().optional(),
   role: Joi.string()
-    .valid(...UserRoleConstants)
+    .valid(...Object.values(UserRoleType))
     .required(),
   linkedPlayers: Joi.array().items(Joi.number().required()).optional(),
 });
@@ -155,7 +155,7 @@ const AdminNewInvitePage: React.FC = () => {
               />
             </FormField>
             <FormField label="Role" name="role" error={errors.role?.message}>
-              {UserRoleConstants.map((role: UserRole) => (
+              {Object.values(UserRoleType).map((role: UserRoleType) => (
                 <label
                   className="font-medium flex items-center mb-2"
                   htmlFor={role}
