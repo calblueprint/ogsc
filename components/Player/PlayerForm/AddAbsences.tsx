@@ -83,7 +83,9 @@ const AddAbsencesField: React.FC<Props> = ({
 
   return (
     <fieldset>
-      <div className="border border-border rounded-lg p-10">
+      <p className="text-2xl font-semibold mb-3">Add Absence</p>
+      <hr className="pb-8" />
+      <div>
         <p className="text-sm font-semibold mb-3">Absence Category</p>
         <DateComboBox
           items={["School", "Advising", "Athletic"]}

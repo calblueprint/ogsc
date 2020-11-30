@@ -83,7 +83,7 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
             </p>
           </div>
         </div>
-        <Modal open={showModal}>
+        <Modal className="w-2/5" open={showModal}>
           <h1 className="text-dark text-3xl font-medium mb-2">
             Dashboard Created!
           </h1>

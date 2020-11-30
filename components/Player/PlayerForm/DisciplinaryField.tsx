@@ -55,7 +55,9 @@ const DAScoreField: React.FC<Props> = ({
 
   return (
     <fieldset>
-      <div className="border border-border rounded-lg p-10">
+      <p className="text-2xl font-semibold mb-3">Add Disciplinary Action</p>
+      <hr className="pb-8" />
+      <div>
         <p className="text-sm font-semibold mb-3">
           Nature of Disciplinary Action
         </p>

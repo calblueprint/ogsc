@@ -26,6 +26,7 @@ type Props = React.PropsWithChildren<{
 
 const NewPlayerInvitePage: React.FC<Props> = ({ setPlayerID }: Props) => {
   const { action, state } = useStateMachine(updateAction);
+  const [checkSubmit, setCheckSubmit] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [firstName, setFirstName] = useState(
     state.userData.firstName ? state.userData.firstName : null
@@ -52,41 +53,49 @@ const NewPlayerInvitePage: React.FC<Props> = ({ setPlayerID }: Props) => {
       return;
     }
     try {
-      const response = await fetch("/api/admin/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
+      setError("");
+      if (checkSubmit) {
+        const response = await fetch("/api/admin/users", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            email,
+            name: `${firstName} ${lastName}`,
+            phoneNumber,
+          } as AdminCreateUserDTO),
+        });
+        if (!response.ok) {
+          throw await response.json();
+        }
+        action({
           email,
-          name: `${firstName} ${lastName}`,
+          firstName,
+          lastName,
           phoneNumber,
-        } as AdminCreateUserDTO),
-      });
-      if (!response.ok) {
-        throw await response.json();
+        });
+        const player = await fetch("/api/admin/users/readOneEmail", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            email,
+          } as UserDTO),
+        });
+        if (!player.ok) {
+          throw await player.json();
+        }
+        const newPlayer = await player.json();
+        setPlayerID(newPlayer.user.id);
+        setConfirm(
+          "You have sent an invite to this player and may continue on with the form!"
+        );
+        setCheckSubmit(false);
+      } else {
+        setConfirm(
+          "The invite was already sent you may continue on with the form"
+        );
       }
-      action({
-        email,
-        firstName,
-        lastName,
-        phoneNumber,
-      });
-      const player = await fetch("/api/admin/users/readOneEmail", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          email,
-        } as UserDTO),
-      });
-      if (!player.ok) {
-        throw await player.json();
-      }
-      const newPlayer = await player.json();
-      setPlayerID(newPlayer.user.id);
-      setConfirm(
-        "You have sent an invite to this player and may continue on with the form!"
-      );
     } catch (err) {
       setError(err.message);
     } finally {

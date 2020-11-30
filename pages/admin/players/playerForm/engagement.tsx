@@ -12,6 +12,7 @@ import AddScoreField from "components/Player/PlayerForm/AddScoreField";
 import Card from "components/Card";
 import Icon from "components/Icon";
 import { formatText } from "components/Player/PlayerForm/FormItems";
+import Modal from "components/Modal";
 import type { PlayerProfileFormValues } from ".";
 
 export type EngagementFormValues = Pick<
@@ -151,7 +152,7 @@ const UserSignUpPageOne: React.FC = () => {
               >
                 Add Engagement Score
               </Button>
-              {hidden ? (
+              <Modal className="w-2/3" open={hidden}>
                 <AddScoreField
                   setHidden={setHidden}
                   advisingScores={advisingScores}
@@ -161,7 +162,7 @@ const UserSignUpPageOne: React.FC = () => {
                   setSchoolScores={SetSchoolScores}
                   setAthleticScores={SetAthleticScores}
                 />
-              ) : null}
+              </Modal>
               {error && <p className="text-red-600 text-sm">{error}</p>}
               <hr className="border-unselected border-opacity-50 my-16" />
               <div className="flex mb-32">

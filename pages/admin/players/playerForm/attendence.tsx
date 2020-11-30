@@ -12,6 +12,7 @@ import PlayerFormLayout from "components/Player/PlayerFormLayout";
 import Icon from "components/Icon";
 import Card from "components/Card";
 import { formatAbsence } from "components/Player/PlayerForm/FormItems";
+import Modal from "components/Modal";
 
 export type AbsenceFormValues = {
   schoolAbsences: string[];
@@ -134,7 +135,7 @@ const UserSignUpPageOne: React.FC = () => {
               >
                 Add Absence
               </Button>
-              {hidden ? (
+              <Modal className="w-2/3" open={hidden}>
                 <AddAbsences
                   setHidden={setHidden}
                   advisingAbsences={advisingAbsences}
@@ -144,7 +145,7 @@ const UserSignUpPageOne: React.FC = () => {
                   setAthleticAbsences={SetAthleticAbsences}
                   setSchoolAbsences={SetSchoolAbsences}
                 />
-              ) : null}
+              </Modal>
               {error && <p className="text-red-600 text-sm">{error}</p>}
               <hr className="border-unselected border-opacity-50 my-16" />
               <div className="flex mb-32">
