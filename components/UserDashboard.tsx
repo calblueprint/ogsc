@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import PageNav from "components/PageNav";
-import { IUser, UserRoleLabel } from "interfaces/user";
+import { IUser, UserRoleLabel, UserRoleType } from "interfaces/user";
 import { ReadManyUsersDTO } from "pages/api/admin/users/readMany";
 import { USER_PAGE_SIZE, UI_PAGE_SIZE } from "../constants";
 
 interface UserDashboardProps {
-  userRole: string;
+  userRole: UserRoleType | null;
   phrase: string;
 }
 
@@ -28,7 +28,7 @@ const UserDashboardItem: React.FunctionComponent<{ user: IUser }> = ({
 }) => {
   return (
     <Link href={`user/${id}`}>
-      <div className="flex flex-row justify-between text-sm h-16 items-center py-10 hover:bg-hover">
+      <div className="flex flex-row justify-between text-sm h-16 items-center py-10 hover:bg-hover border-unselected border-opacity-50 border-b">
         {/* TODO: FIX PADDING ABOVE */}
         <div className="flex flex-row justify-between self-center">
           <div className="w-10 h-10 mr-4 bg-placeholder rounded-full">
@@ -43,7 +43,6 @@ const UserDashboardItem: React.FunctionComponent<{ user: IUser }> = ({
         <p className="self-center">{email}</p>
         <p className="self-center">{phoneNumber}</p>
       </div>
-      <hr className="border-unselected border-opacity-50" />
     </Link>
   );
 };
@@ -71,7 +70,9 @@ const UserDashboard: React.FunctionComponent<UserDashboardProps> = ({
         setUsers(pageCache[pageNumber]);
       } else {
         const response = await fetch(
-          `/api/admin/users?pageNumber=${pageNumber}&role=${userRole}&search=${phrase}`,
+          `/api/admin/users?pageNumber=${pageNumber}&search=${phrase}${
+            userRole ? `&role=${userRole}` : ""
+          }`,
           {
             method: "GET",
             headers: { "content-type": "application/json" },

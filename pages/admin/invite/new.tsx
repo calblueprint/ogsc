@@ -81,9 +81,11 @@ const AdminNewInvitePage: React.FC = () => {
   }
 
   const showCombobox = (): string => {
-    return roleChosen === "mentor" ||
-      roleChosen === "parent" ||
-      roleChosen === "donor"
+    return ([
+      UserRoleType.Mentor,
+      UserRoleType.Parent,
+      UserRoleType.Donor,
+    ] as UserRoleType[]).includes(roleChosen as UserRoleType)
       ? ""
       : "hidden";
   };
@@ -187,11 +189,11 @@ const AdminNewInvitePage: React.FC = () => {
                 >
                   {(() => {
                     switch (roleChosen) {
-                      case "mentor":
+                      case UserRoleType.Mentor:
                         return "Mentors will have access to the full profile of players they are mentoring, including Engagement Scores, Academics, Attendance, and Physical Health information.";
-                      case "parent":
+                      case UserRoleType.Parent:
                         return "Parents will have access to the full profile of their children, including Engagement Scores, Academics, Attendance, and Physical Health information.";
-                      case "donor":
+                      case UserRoleType.Donor:
                         return "Donors will have access to extended profiles of players they’re sponsoring, including Engagement Scores, Academics, and Physical Health information.";
                       default:
                         return "error";

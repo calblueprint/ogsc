@@ -44,12 +44,21 @@ function generateFieldsAcrossTimestamps(
 
 export default async function seedDatabase(): Promise<void> {
   const prisma = new PrismaClient();
-  const clearAllMessage = Ora("Cleaning up previous seeded information");
+  const clearAllMessage = Ora(
+    "Cleaning up previous seeded information"
+  ).start();
   try {
     const users = await prisma.user.findMany({
       where: {
         email: {
           endsWith: "@ogsc.dev",
+        },
+      },
+    });
+    await prisma.role.deleteMany({
+      where: {
+        userId: {
+          in: users.map((user: User) => user.id),
         },
       },
     });

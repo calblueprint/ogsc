@@ -21,7 +21,7 @@ export const adminOnlyHandler = (
   });
   if (
     user === null ||
-    flattenUserRoles(user).defaultRole?.type === UserRoleType.Admin
+    flattenUserRoles(user).defaultRole?.type !== UserRoleType.Admin
   ) {
     res.statusCode = 401;
     res.json({

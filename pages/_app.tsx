@@ -109,7 +109,7 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
       </StateMachineProvider>
     );
   }
-  if (!sessionInfo.user) {
+  if (!sessionInfo?.user) {
     // TODO: Add shimmer loading skeleton
     return null;
   }

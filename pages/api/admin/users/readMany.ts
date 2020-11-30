@@ -18,32 +18,27 @@ export default async (
 ): Promise<void> => {
   const pageNumber: number = Number(req.query.pageNumber) || 0;
   const userRole = req.query.role as UserRoleType | undefined;
-  const search: string = String(req.query.search) || " ";
+  const search = req.query.search as string | undefined;
   try {
-    let filterArgs: FindManyUserArgs = {};
-
-    if (userRole) {
-      filterArgs = {
-        ...filterArgs,
-        where: {
-          ...filterArgs.where,
-          roles: {
-            some: {
-              type: userRole,
-            },
-          },
-        },
-      };
-    }
-
-    filterArgs = {
-      ...filterArgs,
+    const filterArgs: FindManyUserArgs = {
       where: {
-        ...filterArgs.where,
-        name: {
-          contains: search,
-          mode: "insensitive",
-        },
+        ...(userRole
+          ? {
+              roles: {
+                some: {
+                  type: userRole,
+                },
+              },
+            }
+          : undefined),
+        ...(search
+          ? {
+              name: {
+                contains: search,
+                mode: "insensitive",
+              },
+            }
+          : undefined),
       },
     };
 
