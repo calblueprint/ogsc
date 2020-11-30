@@ -9,6 +9,8 @@ import { useRouter } from "next/router";
 import { AdminCreateUserDTO } from "pages/api/admin/users/create";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import Combobox from "components/Combobox";
+import { User } from "@prisma/client";
 
 type AdminInviteFormValues = {
   firstName: string;
@@ -16,6 +18,7 @@ type AdminInviteFormValues = {
   email: string;
   phoneNumber?: string;
   role: UserRole;
+  linkedPlayers?: number[];
 };
 
 const AdminInviteFormSchema = Joi.object<AdminInviteFormValues>({
@@ -29,6 +32,7 @@ const AdminInviteFormSchema = Joi.object<AdminInviteFormValues>({
   role: Joi.string()
     .valid(...UserRoleConstants)
     .required(),
+  linkedPlayers: Joi.array().items(Joi.number().required()).optional(),
 });
 
 const AdminNewInvitePage: React.FC = () => {
@@ -37,6 +41,9 @@ const AdminNewInvitePage: React.FC = () => {
   // TODO: Add loading state to form submission
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [roleChosen, setRoleChosen] = useState("");
+  const [selectedPlayers, setSelectedPlayers] = useState<User[]>([]);
+
   const { errors, register, handleSubmit } = useForm<AdminInviteFormValues>({
     resolver: joiResolver(AdminInviteFormSchema),
   });
@@ -58,6 +65,8 @@ const AdminNewInvitePage: React.FC = () => {
           email: values.email,
           name: `${values.firstName} ${values.lastName}`,
           phoneNumber: values.phoneNumber,
+          role: values.role,
+          linkedPlayers: selectedPlayers.map((user) => user.id),
         } as AdminCreateUserDTO),
       });
       if (!response.ok) {
@@ -71,16 +80,24 @@ const AdminNewInvitePage: React.FC = () => {
     }
   }
 
+  const showCombobox = (): string => {
+    return roleChosen === "mentor" ||
+      roleChosen === "parent" ||
+      roleChosen === "donor"
+      ? ""
+      : "hidden";
+  };
+
   return (
     <DashboardLayout>
       <div className="mx-16 mt-24">
-        <h1 className="text-3xl font-display font-medium mb-2">
-          Add a new user
-        </h1>
+        <h1 className="text-3xl font-semibold mb-2">Add a new user</h1>
         <p>Pending page description</p>
         <form className="mt-10" onSubmit={handleSubmit(onSubmit)}>
           <fieldset>
-            <legend className="text-lg font-medium mb-8">User Overview</legend>
+            <legend className="text-lg font-semibold mb-8">
+              Basic Information
+            </legend>
             <FormField
               label="First Name"
               name="firstName"
@@ -89,6 +106,7 @@ const AdminNewInvitePage: React.FC = () => {
               <input
                 type="text"
                 className="input input-full"
+                id="firstName"
                 name="firstName"
                 placeholder="e.g., Cristiano"
                 ref={register}
@@ -102,6 +120,7 @@ const AdminNewInvitePage: React.FC = () => {
               <input
                 type="text"
                 className="input input-full"
+                id="lastName"
                 name="lastName"
                 placeholder="e.g., Ronaldo"
                 ref={register}
@@ -115,6 +134,7 @@ const AdminNewInvitePage: React.FC = () => {
               <input
                 type="text"
                 className="input input-full"
+                id="email"
                 name="email"
                 placeholder="e.g., soccer@fifa.com"
                 ref={register}
@@ -128,6 +148,7 @@ const AdminNewInvitePage: React.FC = () => {
               <input
                 type="text"
                 className="input"
+                id="phoneNumber"
                 name="phoneNumber"
                 placeholder="e.g., 123-456-7890"
                 ref={register}
@@ -135,19 +156,54 @@ const AdminNewInvitePage: React.FC = () => {
             </FormField>
             <FormField label="Role" name="role" error={errors.role?.message}>
               {UserRoleConstants.map((role: UserRole) => (
-                <label className="block font-normal" htmlFor={role}>
+                <label
+                  className="font-medium flex items-center mb-2"
+                  htmlFor={role}
+                >
                   <input
-                    className="mr-3"
+                    className="mr-5"
                     type="radio"
                     name="role"
                     id={role}
                     value={role}
                     ref={register}
+                    onChange={(event) => setRoleChosen(event.target.value)}
                   />
                   {UserRoleLabel[role]}
                 </label>
               ))}
             </FormField>
+            <div className={showCombobox()}>
+              <legend className="text-lg font-medium mb-10 mt-16">
+                Role Information
+              </legend>
+              <FormField
+                label="Linked Players"
+                name="linkedPlayers"
+                error="" // TODO: fix this
+              >
+                <p
+                  className={`text-xs font-normal mt-3 mb-3 ${showCombobox()}`}
+                >
+                  {(() => {
+                    switch (roleChosen) {
+                      case "mentor":
+                        return "Mentors will have access to the full profile of players they are mentoring, including Engagement Scores, Academics, Attendance, and Physical Health information.";
+                      case "parent":
+                        return "Parents will have access to the full profile of their children, including Engagement Scores, Academics, Attendance, and Physical Health information.";
+                      case "donor":
+                        return "Donors will have access to extended profiles of players they’re sponsoring, including Engagement Scores, Academics, and Physical Health information.";
+                      default:
+                        return "error";
+                    }
+                  })()}
+                </p>
+                <Combobox
+                  selectedPlayers={selectedPlayers}
+                  setSelectedPlayers={setSelectedPlayers}
+                />
+              </FormField>
+            </div>
           </fieldset>
           <hr />
           <div className="my-10">

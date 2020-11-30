@@ -1,15 +1,24 @@
 import { useState } from "react";
-import DashboardLayout from "../../components/DashboardLayout";
-import PlayerDashboard from "../../components/PlayersDashboard";
+import Link from "next/link";
+import DashboardLayout from "../../../components/DashboardLayout";
+import PlayerDashboard from "../../../components/PlayersDashboard";
+import Button from "../../../components/Button";
 
 const AdminView: React.FunctionComponent = () => {
   const [phrase, setPhrase] = useState<string>(" ");
-
   return (
     <DashboardLayout>
       <div className="flex mt-20 flex-wrap space-y-6 flex-col mx-16">
-        <div className="header flex">
+        <div className="header flex justify-between">
           <p className="pt-4 text-2xl font-display font-medium">All Players</p>
+          <Link href="/admin/players/playerForm">
+            <Button
+              className="font-display text-sm px-6 bg-blue-muted text-blue rounded-lg h-10"
+              iconType="plus"
+            >
+              Create new profile
+            </Button>
+          </Link>
         </div>
         <div className="grid grid-cols-4 gap-8">
           <div className="col-span-3">

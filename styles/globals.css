@@ -1,13 +1,14 @@
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
 
 html,
 body {
   padding: 0;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  font-family: Montserrat, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
+    Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
 
 a {
@@ -19,40 +20,58 @@ a {
   box-sizing: border-box;
 }
 
-@font-face {
-  font-family: "Airbnb Cereal App"; /* TODO: Need to change font */
-  src: url("../fonts/AirbnbCereal-Medium.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
 @layer components {
   .button {
     @apply flex items-center px-6 py-3 font-medium;
   }
 
   .button-normal {
-    @apply bg-button;
+    @apply bg-blue-muted text-blue font-semibold;
   }
 
   .button-primary {
-    @apply bg-unselected text-white;
+    @apply bg-blue text-white;
   }
 
   .button-hollow {
-    @apply bg-transparent border-unselected border-2 text-unselected;
+    @apply bg-transparent border-blue border-2 text-blue;
   }
 
   .input {
-    @apply border-unselected border-b-2 px-2 py-1;
+    @apply border-unselected border-b-2 px-2 py-1 font-medium;
   }
 
   .input:focus {
-    @apply border-dark outline-none bg-button;
+    @apply border-blue outline-none bg-button;
   }
 
   .input-full {
     @apply w-full max-w-lg;
+  }
+
+  .select {
+    @apply text-unselected border-unselected border rounded pl-4 pr-10 py-2 font-semibold appearance-none;
+    background-image: url(/chevron.svg);
+    background-position: calc(100% - 1rem) center;
+    background-repeat: no-repeat;
+    background-size: 10px;
+  }
+
+  .tr-border {
+    border-bottom-width: 0.5px;
+    @apply border-border border-opacity-50;
+  }
+
+  .navigation-tab {
+    @apply flex items-center py-2 px-5 rounded-full border-4 border-border border-opacity-0 text-unselected font-medium;
+  }
+
+  .navigation-tab:focus {
+    @apply outline-none border-opacity-100 border-blue-muted;
+  }
+
+  .navigation-tab-highlighted {
+    @apply bg-blue-muted text-blue font-semibold;
   }
 
   @screen lg {

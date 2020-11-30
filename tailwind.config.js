@@ -1,3 +1,6 @@
+/* eslint-disable */
+const colors = require("./constants/colors");
+
 module.exports = {
   future: {
     // removeDeprecatedGapUtilities: true,
@@ -7,16 +10,26 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        dark: "#2C2C2C",
-        unselected: "#A9AFB8",
-        button: "#F5F7FA",
-        placeholder: "#E0E4E9",
+        ...Object.fromEntries(
+          Object.entries(colors).filter(
+            ([name]) => name !== "palette" || name !== "mutedPalette"
+          )
+        ),
+        ...colors.palette,
+        ...colors.mutedPalette,
       },
     },
     fontFamily: {
-      display: ["Airbnb Cereal App"],
+      display: ["Montserrat"],
+      sans: [
+        "Montserrat",
+        "system-ui",
+        "-apple-system",
+        "BlinkMacSystemFont",
+        "Segoe UI",
+        "Roboto",
+      ],
     },
   },
-  variants: {},
   plugins: [],
 };

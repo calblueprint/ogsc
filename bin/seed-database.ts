@@ -1,5 +1,7 @@
 /* eslint-disable no-console */
 import {
+  Absence,
+  AbsenceCreateWithoutUsersInput,
   PrismaClient,
   ProfileFieldCreateWithoutUserInput,
   ProfileFieldKey,
@@ -8,6 +10,7 @@ import {
 } from "@prisma/client";
 import Faker from "faker";
 import Ora from "ora";
+import { AbsenceReason, AbsenceType } from "../interfaces";
 import hashPassword from "../utils/hashPassword";
 
 const NUMBER_USERS = 10;
@@ -16,18 +19,27 @@ function generateFieldsAcrossTimestamps(
   key: ProfileFieldKey,
   generateValue: () => unknown
 ): ProfileFieldCreateWithoutUserInput[] {
-  return [
-    new Date("2020-10-01T12:00:00+00:00"),
-    new Date("2020-10-15T12:00:00+00:00"),
-    new Date("2020-10-30T12:00:00+00:00"),
-  ].map(
-    (date: Date) =>
-      <ProfileFieldCreateWithoutUserInput>{
-        key,
-        value: String(generateValue()),
-        createdAt: date,
-      }
-  );
+  return Array(12)
+    .fill(null)
+    .map(
+      (_, index: number) =>
+        new Date(
+          `2020-${String(index + 1).padStart(2, "0")}-${String(
+            Faker.random.number({
+              min: 1,
+              max: 28,
+            })
+          ).padStart(2, "0")}T12:00:00+00:00`
+        )
+    )
+    .map(
+      (date: Date) =>
+        <ProfileFieldCreateWithoutUserInput>{
+          key,
+          value: String(generateValue()),
+          createdAt: date,
+        }
+    );
 }
 
 export default async function seedDatabase(): Promise<void> {
@@ -44,6 +56,13 @@ export default async function seedDatabase(): Promise<void> {
     await prisma.userInvite.deleteMany({
       where: {
         user_id: {
+          in: users.map((user: User) => user.id),
+        },
+      },
+    });
+    await prisma.absence.deleteMany({
+      where: {
+        userId: {
           in: users.map((user: User) => user.id),
         },
       },
@@ -80,6 +99,11 @@ export default async function seedDatabase(): Promise<void> {
         phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
         hashedPassword: hashPassword("password"),
         isAdmin: true,
+        viewerPermissions: {
+          create: {
+            relationship_type: "Admin",
+          },
+        },
       },
     });
     adminCreateMessage.text = "Created the admin user.";
@@ -98,19 +122,58 @@ export default async function seedDatabase(): Promise<void> {
           hashedPassword: hashPassword("password"),
           name: `${Faker.name.firstName()} ${Faker.name.lastName()}`,
           phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
+          viewerPermissions: {
+            create: {
+              relationship_type: "Player",
+              viewee: {
+                connect: {
+                  email: `player${index}@ogsc.dev`,
+                },
+              },
+            },
+          },
+          absences: {
+            create: Object.values(AbsenceType).flatMap((type: AbsenceType) =>
+              Array<Absence | null>(Faker.random.number(3))
+                .fill(null)
+                .map(
+                  () =>
+                    <AbsenceCreateWithoutUsersInput>{
+                      type,
+                      date: Faker.date.recent(90),
+                      reason: Faker.random.arrayElement(
+                        Object.values(AbsenceReason)
+                      ),
+                      description: Faker.lorem.lines(1),
+                    }
+                )
+            ),
+          },
           profileFields: {
             create: [
               ...generateFieldsAcrossTimestamps(
                 ProfileFieldKey.AcademicEngagementScore,
-                () => Faker.random.number(10)
+                () =>
+                  JSON.stringify({
+                    comment: Faker.lorem.lines(1),
+                    value: Faker.random.number(10),
+                  })
               ),
               ...generateFieldsAcrossTimestamps(
                 ProfileFieldKey.AdvisingScore,
-                () => Faker.random.number(10)
+                () =>
+                  JSON.stringify({
+                    comment: Faker.lorem.lines(1),
+                    value: Faker.random.number(10),
+                  })
               ),
               ...generateFieldsAcrossTimestamps(
                 ProfileFieldKey.AthleticScore,
-                () => Faker.random.number(10)
+                () =>
+                  JSON.stringify({
+                    comment: Faker.lorem.lines(1),
+                    value: Faker.random.number(10),
+                  })
               ),
               ...generateFieldsAcrossTimestamps(
                 ProfileFieldKey.BioAboutMe,
@@ -144,10 +207,13 @@ export default async function seedDatabase(): Promise<void> {
                 () => Faker.lorem.lines(2)
               ),
               ...generateFieldsAcrossTimestamps(ProfileFieldKey.GPA, () =>
-                Faker.random.float({
-                  min: 2,
-                  max: 4,
-                  precision: 0.01,
+                JSON.stringify({
+                  comment: Faker.lorem.lines(1),
+                  value: Faker.random.float({
+                    min: 2,
+                    max: 4,
+                    precision: 0.01,
+                  }),
                 })
               ),
               ...generateFieldsAcrossTimestamps(
@@ -211,7 +277,7 @@ export default async function seedDatabase(): Promise<void> {
           phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
           viewerPermissions: {
             create: {
-              relationship_type: "player",
+              relationship_type: "Mentor to Player",
               viewee: {
                 connect: {
                   email: `player${index}@ogsc.dev`,
@@ -228,6 +294,68 @@ export default async function seedDatabase(): Promise<void> {
     mentorsCreateMessage.succeed();
   } catch (err) {
     mentorsCreateMessage.fail(`Creating mentors failed\n\n${err.message}`);
+  }
+
+  const parentsCreateMessage = Ora(`Creating ${NUMBER_USERS} parents`).start();
+  const mockParents: UserCreateArgs[] = Array(NUMBER_USERS)
+    .fill(null)
+    .map((_value: null, index: number) => {
+      return {
+        data: {
+          email: `parent${index}@ogsc.dev`,
+          hashedPassword: hashPassword("password"),
+          name: `${Faker.name.firstName()} ${Faker.name.lastName()}`,
+          phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
+          viewerPermissions: {
+            create: {
+              relationship_type: "Parent to Player",
+              viewee: {
+                connect: {
+                  email: `player${index}@ogsc.dev`,
+                },
+              },
+            },
+          },
+        },
+      };
+    });
+  try {
+    await Promise.all(mockParents.map(prisma.user.create));
+    parentsCreateMessage.text = "Created 10 parents.";
+    parentsCreateMessage.succeed();
+  } catch (err) {
+    parentsCreateMessage.fail(`Creating parents failed\n\n${err.message}`);
+  }
+
+  const donorsCreateMessage = Ora(`Creating ${NUMBER_USERS} mentors`).start();
+  const mockDonors: UserCreateArgs[] = Array(NUMBER_USERS)
+    .fill(null)
+    .map((_value: null, index: number) => {
+      return {
+        data: {
+          email: `donor${index}@ogsc.dev`,
+          hashedPassword: hashPassword("password"),
+          name: `${Faker.name.firstName()} ${Faker.name.lastName()}`,
+          phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
+          viewerPermissions: {
+            create: {
+              relationship_type: "Donor to Player",
+              viewee: {
+                connect: {
+                  email: `player${index}@ogsc.dev`,
+                },
+              },
+            },
+          },
+        },
+      };
+    });
+  try {
+    await Promise.all(mockDonors.map(prisma.user.create));
+    donorsCreateMessage.text = "Created 10 donors.";
+    donorsCreateMessage.succeed();
+  } catch (err) {
+    donorsCreateMessage.fail(`Creating donors failed\n\n${err.message}`);
   }
 
   process.exit(0);

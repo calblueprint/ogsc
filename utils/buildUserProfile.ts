@@ -1,5 +1,6 @@
-import { ProfileField } from "@prisma/client";
+import { Absence, ProfileField } from "@prisma/client";
 import {
+  IProfileField,
   PlayerProfile,
   ProfileFieldKey,
   ProfileFieldValue,
@@ -8,31 +9,65 @@ import {
   SanitizedUser,
 } from "interfaces";
 
-export const deserializeProfileFieldValue = <T extends ProfileField>(
+export const deserializeProfileFieldValue = <
+  T extends ProfileField,
+  K extends ProfileFieldKey = T["key"]
+>(
   field: T
-): ProfileFieldValueDeserializedTypes[ProfileFieldValues[T["key"]]] | null => {
-  type Deserialized = ProfileFieldValueDeserializedTypes[ProfileFieldValues[T["key"]]];
-  switch (ProfileFieldValues[field.key]) {
-    case ProfileFieldValue.Float:
-      return Number(field.value) as Deserialized;
-    case ProfileFieldValue.Integer:
-      return Math.floor(Number(field.value)) as Deserialized;
-    case ProfileFieldValue.Text:
-    case ProfileFieldValue.TimeElapsed:
-    case ProfileFieldValue.URL:
-    default:
-      return field.value as Deserialized;
+): ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]] | null => {
+  type Deserialized = ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]];
+  const targetValueType = ProfileFieldValues[field.key];
+
+  try {
+    switch (targetValueType) {
+      case ProfileFieldValue.Float:
+        return Number(field.value) as Deserialized;
+      case ProfileFieldValue.Integer:
+        return Math.floor(Number(field.value)) as Deserialized;
+      case ProfileFieldValue.FloatWithComment:
+      case ProfileFieldValue.IntegerWithComment: {
+        if (!field.value) {
+          return null;
+        }
+        const parsed = JSON.parse(field.value);
+        if (typeof parsed !== "object" || !("value" in parsed)) {
+          return null;
+        }
+        return {
+          comment: parsed.comment,
+          value:
+            targetValueType === ProfileFieldValue.IntegerWithComment
+              ? Math.floor(Number(parsed.value))
+              : Number(parsed.value),
+        } as Deserialized;
+      }
+      case ProfileFieldValue.Text:
+      case ProfileFieldValue.TimeElapsed:
+      case ProfileFieldValue.URL:
+      default:
+        return field.value as Deserialized;
+    }
+  } catch (err) {
+    // TODO: Log out this error
+    return null;
   }
 };
 
 export default function buildUserProfile<
-  T extends SanitizedUser & { profileFields: ProfileField[] }
+  T extends SanitizedUser & {
+    absences?: Absence[];
+    profileFields: ProfileField[];
+  }
 >(user: T): T & { profile: PlayerProfile | null } {
   if (user.profileFields.length === 0) {
     return { ...user, profile: null };
   }
   const transformedUser: T & { profile: PlayerProfile } = {
     ...user,
+    absences: user.absences?.map((absence: Absence) => ({
+      ...absence,
+      date: new Date(absence.date),
+    })),
     profile: <PlayerProfile>(
       Object.fromEntries<PlayerProfile[ProfileFieldKey]>(
         Object.values(ProfileFieldKey).map((key: ProfileFieldKey) => [
@@ -52,7 +87,9 @@ export default function buildUserProfile<
         field.createdAt
       );
     }
-    transformedUser.profile[field.key].history.push(field);
+    (transformedUser.profile[field.key].history as IProfileField<
+      typeof field.key
+    >[]).push(field);
   });
   return transformedUser;
 }

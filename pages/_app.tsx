@@ -22,10 +22,10 @@ function chooseDefaultRoleType(user: SessionInfo["user"]): UserRole {
   if (user?.isAdmin) {
     return "admin";
   }
-  if (user?.viewerPermissions.length > 0) {
+  if ("viewerPermissions" in user && user.viewerPermissions.length > 0) {
     return "mentor";
   }
-  if (user?.profile) {
+  if ("profile" in user && user.profile) {
     return "player";
   }
   return "donor";
@@ -36,7 +36,7 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
   const router = useRouter();
   const [user, setUser] = useState<SessionInfo["user"] | null>(null);
   const accessingAuthenticatedRoute =
-    router.pathname.match(new RegExp(`^/(${UserRoleConstants.join("|")})`)) !==
+    router.asPath.match(new RegExp(`^/(${UserRoleConstants.join("|")})`)) !==
     null;
   const sessionInfo: SessionInfo = useMemo(
     () =>
@@ -52,6 +52,36 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
       password: "",
       role: null,
       adminNote: "",
+    },
+    playerData: {
+      id: null,
+      PlayerNumber: null,
+      age: null,
+      BioAboutMe: null,
+      BioHobbies: null,
+      BioFavoriteSubject: null,
+      BioMostDifficultSubject: null,
+      BioSiblings: null,
+      BioParents: null,
+      AcademicEngagementScore: [],
+      AdvisingScore: [],
+      AthleticScore: [],
+      GPA: [],
+      DisciplinaryActions: [],
+      SchoolAbsences: [],
+      AdvisingAbsences: [],
+      AthleticAbsences: [],
+      BMI: null,
+      PacerTest: null,
+      MileTime: null,
+      Situps: null,
+      Pushups: null,
+      HealthAndWellness: null,
+      Highlights: null,
+    },
+    playerForm: {
+      choice: "",
+      player: null,
     },
     // Add another struct specific for your use case here for state management
   });

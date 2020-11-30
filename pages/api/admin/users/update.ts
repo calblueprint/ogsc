@@ -1,4 +1,7 @@
-import { PrismaClient } from "@prisma/client";
+import {
+  PrismaClient,
+  ViewingPermissionUpdateManyWithoutViewerInput,
+} from "@prisma/client";
 import { ValidatedNextApiRequest } from "interfaces";
 import Joi from "joi";
 import { NextApiResponse } from "next";
@@ -13,16 +16,20 @@ export type UpdateUserDTO = {
   id?: number;
   name?: string;
   email?: string;
+  phoneNumber?: string;
   emailVerified?: Date;
   image?: string;
+  viewerPermissions?: ViewingPermissionUpdateManyWithoutViewerInput;
 };
 
 const expectedBody = Joi.object<UpdateUserDTO>({
   id: Joi.number(),
   name: Joi.string(),
   email: Joi.string(),
+  phoneNumber: Joi.string(),
   emailVerified: Joi.date(),
   image: Joi.string(),
+  viewerPermissions: Joi.array().items(Joi.object()).optional(),
 });
 
 const handler = async (
@@ -36,8 +43,10 @@ const handler = async (
       data: {
         name: userInfo.name,
         email: userInfo.email,
+        phoneNumber: userInfo.phoneNumber,
         emailVerified: userInfo.emailVerified,
         image: userInfo.image,
+        viewerPermissions: userInfo.viewerPermissions,
       },
     });
     if (!user) {

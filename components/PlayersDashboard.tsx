@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import useSessionInfo from "utils/useSessionInfo";
 
 interface Player {
   name: string;
@@ -18,22 +19,24 @@ const PlayerDashboardItem: React.FunctionComponent<Player> = ({
   id,
   image,
 }) => {
-  const link = `/player/${id}`;
+  const session = useSessionInfo();
+  const link = `/${session.sessionType}/players/${id}`;
   return (
     <Link href={link}>
-      <div role="button">
+      <div role="button" className=" hover:bg-hover">
+        <hr className="border-unselected border-opacity-50" />
         <div className="grid grid-cols-3 gap-12 justify-items-start m-5">
           <div className="flex flex-row">
             <div className="w-10 h-10 mr-4 bg-placeholder rounded-full">
               <img src={image} alt="" />{" "}
               {/* Not being used right now because seed data doesn't have images */}
             </div>
-            <p className="font-display self-center">{name}</p>
+            <p className="font-semibold self-center">{name}</p>
           </div>
           <p className="self-center font-normal">#{id}</p>
           <p className="self-center font-normal">{team || "Fifa"}</p>
         </div>
-        <hr className="border-unselected border-opacity-50" />
+        <hr className="border-unselected border-opacity-0" />
       </div>
     </Link>
   );
@@ -47,7 +50,7 @@ const PlayerDashboard: React.FunctionComponent<SearchProps> = ({
   useEffect(() => {
     const getPlayers = async (): Promise<void> => {
       try {
-        const apiLink = `http://localhost:3000/api/admin/users/search/${phrase}`;
+        const apiLink = `/api/admin/users/search/${phrase}`;
         const response = await fetch(apiLink);
         const data = await response.json();
         setPlayers(data.users);
@@ -60,13 +63,13 @@ const PlayerDashboard: React.FunctionComponent<SearchProps> = ({
   return (
     <div>
       <div>
-        <div className="grid grid-cols-3 gap-12 justify-items-start m-5 font-display text-unselected">
+        <div className="grid grid-cols-3 gap-12 justify-items-start m-5 font-semibold text-unselected">
           <p>Name</p>
           <p>Player #</p>
           <p>Team</p>
         </div>
       </div>
-      <hr className="border-unselected border-opacity-50 m-4" />
+      <hr className="border-unselected border-opacity-0" />
       {players?.slice(0, 7).map((player) => (
         <PlayerDashboardItem
           name={player.name}
