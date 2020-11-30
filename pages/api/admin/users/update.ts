@@ -13,7 +13,7 @@ export type UpdateUserDTO = {
   id?: number;
   name?: string;
   email?: string;
-  emailVerified?: boolean;
+  emailVerified?: Date;
   image?: string;
 };
 
