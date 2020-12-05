@@ -1,6 +1,6 @@
 import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
-import AddAbsences from "components/Player/PlayerForm/AddAbsences";
+import AddAbsences from "components/Player/PlayerForm/CreateAbsences";
 import Joi from "joi";
 import { useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
