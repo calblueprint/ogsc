@@ -72,7 +72,6 @@ const handler = async (
       }
       return null;
     });
-
     const newProfileFields: ProfileFieldCreateWithoutUserInput[] = [];
 
     profileFields.forEach((value, key) => {

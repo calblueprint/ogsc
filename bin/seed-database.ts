@@ -19,7 +19,7 @@ function generateFieldsAcrossTimestamps(
   key: ProfileFieldKey,
   generateValue: () => unknown
 ): ProfileFieldCreateWithoutUserInput[] {
-  return Array(12)
+  return Array(11)
     .fill(null)
     .map(
       (_, index: number) =>

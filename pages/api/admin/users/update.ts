@@ -17,6 +17,7 @@ export type UpdateUserDTO = {
   emailVerified?: Date;
   image?: string;
   roles: [UserRoleType];
+  hashedPassword?: string;
 };
 
 const expectedBody = Joi.object<UpdateUserDTO>({
@@ -27,6 +28,7 @@ const expectedBody = Joi.object<UpdateUserDTO>({
   emailVerified: Joi.date(),
   image: Joi.string(),
   roles: Joi.array().items(Joi.string()).optional(),
+  hashedPassword: Joi.string(),
 });
 
 // NOTE: deletes all viewer permissions if changing role to Admin
@@ -46,6 +48,7 @@ const handler = async (
               phoneNumber: userInfo.phoneNumber,
               emailVerified: userInfo.emailVerified,
               image: userInfo.image,
+              hashedPassword: userInfo.hashedPassword,
               roles: {
                 deleteMany: {
                   type: {
@@ -69,6 +72,7 @@ const handler = async (
               phoneNumber: userInfo.phoneNumber,
               emailVerified: userInfo.emailVerified,
               image: userInfo.image,
+              hashedPassword: userInfo.hashedPassword,
               roles: {
                 updateMany: {
                   data: {
