@@ -15,6 +15,7 @@ const isOwnPlayerProfile: AccessValue = (
  * The standard access that all users share, minimally.
  */
 const standardReadAccess = {
+  [ProfileFieldKey.PlayerNumber]: { read: true },
   [ProfileFieldKey.BioAboutMe]: { read: true },
   [ProfileFieldKey.BioFavoriteSubject]: { read: true },
   [ProfileFieldKey.BioMostDifficultSubject]: { read: true },
