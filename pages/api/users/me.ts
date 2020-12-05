@@ -19,7 +19,7 @@ export default routeByMethod({
     const user = await prisma.user.findOne({
       where: { email: session.user.email },
       include: {
-        absences: true,
+        // absences: true,
         profileFields: true,
         viewerPermissions: true,
         viewedByPermissions: true,

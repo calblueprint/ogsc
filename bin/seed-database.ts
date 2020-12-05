@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import {
-  Absence,
-  AbsenceCreateWithoutUsersInput,
+  // Absence,
+  // AbsenceCreateWithoutUsersInput,
   PrismaClient,
   ProfileFieldCreateWithoutUserInput,
   ProfileFieldKey,
@@ -10,7 +10,7 @@ import {
 } from "@prisma/client";
 import Faker from "faker";
 import Ora from "ora";
-import { AbsenceReason, AbsenceType } from "../interfaces";
+// import { AbsenceReason, AbsenceType } from "../interfaces";
 import hashPassword from "../utils/hashPassword";
 
 const NUMBER_USERS = 10;
@@ -60,13 +60,13 @@ export default async function seedDatabase(): Promise<void> {
         },
       },
     });
-    await prisma.absence.deleteMany({
-      where: {
-        userId: {
-          in: users.map((user: User) => user.id),
-        },
-      },
-    });
+    // await prisma.absence.deleteMany({
+    //   where: {
+    //     userId: {
+    //       in: users.map((user: User) => user.id),
+    //     },
+    //   },
+    // });
     await prisma.profileField.deleteMany({
       where: {
         userId: {
@@ -132,23 +132,23 @@ export default async function seedDatabase(): Promise<void> {
               },
             },
           },
-          absences: {
-            create: Object.values(AbsenceType).flatMap((type: AbsenceType) =>
-              Array<Absence | null>(Faker.random.number(3))
-                .fill(null)
-                .map(
-                  () =>
-                    <AbsenceCreateWithoutUsersInput>{
-                      type,
-                      date: Faker.date.recent(90),
-                      reason: Faker.random.arrayElement(
-                        Object.values(AbsenceReason)
-                      ),
-                      description: Faker.lorem.lines(1),
-                    }
-                )
-            ),
-          },
+          // absences: {
+          //   create: Object.values(AbsenceType).flatMap((type: AbsenceType) =>
+          //     Array<Absence | null>(Faker.random.number(3))
+          //       .fill(null)
+          //       .map(
+          //         () =>
+          //           <AbsenceCreateWithoutUsersInput>{
+          //             type,
+          //             date: Faker.date.recent(90),
+          //             reason: Faker.random.arrayElement(
+          //               Object.values(AbsenceReason)
+          //             ),
+          //             description: Faker.lorem.lines(1),
+          //           }
+          //       )
+          //   ),
+          // },
           profileFields: {
             create: [
               ...generateFieldsAcrossTimestamps(
