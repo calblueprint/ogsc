@@ -1,46 +1,47 @@
-import { NextRouter, useRouter } from "next/router";
+// import { NextRouter, useRouter } from "next/router";
 import DashboardLayout from "components/DashboardLayout";
-import { User } from "@prisma/client";
 import React, { useState, useEffect } from "react";
 import Icon from "components/Icon";
 import Button from "components/Button";
 import FormField from "components/FormField";
-import {
-  UserRole,
-  UserRoleConstants,
-  UserRoleLabel,
-  RoleLabel,
-} from "interfaces";
+// import {
+//   UserRole,
+//   UserRoleConstants,
+//   UserRoleLabel,
+//   RoleLabel,
+// } from "interfaces";
+import { IUser, UserRoleLabel, UserRoleType } from "interfaces";
 import Joi from "joi";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
-import { DeleteUserDTO } from "pages/api/admin/users/delete";
+// import { DeleteUserDTO } from "pages/api/admin/users/delete";
 import { useForm } from "react-hook-form";
-import Combobox from "components/Combobox";
+// import Combobox from "components/Combobox";
 
 interface AdminEditUserFormValues {
   firstName: string;
   lastName: string;
   email: string;
   phoneNumber?: string;
-  role: UserRole;
+  role: UserRoleType;
 }
 
 interface EditUserProps {
-  user?: User;
+  user?: IUser;
   isEditing: boolean;
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
-  currentRole?: string | string[];
-  setUser: (user: User) => void;
-  setNewRole: (newRole: string) => void;
+  // currentRole?: string | string[];
+  // setUser: (user: User) => void;
+  // setNewRole: (newRole: string) => void;
+  setUser: (user: IUser) => void;
 }
 
-interface DeleteConfirmationProps {
-  user?: User;
-  isDeleting: boolean;
-  setIsDeleting: React.Dispatch<React.SetStateAction<boolean>>;
-  router: NextRouter;
-}
+// interface DeleteConfirmationProps {
+//   user?: User;
+//   isDeleting: boolean;
+//   setIsDeleting: React.Dispatch<React.SetStateAction<boolean>>;
+//   router: NextRouter;
+// }
 
 type MyModalProps = React.PropsWithChildren<{
   open?: boolean;
@@ -64,71 +65,71 @@ const AdminEditUserFormSchema = Joi.object<AdminEditUserFormValues>({
     .required(),
   phoneNumber: Joi.string().optional(),
   role: Joi.string()
-    .valid(...UserRoleConstants)
+    .valid(...Object.values(UserRoleType))
     .required(),
 });
 
-const DeleteConfirmation: React.FunctionComponent<DeleteConfirmationProps> = ({
-  user,
-  isDeleting,
-  setIsDeleting,
-  router,
-}) => {
-  async function onDelete(): Promise<void> {
-    const response = await fetch(`/api/admin/users/${user?.id}`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        id: user?.id,
-      } as DeleteUserDTO),
-    });
-    if (!response.ok) {
-      throw await response.json();
-    }
-    setIsDeleting(false);
-    router.push("/admin/users");
-  }
-  return (
-    <MyModal open={Boolean(isDeleting)}>
-      <p>Are you sure you want to delete this user?</p>
-      <div className="mb-2 flex">
-        <Button
-          className="button-primary px-10 py-2 mr-5"
-          onClick={() => {
-            onDelete();
-          }}
-        >
-          Delete
-        </Button>
-        <Button
-          className="button-hollow px-10 py-2"
-          onClick={() => {
-            setIsDeleting(false);
-          }}
-        >
-          Cancel
-        </Button>
-      </div>
-    </MyModal>
-  );
-};
+// const DeleteConfirmation: React.FunctionComponent<DeleteConfirmationProps> = ({
+//   user,
+//   isDeleting,
+//   setIsDeleting,
+//   router,
+// }) => {
+//   async function onDelete(): Promise<void> {
+//     const response = await fetch(`/api/admin/users/${user?.id}`, {
+//       method: "DELETE",
+//       headers: { "Content-Type": "application/json" },
+//       credentials: "include",
+//       body: JSON.stringify({
+//         id: user?.id,
+//       } as DeleteUserDTO),
+//     });
+//     if (!response.ok) {
+//       throw await response.json();
+//     }
+//     setIsDeleting(false);
+//     router.push("/admin/users");
+//   }
+//   return (
+//     <MyModal open={Boolean(isDeleting)}>
+//       <p>Are you sure you want to delete this user?</p>
+//       <div className="mb-2 flex">
+//         <Button
+//           className="button-primary px-10 py-2 mr-5"
+//           onClick={() => {
+//             onDelete();
+//           }}
+//         >
+//           Delete
+//         </Button>
+//         <Button
+//           className="button-hollow px-10 py-2"
+//           onClick={() => {
+//             setIsDeleting(false);
+//           }}
+//         >
+//           Cancel
+//         </Button>
+//       </div>
+//     </MyModal>
+//   );
+// };
 
 const EditUser: React.FunctionComponent<EditUserProps> = ({
   user,
   isEditing,
   setIsEditing,
-  currentRole,
   setUser,
-  setNewRole,
+  // setNewRole,
 }) => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [currRole, setCurrRole] = useState(currentRole);
-  const [roleChosen, setRoleChosen] = useState(
-    (currentRole as string).toLowerCase()
-  );
-  const [selectedPlayers, setSelectedPlayers] = useState<User[]>([]);
+  // const [currRole, setCurrRole] = useState(currentRole);
+  // const [roleChosen, setRoleChosen] = useState(
+  //   (currentRole as string).toLowerCase()
+  // );
+  // const [selectedPlayers, setSelectedPlayers] = useState<User[]>([]);
+  const [currRole, setCurrRole] = useState(user?.defaultRole.type);
   const { errors, register, handleSubmit } = useForm<AdminEditUserFormValues>({
     resolver: joiResolver(AdminEditUserFormSchema),
   });
@@ -142,35 +143,45 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
       return;
     }
     try {
-      const response =
-        values.role === "admin" || values.role === "player"
-          ? await fetch(`/api/admin/users/${user?.id}`, {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              credentials: "include",
-              body: JSON.stringify({
-                name: `${values.firstName} ${values.lastName}`,
-                email: values.email,
-                phoneNumber: values.phoneNumber,
-                role: `${UserRoleLabel[values.role]}`,
-              } as UpdateUserDTO),
-            })
-          : await fetch(`/api/admin/users/${user?.id}`, {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              credentials: "include",
-              body: JSON.stringify({
-                name: `${values.firstName} ${values.lastName}`,
-                email: values.email,
-                phoneNumber: values.phoneNumber,
-                role: `${UserRoleLabel[values.role]} to Player`,
-              } as UpdateUserDTO),
-            });
+      const response = await fetch(`/api/admin/users/${user?.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: values.email,
+          name: `${values.firstName} ${values.lastName}`,
+          phoneNumber: values.phoneNumber,
+        } as UpdateUserDTO),
+      });
+      // const response =
+      //   values.role === "admin" || values.role === "player"
+      //     ? await fetch(`/api/admin/users/${user?.id}`, {
+      //         method: "PATCH",
+      //         headers: { "Content-Type": "application/json" },
+      //         credentials: "include",
+      //         body: JSON.stringify({
+      //           name: `${values.firstName} ${values.lastName}`,
+      //           email: values.email,
+      //           phoneNumber: values.phoneNumber,
+      //           role: `${UserRoleLabel[values.role]}`,
+      //         } as UpdateUserDTO),
+      //       })
+      //     : await fetch(`/api/admin/users/${user?.id}`, {
+      //         method: "PATCH",
+      //         headers: { "Content-Type": "application/json" },
+      //         credentials: "include",
+      //         body: JSON.stringify({
+      //           name: `${values.firstName} ${values.lastName}`,
+      //           email: values.email,
+      //           phoneNumber: values.phoneNumber,
+      //           role: `${UserRoleLabel[values.role]} to Player`,
+      //         } as UpdateUserDTO),
+      //       });
       if (!response.ok) {
         throw await response.json();
       } else {
         setUser((await response.json()).user);
-        setNewRole(UserRoleLabel[values.role]);
+        // setNewRole(UserRoleLabel[values.role]);
       }
     } catch (err) {
       setError(err.message);
@@ -179,18 +190,18 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
       setIsEditing(false);
     }
   }
-  const showCombobox = (): string => {
-    return roleChosen === "mentor" ||
-      roleChosen === "parent" ||
-      roleChosen === "donor"
-      ? ""
-      : "hidden";
-  };
+  // const showCombobox = (): string => {
+  //   return roleChosen === "mentor" ||
+  //     roleChosen === "parent" ||
+  //     roleChosen === "donor"
+  //     ? ""
+  //     : "hidden";
+  // };
 
-  const handleRoleChange = (role: string, value: string): void => {
-    setCurrRole(role);
-    setRoleChosen(value);
-  };
+  // const handleRoleChange = (role: string, value: string): void => {
+  //   setCurrRole(role);
+  //   setRoleChosen(value);
+  // };
 
   return (
     <MyModal open={Boolean(isEditing)}>
@@ -301,7 +312,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
               )}
             </FormField>
             <FormField label="Role" name="role" error={errors.role?.message}>
-              {UserRoleConstants.map((role: UserRole) => (
+              {Object.values(UserRoleType).map((role: UserRoleType) => (
                 <label className="block font-normal" htmlFor={role}>
                   <input
                     className="mr-3"
@@ -309,9 +320,10 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
                     name="role"
                     id={role}
                     defaultValue={role}
-                    onChange={(event) =>
-                      handleRoleChange(UserRoleLabel[role], event.target.value)
-                    }
+                    // onChange={(event) =>
+                    //   handleRoleChange(UserRoleLabel[role], event.target.value)
+                    // }
+                    onChange={() => setCurrRole(role)}
                     checked={currRole === UserRoleLabel[role]}
                     ref={register}
                   />
@@ -319,7 +331,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
                 </label>
               ))}
             </FormField>
-            <div className={showCombobox()}>
+            {/* <div className={showCombobox()}>
               <legend className="text-lg font-medium mb-10 mt-16">
                 Role Information
               </legend>
@@ -349,7 +361,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
                   setSelectedPlayers={setSelectedPlayers}
                 />
               </FormField>
-            </div>
+            </div> */}
           </fieldset>
           <hr />
           <div className="my-10">
@@ -375,12 +387,13 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
 };
 
 const UserProfile: React.FunctionComponent = () => {
-  const [user, setUser] = useState<User>();
+  const [user, setUser] = useState<IUser>();
   const [isEditing, setIsEditing] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  // const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
-  const { id, role } = router.query;
-  const [newRole, setNewRole] = useState("");
+  // const { id, role } = router.query;
+  // const [newRole, setNewRole] = useState("");
+  const { id } = router.query;
 
   useEffect(() => {
     const getUser = async (): Promise<void> => {
@@ -391,7 +404,7 @@ const UserProfile: React.FunctionComponent = () => {
       });
       const data = await response.json();
       setUser(data.user);
-      setNewRole(RoleLabel[data.user.viewerPermissions[0].relationship_type]);
+      // setNewRole(RoleLabel[data.user.viewerPermissions[0].relationship_type]);
     };
     getUser();
   }, [id]);
@@ -404,7 +417,10 @@ const UserProfile: React.FunctionComponent = () => {
           </div>
           <div>
             <p className="text-2xl">{user?.name}</p>
-            <p className="text-sm">{newRole}</p>
+            {/* // <p className="text-sm">{newRole}</p> */}
+            <p className="text-sm">
+              {user && UserRoleLabel[user.defaultRole.type]}
+            </p>
           </div>
         </div>
         <hr className="border-unselected border-opacity-50 pb-10" />
@@ -433,7 +449,10 @@ const UserProfile: React.FunctionComponent = () => {
             </div>
             <div className="flex flex-row text-sm">
               <p className="text-blue mr-20 w-24">User Role</p>
-              <p>{newRole}</p>
+              {
+                // <p>{newRole}</p>
+              }
+              <p>{user && UserRoleLabel[user.defaultRole.type]}</p>
             </div>
           </div>
           <h2 className="text-lg pb-5 font-semibold">Mentor Information</h2>
@@ -441,7 +460,7 @@ const UserProfile: React.FunctionComponent = () => {
             <p className="text-blue mr-20 w-24">Menteed Players</p>
             <p>List</p>
           </div>
-          <p className="text-lg font-semibold pb-10">Account Changes</p>
+          {/* <p className="text-lg font-semibold pb-10">Account Changes</p>
           <p className="font-semibold text-sm pb-3">Close Account</p>
           <p className="text-sm font-normal">
             Delete this user&apos;s account and account data
@@ -453,22 +472,30 @@ const UserProfile: React.FunctionComponent = () => {
             }}
           >
             Close Account
-          </Button>
+          </Button> */}
         </div>
-        {DeleteConfirmation({
-          user,
-          isDeleting,
-          setIsDeleting,
-          router,
-        })}
-        {EditUser({
-          user,
-          isEditing,
-          setIsEditing,
-          currentRole: role,
-          setUser,
-          setNewRole,
-        })}
+        {
+          // DeleteConfirmation({
+          // user,
+          // isDeleting,
+          //   setIsDeleting,
+          //   router,
+          // })}
+          // {EditUser({
+          //   user,
+          //   isEditing,
+          //   setIsEditing,
+          //   currentRole: role,
+          //   setUser,
+          //   setNewRole,
+          // })}
+        }
+        <EditUser
+          user={user}
+          isEditing={isEditing}
+          setIsEditing={setIsEditing}
+          setUser={setUser}
+        />
       </div>
     </DashboardLayout>
   );

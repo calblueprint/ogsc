@@ -14,6 +14,7 @@ import { totalScore } from "pages/admin/players/playerForm/engagement";
 import Card from "components/Card";
 import Icon from "components/Icon";
 import { formatText, formatDA } from "components/Player/PlayerForm/FormItems";
+import Modal from "components/Modal";
 import type { PlayerProfileFormValues } from ".";
 
 export type AcademicFormValues = Pick<
@@ -104,13 +105,13 @@ const UserSignUpPageOne: React.FC = () => {
               >
                 Add Grade Point Average
               </Button>
-              {hiddenGPA ? (
+              <Modal className="w-2/3" open={hiddenGPA}>
                 <GPAScoreField
                   setHidden={setHiddenGPA}
                   listGPA={listGPA}
                   setListGPA={setListGPA}
                 />
-              ) : null}
+              </Modal>
               <p className="text-sm font-semibold pb-3 pt-10">
                 Disciplinary Actions
               </p>
@@ -131,13 +132,13 @@ const UserSignUpPageOne: React.FC = () => {
               >
                 Add Disciplinary Actions
               </Button>
-              {hiddenDA ? (
+              <Modal className="w-2/3" open={hiddenDA}>
                 <DisciplinaryField
                   setHidden={setHiddenDA}
                   DisciplinaryActions={DisciplinaryActionList}
                   SetDisciplinaryActions={SetDisciplinaryActions}
                 />
-              ) : null}
+              </Modal>
               {error && <p className="text-red-600 text-sm">{error}</p>}
               <hr className="border-unselected border-opacity-50 my-16" />
               <div className="flex mb-32">

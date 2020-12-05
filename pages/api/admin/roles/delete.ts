@@ -20,7 +20,7 @@ const handler = async (
   res: NextApiResponse
 ): Promise<void> => {
   try {
-    const view = await prisma.viewingPermission.delete({
+    const view = await prisma.role.delete({
       where: { id: req.body.id || Number(req.query.id) },
     });
     res.json({

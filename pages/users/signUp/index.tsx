@@ -1,7 +1,7 @@
 import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
 import UserSignUpFormField from "components/UserSignUpFormField";
-import { UserRole, UserRoleConstants } from "interfaces";
+import { UserRoleType } from "interfaces";
 import Joi from "joi";
 import { StateMachineProvider, useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
@@ -15,7 +15,7 @@ export type UserSignUpFormValues = {
   email: string;
   phoneNumber?: string;
   password: string;
-  role?: UserRole;
+  role?: UserRoleType;
   adminNote?: string;
 };
 
@@ -29,7 +29,7 @@ const UserSignUpFormSchema = Joi.object<UserSignUpFormValues>({
   phoneNumber: Joi.string().optional(),
   password: Joi.forbidden().required(),
   role: Joi.string()
-    .valid(...UserRoleConstants)
+    .valid(...Object.values(UserRoleType))
     .optional(),
   adminNote: Joi.string().optional(),
 });

@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { NextApiResponse } from "next";
 import Joi from "joi";
 import { ValidatedNextApiRequest } from "interfaces";
+import flattenUserRoles from "utils/flattenUserRoles";
 import sanitizeUser from "utils/sanitizeUser";
 import { validateBody } from "pages/api/helpers";
 import { adminOnlyHandler } from "../helpers";
@@ -21,10 +22,11 @@ const handler = async (
 ): Promise<void> => {
   try {
     const user = await prisma.user.findOne({
-      where: { id: req.body.id || Number(req.query.id) },
-      include: {
-        viewerPermissions: true,
-      },
+      // where: { id: req.body.id || Number(req.query.id) },
+      // include: {
+      //   viewerPermissions: true,
+      // },
+      include: { roles: true },
     });
 
     if (!user) {
@@ -32,7 +34,7 @@ const handler = async (
         .status(404)
         .json({ statusCode: 404, message: "User does not exist." });
     } else {
-      res.json({ user: sanitizeUser(user) });
+      res.json({ user: flattenUserRoles(sanitizeUser(user)) });
     }
   } catch (err) {
     res.status(500);

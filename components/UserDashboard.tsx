@@ -1,31 +1,14 @@
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import PageNav from "components/PageNav";
-import { ViewingPermission } from "@prisma/client";
+import { IUser, UserRoleLabel, UserRoleType } from "interfaces/user";
+import { ReadManyUsersDTO } from "pages/api/admin/users/readMany";
 import { USER_PAGE_SIZE, UI_PAGE_SIZE } from "../constants";
-import { RoleLabel } from "../interfaces";
-
-interface UserDashboardValues {
-  id: number;
-  name: string;
-  email: string;
-  image: string;
-  phoneNumber: string;
-  viewerPermissions: ViewingPermission[];
-  role: string | undefined;
-}
+// import { RoleLabel } from "../interfaces";
 
 interface UserDashboardProps {
-  userRole: string;
+  userRole: UserRoleType | null;
   phrase: string;
-}
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  image: string;
-  phoneNumber: string;
-  role: string | undefined;
 }
 
 /*
@@ -41,33 +24,27 @@ const getBackendPageNumber = (uiPage: number): number[] => {
   return [pageNum, startIndex];
 };
 
-const UserDashboardItem: React.FunctionComponent<User> = ({
-  id,
-  name,
-  email,
-  image,
-  phoneNumber,
-  role,
+const UserDashboardItem: React.FunctionComponent<{ user: IUser }> = ({
+  user: { id, name, email, image, phoneNumber, defaultRole },
 }) => {
   return (
-    <a href={`user/${id.toString()}?role=${role}`}>
-      <div className="flex flex-row justify-between text-sm h-16 items-center py-10 hover:bg-hover">
+    <Link href={`user/${id}`}>
+      <div className="flex flex-row justify-between text-sm h-16 items-center py-10 hover:bg-hover border-unselected border-opacity-50 border-b">
         {/* TODO: FIX PADDING ABOVE */}
         <div className="flex flex-row justify-between self-center">
           <div className="w-10 h-10 mr-4 bg-placeholder rounded-full">
-            <img src={image} alt="" />{" "}
+            <img src={image || "/placeholder-profile.png"} alt="" />
             {/* Not being used right now because seed data doesn't have images */}
           </div>
           <div className="w-32">
             <p className="font-semibold">{name}</p>
-            <p>{role}</p>
+            <p>{UserRoleLabel[defaultRole.type]}</p>
           </div>
         </div>
         <p className="self-center">{email}</p>
         <p className="self-center">{phoneNumber}</p>
       </div>
-      <hr className="border-unselected border-opacity-50" />
-    </a>
+    </Link>
   );
 };
 
@@ -76,13 +53,11 @@ const UserDashboard: React.FunctionComponent<UserDashboardProps> = ({
   userRole,
   phrase,
 }) => {
-  const [users, setUsers] = useState<UserDashboardValues[]>();
+  const [users, setUsers] = useState<IUser[]>();
   const [index, setIndex] = useState(0);
   const [uiPage, setUIPage] = useState(0);
   const [numUIPages, setNumUIPages] = useState(0);
-  const [pageCache, setPageCache] = useState<
-    Record<number, UserDashboardValues[]>
-  >({});
+  const [pageCache, setPageCache] = useState<Record<number, IUser[]>>({});
 
   useEffect(() => {
     setPageCache({});
@@ -96,14 +71,16 @@ const UserDashboard: React.FunctionComponent<UserDashboardProps> = ({
         setUsers(pageCache[pageNumber]);
       } else {
         const response = await fetch(
-          `/api/admin/users?pageNumber=${pageNumber}&role=${userRole}&search=${phrase}`,
+          `/api/admin/users?pageNumber=${pageNumber}&search=${phrase}${
+            userRole ? `&role=${userRole}` : ""
+          }`,
           {
             method: "GET",
             headers: { "content-type": "application/json" },
             redirect: "follow",
           }
         );
-        const data = await response.json();
+        const data = (await response.json()) as ReadManyUsersDTO;
         setUsers(data.users);
         setNumUIPages(Math.ceil(data.total / UI_PAGE_SIZE));
         setPageCache({
@@ -129,19 +106,20 @@ const UserDashboard: React.FunctionComponent<UserDashboardProps> = ({
       <hr className="border-unselected border-opacity-50" />
       <img src="" alt="" />
       {users?.slice(index, index + UI_PAGE_SIZE).map((user) => (
-        <UserDashboardItem
-          id={user.id}
-          name={user.name}
-          email={user.email}
-          image={user.image}
-          phoneNumber={user.phoneNumber}
-          role={
-            user.viewerPermissions[0] &&
-            user.viewerPermissions[0].relationship_type
-              ? RoleLabel[user.viewerPermissions[0].relationship_type]
-              : "Unknown User Role"
-          }
-        />
+        // <UserDashboardItem
+        //   id={user.id}
+        //   name={user.name}
+        //   email={user.email}
+        //   image={user.image}
+        //   phoneNumber={user.phoneNumber}
+        //   role={
+        //     user.viewerPermissions[0] &&
+        //     user.viewerPermissions[0].relationship_type
+        //       ? RoleLabel[user.viewerPermissions[0].relationship_type]
+        //       : "Unknown User Role"
+        //   }
+        // />
+        <UserDashboardItem user={user} />
       ))}
       <PageNav
         currentPage={uiPage + 1}
