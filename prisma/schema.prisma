@@ -18,7 +18,6 @@ model User {
   hashedPassword      String              @map("hashed_password")
   isAdmin             Boolean             @default(false) @map("is_admin")
   phoneNumber         String?             @map("phone_number")
-  absences            Absence[]           @relation("AbsencesToUsers")
   profileFields       ProfileField[]      @relation("ProfileFieldToUsers")
   resetPassword       ResetPassword[]     @relation("ResetPasswordToUsers")
   userInvites         UserInvite[]        @relation("UserInvitesToUsers")
@@ -115,19 +114,6 @@ model ProfileField {
   @@map("profile_fields")
 }
 
-model Absence {
-  id          Int           @id @default(autoincrement())
-  userId      Int           @map("user_id")
-  date        DateTime
-  description String        @default("")
-  type        AbsenceType
-  reason      AbsenceReason
-  users       User          @relation("AbsencesToUsers", fields: [userId], references: [id])
-
-  @@index([userId], name: "idx_absences_user_id")
-  @@map("absences")
-}
-
 enum ProfileFieldKey {
   AcademicEngagementScore @map("academic_engagement_score")
   AdvisingScore @map("advising_score")
@@ -151,19 +137,4 @@ enum ProfileFieldKey {
   Situps @map("situps")
 
    @@map("profile_field_key")
-}
-
-enum AbsenceReason {
-  Excused @map("excused")
-  Unexcused @map("unexcused")
-
-   @@map("absence_reason")
-}
-
-enum AbsenceType {
-  Academic @map("academic")
-  Athletic @map("athletic")
-  School @map("school")
-
-   @@map("absence_type")
 }
