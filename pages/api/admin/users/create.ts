@@ -47,7 +47,7 @@ const handler = async (
               roles: {
                 create: linkedPlayers?.map((playerID: number) => ({
                   type: role,
-                  viewee: {
+                  relatedPlayer: {
                     connect: {
                       id: playerID,
                     },
