@@ -1,7 +1,7 @@
 import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
 import FormField from "components/FormField";
-import { UserRole, UserRoleConstants, UserRoleLabel } from "interfaces";
+import { UserRoleLabel, UserRoleType } from "interfaces";
 import Joi from "joi";
 import { useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
@@ -11,13 +11,13 @@ import { useForm } from "react-hook-form";
 import updateAction from "utils/updateAction";
 
 type UserSignUpForm2Values = {
-  role: UserRole;
+  role: UserRoleType;
   adminNote: string;
 };
 
 const UserSignUpForm2Schema = Joi.object<UserSignUpForm2Values>({
   role: Joi.string()
-    .valid(...UserRoleConstants)
+    .valid(...Object.values(UserRoleType))
     .optional(),
   adminNote: Joi.string().optional(),
 });
@@ -72,7 +72,7 @@ const UserSignUpPageTwo: React.FC = () => {
       <form className="mt-10" onSubmit={handleSubmit(onSubmit)}>
         <fieldset>
           <FormField label="Role" name="role" error={errors.role?.message}>
-            {UserRoleConstants.map((role: UserRole) => (
+            {Object.values(UserRoleType).map((role: UserRoleType) => (
               <label className="block font-normal" htmlFor={role}>
                 <input
                   className="mr-3"

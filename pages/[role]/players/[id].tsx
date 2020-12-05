@@ -1,26 +1,28 @@
+import { useState } from "react";
 import {
   Absence,
   PrismaClient,
   ProfileField,
+  Role,
   User,
-  ViewingPermission,
 } from "@prisma/client";
+import { NextPageContext } from "next";
+import { useRouter } from "next/router";
+
 import DashboardLayout from "components/DashboardLayout";
 import PlayerProfile from "components/Player/Profile";
-import { NextPageContext } from "next";
-import sanitizeUser from "utils/sanitizeUser";
-import buildUserProfile from "utils/buildUserProfile";
 import Modal from "components/Modal";
 import Button from "components/Button";
-import { useRouter } from "next/router";
-import { useState } from "react";
+import sanitizeUser from "utils/sanitizeUser";
+import buildUserProfile from "utils/buildUserProfile";
+import flattenUserRoles from "utils/flattenUserRoles";
 
 type Props = {
   player?: Omit<
     User & {
       absences: Absence[];
-      viewedByPermissions: ViewingPermission[];
       profileFields: ProfileField[];
+      roles: Role[];
     },
     "hashedPassword"
   >;
@@ -36,7 +38,7 @@ export async function getServerSideProps(
     include: {
       absences: true,
       profileFields: true,
-      viewedByPermissions: true,
+      roles: true,
     },
   });
 
@@ -62,7 +64,7 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
   if (!player) {
     return <DashboardLayout>No player found</DashboardLayout>;
   }
-  const hydratedPlayer = buildUserProfile(player);
+  const hydratedPlayer = flattenUserRoles(buildUserProfile(player));
 
   return (
     <DashboardLayout>
