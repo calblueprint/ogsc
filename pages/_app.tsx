@@ -83,8 +83,6 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
       lastName: "",
       email: "",
       phoneNumber: "",
-      password: "",
-      confirmPassword: "",
     },
     // Add another struct specific for your use case here for state management
   });

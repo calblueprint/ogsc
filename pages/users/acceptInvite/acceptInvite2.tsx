@@ -1,5 +1,4 @@
 import { joiResolver } from "@hookform/resolvers/joi";
-import { User } from "@prisma/client";
 import Button from "components/Button";
 import FormField from "components/FormField";
 import Joi from "joi";
@@ -22,10 +21,7 @@ const UserAcceptInviteForm2Schema = Joi.object<UserAcceptInviteForm2Values>({
 
 const UserAcceptInvitePageTwo: React.FC = () => {
   const router = useRouter();
-  const [user, setUser] = useState<User>();
   const inviteCodeId = router.query.inviteCode;
-
-  // console.log(router.query);
 
   useEffect(() => {
     const getUser = async (): Promise<void> => {
@@ -35,19 +31,20 @@ const UserAcceptInvitePageTwo: React.FC = () => {
         redirect: "follow",
       });
       const data = await response.json();
-      setUser(data.user);
+      if (!response.ok || !data.user) {
+        router.push("/users/acceptInvite/error?type=noAccess");
+      } else if (data.acceptedAt) {
+        router.push("/users/acceptInvite/error?type=expired");
+      }
     };
     getUser();
-  }, [inviteCodeId]);
-
-  if (!user) {
-    // create error page?
-  }
+  }, [inviteCodeId, router]);
 
   // TODO: Add loading state to form submission
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [revealPassword, setRevealPassword] = useState(false);
+  const [revealConfirmPassword, setRevealConfirmPassword] = useState(false);
 
   const { errors, register, handleSubmit } = useForm<
     UserAcceptInviteForm2Values
@@ -65,8 +62,6 @@ const UserAcceptInvitePageTwo: React.FC = () => {
       return;
     }
     try {
-      action(values);
-
       if (values.password !== values.confirmPassword) {
         setError("Passwords do not match");
         return;
@@ -78,8 +73,8 @@ const UserAcceptInvitePageTwo: React.FC = () => {
         credentials: "include",
         body: JSON.stringify({
           name: `${state.acceptUserData.firstName} ${state.acceptUserData.lastName}`,
-          email: user?.email,
-          password: state.acceptUserData.password,
+          email: state.acceptUserData.email,
+          password: values.password,
           phoneNumber: state.acceptUserData.phoneNumber,
           inviteCodeId,
         } as CreateUserDTO),
@@ -87,19 +82,20 @@ const UserAcceptInvitePageTwo: React.FC = () => {
       if (!response.ok) {
         throw await response.json();
       }
+      action({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phoneNumber: "",
+      });
       // TODO: user dashboard view doesn't exist yet
       router.push("/users/signUp/signUpConfirmation");
     } catch (err) {
-      // TODO: better error handling (especially for duplicate email)
       setError(err.message);
     } finally {
       setSubmitting(false);
     }
   }
-
-  const togglePassword = (): void => {
-    setRevealPassword(!revealPassword);
-  };
 
   return (
     <div className="form flex ml-20 mt-10 mr-32 flex-col">
@@ -122,7 +118,7 @@ const UserAcceptInvitePageTwo: React.FC = () => {
             <button
               className="text-sm text-gray-500"
               type="button"
-              onClick={togglePassword}
+              onClick={() => setRevealPassword(!revealPassword)}
             >
               {revealPassword ? "Hide password" : "Show password"}
             </button>
@@ -133,7 +129,7 @@ const UserAcceptInvitePageTwo: React.FC = () => {
             error={errors.confirmPassword?.message}
           >
             <input
-              type={revealPassword ? "text" : "password"}
+              type={revealConfirmPassword ? "text" : "password"}
               className="input input-full"
               name="confirmPassword"
               placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;"
@@ -143,9 +139,9 @@ const UserAcceptInvitePageTwo: React.FC = () => {
             <button
               className="text-sm text-gray-500"
               type="button"
-              onClick={togglePassword}
+              onClick={() => setRevealConfirmPassword(!revealConfirmPassword)}
             >
-              {revealPassword ? "Hide password" : "Show password"}
+              {revealConfirmPassword ? "Hide password" : "Show password"}
             </button>
           </FormField>
         </fieldset>
