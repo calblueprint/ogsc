@@ -128,6 +128,12 @@ model Role {
   @@map("roles")
 }
 
+model seeds {
+  id     Int      @id @default(autoincrement())
+  name   String
+  run_on DateTime
+}
+
 enum ProfileFieldKey {
   AcademicEngagementScore @map("academic_engagement_score")
   AdvisingScore @map("advising_score")
