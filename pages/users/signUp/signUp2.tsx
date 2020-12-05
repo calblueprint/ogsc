@@ -8,7 +8,7 @@ import { useRouter } from "next/router";
 import { CreateUserDTO } from "pages/api/users";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import updateActionSignUp from "utils/updateActionSignUp";
+import updateAction from "utils/updateAction";
 
 type UserSignUpForm2Values = {
   role: UserRoleType;
@@ -31,7 +31,7 @@ const UserSignUpPageTwo: React.FC = () => {
   const { errors, register, handleSubmit } = useForm<UserSignUpForm2Values>({
     resolver: joiResolver(UserSignUpForm2Schema),
   });
-  const { state, action } = useStateMachine(updateActionSignUp);
+  const { state, action } = useStateMachine(updateAction);
 
   async function onSubmit(
     values: UserSignUpForm2Values,

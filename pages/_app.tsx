@@ -79,12 +79,6 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
       choice: "",
       player: null,
     },
-    acceptUserData: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      phoneNumber: "",
-    },
     // Add another struct specific for your use case here for state management
   });
 

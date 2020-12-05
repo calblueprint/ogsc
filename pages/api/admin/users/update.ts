@@ -16,7 +16,6 @@ export type UpdateUserDTO = {
   phoneNumber?: string;
   emailVerified?: Date;
   image?: string;
-  hashedPassword?: string;
   roles?: RoleUpdateManyWithoutUserInput;
 };
 
@@ -27,7 +26,6 @@ const expectedBody = Joi.object<UpdateUserDTO>({
   phoneNumber: Joi.string(),
   emailVerified: Joi.date(),
   image: Joi.string(),
-  hashedPassword: Joi.string(),
   roles: Joi.array().items(Joi.object()).optional(),
 });
 
@@ -45,7 +43,6 @@ const handler = async (
         phoneNumber: userInfo.phoneNumber,
         emailVerified: userInfo.emailVerified,
         image: userInfo.image,
-        hashedPassword: userInfo.hashedPassword,
         roles: userInfo.roles,
       },
     });

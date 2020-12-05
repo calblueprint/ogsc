@@ -23,7 +23,7 @@ const handler = async (
   try {
     // TODO: Update to only delete user when prisma/prisma#2057 is fixed.
     await prisma.userInvite.deleteMany({
-      where: { userId },
+      where: { user_id: userId },
     });
     const user = await prisma.user.delete({
       where: { id: userId },
