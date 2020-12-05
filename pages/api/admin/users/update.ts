@@ -17,7 +17,6 @@ export type UpdateUserDTO = {
   emailVerified?: Date;
   image?: string;
   roles: [UserRoleType];
-  // roles?: RoleUpdateManyWithoutUserInput;
 };
 
 const expectedBody = Joi.object<UpdateUserDTO>({
@@ -27,7 +26,6 @@ const expectedBody = Joi.object<UpdateUserDTO>({
   phoneNumber: Joi.string(),
   emailVerified: Joi.date(),
   image: Joi.string(),
-  // roles: Joi.object(),
   roles: Joi.array().items(Joi.string()).optional(),
 });
 
@@ -38,86 +36,56 @@ const handler = async (
 ): Promise<void> => {
   try {
     const userInfo = req.body;
-    // const user =
-    //   userInfo.role === "Admin"
-    //     ? await prisma.user.update({
-    //         where: { id: userInfo.id || Number(req.query.id) },
-    //         data: {
-    //           name: userInfo.name,
-    //           email: userInfo.email,
-    //           phoneNumber: userInfo.phoneNumber,
-    //           emailVerified: userInfo.emailVerified,
-    //           image: userInfo.image,
-    //           isAdmin: true,
-    //           viewerPermissions: {
-    //             deleteMany: {
-    //               relationship_type: {
-    //                 not: null,
-    //               },
-    //             },
-    //             create: {
-    //               relationship_type: "Admin",
-    //             },
-    //           },
-    //         },
-    //       })
-    //     : await prisma.user.update({
-    //         where: { id: userInfo.id || Number(req.query.id) },
-    //         data: {
-    //           name: userInfo.name,
-    //           email: userInfo.email,
-    //           phoneNumber: userInfo.phoneNumber,
-    //           emailVerified: userInfo.emailVerified,
-    //           image: userInfo.image,
-    //           viewerPermissions: {
-    //             updateMany: {
-    //               data: {
-    //                 relationship_type: userInfo.role,
-    //               },
-    //               where: {
-    //                 relationship_type: {
-    //                   not: null,
-    //                 },
-    //               },
-    //             },
-    //           },
-    //         },
-    //       });
-
-    // updateMany: {
-    //   data: {
-    //     type: userInfo.roles[0],
-    //   },
-    //   where: {
-    //     type: {
-    //       not: undefined,
-    //     },
-    console.log("updating: ", userInfo);
-    const user = await prisma.user.update({
-      where: { id: userInfo.id || Number(req.query.id) },
-      data: {
-        name: userInfo.name,
-        email: userInfo.email,
-        phoneNumber: userInfo.phoneNumber,
-        emailVerified: userInfo.emailVerified,
-        image: userInfo.image,
-        roles: {
-          updateMany: {
+    const user =
+      userInfo.roles[0] === "Admin"
+        ? await prisma.user.update({
+            where: { id: userInfo.id || Number(req.query.id) },
             data: {
-              type: userInfo.roles[0],
-            },
-            where: {
-              type: {
-                not: undefined,
+              name: userInfo.name,
+              email: userInfo.email,
+              phoneNumber: userInfo.phoneNumber,
+              emailVerified: userInfo.emailVerified,
+              image: userInfo.image,
+              roles: {
+                deleteMany: {
+                  type: {
+                    not: undefined,
+                  },
+                },
+                create: {
+                  type: UserRoleType.Admin,
+                },
               },
             },
-          },
-        },
-      },
-      include: {
-        roles: true,
-      },
-    });
+            include: {
+              roles: true,
+            },
+          })
+        : await prisma.user.update({
+            where: { id: userInfo.id || Number(req.query.id) },
+            data: {
+              name: userInfo.name,
+              email: userInfo.email,
+              phoneNumber: userInfo.phoneNumber,
+              emailVerified: userInfo.emailVerified,
+              image: userInfo.image,
+              roles: {
+                updateMany: {
+                  data: {
+                    type: userInfo.roles[0],
+                  },
+                  where: {
+                    type: {
+                      not: undefined,
+                    },
+                  },
+                },
+              },
+            },
+            include: {
+              roles: true,
+            },
+          });
     if (!user) {
       res
         .status(404)

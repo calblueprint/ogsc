@@ -77,8 +77,6 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
       return;
     }
     try {
-      console.log("values: ", values);
-      console.log("values edited: ", [values.role as UserRoleType]);
       const response = await fetch(`/api/admin/users/${user?.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
