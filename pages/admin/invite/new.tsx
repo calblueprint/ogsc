@@ -184,25 +184,10 @@ const AdminNewInvitePage: React.FC = () => {
                 name="linkedPlayers"
                 error="" // TODO: fix this
               >
-                <p
-                  className={`text-xs font-normal mt-3 mb-3 ${showCombobox()}`}
-                >
-                  {(() => {
-                    switch (roleChosen) {
-                      case UserRoleType.Mentor:
-                        return "Mentors will have access to the full profile of players they are mentoring, including Engagement Scores, Academics, Attendance, and Physical Health information.";
-                      case UserRoleType.Parent:
-                        return "Parents will have access to the full profile of their children, including Engagement Scores, Academics, Attendance, and Physical Health information.";
-                      case UserRoleType.Donor:
-                        return "Donors will have access to extended profiles of players they’re sponsoring, including Engagement Scores, Academics, and Physical Health information.";
-                      default:
-                        return "error";
-                    }
-                  })()}
-                </p>
                 <Combobox
                   selectedPlayers={selectedPlayers}
                   setSelectedPlayers={setSelectedPlayers}
+                  role={roleChosen}
                 />
               </FormField>
             </div>
