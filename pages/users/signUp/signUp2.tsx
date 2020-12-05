@@ -50,7 +50,7 @@ const UserSignUpPageTwo: React.FC = () => {
         body: JSON.stringify({
           email: state.userData.email,
           name: `${state.userData.firstName} ${state.userData.lastName}`,
-          phoneNumber: state.userData.phoneNumber,
+          phoneNumber: state.userData.phoneNumber.toString(),
           password: state.userData.password,
         } as CreateUserDTO),
       });

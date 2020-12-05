@@ -23,7 +23,7 @@ const UserSignUpFormSchema = Joi.object<UserSignUpFormValues>({
     .trim()
     .email({ tlds: { allow: false } })
     .required(),
-  phoneNumber: Joi.string().allow(""),
+  phoneNumber: Joi.string().empty("").allow(null),
   password: Joi.forbidden().required(),
 });
 
