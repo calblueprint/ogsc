@@ -64,7 +64,7 @@ export default async function seedDatabase(): Promise<void> {
     });
     await prisma.userInvite.deleteMany({
       where: {
-        user_id: {
+        userId: {
           in: users.map((user: User) => user.id),
         },
       },

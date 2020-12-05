@@ -44,6 +44,7 @@ export const createAccount = async (
   const loginInfo = {
     name: user.name,
     email: user.email,
+    phoneNumber: user.phoneNumber,
     hashedPassword: hash(user.password),
   };
   let newUser;
@@ -55,9 +56,19 @@ export const createAccount = async (
     newUser = await prisma.user.update({
       data: loginInfo,
       where: {
-        id: inviteCode.user_id,
+        id: inviteCode.userId,
       },
     });
+    // update acceptedAt in userInvite
+    const userInviteEntry = await prisma.userInvite.update({
+      where: { id: user.inviteCodeId },
+      data: {
+        acceptedAt: new Date(),
+      },
+    });
+    if (!userInviteEntry) {
+      return null;
+    }
   } else {
     // signing up without an invite code
     newUser = await prisma.user.create({
