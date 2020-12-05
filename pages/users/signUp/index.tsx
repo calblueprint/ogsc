@@ -7,7 +7,7 @@ import { StateMachineProvider, useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import updateActionSignUp from "utils/updateActionSignUp";
+import updateAction from "utils/updateAction";
 
 export type UserSignUpFormValues = {
   firstName: string;
@@ -44,7 +44,7 @@ const UserSignUpPageOne: React.FC = () => {
   const { errors, register, handleSubmit } = useForm<UserSignUpFormValues>({
     resolver: joiResolver(UserSignUpFormSchema),
   });
-  const { action, state } = useStateMachine(updateActionSignUp);
+  const { action, state } = useStateMachine(updateAction);
 
   async function onSubmit(
     values: UserSignUpFormValues,
@@ -171,6 +171,7 @@ const UserSignUpPageOne: React.FC = () => {
               </div>
               {error && <p className="text-red-600 text-sm">{error}</p>}
             </div>
+            <hr />
           </fieldset>
         </form>
       </div>
