@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { UserRoleType } from "interfaces";
 import { NextApiRequest, NextApiResponse } from "next";
 import sanitizeUser from "utils/sanitizeUser";
 
@@ -16,9 +17,9 @@ export default async (
           contains: phrase,
           mode: "insensitive",
         },
-        viewedByPermissions: {
+        roles: {
           some: {
-            relationship_type: "Player",
+            type: UserRoleType.Player,
           },
         },
       },

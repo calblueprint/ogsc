@@ -1,8 +1,7 @@
 import {
   AuthenticatedSessionInfo,
   SessionInfo,
-  UserRole,
-  UserRoleConstants,
+  UserRoleType,
 } from "interfaces";
 import { createStore, StateMachineProvider } from "little-state-machine";
 import { useSession } from "next-auth/client";
@@ -15,20 +14,12 @@ export const AuthContext = React.createContext<AuthenticatedSessionInfo | null>(
   null
 );
 
-function chooseDefaultRoleType(user: SessionInfo["user"]): UserRole {
+function chooseDefaultRoleType(user: SessionInfo["user"]): UserRoleType {
   if (!user) {
     throw new Error("User is not authenticated");
   }
-  if (user?.isAdmin) {
-    return "admin";
-  }
-  if ("viewerPermissions" in user && user.viewerPermissions.length > 0) {
-    return "mentor";
-  }
-  if ("profile" in user && user.profile) {
-    return "player";
-  }
-  return "donor";
+  // Default to donor-type role if one has not been assigned already
+  return user.defaultRole?.type || UserRoleType.Donor;
 }
 
 const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
@@ -36,8 +27,13 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
   const router = useRouter();
   const [user, setUser] = useState<SessionInfo["user"] | null>(null);
   const accessingAuthenticatedRoute =
-    router.asPath.match(new RegExp(`^/(${UserRoleConstants.join("|")})`)) !==
-    null;
+    router.asPath.match(
+      new RegExp(
+        `^/(${Object.values(UserRoleType)
+          .map((role: UserRoleType) => role.toLowerCase())
+          .join("|")})`
+      )
+    ) !== null;
   const sessionInfo: SessionInfo = useMemo(
     () =>
       user ? { user, sessionType: chooseDefaultRoleType(user) } : { user },
@@ -113,7 +109,7 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
       </StateMachineProvider>
     );
   }
-  if (!sessionInfo.user) {
+  if (!sessionInfo?.user) {
     // TODO: Add shimmer loading skeleton
     return null;
   }

@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { UserRoleType } from "interfaces";
 import { NextApiRequest, NextApiResponse } from "next";
 import sanitizeUser from "utils/sanitizeUser";
 import { USER_PAGE_SIZE } from "../../../../../constants";
@@ -15,9 +16,9 @@ export default async (
       skip: USER_PAGE_SIZE * pageNumber,
       take: USER_PAGE_SIZE,
       where: {
-        viewedByPermissions: {
+        roles: {
           some: {
-            relationship_type: "Player",
+            type: UserRoleType.Player,
           },
         },
       },

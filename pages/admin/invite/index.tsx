@@ -20,7 +20,7 @@ const AdminInvitePage: React.FC = () => {
           <UserRequestsTable />
         </div>
       </div>
-      <Modal open={Boolean(router.query.success)}>
+      <Modal className="w-2/5" open={Boolean(router.query.success)}>
         <h1 className="text-dark text-3xl font-medium mb-2">Invite Sent!</h1>
         <p className="text-dark mb-10">
           Your invitee will have ? days to accept their invite.
