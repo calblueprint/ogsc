@@ -6,13 +6,13 @@ import PlayerDashboard from "../../../components/PlayersDashboard";
 import Button from "../../../components/Button";
 
 const PlayersListPage: React.FunctionComponent = () => {
-  const [phrase, setPhrase] = useState<string>(" ");
+  const [phrase, setPhrase] = useState<string>("");
   const [players, setPlayers] = useState<IPlayer[]>();
 
   useEffect(() => {
     const getPlayers = async (): Promise<void> => {
       try {
-        const apiLink = `/api/users/search?phrase=${phrase}`;
+        const apiLink = `/api/players/search?phrase=${phrase}`;
         const response = await fetch(apiLink);
         const data = await response.json();
         setPlayers(data.users);
