@@ -1,22 +1,24 @@
 import { PrismaClient } from "@prisma/client";
 import { NextApiResponse } from "next";
 import Joi from "joi";
-import { ValidatedNextApiRequest } from "interfaces";
+import { UserRoleType, ValidatedNextApiRequest } from "interfaces";
 import { validateBody } from "pages/api/helpers";
 import { adminOnlyHandler } from "../helpers";
 
 const prisma = new PrismaClient();
 
 export type ViewingPermissionDTO = {
-  viewerId: number;
-  vieweeId: number;
-  relationshipType: string;
+  type: UserRoleType;
+  userId: number;
+  relatedPlayerId?: number;
 };
 
 const expectedBody = Joi.object<ViewingPermissionDTO>({
-  viewerId: Joi.number().required(),
-  vieweeId: Joi.number().required(),
-  relationshipType: Joi.string().required(),
+  userId: Joi.number().required(),
+  relatedPlayerId: Joi.number(),
+  type: Joi.string()
+    .valid(...Object.values(UserRoleType))
+    .required(),
 });
 
 const handler = async (
@@ -25,11 +27,13 @@ const handler = async (
 ): Promise<void> => {
   try {
     const permissionInfo = req.body;
-    const view = await prisma.viewingPermission.create({
+    const view = await prisma.role.create({
       data: {
-        viewer: { connect: { id: permissionInfo.viewerId } },
-        viewee: { connect: { id: permissionInfo.vieweeId } },
-        relationship_type: permissionInfo.relationshipType,
+        user: { connect: { id: permissionInfo.userId } },
+        relatedPlayer: permissionInfo.relatedPlayerId
+          ? { connect: { id: permissionInfo.relatedPlayerId } }
+          : undefined,
+        type: permissionInfo.type,
       },
     });
     res.json({

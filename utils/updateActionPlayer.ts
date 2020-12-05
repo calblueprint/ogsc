@@ -1,7 +1,9 @@
 import type { PlayerProfileFormValues } from "../pages/admin/players/playerForm";
 
-export default function updateAction(
-  state: { playerData: PlayerProfileFormValues },
+export default function updateActionPlayer(
+  state: {
+    playerData: PlayerProfileFormValues;
+  },
   payload: PlayerProfileFormValues
 ): { playerData: PlayerProfileFormValues } {
   return {

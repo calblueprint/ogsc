@@ -1,7 +1,7 @@
 import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
 import UserSignUpFormField from "components/UserSignUpFormField";
-import { UserRole, UserRoleConstants } from "interfaces";
+import { UserRoleType } from "interfaces";
 import Joi from "joi";
 import { StateMachineProvider, useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
@@ -15,7 +15,7 @@ export type UserSignUpFormValues = {
   email: string;
   phoneNumber?: string;
   password: string;
-  role?: UserRole;
+  role?: UserRoleType;
   adminNote?: string;
 };
 
@@ -29,7 +29,7 @@ const UserSignUpFormSchema = Joi.object<UserSignUpFormValues>({
   phoneNumber: Joi.string().optional(),
   password: Joi.forbidden().required(),
   role: Joi.string()
-    .valid(...UserRoleConstants)
+    .valid(...Object.values(UserRoleType))
     .optional(),
   adminNote: Joi.string().optional(),
 });
@@ -158,11 +158,12 @@ const UserSignUpPageOne: React.FC = () => {
             <div className="flex mt-24 mb-32 justify-between align-middle">
               {/* TODO: link user login page */}
               <p className="text-base">
-                Already have an account? <b>Login here.</b>
+                Already have an account?{" "}
+                <b className="text-blue">Login here.</b>
               </p>
               <div className="mb-2 flex ">
                 <Button
-                  className="button-primary text-base px-10 py-2 "
+                  className="button-primary text-base px-10 py-2"
                   type="submit"
                 >
                   Next step &#x2192;

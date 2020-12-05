@@ -2,31 +2,34 @@ import { PrismaClient } from "@prisma/client";
 import { NextApiResponse } from "next";
 import Joi from "joi";
 import { ValidatedNextApiRequest } from "interfaces";
+import sanitizeUser from "utils/sanitizeUser";
 import { validateBody } from "pages/api/helpers";
 import { adminOnlyHandler } from "../helpers";
 
 const prisma = new PrismaClient();
-
-type DeleteViewingPermissionDTO = {
-  id?: number;
+export type UserDTO = {
+  email: string;
 };
 
-const expectedBody = Joi.object<DeleteViewingPermissionDTO>({
-  id: Joi.number(),
+const expectedBody = Joi.object<UserDTO>({
+  email: Joi.string(),
 });
 
 const handler = async (
-  req: ValidatedNextApiRequest<DeleteViewingPermissionDTO>,
+  req: ValidatedNextApiRequest<UserDTO>,
   res: NextApiResponse
 ): Promise<void> => {
   try {
-    const view = await prisma.viewingPermission.delete({
-      where: { id: req.body.id || Number(req.query.id) },
+    const user = await prisma.user.findOne({
+      where: { email: req.body.email || String(req.query.email) },
     });
-    res.json({
-      message: "Successfully deleted viewing permission.",
-      view,
-    });
+    if (!user) {
+      res
+        .status(404)
+        .json({ statusCode: 404, message: "User does not exist." });
+    } else {
+      res.json({ user: sanitizeUser(user) });
+    }
   } catch (err) {
     res.status(500);
     res.json({ statusCode: 500, message: err.message });

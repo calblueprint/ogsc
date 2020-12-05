@@ -1,22 +1,28 @@
+import { useState } from "react";
 import {
   Absence,
   PrismaClient,
   ProfileField,
+  Role,
   User,
-  ViewingPermission,
 } from "@prisma/client";
+import { NextPageContext } from "next";
+import { useRouter } from "next/router";
+
 import DashboardLayout from "components/DashboardLayout";
 import PlayerProfile from "components/Player/Profile";
-import { NextPageContext } from "next";
+import Modal from "components/Modal";
+import Button from "components/Button";
 import sanitizeUser from "utils/sanitizeUser";
 import buildUserProfile from "utils/buildUserProfile";
+import flattenUserRoles from "utils/flattenUserRoles";
 
 type Props = {
   player?: Omit<
     User & {
       absences: Absence[];
-      viewedByPermissions: ViewingPermission[];
       profileFields: ProfileField[];
+      roles: Role[];
     },
     "hashedPassword"
   >;
@@ -32,7 +38,7 @@ export async function getServerSideProps(
     include: {
       absences: true,
       profileFields: true,
-      viewedByPermissions: true,
+      roles: true,
     },
   });
 
@@ -51,10 +57,14 @@ export async function getServerSideProps(
 const PlayerProfilePage: React.FunctionComponent<Props> = ({
   player,
 }: Props) => {
+  const router = useRouter();
+  const [showModal, setShowModal] = useState<boolean>(
+    Boolean(router.query.success)
+  );
   if (!player) {
     return <DashboardLayout>No player found</DashboardLayout>;
   }
-  const hydratedPlayer = buildUserProfile(player);
+  const hydratedPlayer = flattenUserRoles(buildUserProfile(player));
 
   return (
     <DashboardLayout>
@@ -75,6 +85,24 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
             </p>
           </div>
         </div>
+        <Modal className="w-2/5" open={showModal}>
+          <h1 className="text-dark text-3xl font-medium mb-2">
+            Dashboard Created!
+          </h1>
+          <p className="text-dark mb-10">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
+            semper, massa sed tempor rhoncus, tortor lectus luctus orci,
+            suscipit commodo nunc quam eu risus.
+          </p>
+          <div className="flex justify-end">
+            <Button
+              className="button-primary px-10 py-3"
+              onClick={() => setShowModal(false)}
+            >
+              Done
+            </Button>
+          </div>
+        </Modal>
         <PlayerProfile player={hydratedPlayer} />
       </div>
     </DashboardLayout>

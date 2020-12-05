@@ -8,22 +8,21 @@ datasource db {
 }
 
 model User {
-  id                  Int                 @id @default(autoincrement())
-  name                String?
-  email               String              @unique
-  emailVerified       DateTime?           @map("email_verified")
-  image               String?
-  createdAt           DateTime            @default(now()) @map("created_at")
-  updatedAt           DateTime            @default(now()) @map("updated_at")
-  hashedPassword      String              @map("hashed_password")
-  isAdmin             Boolean             @default(false) @map("is_admin")
-  phoneNumber         String?             @map("phone_number")
-  absences            Absence[]           @relation("AbsencesToUsers")
-  profileFields       ProfileField[]      @relation("ProfileFieldToUsers")
-  resetPassword       ResetPassword[]     @relation("ResetPasswordToUsers")
-  userInvites         UserInvite[]        @relation("UserInvitesToUsers")
-  viewedByPermissions ViewingPermission[] @relation("UsersToViewees")
-  viewerPermissions   ViewingPermission[] @relation("UsersToViewers")
+  id             Int             @id @default(autoincrement())
+  name           String?
+  email          String          @unique
+  emailVerified  DateTime?       @map("email_verified")
+  image          String?
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @default(now()) @map("updated_at")
+  hashedPassword String          @map("hashed_password")
+  phoneNumber    String?         @map("phone_number")
+  absences       Absence[]       @relation("AbsencesToUsers")
+  profileFields  ProfileField[]  @relation("ProfileFieldToUsers")
+  resetPassword  ResetPassword[] @relation("ResetPasswordToUsers")
+  upstreamRoles  Role[]          @relation("RolesToRelatedPlayers")
+  roles          Role[]          @relation("RolesToUsers")
+  userInvites    UserInvite[]    @relation("UserInvitesToUsers")
 
   @@map("users")
 }
@@ -81,17 +80,6 @@ model UserInvite {
   @@map("user_invites")
 }
 
-model ViewingPermission {
-  id                Int     @id @default(autoincrement())
-  viewer_id         Int?
-  viewee_id         Int?
-  relationship_type String?
-  viewee            User?   @relation("UsersToViewees", fields: [viewee_id], references: [id])
-  viewer            User?   @relation("UsersToViewers", fields: [viewer_id], references: [id])
-
-  @@map("viewing_permissions")
-}
-
 model ResetPassword {
   id        String   @id @default(dbgenerated())
   createdAt DateTime @default(now()) @map("created_at")
@@ -127,6 +115,23 @@ model Absence {
 
   @@index([userId], name: "idx_absences_user_id")
   @@map("absences")
+}
+
+model Role {
+  id              Int          @id @default(dbgenerated())
+  userId          Int          @map("user_id")
+  relatedPlayerId Int?         @map("related_player_id")
+  type            UserRoleType
+  relatedPlayer   User?        @relation("RolesToRelatedPlayers", fields: [relatedPlayerId], references: [id])
+  user            User         @relation("RolesToUsers", fields: [userId], references: [id])
+
+  @@map("roles")
+}
+
+model seeds {
+  id     Int      @id @default(autoincrement())
+  name   String
+  run_on DateTime
 }
 
 enum ProfileFieldKey {
@@ -167,4 +172,14 @@ enum AbsenceType {
   School @map("school")
 
    @@map("absence_type")
+}
+
+enum UserRoleType {
+  Admin @map("admin")
+  Donor @map("donor")
+  Mentor @map("mentor")
+  Parent @map("parent")
+  Player @map("player")
+
+   @@map("user_role")
 }
