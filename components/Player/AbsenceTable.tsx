@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { AbsenceReason, AbsenceType } from "interfaces";
 import { Absence } from "@prisma/client";
+import EditMoreAbsence from "components/Player/EditMoreAbsence";
+import SuccessfulChange from "./successChange";
 
 type Props = {
   absenceType: AbsenceType;
@@ -13,19 +15,29 @@ const AbsencePillColors: Record<AbsenceReason, string> = {
 };
 
 const AbsenceTable: React.FC<Props> = ({ absenceType, absences }: Props) => {
+  const [success, setSuccess] = useState(false);
+  const [editType, setEditType] = useState<"updated" | "added">();
+  const [editDate, setEditDate] = useState<string>("");
   const filteredAbsences = absences
     .filter((absence: Absence) => absence.type === absenceType)
     .sort((a: Absence, b: Absence) => Number(a.date) - Number(b.date));
 
   return (
     <div className="mb-16 text-sm">
-      <h2 className="text-xl font-semibold mb-4">{absenceType} Absences</h2>
+      {success && (
+        <SuccessfulChange
+          text={`${absenceType} Absence for ${editDate} has been ${editType}!`}
+          setSuccess={setSuccess}
+        />
+      )}
+      <h2 className="text-xl font-semibold my-4">{absenceType} Absences</h2>
       <table className="w-full mb-4">
         <thead>
           <tr className="h-16 text-left text-unselected tr-border">
             <th className="w-3/12 pl-5 font-semibold">Date</th>
-            <th className="w-3/12 font-semibold">Type</th>
-            <th className="font-semibold">Description</th>
+            <th className="w-2/12 font-semibold">Score</th>
+            <th className="w-5/12 font-semibold">Description</th>
+            <th className="w-1/12 font-semibold">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -50,6 +62,14 @@ const AbsenceTable: React.FC<Props> = ({ absenceType, absences }: Props) => {
                 </span>
               </td>
               <td>{absence.description}</td>
+              <td className="w-1/12">
+                <EditMoreAbsence
+                  absence={absence}
+                  setType={setEditType}
+                  setDate={setEditDate}
+                  setSuccess={setSuccess}
+                />
+              </td>
             </tr>
           ))}
         </tbody>

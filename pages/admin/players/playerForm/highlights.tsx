@@ -12,7 +12,7 @@ import PlayerFormLayout from "components/Player/PlayerFormLayout";
 import Icon from "components/Icon";
 import type { AbsenceFormValues } from "pages/admin/players/playerForm/attendence";
 import updateActionForm from "utils/updateActionForm";
-import updateAction from "utils/updateAction";
+import updateActionSignUp from "utils/updateActionSignUp";
 import type { PlayerProfileFormValues } from ".";
 import type { PlayerUserDTO } from "../../../api/admin/users/player/update";
 
@@ -32,7 +32,7 @@ const UserSignUpPageOne: React.FC = () => {
     resolver: joiResolver(PlayerProfileFormSchema),
   });
   const { actions, state } = useStateMachine({
-    updateAction,
+    updateActionSignUp,
     updateActionPlayer,
     updateActionForm,
   });
