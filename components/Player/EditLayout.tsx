@@ -1,14 +1,17 @@
 import React from "react";
 
-type TextProps = React.PropsWithChildren<{
-  title: string | null;
-  // add prop for Last Updated
+type EditProps = React.PropsWithChildren<{
+  title: string | null | undefined;
+  currentText: string | null | undefined;
+  setState: React.Dispatch<React.SetStateAction<string>>;
 }>;
 
-const TextLayout: React.FunctionComponent<TextProps> = ({
+const TextLayout: React.FunctionComponent<EditProps> = ({
   title,
+  currentText,
+  setState,
   children,
-}: TextProps) => {
+}: EditProps) => {
   if (title) {
     return (
       <div className="mb-5">
@@ -17,6 +20,13 @@ const TextLayout: React.FunctionComponent<TextProps> = ({
             <div>{title}:</div>
           </div>
           <div className="flex flex-col font-normal">
+            <input
+              type="text"
+              className="input"
+              name={title}
+              defaultValue={currentText || ""}
+              onChange={(event) => setState(event.target.value)}
+            />
             <div>{children}</div>
           </div>
         </div>

@@ -38,11 +38,11 @@ a {
   }
 
   .input {
-    @apply border-unselected border-b-2 px-2 py-1 font-medium;
+    @apply bg-button p-2 font-light rounded-lg;
   }
 
   .input:focus {
-    @apply border-blue outline-none bg-button;
+    @apply bg-white border border-unselected;
   }
 
   .input-full {

@@ -15,7 +15,10 @@ export type IconType =
   | "profile"
   | "back"
   | "next"
-  | "edit";
+  | "edit"
+  | "more"
+  | "delete"
+  | "checkmark";
 
 const IconSvgs: Record<IconType, React.ReactElement> = {
   academics: (
@@ -177,6 +180,79 @@ const IconSvgs: Record<IconType, React.ReactElement> = {
         fill="#2C2C2C"
         stroke="#2C2C2C"
         strokeWidth="0.25"
+      />
+    </svg>
+  ),
+  more: (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z"
+        fill="#004284"
+        stroke="#004284"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M19 13C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11C18.4477 11 18 11.4477 18 12C18 12.5523 18.4477 13 19 13Z"
+        fill="#004284"
+        stroke="#004284"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M5 13C5.55228 13 6 12.5523 6 12C6 11.4477 5.55228 11 5 11C4.44772 11 4 11.4477 4 12C4 12.5523 4.44772 13 5 13Z"
+        fill="#004284"
+        stroke="#004284"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  ),
+  delete: (
+    <svg
+      width="13"
+      height="14"
+      viewBox="0 0 13 14"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M1 3.47705H2.25H12.25"
+        stroke="#798393"
+        strokeWidth="1.15"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M4.125 3.4769V2.23845C4.125 1.90999 4.2567 1.59499 4.49112 1.36273C4.72554 1.13048 5.04348 1 5.375 1H7.875C8.20652 1 8.52446 1.13048 8.75888 1.36273C8.9933 1.59499 9.125 1.90999 9.125 2.23845V3.4769M11 3.4769V12.1461C11 12.4745 10.8683 12.7895 10.6339 13.0218C10.3995 13.254 10.0815 13.3845 9.75 13.3845H3.5C3.16848 13.3845 2.85054 13.254 2.61612 13.0218C2.3817 12.7895 2.25 12.4745 2.25 12.1461V3.4769H11Z"
+        stroke="#798393"
+        strokeWidth="1.15"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  ),
+  checkmark: (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="12" cy="12" r="11.25" stroke="#004284" strokeWidth="1.5" />
+      <path
+        d="M17 9L10.125 16L7 12.8182"
+        stroke="#004284"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   ),
