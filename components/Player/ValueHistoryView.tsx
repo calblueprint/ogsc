@@ -22,6 +22,7 @@ import {
   ProfileFieldValues,
 } from "interfaces";
 import { deserializeProfileFieldValue } from "utils/buildUserProfile";
+import EditMore from "components/Player/EditMore";
 import colors from "../../constants/colors";
 
 type NumericProfileFields = Exclude<
@@ -219,21 +220,25 @@ const ValueHistoryView: React.FC<Props> = ({
           <thead>
             <tr className="h-10 text-left text-unselected tr-border">
               <th className="w-3/12 pl-5 font-semibold">Date</th>
-              <th className="w-3/12 font-semibold">Score</th>
-              <th className="font-semibold">Description</th>
+              <th className="w-2/12 font-semibold">Score</th>
+              <th className="w-5/12 font-semibold">Description</th>
+              <th className="w-1/12 font-semibold">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredValues.map((field) => (
               <tr key={field.id} className="h-16 tr-border">
-                <td className="w-3/12 pl-5">
+                <td className="w-3/12 px-5">
                   {new Date(field.createdAt).toLocaleString("default", {
                     month: "short",
                     year: "numeric",
                   })}
                 </td>
-                <td className="w-3/12">{field.value}</td>
+                <td className="w-2/12">{field.value}</td>
                 <td>{field.comment}</td>
+                <td className="w-1/12 text-blue">
+                  <EditMore field={field} />
+                </td>
               </tr>
             ))}
           </tbody>
