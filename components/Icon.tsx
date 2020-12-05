@@ -17,7 +17,8 @@ export type IconType =
   | "next"
   | "edit"
   | "more"
-  | "delete";
+  | "delete"
+  | "checkmark";
 
 const IconSvgs: Record<IconType, React.ReactElement> = {
   academics: (
@@ -232,6 +233,24 @@ const IconSvgs: Record<IconType, React.ReactElement> = {
         d="M4.125 3.4769V2.23845C4.125 1.90999 4.2567 1.59499 4.49112 1.36273C4.72554 1.13048 5.04348 1 5.375 1H7.875C8.20652 1 8.52446 1.13048 8.75888 1.36273C8.9933 1.59499 9.125 1.90999 9.125 2.23845V3.4769M11 3.4769V12.1461C11 12.4745 10.8683 12.7895 10.6339 13.0218C10.3995 13.254 10.0815 13.3845 9.75 13.3845H3.5C3.16848 13.3845 2.85054 13.254 2.61612 13.0218C2.3817 12.7895 2.25 12.4745 2.25 12.1461V3.4769H11Z"
         stroke="#798393"
         strokeWidth="1.15"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  ),
+  checkmark: (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="12" cy="12" r="11.25" stroke="#004284" strokeWidth="1.5" />
+      <path
+        d="M17 9L10.125 16L7 12.8182"
+        stroke="#004284"
+        strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />

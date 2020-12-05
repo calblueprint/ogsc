@@ -68,7 +68,7 @@ export const ProfileFieldsByCategory: Record<
   [ProfileCategory.Highlights]: [ProfileFieldKey.Highlights],
 };
 
-const ProfileFieldLabels: Partial<Record<ProfileFieldKey, string>> = {
+export const ProfileFieldLabels: Partial<Record<ProfileFieldKey, string>> = {
   [ProfileFieldKey.BioAboutMe]: "About Me",
   [ProfileFieldKey.BioHobbies]: "Hobbies",
   [ProfileFieldKey.BioFavoriteSubject]: "Favorite Subject",

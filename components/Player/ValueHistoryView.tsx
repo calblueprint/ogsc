@@ -23,6 +23,7 @@ import {
 } from "interfaces";
 import { deserializeProfileFieldValue } from "utils/buildUserProfile";
 import EditMore from "components/Player/EditMore";
+import SuccessfulChange from "components/Player/successChange";
 import colors from "../../constants/colors";
 
 type NumericProfileFields = Exclude<
@@ -114,6 +115,9 @@ const ValueHistoryView: React.FC<Props> = ({
   const [intervalWindow, setIntervalWindow] = useState<IntervalWindow>(
     IntervalWindow.LastSixMonths
   );
+  const [success, setSuccess] = useState(false);
+  const [editType, setEditType] = useState<"updated" | "added">();
+  const [editDate, setEditDate] = useState<string>("");
   const [startDate, endDate] = IntervalWindowBoundaries[intervalWindow];
 
   const deserializedValues = values.map(
@@ -153,7 +157,13 @@ const ValueHistoryView: React.FC<Props> = ({
 
   return (
     <div>
-      <h2 className="text-dark text-lg font-semibold mb-5">{fieldLabel}</h2>
+      {success && (
+        <SuccessfulChange
+          text={`${fieldLabel} score for ${editDate} has been ${editType}!`}
+          setSuccess={setSuccess}
+        />
+      )}
+      <h2 className="text-dark text-lg font-semibold my-5">{fieldLabel}</h2>
       <div className="flex items-center">
         <div
           className={`flex w-16 h-16 justify-center items-center bg-${primaryColor}-muted rounded-lg mr-6`}
@@ -236,8 +246,13 @@ const ValueHistoryView: React.FC<Props> = ({
                 </td>
                 <td className="w-2/12">{field.value}</td>
                 <td>{field.comment}</td>
-                <td className="w-1/12 text-blue">
-                  <EditMore field={field} />
+                <td className="w-1/12">
+                  <EditMore
+                    field={field}
+                    setSuccess={setSuccess}
+                    setType={setEditType}
+                    setDate={setEditDate}
+                  />
                 </td>
               </tr>
             ))}

@@ -1,27 +1,11 @@
 import React, { useState } from "react";
 import Icon from "components/Icon";
 import Modal from "components/Modal";
-import EditScore from "components/Player/EditScore";
-
-export type field = {
-  value: number | undefined;
-  createdAt: Date;
-  comment?: string | undefined;
-  id: number;
-  userId: number;
-  key:
-    | "AcademicEngagementScore"
-    | "AdvisingScore"
-    | "AthleticScore"
-    | "BMI"
-    | "GPA"
-    | "PacerTest"
-    | "Pushups"
-    | "Situps";
-};
+import { Absence } from "@prisma/client";
+import EditAbsence from "./EditAbsence";
 
 type EditProps = React.PropsWithChildren<{
-  field: field;
+  absence: Absence;
   setSuccess: React.Dispatch<React.SetStateAction<boolean>>;
   setType: React.Dispatch<
     React.SetStateAction<"updated" | "added" | undefined>
@@ -29,8 +13,8 @@ type EditProps = React.PropsWithChildren<{
   setDate: React.Dispatch<React.SetStateAction<string>>;
 }>;
 
-const EditMore: React.FunctionComponent<EditProps> = ({
-  field,
+const EditMoreAbsence: React.FunctionComponent<EditProps> = ({
+  absence,
   setSuccess,
   setType,
   setDate,
@@ -65,17 +49,16 @@ const EditMore: React.FunctionComponent<EditProps> = ({
         ) : null}
       </button>
       <Modal open={selectedOption === "edit"} className="w-2/3">
-        <EditScore
+        <EditAbsence
           setSuccess={setSuccess}
           setType={setType}
           setDate={setDate}
-          currentScore={field}
+          currentAbsence={absence}
           setOption={setSelectedOption}
-          scoreCategory={field.key}
         />
       </Modal>
     </div>
   );
 };
 
-export default EditMore;
+export default EditMoreAbsence;
