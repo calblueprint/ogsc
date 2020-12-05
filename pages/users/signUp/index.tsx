@@ -1,7 +1,6 @@
 import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
 import UserSignUpFormField from "components/UserSignUpFormField";
-import { UserRoleType } from "interfaces";
 import Joi from "joi";
 import { StateMachineProvider, useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
@@ -15,8 +14,6 @@ export type UserSignUpFormValues = {
   email: string;
   phoneNumber?: string;
   password: string;
-  role?: UserRoleType;
-  adminNote?: string;
 };
 
 const UserSignUpFormSchema = Joi.object<UserSignUpFormValues>({
@@ -26,12 +23,8 @@ const UserSignUpFormSchema = Joi.object<UserSignUpFormValues>({
     .trim()
     .email({ tlds: { allow: false } })
     .required(),
-  phoneNumber: Joi.string().optional(),
+  phoneNumber: Joi.string().allow(""),
   password: Joi.forbidden().required(),
-  role: Joi.string()
-    .valid(...Object.values(UserRoleType))
-    .optional(),
-  adminNote: Joi.string().optional(),
 });
 
 const UserSignUpPageOne: React.FC = () => {

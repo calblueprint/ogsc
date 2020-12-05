@@ -18,8 +18,8 @@ type UserSignUpForm2Values = {
 const UserSignUpForm2Schema = Joi.object<UserSignUpForm2Values>({
   role: Joi.string()
     .valid(...Object.values(UserRoleType))
-    .optional(),
-  adminNote: Joi.string().optional(),
+    .allow(""),
+  adminNote: Joi.string().allow(""),
 });
 
 const UserSignUpPageTwo: React.FC = () => {
