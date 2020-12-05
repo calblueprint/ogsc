@@ -4,7 +4,6 @@ import PageNav from "components/PageNav";
 import { IUser, UserRoleLabel, UserRoleType } from "interfaces/user";
 import { ReadManyUsersDTO } from "pages/api/admin/users/readMany";
 import { USER_PAGE_SIZE, UI_PAGE_SIZE } from "../constants";
-// import { RoleLabel } from "../interfaces";
 
 interface UserDashboardProps {
   userRole: UserRoleType | null;
@@ -106,19 +105,6 @@ const UserDashboard: React.FunctionComponent<UserDashboardProps> = ({
       <hr className="border-unselected border-opacity-50" />
       <img src="" alt="" />
       {users?.slice(index, index + UI_PAGE_SIZE).map((user) => (
-        // <UserDashboardItem
-        //   id={user.id}
-        //   name={user.name}
-        //   email={user.email}
-        //   image={user.image}
-        //   phoneNumber={user.phoneNumber}
-        //   role={
-        //     user.viewerPermissions[0] &&
-        //     user.viewerPermissions[0].relationship_type
-        //       ? RoleLabel[user.viewerPermissions[0].relationship_type]
-        //       : "Unknown User Role"
-        //   }
-        // />
         <UserDashboardItem user={user} />
       ))}
       <PageNav

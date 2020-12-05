@@ -1,9 +1,9 @@
-import { PrismaClient, RoleUpdateManyWithoutUserInput } from "@prisma/client";
-import { ValidatedNextApiRequest } from "interfaces";
+import { PrismaClient } from "@prisma/client";
+import { ValidatedNextApiRequest, UserRoleType } from "interfaces";
 import Joi from "joi";
 import { NextApiResponse } from "next";
 import { validateBody } from "pages/api/helpers";
-
+import flattenUserRoles from "utils/flattenUserRoles";
 import sanitizeUser from "utils/sanitizeUser";
 import { adminOnlyHandler } from "../helpers";
 
@@ -16,8 +16,8 @@ export type UpdateUserDTO = {
   phoneNumber?: string;
   emailVerified?: Date;
   image?: string;
-  // role?: string;
-  roles?: RoleUpdateManyWithoutUserInput;
+  roles: [UserRoleType];
+  // roles?: RoleUpdateManyWithoutUserInput;
 };
 
 const expectedBody = Joi.object<UpdateUserDTO>({
@@ -27,8 +27,8 @@ const expectedBody = Joi.object<UpdateUserDTO>({
   phoneNumber: Joi.string(),
   emailVerified: Joi.date(),
   image: Joi.string(),
-  // role: Joi.string(),
-  roles: Joi.array().items(Joi.object()).optional(),
+  // roles: Joi.object(),
+  roles: Joi.array().items(Joi.string()).optional(),
 });
 
 // NOTE: deletes all viewer permissions if changing role to Admin
@@ -83,6 +83,16 @@ const handler = async (
     //           },
     //         },
     //       });
+
+    // updateMany: {
+    //   data: {
+    //     type: userInfo.roles[0],
+    //   },
+    //   where: {
+    //     type: {
+    //       not: undefined,
+    //     },
+    console.log("updating: ", userInfo);
     const user = await prisma.user.update({
       where: { id: userInfo.id || Number(req.query.id) },
       data: {
@@ -91,7 +101,21 @@ const handler = async (
         phoneNumber: userInfo.phoneNumber,
         emailVerified: userInfo.emailVerified,
         image: userInfo.image,
-        roles: userInfo.roles,
+        roles: {
+          updateMany: {
+            data: {
+              type: userInfo.roles[0],
+            },
+            where: {
+              type: {
+                not: undefined,
+              },
+            },
+          },
+        },
+      },
+      include: {
+        roles: true,
       },
     });
     if (!user) {
@@ -101,7 +125,7 @@ const handler = async (
     }
     res.json({
       message: "Successfully updated user.",
-      user: sanitizeUser(user),
+      user: flattenUserRoles(sanitizeUser(user)),
     });
   } catch (err) {
     res.status(500);

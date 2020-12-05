@@ -22,10 +22,7 @@ const handler = async (
 ): Promise<void> => {
   try {
     const user = await prisma.user.findOne({
-      // where: { id: req.body.id || Number(req.query.id) },
-      // include: {
-      //   viewerPermissions: true,
-      // },
+      where: { id: req.body.id || Number(req.query.id) },
       include: { roles: true },
     });
 
