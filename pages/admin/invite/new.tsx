@@ -28,11 +28,11 @@ const AdminInviteFormSchema = Joi.object<AdminInviteFormValues>({
     .trim()
     .email({ tlds: { allow: false } })
     .required(),
-  phoneNumber: Joi.string().optional(),
+  phoneNumber: Joi.string().allow(""),
   role: Joi.string()
     .valid(...Object.values(UserRoleType))
     .required(),
-  linkedPlayers: Joi.array().items(Joi.number().required()).optional(),
+  linkedPlayers: Joi.array().items(Joi.number()).allow(null),
 });
 
 const AdminNewInvitePage: React.FC = () => {
