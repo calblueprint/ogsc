@@ -59,10 +59,14 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
 }) => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [currRole, setCurrRole] = useState(user?.defaultRole.type);
+  const [currRole, setCurrRole] = useState<UserRoleType>();
   const { errors, register, handleSubmit } = useForm<AdminEditUserFormValues>({
     resolver: joiResolver(AdminEditUserFormSchema),
   });
+
+  useEffect(() => {
+    setCurrRole(user?.defaultRole.type);
+  }, [user]);
 
   async function onSubmit(
     values: AdminEditUserFormValues,
@@ -81,6 +85,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
           email: values.email,
           name: `${values.firstName} ${values.lastName}`,
           phoneNumber: values.phoneNumber,
+          roles: [values.role as UserRoleType],
         } as UpdateUserDTO),
       });
       if (!response.ok) {
@@ -205,7 +210,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
             </FormField>
             <FormField label="Role" name="role" error={errors.role?.message}>
               {Object.values(UserRoleType).map((role: UserRoleType) => (
-                <label className="block font-normal" htmlFor={role}>
+                <label className="block font-normal" htmlFor={role} key={role}>
                   <input
                     className="mr-3"
                     type="radio"
@@ -213,7 +218,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
                     id={role}
                     defaultValue={role}
                     onChange={() => setCurrRole(role)}
-                    checked={currRole === UserRoleLabel[role]}
+                    checked={currRole === role}
                     ref={register}
                   />
                   {UserRoleLabel[role]}

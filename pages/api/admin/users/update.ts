@@ -1,9 +1,9 @@
-import { PrismaClient, RoleUpdateManyWithoutUserInput } from "@prisma/client";
-import { ValidatedNextApiRequest } from "interfaces";
+import { PrismaClient } from "@prisma/client";
+import { ValidatedNextApiRequest, UserRoleType } from "interfaces";
 import Joi from "joi";
 import { NextApiResponse } from "next";
 import { validateBody } from "pages/api/helpers";
-
+import flattenUserRoles from "utils/flattenUserRoles";
 import sanitizeUser from "utils/sanitizeUser";
 import { adminOnlyHandler } from "../helpers";
 
@@ -16,8 +16,8 @@ export type UpdateUserDTO = {
   phoneNumber?: string;
   emailVerified?: Date;
   image?: string;
+  roles: [UserRoleType];
   hashedPassword?: string;
-  roles?: RoleUpdateManyWithoutUserInput;
 };
 
 const expectedBody = Joi.object<UpdateUserDTO>({
@@ -27,28 +27,69 @@ const expectedBody = Joi.object<UpdateUserDTO>({
   phoneNumber: Joi.string(),
   emailVerified: Joi.date(),
   image: Joi.string(),
+  roles: Joi.array().items(Joi.string()).optional(),
   hashedPassword: Joi.string(),
-  roles: Joi.array().items(Joi.object()).optional(),
 });
 
+// NOTE: deletes all viewer permissions if changing role to Admin
 const handler = async (
   req: ValidatedNextApiRequest<UpdateUserDTO>,
   res: NextApiResponse
 ): Promise<void> => {
   try {
     const userInfo = req.body;
-    const user = await prisma.user.update({
-      where: { id: userInfo.id || Number(req.query.id) },
-      data: {
-        name: userInfo.name,
-        email: userInfo.email,
-        phoneNumber: userInfo.phoneNumber,
-        emailVerified: userInfo.emailVerified,
-        image: userInfo.image,
-        hashedPassword: userInfo.hashedPassword,
-        roles: userInfo.roles,
-      },
-    });
+    const user =
+      userInfo.roles[0] === "Admin"
+        ? await prisma.user.update({
+            where: { id: userInfo.id || Number(req.query.id) },
+            data: {
+              name: userInfo.name,
+              email: userInfo.email,
+              phoneNumber: userInfo.phoneNumber,
+              emailVerified: userInfo.emailVerified,
+              image: userInfo.image,
+              hashedPassword: userInfo.hashedPassword,
+              roles: {
+                deleteMany: {
+                  type: {
+                    not: undefined,
+                  },
+                },
+                create: {
+                  type: UserRoleType.Admin,
+                },
+              },
+            },
+            include: {
+              roles: true,
+            },
+          })
+        : await prisma.user.update({
+            where: { id: userInfo.id || Number(req.query.id) },
+            data: {
+              name: userInfo.name,
+              email: userInfo.email,
+              phoneNumber: userInfo.phoneNumber,
+              emailVerified: userInfo.emailVerified,
+              image: userInfo.image,
+              hashedPassword: userInfo.hashedPassword,
+              roles: {
+                updateMany: {
+                  data: {
+                    type: userInfo.roles[0],
+                  },
+                  where: {
+                    type: {
+                      not: undefined,
+                    },
+                  },
+                },
+              },
+            },
+            include: {
+              roles: true,
+            },
+          });
     if (!user) {
       res
         .status(404)
@@ -56,7 +97,7 @@ const handler = async (
     }
     res.json({
       message: "Successfully updated user.",
-      user: sanitizeUser(user),
+      user: flattenUserRoles(sanitizeUser(user)),
     });
   } catch (err) {
     res.status(500);
