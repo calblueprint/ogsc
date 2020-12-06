@@ -12,19 +12,11 @@ type Props = React.PropsWithChildren<{
   setOption: React.Dispatch<React.SetStateAction<string>>;
   setSuccess: React.Dispatch<React.SetStateAction<boolean>>;
   setType: React.Dispatch<
-    React.SetStateAction<"updated" | "added" | undefined>
+    React.SetStateAction<"updated" | "added" | "deleted" | undefined>
   >;
   setDate: React.Dispatch<React.SetStateAction<string>>;
   currentScore: field;
-  scoreCategory:
-    | "AcademicEngagementScore"
-    | "AdvisingScore"
-    | "AthleticScore"
-    | "BMI"
-    | "GPA"
-    | "PacerTest"
-    | "Pushups"
-    | "Situps";
+  scoreCategory: string;
 }>;
 
 const EditScore: React.FC<Props> = ({
@@ -33,6 +25,7 @@ const EditScore: React.FC<Props> = ({
   setSuccess,
   setDate,
   setType,
+  scoreCategory,
 }: Props) => {
   const router = useRouter();
   const [score, SetScore] = useState<string>(
@@ -62,16 +55,6 @@ const EditScore: React.FC<Props> = ({
     );
     Joi.assert(selectYear, Joi.number().required(), "You must select a Year ");
   };
-
-  function getCategory(key: string): string {
-    if (key === "AcademicEngagementScore") {
-      return "School";
-    }
-    if (key === "AdvisingScore") {
-      return "Advising";
-    }
-    return "Athletic";
-  }
 
   async function ScoreSubmit(event?: React.BaseSyntheticEvent): Promise<void> {
     event?.preventDefault();
@@ -128,7 +111,7 @@ const EditScore: React.FC<Props> = ({
         <hr className="pb-4" />
         <p className="text-sm font-semibold mb-3">Score Category</p>
         <Button className="p-2 border cursor-not-allowed border-unselected w-40 h-10 rounded-lg bg-transparent font-light text-black justify-between">
-          <p className="ml-2 text-sm">{getCategory(currentScore.key)}</p>
+          <p className="ml-2 text-sm">{scoreCategory}</p>
           <Icon className="w-3 h-3 stroke-current -ml-6 mr-3" type="chevron" />
         </Button>
         <p className="text-sm font-semibold mb-3 mt-10">Score</p>
