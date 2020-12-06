@@ -24,8 +24,8 @@ export const CreateUserDTOValidator = Joi.object<CreateUserDTO>({
   name: Joi.string().required(),
   email: Joi.string().email().required(),
   password: Joi.string().min(8).required(),
-  phoneNumber: Joi.string().optional(),
-  inviteCodeId: Joi.string().optional(),
+  phoneNumber: Joi.string().allow(""),
+  inviteCodeId: Joi.string().allow(""),
 });
 
 /**

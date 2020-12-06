@@ -20,7 +20,7 @@ export type AdminCreateUserDTO = {
 const AdminCreateUserDTOValidator = Joi.object<AdminCreateUserDTO>({
   name: Joi.string().required(),
   email: Joi.string().required(),
-  phoneNumber: Joi.string().empty("").allow(null),
+  phoneNumber: Joi.string().allow(""),
   role: Joi.string()
     .valid(...Object.values(UserRoleType))
     .allow(null),
