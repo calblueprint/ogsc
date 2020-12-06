@@ -325,7 +325,7 @@ const UserProfile: React.FunctionComponent = () => {
   }, [id]);
   return (
     <DashboardLayout>
-      <div className="mx-16">
+      <div className="mx-16 mb-24">
         <div className="flex flex-row items-center pt-20 pb-12">
           <div className="w-24 h-24 mr-4 bg-placeholder rounded-full">
             {/* <img src={user?.image} alt="" />{" "} */}
