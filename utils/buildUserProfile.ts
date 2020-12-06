@@ -79,7 +79,7 @@ export default function buildUserProfile<
   };
   user.profileFields.forEach((field: ProfileField) => {
     const { lastUpdated } = transformedUser.profile[field.key];
-    if (lastUpdated === null || lastUpdated < field.createdAt) {
+    if (lastUpdated === null || lastUpdated < new Date(field.createdAt)) {
       transformedUser.profile[field.key].current = deserializeProfileFieldValue(
         field
       );

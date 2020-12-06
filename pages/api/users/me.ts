@@ -3,6 +3,7 @@ import { IPlayer, IUser } from "interfaces";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/client";
 import buildUserProfile from "utils/buildUserProfile";
+import flattenUserRoles from "utils/flattenUserRoles";
 import sanitizeUser from "utils/sanitizeUser";
 import { routeByMethod } from "../helpers";
 
@@ -21,13 +22,14 @@ export default routeByMethod({
       include: {
         // absences: true,
         profileFields: true,
-        viewerPermissions: true,
-        viewedByPermissions: true,
+        roles: true,
       },
     });
 
     if (user) {
-      const response: IUser | IPlayer = sanitizeUser(buildUserProfile(user));
+      const response: IUser | IPlayer = flattenUserRoles(
+        sanitizeUser(buildUserProfile(user))
+      );
       res.json(response);
     } else {
       res.status(500).json({ message: "Could not find user." });

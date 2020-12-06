@@ -2,16 +2,18 @@ import React, { useState } from "react";
 import Icon from "components/Icon";
 import Button from "components/Button";
 
-type BoxProps = {
+type BoxProps = React.PropsWithChildren<{
   items: string[];
   placeholder: string;
   setState: React.Dispatch<React.SetStateAction<string>>;
-};
+  short?: boolean;
+}>;
 
 const Combobox: React.FC<BoxProps> = ({
   items,
   placeholder,
   setState,
+  short,
 }: BoxProps) => {
   const [dropDown, setDropDown] = useState(false);
   const [text, setText] = useState(placeholder);
@@ -34,11 +36,11 @@ const Combobox: React.FC<BoxProps> = ({
         <Icon className="w-3 h-3 stroke-current -ml-6 mr-3" type="chevron" />
       </Button>
       {dropDown && (
-        <div className="absolute h-32 w-40 bg-white">
+        <div className="absolute h-10 w-40 bg-white">
           <div className="relative rounded-lg border border-unselected bg-white w-full text-sm">
             <ul
               className={`list-reset relative overflow-auto ${
-                placeholder === "" ? "" : "h-48"
+                short ? "" : "h-48"
               }`}
             >
               {items.map((name: string) => (

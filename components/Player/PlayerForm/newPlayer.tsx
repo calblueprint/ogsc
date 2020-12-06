@@ -6,7 +6,7 @@ import { UserDTO } from "pages/api/admin/users/readOneEmail";
 import { AdminCreateUserDTO } from "pages/api/admin/users/create";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import updateAction from "utils/updateAction";
+import updateActionSignUp from "utils/updateActionSignUp";
 import { useStateMachine } from "little-state-machine";
 import type { UserSignUpFormValues } from "../../../pages/users/signUp";
 
@@ -25,7 +25,7 @@ type Props = React.PropsWithChildren<{
 }>;
 
 const NewPlayerInvitePage: React.FC<Props> = ({ setPlayerID }: Props) => {
-  const { action, state } = useStateMachine(updateAction);
+  const { action, state } = useStateMachine(updateActionSignUp);
   const [checkSubmit, setCheckSubmit] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [firstName, setFirstName] = useState(

@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import Link from "next/link";
 import React from "react";
-import { UserRole, UserRoleLabel } from "interfaces";
+import { UserRoleLabel, UserRoleType } from "interfaces";
 import useSessionInfo from "utils/useSessionInfo";
 import Icon from "components/Icon";
 
@@ -38,8 +38,8 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({
   );
 };
 
-const SidebarsByRole: Record<UserRole, React.ReactNode> = {
-  admin: (
+const SidebarsByRole: Record<UserRoleType, React.ReactNode> = {
+  Admin: (
     <>
       <SidebarLink href="/admin/players">Players</SidebarLink>
       <SidebarLink href="/admin/users">Members</SidebarLink>
@@ -48,22 +48,22 @@ const SidebarsByRole: Record<UserRole, React.ReactNode> = {
       {/* <SidebarLink href="/admin/notes">Notes</SidebarLink> */}
     </>
   ),
-  mentor: (
+  Mentor: (
     <>
       <SidebarLink href="/mentor/players">Players</SidebarLink>
       {/* <SidebarLink href="/mentor/calendar">Calendar</SidebarLink> */}
       {/* <SidebarLink href="/mentor/notes">Notes</SidebarLink> */}
     </>
   ),
-  parent: <></>,
-  player: (
+  Parent: <></>,
+  Player: (
     <>
       <SidebarLink href="/player/profile">Profile</SidebarLink>
       {/* <SidebarLink href="/player/calendar">Calendar</SidebarLink> */}
       {/* <SidebarLink href="/player/notes">Notes</SidebarLink> */}
     </>
   ),
-  donor: (
+  Donor: (
     <>
       <SidebarLink href="/donor/players">Players</SidebarLink>
       {/* <SidebarLink href="/donor/calendar">Calendar</SidebarLink> */}
