@@ -4834,10 +4834,10 @@ listr2@^3.2.2:
     rxjs "^6.6.3"
     through "^2.3.8"
 
-little-state-machine@^3.1.2:
-  version "3.1.2"
-  resolved "https://registry.yarnpkg.com/little-state-machine/-/little-state-machine-3.1.2.tgz#4f2742db028787e4ae353150be2864873fed384a"
-  integrity sha512-vHbZRyYSMgefIzISJWbSbbdKZZVTSdOi+DiUfk4Z8jM+mL2LKsY46perBsjNmkmO5Cq2jFG541bHvCXf9kWDqg==
+little-state-machine@^3.1.4:
+  version "3.1.4"
+  resolved "https://registry.yarnpkg.com/little-state-machine/-/little-state-machine-3.1.4.tgz#b29c396f732976cc327a612ef9a7a53f3f3520ab"
+  integrity sha512-gYlLCj6oUME0NG34/2O0Ljy52qYYyYDJ5yiAuq2ijbaRlBKIqtQQkKkEYn0KfjYXCE693j+bdY22EyZin25Bhw==
 
 load-json-file@^2.0.0:
   version "2.0.0"
