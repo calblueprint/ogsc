@@ -70,7 +70,7 @@
     "babel-plugin-superjson-next": "^0.1.8",
     "db-migrate-pg": "^1.2.2",
     "db-migrate-plugin-typescript": "ethanlee16/plugin-typescript",
-    "eslint": "^7.10.0",
+    "eslint": "^7.16.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-import": "^2.22.1",
