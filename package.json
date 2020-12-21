@@ -55,7 +55,7 @@
     "victory": "^35.3.5"
   },
   "devDependencies": {
-    "@prisma/cli": "2.8.0",
+    "@prisma/cli": "2.13.1",
     "@types/db-migrate-base": "^0.0.8",
     "@types/faker": "^5.1.4",
     "@types/lodash.debounce": "^4.0.6",
