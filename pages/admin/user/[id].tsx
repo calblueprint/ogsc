@@ -1,4 +1,4 @@
-import { useRouter } from "next/router";
+import { NextRouter, useRouter } from "next/router";
 import DashboardLayout from "components/DashboardLayout";
 import React, { useState, useEffect } from "react";
 import Icon from "components/Icon";
@@ -9,6 +9,7 @@ import Joi from "joi";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { useForm } from "react-hook-form";
+import { DeleteUserDTO } from "pages/api/admin/users/delete";
 
 interface AdminEditUserFormValues {
   firstName: string;
@@ -23,6 +24,13 @@ interface EditUserProps {
   isEditing: boolean;
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
   setUser: (user: IUser) => void;
+}
+
+interface DeleteConfirmationProps {
+  user?: IUser;
+  isDeleting: boolean;
+  setIsDeleting: React.Dispatch<React.SetStateAction<boolean>>;
+  router: NextRouter;
 }
 
 type ModalProps = React.PropsWithChildren<{
@@ -51,6 +59,52 @@ const AdminEditUserFormSchema = Joi.object<AdminEditUserFormValues>({
     .required(),
 });
 
+const DeleteConfirmation: React.FunctionComponent<DeleteConfirmationProps> = ({
+  user,
+  isDeleting,
+  setIsDeleting,
+  router,
+}) => {
+  async function onDelete(): Promise<void> {
+    const response = await fetch(`/api/admin/users/${user?.id}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        id: user?.id,
+      } as DeleteUserDTO),
+    });
+    if (!response.ok) {
+      throw await response.json();
+    }
+    setIsDeleting(false);
+    router.push("/admin/users");
+  }
+  return (
+    <Modal open={Boolean(isDeleting)}>
+      <p>Are you sure you want to delete this user?</p>
+      <div className="mb-2 flex">
+        <Button
+          className="button-primary px-10 py-2 mr-5"
+          onClick={() => {
+            onDelete();
+          }}
+        >
+          Delete
+        </Button>
+        <Button
+          className="button-hollow px-10 py-2"
+          onClick={() => {
+            setIsDeleting(false);
+          }}
+        >
+          Cancel
+        </Button>
+      </div>
+    </Modal>
+  );
+};
+
 const EditUser: React.FunctionComponent<EditUserProps> = ({
   user,
   isEditing,
@@ -59,10 +113,14 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
 }) => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [currRole, setCurrRole] = useState(user?.defaultRole.type);
+  const [currRole, setCurrRole] = useState<UserRoleType>();
   const { errors, register, handleSubmit } = useForm<AdminEditUserFormValues>({
     resolver: joiResolver(AdminEditUserFormSchema),
   });
+
+  useEffect(() => {
+    setCurrRole(user?.defaultRole.type);
+  }, [user]);
 
   async function onSubmit(
     values: AdminEditUserFormValues,
@@ -81,6 +139,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
           email: values.email,
           name: `${values.firstName} ${values.lastName}`,
           phoneNumber: values.phoneNumber,
+          roles: [values.role as UserRoleType],
         } as UpdateUserDTO),
       });
       if (!response.ok) {
@@ -95,6 +154,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
       setIsEditing(false);
     }
   }
+
   return (
     <Modal open={Boolean(isEditing)}>
       <div className="mx-16 mt-24">
@@ -205,7 +265,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
             </FormField>
             <FormField label="Role" name="role" error={errors.role?.message}>
               {Object.values(UserRoleType).map((role: UserRoleType) => (
-                <label className="block font-normal" htmlFor={role}>
+                <label className="block font-normal" htmlFor={role} key={role}>
                   <input
                     className="mr-3"
                     type="radio"
@@ -213,7 +273,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
                     id={role}
                     defaultValue={role}
                     onChange={() => setCurrRole(role)}
-                    checked={currRole === UserRoleLabel[role]}
+                    checked={currRole === role}
                     ref={register}
                   />
                   {UserRoleLabel[role]}
@@ -247,6 +307,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
 const UserProfile: React.FunctionComponent = () => {
   const [user, setUser] = useState<IUser>();
   const [isEditing, setIsEditing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
   const { id } = router.query;
 
@@ -310,7 +371,26 @@ const UserProfile: React.FunctionComponent = () => {
             <p className="text-blue mr-20 w-24">Menteed Players</p>
             <p>List</p>
           </div>
+          <p className="text-lg font-semibold pb-10 pt-16">Account Changes</p>
+          <p className="font-semibold text-sm pb-3">Close Account</p>
+          <p className="text-sm font-normal">
+            Delete this user&apos;s account and account data
+          </p>
+          <Button
+            className="button-primary mt-7 mb-52 mr-5 text-danger bg-danger-muted"
+            onClick={() => {
+              setIsDeleting(true);
+            }}
+          >
+            Close Account
+          </Button>
         </div>
+        {DeleteConfirmation({
+          user,
+          isDeleting,
+          setIsDeleting,
+          router,
+        })}
         <EditUser
           user={user}
           isEditing={isEditing}
