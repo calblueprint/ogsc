@@ -122,7 +122,7 @@ const UserSignUpPageOne: React.FC = () => {
         choice: "",
         player: null,
       });
-      actions.updateAction({
+      actions.updateActionSignUp({
         firstName: "",
         lastName: "",
         email: "",
