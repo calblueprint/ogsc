@@ -2,8 +2,13 @@ import { NextApiResponse } from "next";
 import { PrismaClient } from "@prisma/client";
 import sanitizeUser from "utils/sanitizeUser";
 import hash from "utils/hashPassword";
-import { SanitizedUser, ValidatedNextApiRequest } from "interfaces";
+import {
+  SanitizedUser,
+  UserRoleType,
+  ValidatedNextApiRequest,
+} from "interfaces";
 import Joi from "joi";
+import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { validateBody } from "../helpers";
 import { getInviteById } from "../invites/[id]";
 
@@ -18,6 +23,7 @@ export type CreateUserDTO = {
   password: string;
   phoneNumber?: string;
   inviteCodeId?: string;
+  role?: UserRoleType;
 };
 
 export const CreateUserDTOValidator = Joi.object<CreateUserDTO>({
@@ -26,6 +32,9 @@ export const CreateUserDTOValidator = Joi.object<CreateUserDTO>({
   password: Joi.string().min(8).required(),
   phoneNumber: Joi.string().allow(""),
   inviteCodeId: Joi.string().allow(""),
+  role: Joi.string()
+    .valid(...Object.values(UserRoleType))
+    .allow(null),
 });
 
 /**
@@ -41,24 +50,52 @@ export const createAccount = async (
   ) {
     throw new Error("Invalid inviteCodeId");
   }
-  const loginInfo = {
-    name: user.name,
-    email: user.email,
-    phoneNumber: user.phoneNumber,
-    hashedPassword: hash(user.password),
-  };
+  // const loginInfo = {
+  //   name: user.name,
+  //   email: user.email,
+  //   phoneNumber: user.phoneNumber,
+  //   hashedPassword: hash(user.password),
+  //   // roles: {
+  //   //   create: {
+  //   //     type: user.role,
+  //   //   },
+  //   // },
+  // };
   let newUser;
   const inviteCode = user.inviteCodeId
     ? await getInviteById(user.inviteCodeId)
     : null;
   if (inviteCode) {
     // inviteCodeId exists and valid invite code fetched
-    newUser = await prisma.user.update({
-      data: loginInfo,
-      where: {
-        id: inviteCode.user_id,
-      },
+    // call update api
+    const response = await fetch(`/api/admin/users/${inviteCode.user_id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        name: user.name,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        roles: [user.role],
+        hashedPassword: hash(user.password),
+      } as UpdateUserDTO),
     });
+    if (!response.ok) {
+      throw await response.json();
+    }
+    // newUser = await prisma.user.update({
+    //   data: {
+    //     ...loginInfo,
+    //     // roles: {
+    //     //   create: {
+    //     //     type: user.role,
+    //     //   },
+    //     // },
+    //   },
+    //   where: {
+    //     id: inviteCode.user_id,
+    //   },
+    // });
     // update acceptedAt in userInvite
     const userInviteEntry = await prisma.userInvite.update({
       where: { id: user.inviteCodeId },
@@ -72,9 +109,43 @@ export const createAccount = async (
   } else {
     // signing up without an invite code
     newUser = await prisma.user.create({
-      data: loginInfo,
+      // data: loginInfo,
+      data: {
+        name: user.name,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        hashedPassword: hash(user.password),
+        ...(user.role
+          ? {
+              roles: {
+                create: {
+                  type: user.role,
+                },
+              },
+            }
+          : undefined),
+      },
     });
   }
+
+  // else if (user.role) {
+  //   // signing up without an invite code
+  //   newUser = await prisma.user.create({
+  //     // data: loginInfo,
+  //     data: {
+  //       ...loginInfo,
+  //       roles: {
+  //         create: {
+  //           type: user.role,
+  //         },
+  //       },
+  //     },
+  //   });
+  // } else {
+  //   newUser = await prisma.user.create({
+  //     data: loginInfo,
+  //   });
+  // }
   if (!newUser) {
     return null;
   }
