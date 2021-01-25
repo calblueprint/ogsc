@@ -50,17 +50,6 @@ export const createAccount = async (
   ) {
     throw new Error("Invalid inviteCodeId");
   }
-  // const loginInfo = {
-  //   name: user.name,
-  //   email: user.email,
-  //   phoneNumber: user.phoneNumber,
-  //   hashedPassword: hash(user.password),
-  //   // roles: {
-  //   //   create: {
-  //   //     type: user.role,
-  //   //   },
-  //   // },
-  // };
   let newUser;
   const inviteCode = user.inviteCodeId
     ? await getInviteById(user.inviteCodeId)
@@ -83,19 +72,6 @@ export const createAccount = async (
     if (!response.ok) {
       throw await response.json();
     }
-    // newUser = await prisma.user.update({
-    //   data: {
-    //     ...loginInfo,
-    //     // roles: {
-    //     //   create: {
-    //     //     type: user.role,
-    //     //   },
-    //     // },
-    //   },
-    //   where: {
-    //     id: inviteCode.user_id,
-    //   },
-    // });
     // update acceptedAt in userInvite
     const userInviteEntry = await prisma.userInvite.update({
       where: { id: user.inviteCodeId },
@@ -109,7 +85,6 @@ export const createAccount = async (
   } else {
     // signing up without an invite code
     newUser = await prisma.user.create({
-      // data: loginInfo,
       data: {
         name: user.name,
         email: user.email,
@@ -127,25 +102,6 @@ export const createAccount = async (
       },
     });
   }
-
-  // else if (user.role) {
-  //   // signing up without an invite code
-  //   newUser = await prisma.user.create({
-  //     // data: loginInfo,
-  //     data: {
-  //       ...loginInfo,
-  //       roles: {
-  //         create: {
-  //           type: user.role,
-  //         },
-  //       },
-  //     },
-  //   });
-  // } else {
-  //   newUser = await prisma.user.create({
-  //     data: loginInfo,
-  //   });
-  // }
   if (!newUser) {
     return null;
   }
