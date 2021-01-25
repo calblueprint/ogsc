@@ -6,7 +6,7 @@
     "host": "localhost",
     "port": { "ENV": "PG_PORT" },
     "database": "ogsc_development",
-    "ssl": "true"
+    "ssl": "true, extra: {ssl: {rejectUnauthorized: false}}"
   },
   "prod": {
     "driver": "pg",
