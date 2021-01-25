@@ -2,11 +2,15 @@ import React, { useState } from "react";
 import { AbsenceReason, AbsenceType } from "interfaces";
 import { Absence } from "@prisma/client";
 import EditMoreAbsence from "components/Player/EditMoreAbsence";
+import Button from "components/Button";
+import Modal from "components/Modal";
 import SuccessfulChange from "./successChange";
+import AddAbsence from "./AddAbsence";
 
 type Props = {
   absenceType: AbsenceType;
   absences: Absence[];
+  userId: number;
 };
 
 const AbsencePillColors: Record<AbsenceReason, string> = {
@@ -14,10 +18,16 @@ const AbsencePillColors: Record<AbsenceReason, string> = {
   [AbsenceReason.Unexcused]: "danger",
 };
 
-const AbsenceTable: React.FC<Props> = ({ absenceType, absences }: Props) => {
+const AbsenceTable: React.FC<Props> = ({
+  absenceType,
+  absences,
+  userId,
+}: Props) => {
   const [success, setSuccess] = useState(false);
-  const [editType, setEditType] = useState<"updated" | "added">();
+  const [editType, setEditType] = useState<"updated" | "added" | "deleted">();
   const [editDate, setEditDate] = useState<string>("");
+  const [addAbsence, setAddAbsence] = useState(false);
+  const [absenceCategory, setAbsenceCategory] = useState("");
   const filteredAbsences = absences
     .filter((absence: Absence) => absence.type === absenceType)
     .sort((a: Absence, b: Absence) => Number(a.date) - Number(b.date));
@@ -78,6 +88,24 @@ const AbsenceTable: React.FC<Props> = ({ absenceType, absences }: Props) => {
         <p>Total {absenceType} Absences</p>
         <p className="font-semibold">{filteredAbsences.length}</p>
       </div>
+      <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
+        <Button
+          iconType="plus"
+          onClick={() => {
+            setAddAbsence(true);
+            setAbsenceCategory(absenceType);
+          }}
+        >
+          Add Engagement Score
+        </Button>
+      </div>
+      <Modal open={addAbsence} className="w-2/3">
+        <AddAbsence
+          category={absenceCategory}
+          setHidden={setAddAbsence}
+          userId={userId}
+        />
+      </Modal>
     </div>
   );
 };

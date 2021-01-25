@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import updateActionPlayer from "utils/updateActionPlayer";
 import DashboardLayout from "components/DashboardLayout";
 import PlayerFormLayout from "components/Player/PlayerFormLayout";
-import AddScoreField from "components/Player/PlayerForm/AddScoreField";
+import AddScoreField from "components/Player/PlayerForm/CreateScoreField";
 import Card from "components/Card";
 import Icon from "components/Icon";
 import { formatText } from "components/Player/PlayerForm/FormItems";

@@ -11,7 +11,7 @@ type Props = React.PropsWithChildren<{
   setOption: React.Dispatch<React.SetStateAction<string>>;
   setSuccess: React.Dispatch<React.SetStateAction<boolean>>;
   setType: React.Dispatch<
-    React.SetStateAction<"updated" | "added" | undefined>
+    React.SetStateAction<"updated" | "added" | "deleted" | undefined>
   >;
   setDate: React.Dispatch<React.SetStateAction<string>>;
   currentAbsence: Absence;

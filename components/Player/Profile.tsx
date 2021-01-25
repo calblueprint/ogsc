@@ -3,11 +3,15 @@ import Icon, { IconType } from "components/Icon";
 import { AbsenceType, IPlayer, ProfileFieldKey } from "interfaces";
 import updateActionPlayer from "utils/updateActionPlayer";
 import { useStateMachine } from "little-state-machine";
+import Button from "components/Button";
+import Modal from "components/Modal";
 import TextLayout from "./TextLayout";
 import AbsenceTable from "./AbsenceTable";
 import ValueHistoryView from "./ValueHistoryView";
 import EditLayout from "./EditLayout";
 import BioEdit from "./BioEdit";
+import AddScore from "./AddScore";
+import AddGPA from "./AddGPA";
 
 enum ProfileCategory {
   Overview = "Overview",
@@ -192,6 +196,8 @@ const ProfileContents = <T extends ProfileCategory>({
   const [BioEditState, setBioEditState] = useState(false);
   const [schoolScoreState, setSchoolScoreState] = useState(false);
   const [bmiState, setBMIState] = useState(false);
+  const [addScoreState, setAddScoreState] = useState(false);
+  const [scoreCategory, setScoreCategory] = useState("");
   const { action } = useStateMachine(updateActionPlayer);
 
   switch (category) {
@@ -282,17 +288,57 @@ const ProfileContents = <T extends ProfileCategory>({
       return (
         <div>
           <h1 className="mb-10 text-2xl font-semibold">Engagement</h1>
-          <div className="mb-16">
+          <div>
             <ProfileContentCell
               fieldKey={ProfileFieldKey.AcademicEngagementScore}
             />
+            <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
+              <Button
+                iconType="plus"
+                onClick={() => {
+                  setAddScoreState(true);
+                  setScoreCategory("School");
+                }}
+              >
+                Add Engagement Score
+              </Button>
+            </div>
           </div>
           <div className="mb-16">
             <ProfileContentCell fieldKey={ProfileFieldKey.AdvisingScore} />
+            <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
+              <Button
+                iconType="plus"
+                onClick={() => {
+                  setAddScoreState(true);
+                  setScoreCategory("Advising");
+                }}
+              >
+                Add Engagement Score
+              </Button>
+            </div>
           </div>
           <div className="mb-16">
             <ProfileContentCell fieldKey={ProfileFieldKey.AthleticScore} />
+            <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
+              <Button
+                iconType="plus"
+                onClick={() => {
+                  setAddScoreState(true);
+                  setScoreCategory("Athletic");
+                }}
+              >
+                Add Engagement Score
+              </Button>
+            </div>
           </div>
+          <Modal open={addScoreState} className="w-2/3">
+            <AddScore
+              setHidden={setAddScoreState}
+              userId={player?.id}
+              category={scoreCategory}
+            />
+          </Modal>
         </div>
       );
     case ProfileCategory.AcademicPerformance:
@@ -300,7 +346,15 @@ const ProfileContents = <T extends ProfileCategory>({
         <div>
           <h1 className="mb-10 text-2xl font-semibold">Academic Performance</h1>
           <ProfileContentCell fieldKey={ProfileFieldKey.GPA} />
+          <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
+            <Button iconType="plus" onClick={() => setAddScoreState(true)}>
+              Add Grade Point Average
+            </Button>
+          </div>
           <ProfileContentCell fieldKey={ProfileFieldKey.DisciplinaryActions} />
+          <Modal open={addScoreState} className="w-2/3">
+            <AddGPA setHidden={setAddScoreState} userId={player?.id} />
+          </Modal>
         </div>
       );
     case ProfileCategory.PhysicalWellness:
@@ -393,6 +447,7 @@ const ProfileContents = <T extends ProfileCategory>({
                     key={type}
                     absenceType={type}
                     absences={player.absences}
+                    userId={player.id}
                   />
                 )
             )}

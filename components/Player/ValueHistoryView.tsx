@@ -116,7 +116,7 @@ const ValueHistoryView: React.FC<Props> = ({
     IntervalWindow.LastSixMonths
   );
   const [success, setSuccess] = useState(false);
-  const [editType, setEditType] = useState<"updated" | "added">();
+  const [editType, setEditType] = useState<"updated" | "added" | "deleted">();
   const [editDate, setEditDate] = useState<string>("");
   const [startDate, endDate] = IntervalWindowBoundaries[intervalWindow];
 

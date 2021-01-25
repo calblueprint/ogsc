@@ -3,12 +3,13 @@ import Icon from "components/Icon";
 import Modal from "components/Modal";
 import { Absence } from "@prisma/client";
 import EditAbsence from "./EditAbsence";
+import DeleteField from "./DeleteField";
 
 type EditProps = React.PropsWithChildren<{
   absence: Absence;
   setSuccess: React.Dispatch<React.SetStateAction<boolean>>;
   setType: React.Dispatch<
-    React.SetStateAction<"updated" | "added" | undefined>
+    React.SetStateAction<"updated" | "added" | "deleted" | undefined>
   >;
   setDate: React.Dispatch<React.SetStateAction<string>>;
 }>;
@@ -41,6 +42,10 @@ const EditMoreAbsence: React.FunctionComponent<EditProps> = ({
             <button
               type="button"
               className="text-dark grid grid-cols-3 place-items-center hover:bg-button rounded-t-none rounded-lg"
+              onClick={() => {
+                setSelectedOption("delete");
+                setEditMode(false);
+              }}
             >
               <Icon type="delete" />
               <p className="justify-self-start">Delete</p>
@@ -55,6 +60,22 @@ const EditMoreAbsence: React.FunctionComponent<EditProps> = ({
           setDate={setDate}
           currentAbsence={absence}
           setOption={setSelectedOption}
+        />
+      </Modal>
+      <Modal open={selectedOption === "delete"} className="w-2/3">
+        <DeleteField
+          setSuccess={setSuccess}
+          setType={setType}
+          setDate={setDate}
+          setOption={setSelectedOption}
+          fieldType="absence"
+          id={absence.id}
+          userId={absence.userId}
+          date={`
+          ${new Date(absence.date).toLocaleString("default", {
+            month: "long",
+          })}${" "}
+          ${absence.date.getFullYear().toString()}`}
         />
       </Modal>
     </div>

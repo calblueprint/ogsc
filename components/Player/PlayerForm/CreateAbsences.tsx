@@ -1,8 +1,7 @@
 import Button from "components/Button";
 import { useState } from "react";
 import Joi from "joi";
-import DateComboBox from "components/Player/PlayerForm/DateComboBox";
-import { years, months, getDays } from "components/Player/PlayerForm/FormItems";
+import AbsenceFieldContent from "components/Player/AbsenceFieldContent";
 
 type Props = React.PropsWithChildren<{
   setHidden: React.Dispatch<React.SetStateAction<boolean>>;
@@ -83,46 +82,15 @@ const AddAbsencesField: React.FC<Props> = ({
 
   return (
     <fieldset>
-      <p className="text-2xl font-semibold mb-3">Add Absence</p>
-      <hr className="pb-8" />
       <div>
-        <p className="text-sm font-semibold mb-3">Absence Category</p>
-        <DateComboBox
-          items={["School", "Advising", "Athletic"]}
-          placeholder=""
-          setState={SetField}
-        />
-        <p className="text-sm font-semibold mb-3 mt-10">Absence Date</p>
-        <div className="grid grid-cols-5 mb-10">
-          <DateComboBox
-            items={months}
-            placeholder="Month"
-            setState={SetSelectMonth}
-          />
-          <DateComboBox
-            items={getDays(selectMonth)}
-            placeholder="Day"
-            setState={SetSelectDay}
-          />
-          <DateComboBox
-            items={years}
-            placeholder="Year"
-            setState={SetSelectYear}
-          />
-        </div>
-        <p className="text-sm font-semibold mb-3">Excused/Unexcused</p>
-        <DateComboBox
-          items={["Excused", "Unexcused"]}
-          placeholder=""
-          setState={SetType}
-        />
-        <p className="text-sm font-semibold mb-3 mt-10">Description</p>
-        <input
-          type="text"
-          className="input text-sm w-full font-light"
-          name="description"
-          placeholder="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-          onChange={(event) => SetDescription(event.target.value)}
+        <AbsenceFieldContent
+          SetDescription={SetDescription}
+          SetField={SetField}
+          SetSelectDay={SetSelectDay}
+          SetSelectMonth={SetSelectMonth}
+          SetSelectYear={SetSelectYear}
+          SetType={SetType}
+          selectMonth={selectMonth}
         />
         <div className="flex flex-row gap-6 pt-10">
           <Button

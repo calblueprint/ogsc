@@ -61,11 +61,9 @@ const UserAcceptInvitePageOne: React.FC = () => {
   // TODO: Add loading state to form submission
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const {
-    errors,
-    register,
-    handleSubmit,
-  } = useForm<UserAcceptInviteFormValues>({
+  const { errors, register, handleSubmit } = useForm<
+    UserAcceptInviteFormValues
+  >({
     resolver: joiResolver(UserAcceptInviteFormSchema),
   });
 

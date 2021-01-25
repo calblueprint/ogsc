@@ -18,8 +18,8 @@ type UserSignUpForm2Values = {
 const UserSignUpForm2Schema = Joi.object<UserSignUpForm2Values>({
   role: Joi.string()
     .valid(...Object.values(UserRoleType))
-    .optional(),
-  adminNote: Joi.string().optional(),
+    .allow(""),
+  adminNote: Joi.string().allow(""),
 });
 
 const UserSignUpPageTwo: React.FC = () => {
@@ -50,7 +50,7 @@ const UserSignUpPageTwo: React.FC = () => {
         body: JSON.stringify({
           email: state.userData.email,
           name: `${state.userData.firstName} ${state.userData.lastName}`,
-          phoneNumber: state.userData.phoneNumber,
+          phoneNumber: state.userData.phoneNumber.toString(),
           password: state.userData.password,
         } as CreateUserDTO),
       });
