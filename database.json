@@ -5,7 +5,8 @@
     "password": { "ENV": "PG_PASSWORD" },
     "host": "localhost",
     "port": { "ENV": "PG_PORT" },
-    "database": "ogsc_development"
+    "database": "ogsc_development",
+    "ssl": { "rejectUnauthorized": false }
   },
   "prod": {
     "driver": "pg",
