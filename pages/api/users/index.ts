@@ -8,7 +8,6 @@ import {
   ValidatedNextApiRequest,
 } from "interfaces";
 import Joi from "joi";
-import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { validateBody } from "../helpers";
 import { getInviteById } from "../invites/[id]";
 
@@ -56,22 +55,26 @@ export const createAccount = async (
     : null;
   if (inviteCode) {
     // inviteCodeId exists and valid invite code fetched
-    // call update api
-    const response = await fetch(`/api/admin/users/${inviteCode.user_id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
+    newUser = await prisma.user.update({
+      data: {
         name: user.name,
         email: user.email,
         phoneNumber: user.phoneNumber,
-        roles: [user.role],
         hashedPassword: hash(user.password),
-      } as UpdateUserDTO),
+        ...(user.role
+          ? {
+              roles: {
+                create: {
+                  type: user.role,
+                },
+              },
+            }
+          : undefined),
+      },
+      where: {
+        id: inviteCode.user_id,
+      },
     });
-    if (!response.ok) {
-      throw await response.json();
-    }
     // update acceptedAt in userInvite
     const userInviteEntry = await prisma.userInvite.update({
       where: { id: user.inviteCodeId },

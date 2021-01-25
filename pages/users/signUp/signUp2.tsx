@@ -43,7 +43,7 @@ const UserSignUpPageTwo: React.FC = () => {
     }
     try {
       action(values);
-      const response = await fetch("/api/users/", {
+      const response = await fetch("/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

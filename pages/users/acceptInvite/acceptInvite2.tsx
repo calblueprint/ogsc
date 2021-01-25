@@ -46,9 +46,11 @@ const UserAcceptInvitePageTwo: React.FC = () => {
   const [revealPassword, setRevealPassword] = useState(false);
   const [revealConfirmPassword, setRevealConfirmPassword] = useState(false);
 
-  const { errors, register, handleSubmit } = useForm<
-    UserAcceptInviteForm2Values
-  >({
+  const {
+    errors,
+    register,
+    handleSubmit,
+  } = useForm<UserAcceptInviteForm2Values>({
     resolver: joiResolver(UserAcceptInviteForm2Schema),
   });
   const { state, action } = useStateMachine(updateActionAcceptInvite);
