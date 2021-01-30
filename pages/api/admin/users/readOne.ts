@@ -23,7 +23,17 @@ const handler = async (
   try {
     const user = await prisma.user.findOne({
       where: { id: req.body.id || Number(req.query.id) },
-      include: { roles: true },
+      include: {
+        roles: {
+          select: {
+            relatedPlayer: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!user) {

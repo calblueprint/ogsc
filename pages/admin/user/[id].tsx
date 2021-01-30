@@ -10,6 +10,7 @@ import { joiResolver } from "@hookform/resolvers/joi";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { useForm } from "react-hook-form";
 import { DeleteUserDTO } from "pages/api/admin/users/delete";
+import { User } from "@prisma/client";
 
 interface AdminEditUserFormValues {
   firstName: string;
@@ -36,6 +37,10 @@ interface DeleteConfirmationProps {
 type ModalProps = React.PropsWithChildren<{
   open?: boolean;
 }>;
+
+interface Role {
+  relatedPlayer: User;
+}
 
 // TODO: Make some styling changes
 const Modal: React.FC<ModalProps> = ({ children, open }: ModalProps) => {
@@ -369,7 +374,12 @@ const UserProfile: React.FunctionComponent = () => {
           <h2 className="text-lg pb-5">Mentor Information</h2>
           <div className="flex flex-row text-sm">
             <p className="text-blue mr-20 w-24">Menteed Players</p>
-            <p>List</p>
+            {/* <p>{user?.roles.relatedPlayers}</p> */}
+            {user?.roles
+              .filter((role: Role) => role.relatedPlayer !== null)
+              .map((role: Role) => {
+                return <div>{role.relatedPlayer.name}</div>;
+              })}
           </div>
           <p className="text-lg font-semibold pb-10 pt-16">Account Changes</p>
           <p className="font-semibold text-sm pb-3">Close Account</p>

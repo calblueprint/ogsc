@@ -131,11 +131,15 @@ export type PlayerProfile = {
 
 export type DefaultRole = {
   type: UserRoleType;
-  relatedPlayerIds: number[];
+};
+
+export type Role = {
+  relatedPlayer: User;
 };
 
 export type IUser = SanitizedUser & {
   defaultRole: DefaultRole;
+  roles: Role[];
 };
 
 export type IPlayer = IUser & {
