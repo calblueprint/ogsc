@@ -374,7 +374,6 @@ const UserProfile: React.FunctionComponent = () => {
           <h2 className="text-lg pb-5">Mentor Information</h2>
           <div className="flex flex-row text-sm">
             <p className="text-blue mr-20 w-24">Menteed Players</p>
-            {/* <p>{user?.roles.relatedPlayers}</p> */}
             {user?.roles
               .filter((role: Role) => role.relatedPlayer !== null)
               .map((role: Role) => {
