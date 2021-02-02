@@ -107,6 +107,7 @@ export default async function seedDatabase(): Promise<void> {
         email: "admin@ogsc.dev",
         phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
         hashedPassword: hashPassword("password"),
+        emailVerified: new Date(),
         roles: {
           create: {
             type: UserRoleType.Admin,
@@ -131,6 +132,7 @@ export default async function seedDatabase(): Promise<void> {
             hashedPassword: hashPassword("password"),
             name: `${Faker.name.firstName()} ${Faker.name.lastName()}`,
             phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
+            emailVerified: new Date(),
             roles: {
               create: {
                 type: UserRoleType.Player,
@@ -282,6 +284,7 @@ export default async function seedDatabase(): Promise<void> {
             hashedPassword: hashPassword("password"),
             name: `${Faker.name.firstName()} ${Faker.name.lastName()}`,
             phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
+            emailVerified: new Date(),
             roles: {
               create: {
                 type: UserRoleType.Mentor,
@@ -315,6 +318,7 @@ export default async function seedDatabase(): Promise<void> {
             hashedPassword: hashPassword("password"),
             name: `${Faker.name.firstName()} ${Faker.name.lastName()}`,
             phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
+            emailVerified: new Date(),
             roles: {
               create: {
                 type: UserRoleType.Parent,
@@ -348,6 +352,7 @@ export default async function seedDatabase(): Promise<void> {
             hashedPassword: hashPassword("password"),
             name: `${Faker.name.firstName()} ${Faker.name.lastName()}`,
             phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
+            emailVerified: new Date(),
             roles: {
               create: {
                 type: UserRoleType.Donor,

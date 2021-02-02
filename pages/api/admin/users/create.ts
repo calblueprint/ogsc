@@ -42,6 +42,7 @@ const handler = async (
         userInvites: {
           create: {},
         },
+        emailVerified: new Date(),
         ...(role
           ? {
               roles: {

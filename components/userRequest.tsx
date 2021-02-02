@@ -109,8 +109,8 @@ const UserDashboard: React.FunctionComponent = () => {
 
   const getUsers = async (): Promise<void> => {
     try {
-      const response = await fetch("/api/admin/users", {
-        method: "GET",
+      const response = await fetch("/api/admin/users/accountRequests", {
+        method: "POST",
         headers: { "content-type": "application/json" },
         redirect: "follow",
       });

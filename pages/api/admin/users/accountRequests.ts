@@ -1,0 +1,31 @@
+import { PrismaClient } from "@prisma/client";
+import { NextApiRequest, NextApiResponse } from "next";
+import sanitizeUser from "utils/sanitizeUser";
+import { adminOnlyHandler } from "../helpers";
+
+const prisma = new PrismaClient();
+
+const handler = async (
+  req: NextApiRequest, // pagination?
+  res: NextApiResponse
+): Promise<void> => {
+  try {
+    const users = await prisma.user.findMany({
+      where: { emailVerified: null },
+    });
+    if (!users) {
+      res.status(404).json({
+        statusCode: 204,
+        message: "No account requests.",
+      });
+    }
+    res.json({
+      users: users.map(sanitizeUser),
+    });
+  } catch (err) {
+    res.status(500);
+    res.json({ statusCode: 500, message: err.message });
+  }
+};
+
+export default adminOnlyHandler(handler);
