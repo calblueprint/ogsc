@@ -1,38 +1,21 @@
-import { PrismaClient } from "@prisma/client";
 import { IPlayer, IUser } from "interfaces";
 import { NextApiRequest, NextApiResponse } from "next";
-import { getSession } from "next-auth/client";
 import buildUserProfile from "utils/buildUserProfile";
 import flattenUserRoles from "utils/flattenUserRoles";
+import getAuthenticatedUser from "utils/getAuthenticatedUser";
 import sanitizeUser from "utils/sanitizeUser";
 import { routeByMethod } from "../helpers";
 
-const prisma = new PrismaClient();
-
 export default routeByMethod({
   GET: async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
-    const session = await getSession({ req });
-    if (!session) {
-      res.statusCode = 401;
-      res.json({ message: "You are not logged in." });
-      return;
-    }
-    const user = await prisma.user.findOne({
-      where: { email: session.user.email },
-      include: {
-        absences: true,
-        profileFields: true,
-        roles: true,
-      },
-    });
-
-    if (user) {
+    try {
+      const user = await getAuthenticatedUser(req);
       const response: IUser | IPlayer = flattenUserRoles(
         sanitizeUser(buildUserProfile(user))
       );
       res.json(response);
-    } else {
-      res.status(500).json({ message: "Could not find user." });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
     }
   },
 });

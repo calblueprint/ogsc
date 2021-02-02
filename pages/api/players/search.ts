@@ -1,11 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
-import { getSession } from "next-auth/client";
 
 import { IPlayer, IUser, UserRoleType } from "interfaces";
 import buildUserProfile from "utils/buildUserProfile";
 import filterPlayerProfileRead from "utils/filterPlayerProfileRead";
 import flattenUserRoles from "utils/flattenUserRoles";
+import getAuthenticatedUser from "utils/getAuthenticatedUser";
 import sanitizeUser from "utils/sanitizeUser";
 import { USER_PAGE_SIZE } from "../../../constants";
 
@@ -22,18 +22,7 @@ export default async (
   let authenticatedUser: IUser;
 
   try {
-    const session = await getSession({ req });
-    if (!session) {
-      throw new Error("You are not logged in.");
-    }
-    const user = await prisma.user.findOne({
-      where: { email: session.user.email },
-      include: { roles: true },
-    });
-    if (!user) {
-      throw new Error("Could not find the authenticated user.");
-    }
-    authenticatedUser = flattenUserRoles(user);
+    authenticatedUser = flattenUserRoles(await getAuthenticatedUser(req));
   } catch (err) {
     res.status(401).json({ statusCode: 401, message: err.message });
   }
