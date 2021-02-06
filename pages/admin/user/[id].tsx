@@ -4,13 +4,19 @@ import React, { useState, useEffect } from "react";
 import Icon from "components/Icon";
 import Button from "components/Button";
 import FormField from "components/FormField";
-import { IUser, UserRoleLabel, UserRoleType } from "interfaces";
+import {
+  DashboardRole,
+  IUser,
+  PUser,
+  UserRoleLabel,
+  UserRoleType,
+} from "interfaces";
 import Joi from "joi";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { useForm } from "react-hook-form";
 import { DeleteUserDTO } from "pages/api/admin/users/delete";
-import { User } from "@prisma/client";
+import Link from "next/link";
 
 interface AdminEditUserFormValues {
   firstName: string;
@@ -37,10 +43,6 @@ interface DeleteConfirmationProps {
 type ModalProps = React.PropsWithChildren<{
   open?: boolean;
 }>;
-
-interface Role {
-  relatedPlayer: User;
-}
 
 // TODO: Make some styling changes
 const Modal: React.FC<ModalProps> = ({ children, open }: ModalProps) => {
@@ -310,7 +312,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
 };
 
 const UserProfile: React.FunctionComponent = () => {
-  const [user, setUser] = useState<IUser>();
+  const [user, setUser] = useState<PUser>();
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
@@ -318,12 +320,13 @@ const UserProfile: React.FunctionComponent = () => {
 
   useEffect(() => {
     const getUser = async (): Promise<void> => {
-      const response = await fetch(`/api/admin/users/${id}`, {
+      const response = await fetch(`/api/admin/users/menteed/${id}`, {
         method: "GET",
         headers: { "content-type": "application/json" },
         redirect: "follow",
       });
       const data = await response.json();
+      console.log(data);
       setUser(data.user);
     };
     getUser();
@@ -371,16 +374,26 @@ const UserProfile: React.FunctionComponent = () => {
               <p>{user && UserRoleLabel[user.defaultRole.type]}</p>
             </div>
           </div>
-          <h2 className="text-lg pb-5">Mentor Information</h2>
-          <div className="flex flex-row text-sm">
-            <p className="text-blue mr-20 w-24">Menteed Players</p>
-            {user?.roles
-              .filter((role: Role) => role.relatedPlayer !== null)
-              .map((role: Role) => {
-                return <div>{role.relatedPlayer.name}</div>;
-              })}
-          </div>
-          <p className="text-lg font-semibold pb-10 pt-16">Account Changes</p>
+          {user?.defaultRole.type === "Mentor" && (
+            <div className="pb-16">
+              <h2 className="text-lg pb-5">Mentor Information</h2>
+              <div className="flex flex-row text-sm">
+                <p className="text-blue mr-20 w-24">Menteed Players</p>
+                {user?.roles
+                  ?.filter((role: DashboardRole) => role.relatedPlayer !== null)
+                  .map((role: DashboardRole) => {
+                    return (
+                      <Link href={`${role.relatedPlayer.id}`}>
+                        <div className="underline">
+                          {role.relatedPlayer.name}
+                        </div>
+                      </Link>
+                    );
+                  })}
+              </div>
+            </div>
+          )}
+          <p className="text-lg font-semibold pb-10">Account Changes</p>
           <p className="font-semibold text-sm pb-3">Close Account</p>
           <p className="text-sm font-normal">
             Delete this user&apos;s account and account data

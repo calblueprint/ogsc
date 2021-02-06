@@ -5,7 +5,7 @@ import { ValidatedNextApiRequest } from "interfaces";
 import flattenUserRoles from "utils/flattenUserRoles";
 import sanitizeUser from "utils/sanitizeUser";
 import { validateBody } from "pages/api/helpers";
-import { adminOnlyHandler } from "../helpers";
+import { adminOnlyHandler } from "../../helpers";
 
 const prisma = new PrismaClient();
 type UserDTO = {
@@ -23,7 +23,22 @@ const handler = async (
   try {
     const user = await prisma.user.findOne({
       where: { id: req.body.id || Number(req.query.id) },
-      include: { roles: true },
+      include: {
+        roles: {
+          select: {
+            id: true,
+            userId: true,
+            relatedPlayerId: true,
+            type: true,
+            relatedPlayer: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!user) {
