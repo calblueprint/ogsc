@@ -22,6 +22,8 @@ import {
   ProfileFieldValues,
 } from "interfaces";
 import { deserializeProfileFieldValue } from "utils/buildUserProfile";
+import EditMore from "components/Player/EditMore";
+import SuccessfulChange from "components/Player/successChange";
 import colors from "../../constants/colors";
 
 type NumericProfileFields = Exclude<
@@ -113,6 +115,9 @@ const ValueHistoryView: React.FC<Props> = ({
   const [intervalWindow, setIntervalWindow] = useState<IntervalWindow>(
     IntervalWindow.LastSixMonths
   );
+  const [success, setSuccess] = useState(false);
+  const [editType, setEditType] = useState<"updated" | "added" | "deleted">();
+  const [editDate, setEditDate] = useState<string>("");
   const [startDate, endDate] = IntervalWindowBoundaries[intervalWindow];
 
   const deserializedValues = values.map(
@@ -152,7 +157,13 @@ const ValueHistoryView: React.FC<Props> = ({
 
   return (
     <div>
-      <h2 className="text-dark text-lg font-semibold mb-5">{fieldLabel}</h2>
+      {success && (
+        <SuccessfulChange
+          text={`${fieldLabel} score for ${editDate} has been ${editType}!`}
+          setSuccess={setSuccess}
+        />
+      )}
+      <h2 className="text-dark text-lg font-semibold my-5">{fieldLabel}</h2>
       <div className="flex items-center">
         <div
           className={`flex w-16 h-16 justify-center items-center bg-${primaryColor}-muted rounded-lg mr-6`}
@@ -219,21 +230,30 @@ const ValueHistoryView: React.FC<Props> = ({
           <thead>
             <tr className="h-10 text-left text-unselected tr-border">
               <th className="w-3/12 pl-5 font-semibold">Date</th>
-              <th className="w-3/12 font-semibold">Score</th>
-              <th className="font-semibold">Description</th>
+              <th className="w-2/12 font-semibold">Score</th>
+              <th className="w-5/12 font-semibold">Description</th>
+              <th className="w-1/12 font-semibold">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredValues.map((field) => (
               <tr key={field.id} className="h-16 tr-border">
-                <td className="w-3/12 pl-5">
+                <td className="w-3/12 px-5">
                   {new Date(field.createdAt).toLocaleString("default", {
                     month: "short",
                     year: "numeric",
                   })}
                 </td>
-                <td className="w-3/12">{field.value}</td>
+                <td className="w-2/12">{field.value}</td>
                 <td>{field.comment}</td>
+                <td className="w-1/12">
+                  <EditMore
+                    field={field}
+                    setSuccess={setSuccess}
+                    setType={setEditType}
+                    setDate={setEditDate}
+                  />
+                </td>
               </tr>
             ))}
           </tbody>

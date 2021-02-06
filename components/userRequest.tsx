@@ -1,8 +1,15 @@
 import { useEffect, useState } from "react";
 import Button from "components/Button";
 import { DeleteUserDTO } from "pages/api/admin/users/delete";
+// import { useRouter } from "next/router";
+// import { AdminCreateUserDTO } from "pages/api/admin/users/create";
+import Link from "next/link";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
-import { User } from "@prisma/client";
+
+// import { UpdateUserDTO } from "pages/api/admin/users/update";
+// const prisma = new PrismaClient();
+// import DeclineButton from "components/declineButton";
+// import AcceptButton from "components/acceptButton";
 
 const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
   name,
@@ -12,6 +19,8 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
   onDelete,
   onAccept,
 }) => {
+  // const router = useRouter();
+  // const { id } = router.query;
   const deleteUser = async (): Promise<void> => {
     try {
       const response = await fetch("/api/admin/users/delete", {
@@ -30,10 +39,11 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
       throw new Error(err.message);
     }
   };
+  // update emailVerified field
   const acceptUser = async (): Promise<void> => {
     try {
       const response = await fetch("/api/admin/users/update", {
-        method: "UPDATE",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
@@ -48,43 +58,49 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
       throw new Error(err.message);
     }
   };
+
+  // only show users emailVerified that are null
   return (
     <div>
-      <div className="grid grid-cols-4 gap-10 justify-items-start m-5">
-        <div className="flex flex-row">
-          <div className="w-10 h-10 mr-4 bg-placeholder rounded-full" />
-          <div className="w-32">
-            <p className="font-display self-center">{name}</p>
-            <p>User Role</p>
-          </div>
-        </div>
-        <div>
-          <p className="self-center font-normal">{email}</p>
-        </div>
-        <div>
-          <p className="self-center font-normal">{phoneNumber}</p>
-        </div>
-        <div>
-          <div className="flex space-x-4">
-            <div>
-              <Button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                onClick={deleteUser}
-              >
-                Decline
-              </Button>
-            </div>
-            <div className="ml-4 ">
-              <div>
-                <Button
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                  onClick={acceptUser}
-                >
-                  Accept
-                </Button>
+      <div className="grid grid-cols-4 gap-2 justify-items-start m-5">
+        <Link href={`invite/userAccountPage/${id}`}>
+          <div className="flex space-x-40 bg-white hover:bg-placeholder">
+            <div className="flex flex-row">
+              <div className="w-10 h-10 mr-4 bg-placeholder rounded-full" />
+              <div className="w-32">
+                <p className="font-display self-center">{name}</p>
+                <p>User Role</p>
               </div>
             </div>
+            <div>
+              <p className="self-center font-normal">{email}</p>
+            </div>
+            <div>
+              <p className="self-center font-normal">{phoneNumber}</p>
+            </div>
           </div>
+        </Link>
+        <div className="flex space-x-35 position: absolute right-0">
+          {/* <div className="ml-40"> */}
+          <div>
+            <Button
+              className="bg-red-200 hover:bg-red-200 text-danger font-bold py-2 px-4 rounded"
+              onClick={deleteUser}
+            >
+              Decline
+            </Button>
+          </div>
+          {/* </div> */}
+          {/* <div className="ml-4"> */}
+          <div className="ml-4">
+            <Button
+              className="bg-green-200 hover:bg-green-200 text-success font-bold py-2 px-4 rounded"
+              onClick={acceptUser}
+            >
+              Accept
+            </Button>
+          </div>
+          {/* </div> */}
         </div>
       </div>
       <hr className="border-unselected border-opacity-50" />
@@ -112,9 +128,7 @@ const UserDashboard: React.FunctionComponent = () => {
         redirect: "follow",
       });
       const data = await response.json();
-      setUsers(
-        data.users.filter((player: User) => player.emailVerified === null)
-      );
+      setUsers(data.users);
     } catch (err) {
       throw new Error(err.message);
     }
@@ -125,7 +139,7 @@ const UserDashboard: React.FunctionComponent = () => {
   }, []);
   return (
     <div>
-      <div className="grid grid-cols-4 gap-12 justify-items-start m-5 font-display text-unselected">
+      <div className="grid grid-cols-4 gap-2 justify-items-start m-5 font-display text-unselected">
         <p>Name</p>
         <p>Email</p>
         <p>Phone</p>

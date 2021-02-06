@@ -2,7 +2,7 @@ import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
 import DashboardLayout from "components/DashboardLayout";
 import FormField from "components/FormField";
-import { UserRole, UserRoleConstants, UserRoleLabel } from "interfaces";
+import { UserRoleLabel, UserRoleType } from "interfaces";
 import Joi from "joi";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -17,7 +17,7 @@ type AdminInviteFormValues = {
   lastName: string;
   email: string;
   phoneNumber?: string;
-  role: UserRole;
+  role: UserRoleType;
   linkedPlayers?: number[];
 };
 
@@ -28,11 +28,11 @@ const AdminInviteFormSchema = Joi.object<AdminInviteFormValues>({
     .trim()
     .email({ tlds: { allow: false } })
     .required(),
-  phoneNumber: Joi.string().optional(),
+  phoneNumber: Joi.string().allow(""),
   role: Joi.string()
-    .valid(...UserRoleConstants)
+    .valid(...Object.values(UserRoleType))
     .required(),
-  linkedPlayers: Joi.array().items(Joi.number().required()).optional(),
+  linkedPlayers: Joi.array().items(Joi.number()).allow(null),
 });
 
 const AdminNewInvitePage: React.FC = () => {
@@ -81,9 +81,11 @@ const AdminNewInvitePage: React.FC = () => {
   }
 
   const showCombobox = (): string => {
-    return roleChosen === "mentor" ||
-      roleChosen === "parent" ||
-      roleChosen === "donor"
+    return ([
+      UserRoleType.Mentor,
+      UserRoleType.Parent,
+      UserRoleType.Donor,
+    ] as UserRoleType[]).includes(roleChosen as UserRoleType)
       ? ""
       : "hidden";
   };
@@ -155,7 +157,7 @@ const AdminNewInvitePage: React.FC = () => {
               />
             </FormField>
             <FormField label="Role" name="role" error={errors.role?.message}>
-              {UserRoleConstants.map((role: UserRole) => (
+              {Object.values(UserRoleType).map((role: UserRoleType) => (
                 <label
                   className="font-medium flex items-center mb-2"
                   htmlFor={role}
@@ -182,25 +184,10 @@ const AdminNewInvitePage: React.FC = () => {
                 name="linkedPlayers"
                 error="" // TODO: fix this
               >
-                <p
-                  className={`text-xs font-normal mt-3 mb-3 ${showCombobox()}`}
-                >
-                  {(() => {
-                    switch (roleChosen) {
-                      case "mentor":
-                        return "Mentors will have access to the full profile of players they are mentoring, including Engagement Scores, Academics, Attendance, and Physical Health information.";
-                      case "parent":
-                        return "Parents will have access to the full profile of their children, including Engagement Scores, Academics, Attendance, and Physical Health information.";
-                      case "donor":
-                        return "Donors will have access to extended profiles of players they’re sponsoring, including Engagement Scores, Academics, and Physical Health information.";
-                      default:
-                        return "error";
-                    }
-                  })()}
-                </p>
                 <Combobox
                   selectedPlayers={selectedPlayers}
                   setSelectedPlayers={setSelectedPlayers}
+                  role={roleChosen}
                 />
               </FormField>
             </div>

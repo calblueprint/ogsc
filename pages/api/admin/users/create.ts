@@ -1,7 +1,7 @@
 import { PrismaClient, PrismaClientKnownRequestError } from "@prisma/client";
 import { NextApiResponse } from "next";
 import Joi from "joi";
-import { ValidatedNextApiRequest } from "interfaces";
+import { UserRoleType, ValidatedNextApiRequest } from "interfaces";
 import Notifier from "lib/notify";
 import { NotificationType } from "lib/notify/types";
 import { validateBody } from "pages/api/helpers";
@@ -13,16 +13,18 @@ export type AdminCreateUserDTO = {
   name: string;
   email: string;
   phoneNumber?: string | undefined;
-  role?: string | undefined;
+  role?: UserRoleType | undefined;
   linkedPlayers?: number[] | undefined;
 };
 
 const AdminCreateUserDTOValidator = Joi.object<AdminCreateUserDTO>({
   name: Joi.string().required(),
   email: Joi.string().required(),
-  phoneNumber: Joi.string().optional(),
-  role: Joi.string().optional(),
-  linkedPlayers: Joi.array().items(Joi.number().required()).optional(),
+  phoneNumber: Joi.string().allow(""),
+  role: Joi.string()
+    .valid(...Object.values(UserRoleType))
+    .allow(null),
+  linkedPlayers: Joi.array().items(Joi.number()).allow(null),
 });
 
 const handler = async (
@@ -40,16 +42,20 @@ const handler = async (
         userInvites: {
           create: {},
         },
-        viewerPermissions: {
-          create: linkedPlayers?.map((playerID: number) => ({
-            relationship_type: role,
-            viewee: {
-              connect: {
-                id: playerID,
+        ...(role
+          ? {
+              roles: {
+                create: linkedPlayers?.map((playerID: number) => ({
+                  type: role,
+                  relatedPlayer: {
+                    connect: {
+                      id: playerID,
+                    },
+                  },
+                })),
               },
-            },
-          })),
-        },
+            }
+          : undefined),
       },
       include: {
         userInvites: true,

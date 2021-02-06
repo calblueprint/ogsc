@@ -9,7 +9,7 @@ const handler = async (
   res: NextApiResponse
 ): Promise<void> => {
   try {
-    const view = await prisma.viewingPermission.findOne({
+    const view = await prisma.role.findOne({
       where: { id: Number(req.query.id) },
     });
     if (!view) {

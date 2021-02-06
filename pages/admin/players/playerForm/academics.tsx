@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import updateActionPlayer from "utils/updateActionPlayer";
 import DashboardLayout from "components/DashboardLayout";
 import PlayerFormLayout from "components/Player/PlayerFormLayout";
-import GPAScoreField from "components/Player/PlayerForm/AddGPAField";
+import GPAScoreField from "components/Player/PlayerForm/CreateGPAField";
 import DisciplinaryField from "components/Player/PlayerForm/DisciplinaryField";
 import { totalScore } from "pages/admin/players/playerForm/engagement";
 import Card from "components/Card";

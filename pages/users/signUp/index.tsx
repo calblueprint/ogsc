@@ -1,13 +1,12 @@
 import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
 import UserSignUpFormField from "components/UserSignUpFormField";
-import { UserRole, UserRoleConstants } from "interfaces";
 import Joi from "joi";
 import { StateMachineProvider, useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import updateAction from "utils/updateAction";
+import updateActionSignUp from "utils/updateActionSignUp";
 
 export type UserSignUpFormValues = {
   firstName: string;
@@ -15,8 +14,6 @@ export type UserSignUpFormValues = {
   email: string;
   phoneNumber?: string;
   password: string;
-  role?: UserRole;
-  adminNote?: string;
 };
 
 const UserSignUpFormSchema = Joi.object<UserSignUpFormValues>({
@@ -26,12 +23,8 @@ const UserSignUpFormSchema = Joi.object<UserSignUpFormValues>({
     .trim()
     .email({ tlds: { allow: false } })
     .required(),
-  phoneNumber: Joi.string().optional(),
+  phoneNumber: Joi.string().empty("").allow(null),
   password: Joi.forbidden().required(),
-  role: Joi.string()
-    .valid(...UserRoleConstants)
-    .optional(),
-  adminNote: Joi.string().optional(),
 });
 
 const UserSignUpPageOne: React.FC = () => {
@@ -44,7 +37,7 @@ const UserSignUpPageOne: React.FC = () => {
   const { errors, register, handleSubmit } = useForm<UserSignUpFormValues>({
     resolver: joiResolver(UserSignUpFormSchema),
   });
-  const { action, state } = useStateMachine(updateAction);
+  const { action, state } = useStateMachine(updateActionSignUp);
 
   async function onSubmit(
     values: UserSignUpFormValues,

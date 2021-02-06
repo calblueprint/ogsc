@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import {
-  // Absence,
-  // AbsenceCreateWithoutUsersInput,
+  Absence,
+  AbsenceCreateWithoutUsersInput,
   PrismaClient,
   ProfileFieldCreateWithoutUserInput,
   ProfileFieldKey,
@@ -10,7 +10,7 @@ import {
 } from "@prisma/client";
 import Faker from "faker";
 import Ora from "ora";
-// import { AbsenceReason, AbsenceType } from "../interfaces";
+import { AbsenceReason, AbsenceType, UserRoleType } from "../interfaces";
 import hashPassword from "../utils/hashPassword";
 
 const NUMBER_USERS = 10;
@@ -19,7 +19,7 @@ function generateFieldsAcrossTimestamps(
   key: ProfileFieldKey,
   generateValue: () => unknown
 ): ProfileFieldCreateWithoutUserInput[] {
-  return Array(12)
+  return Array(11)
     .fill(null)
     .map(
       (_, index: number) =>
@@ -44,12 +44,21 @@ function generateFieldsAcrossTimestamps(
 
 export default async function seedDatabase(): Promise<void> {
   const prisma = new PrismaClient();
-  const clearAllMessage = Ora("Cleaning up previous seeded information");
+  const clearAllMessage = Ora(
+    "Cleaning up previous seeded information"
+  ).start();
   try {
     const users = await prisma.user.findMany({
       where: {
         email: {
           endsWith: "@ogsc.dev",
+        },
+      },
+    });
+    await prisma.role.deleteMany({
+      where: {
+        userId: {
+          in: users.map((user: User) => user.id),
         },
       },
     });
@@ -60,13 +69,13 @@ export default async function seedDatabase(): Promise<void> {
         },
       },
     });
-    // await prisma.absence.deleteMany({
-    //   where: {
-    //     userId: {
-    //       in: users.map((user: User) => user.id),
-    //     },
-    //   },
-    // });
+    await prisma.absence.deleteMany({
+      where: {
+        userId: {
+          in: users.map((user: User) => user.id),
+        },
+      },
+    });
     await prisma.profileField.deleteMany({
       where: {
         userId: {
@@ -98,10 +107,9 @@ export default async function seedDatabase(): Promise<void> {
         email: "admin@ogsc.dev",
         phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
         hashedPassword: hashPassword("password"),
-        isAdmin: true,
-        viewerPermissions: {
+        roles: {
           create: {
-            relationship_type: "Admin",
+            type: UserRoleType.Admin,
           },
         },
       },
@@ -115,148 +123,146 @@ export default async function seedDatabase(): Promise<void> {
   const usersCreateMessage = Ora(`Creating ${NUMBER_USERS} players`).start();
   const mockPlayers: UserCreateArgs[] = Array(NUMBER_USERS)
     .fill(null)
-    .map((_value: null, index: number) => {
-      return {
-        data: {
-          email: `player${index}@ogsc.dev`,
-          hashedPassword: hashPassword("password"),
-          name: `${Faker.name.firstName()} ${Faker.name.lastName()}`,
-          phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
-          viewerPermissions: {
-            create: {
-              relationship_type: "Player",
-              viewee: {
-                connect: {
-                  email: `player${index}@ogsc.dev`,
-                },
+    .map(
+      (_value: null, index: number): UserCreateArgs => {
+        return {
+          data: {
+            email: `player${index}@ogsc.dev`,
+            hashedPassword: hashPassword("password"),
+            name: `${Faker.name.firstName()} ${Faker.name.lastName()}`,
+            phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
+            roles: {
+              create: {
+                type: UserRoleType.Player,
               },
             },
+            absences: {
+              create: Object.values(AbsenceType).flatMap((type: AbsenceType) =>
+                Array<Absence | null>(Faker.random.number(3))
+                  .fill(null)
+                  .map(
+                    () =>
+                      <AbsenceCreateWithoutUsersInput>{
+                        type,
+                        date: Faker.date.recent(90),
+                        reason: Faker.random.arrayElement(
+                          Object.values(AbsenceReason)
+                        ),
+                        description: Faker.lorem.lines(1),
+                      }
+                  )
+              ),
+            },
+            profileFields: {
+              create: [
+                ...generateFieldsAcrossTimestamps(
+                  ProfileFieldKey.AcademicEngagementScore,
+                  () =>
+                    JSON.stringify({
+                      comment: Faker.lorem.lines(1),
+                      value: Faker.random.number(10),
+                    })
+                ),
+                ...generateFieldsAcrossTimestamps(
+                  ProfileFieldKey.AdvisingScore,
+                  () =>
+                    JSON.stringify({
+                      comment: Faker.lorem.lines(1),
+                      value: Faker.random.number(10),
+                    })
+                ),
+                ...generateFieldsAcrossTimestamps(
+                  ProfileFieldKey.AthleticScore,
+                  () =>
+                    JSON.stringify({
+                      comment: Faker.lorem.lines(1),
+                      value: Faker.random.number(10),
+                    })
+                ),
+                ...generateFieldsAcrossTimestamps(
+                  ProfileFieldKey.BioAboutMe,
+                  () => Faker.lorem.lines(2)
+                ),
+                ...generateFieldsAcrossTimestamps(
+                  ProfileFieldKey.BioFavoriteSubject,
+                  () => Faker.lorem.lines(2)
+                ),
+                ...generateFieldsAcrossTimestamps(
+                  ProfileFieldKey.BioHobbies,
+                  () => Faker.lorem.lines(2)
+                ),
+                ...generateFieldsAcrossTimestamps(
+                  ProfileFieldKey.BioMostDifficultSubject,
+                  () => Faker.lorem.lines(1)
+                ),
+                ...generateFieldsAcrossTimestamps(
+                  ProfileFieldKey.BioParents,
+                  () => Faker.lorem.sentences(1)
+                ),
+                ...generateFieldsAcrossTimestamps(
+                  ProfileFieldKey.BioSiblings,
+                  () => Faker.lorem.sentences(1)
+                ),
+                ...generateFieldsAcrossTimestamps(ProfileFieldKey.BMI, () =>
+                  Faker.random.float({ min: 18, max: 30, precision: 0.1 })
+                ),
+                ...generateFieldsAcrossTimestamps(
+                  ProfileFieldKey.DisciplinaryActions,
+                  () => Faker.lorem.lines(2)
+                ),
+                ...generateFieldsAcrossTimestamps(ProfileFieldKey.GPA, () =>
+                  JSON.stringify({
+                    comment: Faker.lorem.lines(1),
+                    value: Faker.random.float({
+                      min: 2,
+                      max: 4,
+                      precision: 0.01,
+                    }),
+                  })
+                ),
+                ...generateFieldsAcrossTimestamps(
+                  ProfileFieldKey.HealthAndWellness,
+                  () => Faker.lorem.lines(2)
+                ),
+                ...generateFieldsAcrossTimestamps(
+                  ProfileFieldKey.Highlights,
+                  () => Faker.internet.url()
+                ),
+                ...generateFieldsAcrossTimestamps(
+                  ProfileFieldKey.IntroVideo,
+                  () => Faker.internet.url()
+                ),
+                ...generateFieldsAcrossTimestamps(
+                  ProfileFieldKey.MileTime,
+                  () =>
+                    `${Faker.random.number({
+                      min: 4,
+                      max: 8,
+                    })}:${String(Faker.random.number({ max: 59 })).padStart(
+                      2,
+                      "0"
+                    )}`
+                ),
+                ...generateFieldsAcrossTimestamps(
+                  ProfileFieldKey.PacerTest,
+                  () => Faker.random.number({ min: 40, max: 100 })
+                ),
+                ...generateFieldsAcrossTimestamps(
+                  ProfileFieldKey.PlayerNumber,
+                  () => Faker.random.number(100)
+                ),
+                ...generateFieldsAcrossTimestamps(ProfileFieldKey.Pushups, () =>
+                  Faker.random.number(100)
+                ),
+                ...generateFieldsAcrossTimestamps(ProfileFieldKey.Situps, () =>
+                  Faker.random.number(100)
+                ),
+              ],
+            },
           },
-          // absences: {
-          //   create: Object.values(AbsenceType).flatMap((type: AbsenceType) =>
-          //     Array<Absence | null>(Faker.random.number(3))
-          //       .fill(null)
-          //       .map(
-          //         () =>
-          //           <AbsenceCreateWithoutUsersInput>{
-          //             type,
-          //             date: Faker.date.recent(90),
-          //             reason: Faker.random.arrayElement(
-          //               Object.values(AbsenceReason)
-          //             ),
-          //             description: Faker.lorem.lines(1),
-          //           }
-          //       )
-          //   ),
-          // },
-          profileFields: {
-            create: [
-              ...generateFieldsAcrossTimestamps(
-                ProfileFieldKey.AcademicEngagementScore,
-                () =>
-                  JSON.stringify({
-                    comment: Faker.lorem.lines(1),
-                    value: Faker.random.number(10),
-                  })
-              ),
-              ...generateFieldsAcrossTimestamps(
-                ProfileFieldKey.AdvisingScore,
-                () =>
-                  JSON.stringify({
-                    comment: Faker.lorem.lines(1),
-                    value: Faker.random.number(10),
-                  })
-              ),
-              ...generateFieldsAcrossTimestamps(
-                ProfileFieldKey.AthleticScore,
-                () =>
-                  JSON.stringify({
-                    comment: Faker.lorem.lines(1),
-                    value: Faker.random.number(10),
-                  })
-              ),
-              ...generateFieldsAcrossTimestamps(
-                ProfileFieldKey.BioAboutMe,
-                () => Faker.lorem.lines(2)
-              ),
-              ...generateFieldsAcrossTimestamps(
-                ProfileFieldKey.BioFavoriteSubject,
-                () => Faker.lorem.lines(2)
-              ),
-              ...generateFieldsAcrossTimestamps(
-                ProfileFieldKey.BioHobbies,
-                () => Faker.lorem.lines(2)
-              ),
-              ...generateFieldsAcrossTimestamps(
-                ProfileFieldKey.BioMostDifficultSubject,
-                () => Faker.lorem.lines(1)
-              ),
-              ...generateFieldsAcrossTimestamps(
-                ProfileFieldKey.BioParents,
-                () => Faker.lorem.sentences(1)
-              ),
-              ...generateFieldsAcrossTimestamps(
-                ProfileFieldKey.BioSiblings,
-                () => Faker.lorem.sentences(1)
-              ),
-              ...generateFieldsAcrossTimestamps(ProfileFieldKey.BMI, () =>
-                Faker.random.float({ min: 18, max: 30, precision: 0.1 })
-              ),
-              ...generateFieldsAcrossTimestamps(
-                ProfileFieldKey.DisciplinaryActions,
-                () => Faker.lorem.lines(2)
-              ),
-              ...generateFieldsAcrossTimestamps(ProfileFieldKey.GPA, () =>
-                JSON.stringify({
-                  comment: Faker.lorem.lines(1),
-                  value: Faker.random.float({
-                    min: 2,
-                    max: 4,
-                    precision: 0.01,
-                  }),
-                })
-              ),
-              ...generateFieldsAcrossTimestamps(
-                ProfileFieldKey.HealthAndWellness,
-                () => Faker.lorem.lines(2)
-              ),
-              ...generateFieldsAcrossTimestamps(
-                ProfileFieldKey.Highlights,
-                () => Faker.internet.url()
-              ),
-              ...generateFieldsAcrossTimestamps(
-                ProfileFieldKey.IntroVideo,
-                () => Faker.internet.url()
-              ),
-              ...generateFieldsAcrossTimestamps(
-                ProfileFieldKey.MileTime,
-                () =>
-                  `${Faker.random.number({
-                    min: 4,
-                    max: 8,
-                  })}:${String(Faker.random.number({ max: 59 })).padStart(
-                    2,
-                    "0"
-                  )}`
-              ),
-              ...generateFieldsAcrossTimestamps(ProfileFieldKey.PacerTest, () =>
-                Faker.random.number({ min: 40, max: 100 })
-              ),
-              ...generateFieldsAcrossTimestamps(
-                ProfileFieldKey.PlayerNumber,
-                () => Faker.random.number(100)
-              ),
-              ...generateFieldsAcrossTimestamps(ProfileFieldKey.Pushups, () =>
-                Faker.random.number(100)
-              ),
-              ...generateFieldsAcrossTimestamps(ProfileFieldKey.Situps, () =>
-                Faker.random.number(100)
-              ),
-            ],
-          },
-        },
-      };
-    });
+        };
+      }
+    );
   try {
     await Promise.all(mockPlayers.map(prisma.user.create));
     usersCreateMessage.text = "Created 10 players.";
@@ -268,26 +274,28 @@ export default async function seedDatabase(): Promise<void> {
   const mentorsCreateMessage = Ora(`Creating ${NUMBER_USERS} mentors`).start();
   const mockMentors: UserCreateArgs[] = Array(NUMBER_USERS)
     .fill(null)
-    .map((_value: null, index: number) => {
-      return {
-        data: {
-          email: `mentor${index}@ogsc.dev`,
-          hashedPassword: hashPassword("password"),
-          name: `${Faker.name.firstName()} ${Faker.name.lastName()}`,
-          phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
-          viewerPermissions: {
-            create: {
-              relationship_type: "Mentor to Player",
-              viewee: {
-                connect: {
-                  email: `player${index}@ogsc.dev`,
+    .map(
+      (_value: null, index: number): UserCreateArgs => {
+        return {
+          data: {
+            email: `mentor${index}@ogsc.dev`,
+            hashedPassword: hashPassword("password"),
+            name: `${Faker.name.firstName()} ${Faker.name.lastName()}`,
+            phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
+            roles: {
+              create: {
+                type: UserRoleType.Mentor,
+                relatedPlayer: {
+                  connect: {
+                    email: `player${index}@ogsc.dev`,
+                  },
                 },
               },
             },
           },
-        },
-      };
-    });
+        };
+      }
+    );
   try {
     await Promise.all(mockMentors.map(prisma.user.create));
     mentorsCreateMessage.text = "Created 10 mentors.";
@@ -299,26 +307,28 @@ export default async function seedDatabase(): Promise<void> {
   const parentsCreateMessage = Ora(`Creating ${NUMBER_USERS} parents`).start();
   const mockParents: UserCreateArgs[] = Array(NUMBER_USERS)
     .fill(null)
-    .map((_value: null, index: number) => {
-      return {
-        data: {
-          email: `parent${index}@ogsc.dev`,
-          hashedPassword: hashPassword("password"),
-          name: `${Faker.name.firstName()} ${Faker.name.lastName()}`,
-          phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
-          viewerPermissions: {
-            create: {
-              relationship_type: "Parent to Player",
-              viewee: {
-                connect: {
-                  email: `player${index}@ogsc.dev`,
+    .map(
+      (_value: null, index: number): UserCreateArgs => {
+        return {
+          data: {
+            email: `parent${index}@ogsc.dev`,
+            hashedPassword: hashPassword("password"),
+            name: `${Faker.name.firstName()} ${Faker.name.lastName()}`,
+            phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
+            roles: {
+              create: {
+                type: UserRoleType.Parent,
+                relatedPlayer: {
+                  connect: {
+                    email: `player${index}@ogsc.dev`,
+                  },
                 },
               },
             },
           },
-        },
-      };
-    });
+        };
+      }
+    );
   try {
     await Promise.all(mockParents.map(prisma.user.create));
     parentsCreateMessage.text = "Created 10 parents.";
@@ -330,26 +340,28 @@ export default async function seedDatabase(): Promise<void> {
   const donorsCreateMessage = Ora(`Creating ${NUMBER_USERS} mentors`).start();
   const mockDonors: UserCreateArgs[] = Array(NUMBER_USERS)
     .fill(null)
-    .map((_value: null, index: number) => {
-      return {
-        data: {
-          email: `donor${index}@ogsc.dev`,
-          hashedPassword: hashPassword("password"),
-          name: `${Faker.name.firstName()} ${Faker.name.lastName()}`,
-          phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
-          viewerPermissions: {
-            create: {
-              relationship_type: "Donor to Player",
-              viewee: {
-                connect: {
-                  email: `player${index}@ogsc.dev`,
+    .map(
+      (_value: null, index: number): UserCreateArgs => {
+        return {
+          data: {
+            email: `donor${index}@ogsc.dev`,
+            hashedPassword: hashPassword("password"),
+            name: `${Faker.name.firstName()} ${Faker.name.lastName()}`,
+            phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
+            roles: {
+              create: {
+                type: UserRoleType.Donor,
+                relatedPlayer: {
+                  connect: {
+                    email: `player${index}@ogsc.dev`,
+                  },
                 },
               },
             },
           },
-        },
-      };
-    });
+        };
+      }
+    );
   try {
     await Promise.all(mockDonors.map(prisma.user.create));
     donorsCreateMessage.text = "Created 10 donors.";

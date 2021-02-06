@@ -20,7 +20,7 @@ const PlayerDashboardItem: React.FunctionComponent<Player> = ({
   image,
 }) => {
   const session = useSessionInfo();
-  const link = `/${session.sessionType}/players/${id}`;
+  const link = `/${session.sessionType.toLowerCase()}/players/${id}`;
   return (
     <Link href={link}>
       <div role="button" className=" hover:bg-hover">

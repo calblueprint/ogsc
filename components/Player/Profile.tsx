@@ -1,9 +1,17 @@
 import React, { useContext, useState } from "react";
 import Icon, { IconType } from "components/Icon";
 import { AbsenceType, IPlayer, ProfileFieldKey } from "interfaces";
+import updateActionPlayer from "utils/updateActionPlayer";
+import { useStateMachine } from "little-state-machine";
+import Button from "components/Button";
+import Modal from "components/Modal";
 import TextLayout from "./TextLayout";
 import AbsenceTable from "./AbsenceTable";
 import ValueHistoryView from "./ValueHistoryView";
+import EditLayout from "./EditLayout";
+import BioEdit from "./BioEdit";
+import AddScore from "./AddScore";
+import AddGPA from "./AddGPA";
 
 enum ProfileCategory {
   Overview = "Overview",
@@ -64,7 +72,7 @@ export const ProfileFieldsByCategory: Record<
   [ProfileCategory.Highlights]: [ProfileFieldKey.Highlights],
 };
 
-const ProfileFieldLabels: Partial<Record<ProfileFieldKey, string>> = {
+export const ProfileFieldLabels: Partial<Record<ProfileFieldKey, string>> = {
   [ProfileFieldKey.BioAboutMe]: "About Me",
   [ProfileFieldKey.BioHobbies]: "Hobbies",
   [ProfileFieldKey.BioFavoriteSubject]: "Favorite Subject",
@@ -136,7 +144,6 @@ const ProfileContentCell: React.FC<ProfileContentCellProps> = ({
     case ProfileFieldKey.BMI:
       return (
         <>
-          <div className="mb-6 text-lg font-semibold">Body Mass Index</div>
           <TextLayout title="BMI">{profileField.current}</TextLayout>
         </>
       );
@@ -186,39 +193,152 @@ const ProfileContents = <T extends ProfileCategory>({
   category,
 }: ProfileContentsProps<T>): JSX.Element => {
   const player = useContext(PlayerContext);
+  const [BioEditState, setBioEditState] = useState(false);
+  const [schoolScoreState, setSchoolScoreState] = useState(false);
+  const [bmiState, setBMIState] = useState(false);
+  const [addScoreState, setAddScoreState] = useState(false);
+  const [scoreCategory, setScoreCategory] = useState("");
+  const { action } = useStateMachine(updateActionPlayer);
 
   switch (category) {
     case ProfileCategory.Overview:
       return (
         <div>
           <h1 className="mb-10 text-2xl font-semibold">Student Overview</h1>
-          <div className="mb-6 text-lg font-semibold">Student Bio</div>
-          <ProfileContentCell fieldKey={ProfileFieldKey.BioAboutMe} />
-          <ProfileContentCell fieldKey={ProfileFieldKey.BioHobbies} />
-          <ProfileContentCell fieldKey={ProfileFieldKey.BioFavoriteSubject} />
-          <ProfileContentCell
-            fieldKey={ProfileFieldKey.BioMostDifficultSubject}
-          />
-          <ProfileContentCell fieldKey={ProfileFieldKey.BioSiblings} />
-          <ProfileContentCell fieldKey={ProfileFieldKey.BioParents} />
-          <ProfileContentCell fieldKey={ProfileFieldKey.IntroVideo} />
+          <hr />
+          <div className="mt-10 grid grid-cols-3">
+            <div className="flex flex-row">
+              <div className="mb-6 text-lg font-semibold pr-6">Student Bio</div>
+              <button
+                type="button"
+                onClick={() => setBioEditState(true)}
+                className="h-6"
+              >
+                <Icon type="edit" />
+              </button>
+            </div>
+            <div className="col-span-2">
+              {BioEditState ? (
+                <div>
+                  <BioEdit editState={setBioEditState} playerID={player?.id}>
+                    <EditLayout
+                      title={ProfileFieldLabels[ProfileFieldKey.BioAboutMe]}
+                      currentText={player?.profile?.BioAboutMe?.current}
+                      setState={(input) => action({ BioAboutMe: input })}
+                    />
+                    <EditLayout
+                      title={ProfileFieldLabels[ProfileFieldKey.BioHobbies]}
+                      currentText={player?.profile?.BioHobbies?.current}
+                      setState={(input) => action({ BioHobbies: input })}
+                    />
+                    <EditLayout
+                      title={
+                        ProfileFieldLabels[ProfileFieldKey.BioFavoriteSubject]
+                      }
+                      currentText={player?.profile?.BioFavoriteSubject?.current}
+                      setState={(input) =>
+                        action({ BioFavoriteSubject: input })
+                      }
+                    />
+                    <EditLayout
+                      title={
+                        ProfileFieldLabels[
+                          ProfileFieldKey.BioMostDifficultSubject
+                        ]
+                      }
+                      currentText={
+                        player?.profile?.BioMostDifficultSubject?.current
+                      }
+                      setState={(input) =>
+                        action({ BioMostDifficultSubject: input })
+                      }
+                    />
+                    <EditLayout
+                      title={ProfileFieldLabels[ProfileFieldKey.BioSiblings]}
+                      currentText={player?.profile?.BioSiblings?.current}
+                      setState={(input) => action({ BioSiblings: input })}
+                    />
+                    <EditLayout
+                      title={ProfileFieldLabels[ProfileFieldKey.BioParents]}
+                      currentText={player?.profile?.BioParents?.current}
+                      setState={(input) => action({ BioParents: input })}
+                    />
+                  </BioEdit>
+                </div>
+              ) : (
+                <div>
+                  <ProfileContentCell fieldKey={ProfileFieldKey.BioAboutMe} />
+                  <ProfileContentCell fieldKey={ProfileFieldKey.BioHobbies} />
+                  <ProfileContentCell
+                    fieldKey={ProfileFieldKey.BioFavoriteSubject}
+                  />
+                  <ProfileContentCell
+                    fieldKey={ProfileFieldKey.BioMostDifficultSubject}
+                  />
+                  <ProfileContentCell fieldKey={ProfileFieldKey.BioSiblings} />
+                  <ProfileContentCell fieldKey={ProfileFieldKey.BioParents} />
+                  <ProfileContentCell fieldKey={ProfileFieldKey.IntroVideo} />
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       );
     case ProfileCategory.Engagement:
       return (
         <div>
           <h1 className="mb-10 text-2xl font-semibold">Engagement</h1>
-          <div className="mb-16">
+          <div>
             <ProfileContentCell
               fieldKey={ProfileFieldKey.AcademicEngagementScore}
             />
+            <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
+              <Button
+                iconType="plus"
+                onClick={() => {
+                  setAddScoreState(true);
+                  setScoreCategory("School");
+                }}
+              >
+                Add Engagement Score
+              </Button>
+            </div>
           </div>
           <div className="mb-16">
             <ProfileContentCell fieldKey={ProfileFieldKey.AdvisingScore} />
+            <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
+              <Button
+                iconType="plus"
+                onClick={() => {
+                  setAddScoreState(true);
+                  setScoreCategory("Advising");
+                }}
+              >
+                Add Engagement Score
+              </Button>
+            </div>
           </div>
           <div className="mb-16">
             <ProfileContentCell fieldKey={ProfileFieldKey.AthleticScore} />
+            <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
+              <Button
+                iconType="plus"
+                onClick={() => {
+                  setAddScoreState(true);
+                  setScoreCategory("Athletic");
+                }}
+              >
+                Add Engagement Score
+              </Button>
+            </div>
           </div>
+          <Modal open={addScoreState} className="w-2/3">
+            <AddScore
+              setHidden={setAddScoreState}
+              userId={player?.id}
+              category={scoreCategory}
+            />
+          </Modal>
         </div>
       );
     case ProfileCategory.AcademicPerformance:
@@ -226,21 +346,93 @@ const ProfileContents = <T extends ProfileCategory>({
         <div>
           <h1 className="mb-10 text-2xl font-semibold">Academic Performance</h1>
           <ProfileContentCell fieldKey={ProfileFieldKey.GPA} />
+          <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
+            <Button iconType="plus" onClick={() => setAddScoreState(true)}>
+              Add Grade Point Average
+            </Button>
+          </div>
           <ProfileContentCell fieldKey={ProfileFieldKey.DisciplinaryActions} />
+          <Modal open={addScoreState} className="w-2/3">
+            <AddGPA setHidden={setAddScoreState} userId={player?.id} />
+          </Modal>
         </div>
       );
     case ProfileCategory.PhysicalWellness:
       return (
         <div>
           <h1 className="mb-10 text-2xl font-semibold">Physical Wellness</h1>
-          <ProfileContentCell fieldKey={ProfileFieldKey.BMI} />
-          <div className="mb-6 mt-16 text-lg font-semibold">
-            Fitness Testing
+          <hr className="mb-10" />
+          <div className="grid grid-cols-3">
+            <div className="mb-6 text-lg font-semibold">
+              Body Mass Index
+              <button
+                type="button"
+                onClick={() => setBMIState(true)}
+                className="pl-4"
+              >
+                <Icon type="edit" />
+              </button>
+            </div>
+            <div className="col-span-2">
+              {bmiState ? (
+                <BioEdit editState={setBMIState} playerID={player?.id}>
+                  <EditLayout
+                    title={ProfileFieldKey.BMI}
+                    currentText={player?.profile?.BMI?.current?.toString()}
+                    setState={(input) => action({ BMI: input })}
+                  />
+                </BioEdit>
+              ) : (
+                <ProfileContentCell fieldKey={ProfileFieldKey.BMI} />
+              )}
+            </div>
           </div>
-          <ProfileContentCell fieldKey={ProfileFieldKey.PacerTest} />
-          <ProfileContentCell fieldKey={ProfileFieldKey.MileTime} />
-          <ProfileContentCell fieldKey={ProfileFieldKey.Situps} />
-          <ProfileContentCell fieldKey={ProfileFieldKey.Pushups} />
+          <hr className="mt-4" />
+          <div className="mt-16 grid grid-cols-3">
+            <div className="mb-6 text-lg font-semibold">
+              Fitness Testing
+              <button
+                type="button"
+                onClick={() => setSchoolScoreState(true)}
+                className="pl-4"
+              >
+                <Icon type="edit" />
+              </button>
+            </div>
+            <div className="col-span-2">
+              {schoolScoreState ? (
+                <BioEdit editState={setSchoolScoreState} playerID={player?.id}>
+                  <EditLayout
+                    title={ProfileFieldLabels[ProfileFieldKey.PacerTest]}
+                    currentText={player?.profile?.PacerTest?.current?.toString()}
+                    setState={(input) => action({ PacerTest: input })}
+                  />
+                  <EditLayout
+                    title={ProfileFieldLabels[ProfileFieldKey.MileTime]}
+                    currentText={player?.profile?.MileTime?.current}
+                    setState={(input) => action({ MileTime: input })}
+                  />
+                  <EditLayout
+                    title={ProfileFieldLabels[ProfileFieldKey.Situps]}
+                    currentText={player?.profile?.Situps?.current?.toString()}
+                    setState={(input) => action({ Situps: input })}
+                  />
+                  <EditLayout
+                    title={ProfileFieldLabels[ProfileFieldKey.Pushups]}
+                    currentText={player?.profile?.Pushups?.current?.toString()}
+                    setState={(input) => action({ Pushups: input })}
+                  />
+                </BioEdit>
+              ) : (
+                <div>
+                  <ProfileContentCell fieldKey={ProfileFieldKey.PacerTest} />
+                  <ProfileContentCell fieldKey={ProfileFieldKey.MileTime} />
+                  <ProfileContentCell fieldKey={ProfileFieldKey.Situps} />
+                  <ProfileContentCell fieldKey={ProfileFieldKey.Pushups} />
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       );
     case ProfileCategory.Attendance:
@@ -255,6 +447,7 @@ const ProfileContents = <T extends ProfileCategory>({
                     key={type}
                     absenceType={type}
                     absences={player.absences}
+                    userId={player.id}
                   />
                 )
             )}
@@ -284,7 +477,7 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
   );
   return (
     <div>
-      <div className="flex flex-row justify-between text-sm text-center">
+      <div className="flex flex-row text-sm text-center">
         {Object.values(ProfileCategory)
           .filter(
             (category: ProfileCategory) =>
@@ -297,7 +490,7 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
             <button
               key={category}
               type="button"
-              className={`navigation-tab ${
+              className={`navigation-tab mr-8 ${
                 selectedCategory === category
                   ? "navigation-tab-highlighted"
                   : ""

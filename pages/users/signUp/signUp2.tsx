@@ -1,25 +1,25 @@
 import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
 import FormField from "components/FormField";
-import { UserRole, UserRoleConstants, UserRoleLabel } from "interfaces";
+import { UserRoleLabel, UserRoleType } from "interfaces";
 import Joi from "joi";
 import { useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
 import { CreateUserDTO } from "pages/api/users";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import updateAction from "utils/updateAction";
+import updateActionSignUp from "utils/updateActionSignUp";
 
 type UserSignUpForm2Values = {
-  role: UserRole;
+  role: UserRoleType;
   adminNote: string;
 };
 
 const UserSignUpForm2Schema = Joi.object<UserSignUpForm2Values>({
   role: Joi.string()
-    .valid(...UserRoleConstants)
-    .optional(),
-  adminNote: Joi.string().optional(),
+    .valid(...Object.values(UserRoleType))
+    .allow(""),
+  adminNote: Joi.string().allow(""),
 });
 
 const UserSignUpPageTwo: React.FC = () => {
@@ -31,7 +31,7 @@ const UserSignUpPageTwo: React.FC = () => {
   const { errors, register, handleSubmit } = useForm<UserSignUpForm2Values>({
     resolver: joiResolver(UserSignUpForm2Schema),
   });
-  const { state, action } = useStateMachine(updateAction);
+  const { state, action } = useStateMachine(updateActionSignUp);
 
   async function onSubmit(
     values: UserSignUpForm2Values,
@@ -50,7 +50,7 @@ const UserSignUpPageTwo: React.FC = () => {
         body: JSON.stringify({
           email: state.userData.email,
           name: `${state.userData.firstName} ${state.userData.lastName}`,
-          phoneNumber: state.userData.phoneNumber,
+          phoneNumber: state.userData.phoneNumber.toString(),
           password: state.userData.password,
         } as CreateUserDTO),
       });
@@ -72,7 +72,7 @@ const UserSignUpPageTwo: React.FC = () => {
       <form className="mt-10" onSubmit={handleSubmit(onSubmit)}>
         <fieldset>
           <FormField label="Role" name="role" error={errors.role?.message}>
-            {UserRoleConstants.map((role: UserRole) => (
+            {Object.values(UserRoleType).map((role: UserRoleType) => (
               <label className="block font-normal" htmlFor={role}>
                 <input
                   className="mr-3"

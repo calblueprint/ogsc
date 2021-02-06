@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useCombobox } from "downshift";
 import { User } from "@prisma/client";
 import debounce from "lodash.debounce";
+import { UserRoleLabel, UserRoleType } from "interfaces";
 import Button from "./Button";
 import Card from "./Card";
 
@@ -24,11 +25,13 @@ const getInputPlayers = async (
 type Props = React.PropsWithChildren<{
   selectedPlayers: User[];
   setSelectedPlayers: React.Dispatch<React.SetStateAction<User[]>>;
+  role: string;
 }>;
 
 const Combobox: React.FC<Props> = ({
   selectedPlayers,
   setSelectedPlayers,
+  role,
 }: Props) => {
   const [inputPlayers, setInputPlayers] = useState<User[]>([]);
   const [query, setQuery] = useState("");
@@ -81,6 +84,20 @@ const Combobox: React.FC<Props> = ({
 
   return (
     <div className="container  w-4/5 mt-3">
+      <p className={`text-xs font-normal mt-3 mb-3 `}>
+        {(() => {
+          switch (role) {
+            case UserRoleLabel[UserRoleType.Mentor]:
+              return "Mentors will have access to the full profile of players they are mentoring, including Engagement Scores, Academics, Attendance, and Physical Health information.";
+            case UserRoleLabel[UserRoleType.Parent]:
+              return "Parents will have access to the full profile of their children, including Engagement Scores, Academics, Attendance, and Physical Health information.";
+            case UserRoleLabel[UserRoleType.Donor]:
+              return "Donors will have access to extended profiles of players they’re sponsoring, including Engagement Scores, Academics, and Physical Health information.";
+            default:
+              return "error";
+          }
+        })()}
+      </p>
       <div className="relative">
         {selectedPlayers.map((user) => (
           <Card text={user.name} onDelete={() => onDelete(user)} />

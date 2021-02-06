@@ -1,20 +1,16 @@
-import { years, months } from "components/Player/PlayerForm/FormItems";
 import Button from "components/Button";
 import { useState } from "react";
 import Joi from "joi";
-import DateComboBox from "components/Player/PlayerForm/DateComboBox";
+import GPAFieldContent from "components/Player/GPAFieldContent";
+import { useRouter } from "next/router";
 
 type Props = React.PropsWithChildren<{
   setHidden: React.Dispatch<React.SetStateAction<boolean>>;
-  listGPA: string[];
-  setListGPA: React.Dispatch<React.SetStateAction<string[]>>;
+  userId: number | undefined;
 }>;
 
-const GPAScoreField: React.FC<Props> = ({
-  setHidden,
-  listGPA,
-  setListGPA,
-}: Props) => {
+const AddGPA: React.FC<Props> = ({ setHidden, userId }: Props) => {
+  const router = useRouter();
   const [GPA, SetGPA] = useState<string>("");
   const [selectMonth, SetSelectMonth] = useState<string>("");
   const [selectYear, SetSelectYear] = useState<string>("");
@@ -41,7 +37,16 @@ const GPAScoreField: React.FC<Props> = ({
       check();
       const dateShown = `${selectMonth} ${selectYear}`;
       const value = `${GPA} - ${dateShown} - ${comment}`;
-      setListGPA(() => [...listGPA, value]);
+      const response = await fetch("/api/admin/users/player/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ id: userId, GPA: [value] }),
+      });
+      if (!response.ok) {
+        throw await response.json();
+      }
+      router.replace(router.asPath);
       setHidden(false);
     } catch (err) {
       setError(err.message);
@@ -50,37 +55,12 @@ const GPAScoreField: React.FC<Props> = ({
 
   return (
     <fieldset>
-      <p className="text-2xl font-semibold mb-3">Add Grade Point Average</p>
-      <hr className="pb-8" />
       <div>
-        <p className="text-sm font-semibold mb-3">Quarter GPA</p>
-        <input
-          type="text"
-          className="input text-sm w-1/12 font-light"
-          name="gpa"
-          placeholder="eg. 3.51"
-          onChange={(event) => SetGPA(event.target.value)}
-        />
-        <p className="text-sm font-semibold mb-3 mt-10">Month/Year</p>
-        <div className="grid grid-cols-4 mb-10">
-          <DateComboBox
-            items={months}
-            placeholder="Month"
-            setState={SetSelectMonth}
-          />
-          <DateComboBox
-            items={years}
-            placeholder="Year"
-            setState={SetSelectYear}
-          />
-        </div>
-        <p className="text-sm font-semibold mb-3 mt-10">Comments</p>
-        <input
-          type="text"
-          className="input text-sm w-full font-light"
-          name="comments"
-          placeholder="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-          onChange={(event) => SetComment(event.target.value)}
+        <GPAFieldContent
+          SetGPA={SetGPA}
+          SetComment={SetComment}
+          SetSelectMonth={SetSelectMonth}
+          SetSelectYear={SetSelectYear}
         />
         <div className="flex flex-row gap-6 mt-10">
           <Button
@@ -88,7 +68,7 @@ const GPAScoreField: React.FC<Props> = ({
             className="py-2 px-5 text-sm"
             onClick={() => ScoreSubmit()}
           >
-            Enter Grade Point Average
+            Enter Score
           </Button>
           <Button
             className="border border-blue bg-white py-2 px-12 text-sm border-opacity-100"
@@ -102,4 +82,4 @@ const GPAScoreField: React.FC<Props> = ({
     </fieldset>
   );
 };
-export default GPAScoreField;
+export default AddGPA;

@@ -5,15 +5,46 @@ import React, { useState } from "react";
 import { useRouter } from "next/router";
 import { DeleteUserDTO } from "pages/api/admin/users/delete";
 import Combobox from "components/Combobox";
-import { User } from "@prisma/client";
-import Button from "../../../components/Button";
+import { PrismaClient, User } from "@prisma/client";
+import Button from "components/Button";
+import { NextPageContext } from "next";
+import { IUser } from "interfaces";
+import buildUserProfile from "utils/buildUserProfile";
+import flattenUserRoles from "utils/flattenUserRoles";
+import sanitizeUser from "utils/sanitizeUser";
 
-const userAccountPage: React.FunctionComponent<UserRequest> = ({
-  // firstName,
-  // lastName,
-  // email,
-  // phoneNumber,
-  // Role,
+// interface
+type Props = {
+  users?: IUser;
+};
+export async function getServerSideProps(
+  context: NextPageContext
+): Promise<{ props: Props }> {
+  const prisma = new PrismaClient();
+  const id = context.query.id as string;
+  const user = await prisma.user.findOne({
+    where: { id: Number(id) },
+    include: {
+      absences: true,
+      profileFields: true,
+      roles: true,
+    },
+  });
+  if (user == null) {
+    return { props: {} };
+  }
+  return {
+    props: {
+      users: buildUserProfile(flattenUserRoles(sanitizeUser(user))),
+    },
+  };
+}
+
+const UserAccountPage: React.FunctionComponent<UserRequest> = ({
+  name,
+  email,
+  phoneNumber,
+  Role,
   id,
   onDelete,
 }) => {
@@ -21,6 +52,7 @@ const userAccountPage: React.FunctionComponent<UserRequest> = ({
   const router = useRouter();
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [selectedPlayers, setSelectedPlayers] = useState<User[]>([]);
+  // const [user, setUser] = useState<User[]>([]);
   // eslint-disable-next-line react-hooks/rules-of-hooks
   // const [roleChosen] = useState("");
   const deleteUser = async (): Promise<void> => {
@@ -41,18 +73,35 @@ const userAccountPage: React.FunctionComponent<UserRequest> = ({
       throw new Error(err.message);
     }
   };
+  // useEffect(() => {
+  //   const getUser = async (): Promise<void> => {
+  //     const response = await fetch(`/api/admin/users/${id}`, {
+  //       method: "GET",
+  //       headers: { "content-type": "application/json" },
+  //       redirect: "follow",
+  //     });
+  //     const data = await response.json();
+  //     setUser(data);
+  //   };
+  //   getUser();
+  // }, [id]);
+  // const acceptUser = async ():
   return (
     <DashboardLayout>
       <div className="flex-col mx-16 mt-14">
-        <p className="text-4xl font-semibold mb-10">
-          Invitation Request for Mr. Soccer{" "}
-        </p>
+        <p className="text-4xl font-semibold">Invitation Request for {name} </p>
+        <p className="mb-10">Created </p>
         <p className="text-3xl font-semibold mb-10">Basic Information </p>
-        <p className="text-1xl font-semibold mb-10">First Name</p>
-        <p className="text-1xl font-semibold mb-10">Last Name</p>
-        <p className="text-1xl font-semibold mb-10">Email Address</p>
-        <p className="text-1xl font-semibold mb-10">Phone number</p>
-        <p className="text-1xl font-semibold mb-10">Role</p>
+        <p className="text-1xl font-semibold">First Name</p>
+        <p className="mb-10">{name}</p>
+        <p className="text-1xl font-semibold">Last Name</p>
+        <p className="mb-10">{name}</p>
+        <p className="text-1xl font-semibold">Email Address</p>
+        <p className="mb-10">{email}</p>
+        <p className="text-1xl font-semibold">Phone number</p>
+        <p className="mb-10">{phoneNumber}</p>
+        <p className="text-1xl font-semibold">Role</p>
+        <p className="mb-10">{Role}</p>
         <p className="text-2xl font-semibold mb-10">Attached Note</p>
 
         <div>
@@ -67,7 +116,7 @@ const userAccountPage: React.FunctionComponent<UserRequest> = ({
             <Combobox
               selectedPlayers={selectedPlayers}
               setSelectedPlayers={setSelectedPlayers}
-              // role={roleChosen}
+              role={Role}
             />
           </p>
         </div>
@@ -95,7 +144,7 @@ const userAccountPage: React.FunctionComponent<UserRequest> = ({
           <Button
             className="bg-white hover:bg-white text-blue font-bold py-2 px-4 rounded border-solid border-4 border-blue"
             onClick={() => {
-              router.push("./");
+              router.push("../");
             }}
           >
             Back
@@ -105,13 +154,17 @@ const userAccountPage: React.FunctionComponent<UserRequest> = ({
     </DashboardLayout>
   );
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  interface UserRequest {
-    name: string;
-    email: string;
-    phoneNumber: string;
-    id: number;
-    onDelete: () => void;
-    onAccept: () => void;
-  }
 };
-export default userAccountPage;
+// UserProfile.defaultProps = {
+//   users: undefined,
+// }
+interface UserRequest {
+  name: string;
+  email: string;
+  phoneNumber: string;
+  Role: string;
+  id: number;
+  onDelete: () => void;
+  // onAccept: () => void;
+}
+export default UserAccountPage;

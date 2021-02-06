@@ -24,8 +24,8 @@ export const CreateUserDTOValidator = Joi.object<CreateUserDTO>({
   name: Joi.string().required(),
   email: Joi.string().email().required(),
   password: Joi.string().min(8).required(),
-  phoneNumber: Joi.string().optional(),
-  inviteCodeId: Joi.string().optional(),
+  phoneNumber: Joi.string().allow(""),
+  inviteCodeId: Joi.string().allow(""),
 });
 
 /**
@@ -44,6 +44,7 @@ export const createAccount = async (
   const loginInfo = {
     name: user.name,
     email: user.email,
+    phoneNumber: user.phoneNumber,
     hashedPassword: hash(user.password),
   };
   let newUser;
@@ -58,6 +59,16 @@ export const createAccount = async (
         id: inviteCode.user_id,
       },
     });
+    // update acceptedAt in userInvite
+    const userInviteEntry = await prisma.userInvite.update({
+      where: { id: user.inviteCodeId },
+      data: {
+        accepted_at: new Date(),
+      },
+    });
+    if (!userInviteEntry) {
+      return null;
+    }
   } else {
     // signing up without an invite code
     newUser = await prisma.user.create({

@@ -1,29 +1,21 @@
-import {
-  Absence,
-  PrismaClient,
-  ProfileField,
-  User,
-  ViewingPermission,
-} from "@prisma/client";
+import { useState } from "react";
+import { PrismaClient } from "@prisma/client";
+import { NextPageContext } from "next";
+import { useRouter } from "next/router";
+import { getSession } from "next-auth/client";
+
 import DashboardLayout from "components/DashboardLayout";
 import PlayerProfile from "components/Player/Profile";
-import { NextPageContext } from "next";
-import sanitizeUser from "utils/sanitizeUser";
-import buildUserProfile from "utils/buildUserProfile";
 import Modal from "components/Modal";
 import Button from "components/Button";
-import { useRouter } from "next/router";
-import { useState } from "react";
+import sanitizeUser from "utils/sanitizeUser";
+import buildUserProfile from "utils/buildUserProfile";
+import filterPlayerProfileRead from "utils/filterPlayerProfileRead";
+import flattenUserRoles from "utils/flattenUserRoles";
+import { IPlayer } from "interfaces";
 
 type Props = {
-  player?: Omit<
-    User & {
-      absences: Absence[];
-      viewedByPermissions: ViewingPermission[];
-      profileFields: ProfileField[];
-    },
-    "hashedPassword"
-  >;
+  player?: IPlayer;
 };
 
 export async function getServerSideProps(
@@ -36,18 +28,34 @@ export async function getServerSideProps(
     include: {
       absences: true,
       profileFields: true,
-      viewedByPermissions: true,
+      roles: true,
     },
   });
-
   if (user === null) {
     // TODO: Set statusCode to 404
     return { props: {} };
   }
 
+  const session = await getSession({ req: context.req });
+  if (!session) {
+    // TODO: Set statusCode to 401
+    return { props: {} };
+  }
+  const authenticatedUser = await prisma.user.findOne({
+    where: { email: session.user.email },
+    include: { roles: true },
+  });
+  if (!authenticatedUser) {
+    // TODO: Set statusCode to 401
+    return { props: {} };
+  }
+
   return {
     props: {
-      player: JSON.parse(JSON.stringify(sanitizeUser(user))),
+      player: filterPlayerProfileRead(
+        buildUserProfile(flattenUserRoles(sanitizeUser(user))),
+        flattenUserRoles(authenticatedUser)
+      ),
     },
   };
 }
@@ -62,7 +70,6 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
   if (!player) {
     return <DashboardLayout>No player found</DashboardLayout>;
   }
-  const hydratedPlayer = buildUserProfile(player);
 
   return (
     <DashboardLayout>
@@ -71,15 +78,15 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
           <div className="picture flex mr-10">
             <img
               src="/placeholder-profile.png"
-              alt={hydratedPlayer.name || "player"}
+              alt={player.name || "player"}
               className="bg-button rounded-full max-w-full align-middle border-none w-24 h-24"
             />
           </div>
           <div className="player-info grid grid-rows-2">
-            <p className="pt-6 text-2xl font-semibold">{hydratedPlayer.name}</p>
+            <p className="pt-6 text-2xl font-semibold">{player.name}</p>
             <p className="pt-2 text-sm font-medium">
-              {hydratedPlayer.profile?.PlayerNumber.current &&
-                `#${hydratedPlayer.profile?.PlayerNumber.current}`}
+              {player.profile?.PlayerNumber?.current &&
+                `#${player.profile?.PlayerNumber.current}`}
             </p>
           </div>
         </div>
@@ -101,7 +108,7 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
             </Button>
           </div>
         </Modal>
-        <PlayerProfile player={hydratedPlayer} />
+        <PlayerProfile player={player} />
       </div>
     </DashboardLayout>
   );
