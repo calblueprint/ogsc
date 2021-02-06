@@ -1,12 +1,18 @@
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import useSessionInfo from "utils/useSessionInfo";
+import PageNav from "components/PageNav";
+import usePagination from "./pagination";
 
 interface Player {
   name: string;
   team: string;
   id: string;
   image: string;
+}
+
+interface ReadManyPlayersDTO {
+  users: Player[];
+  total: number;
 }
 
 type SearchProps = {
@@ -45,21 +51,27 @@ const PlayerDashboardItem: React.FunctionComponent<Player> = ({
 const PlayerDashboard: React.FunctionComponent<SearchProps> = ({
   phrase,
 }: SearchProps) => {
-  const [players, setPlayers] = useState<Player[]>();
-
-  useEffect(() => {
-    const getPlayers = async (): Promise<void> => {
-      try {
-        const apiLink = `/api/admin/users/search/${phrase}`;
-        const response = await fetch(apiLink);
-        const data = await response.json();
-        setPlayers(data.users);
-      } catch (err) {
-        throw new Error(err.message);
+  const [
+    visibleData,
+    numUIPages,
+    currUIPage,
+    setUIPage,
+  ] = usePagination<Player>([phrase], async (pageNumber: number) => {
+    const response = await fetch(
+      `/api/admin/users?pageNumber=${pageNumber}&search=${phrase}&role=Player`,
+      {
+        method: "GET",
+        headers: { "content-type": "application/json" },
+        redirect: "follow",
       }
+    );
+    const data = (await response.json()) as ReadManyPlayersDTO;
+    return {
+      data: data.users,
+      count: data.total,
     };
-    getPlayers();
-  }, [phrase]);
+  });
+
   return (
     <div>
       <div>
@@ -70,7 +82,7 @@ const PlayerDashboard: React.FunctionComponent<SearchProps> = ({
         </div>
       </div>
       <hr className="border-unselected border-opacity-0" />
-      {players?.slice(0, 7).map((player) => (
+      {visibleData.map((player) => (
         <PlayerDashboardItem
           name={player.name}
           team={player.team}
@@ -78,6 +90,18 @@ const PlayerDashboard: React.FunctionComponent<SearchProps> = ({
           id={player.id}
         />
       ))}
+      <PageNav
+        currentPage={currUIPage + 1}
+        numPages={numUIPages}
+        onPrevPage={() => {
+          setUIPage(currUIPage - 1);
+        }}
+        onNextPage={() => {
+          setUIPage(currUIPage + 1);
+        }}
+        prevDisabled={currUIPage <= 0}
+        nextDisabled={currUIPage >= numUIPages - 1}
+      />
     </div>
   );
 };

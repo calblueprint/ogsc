@@ -34,7 +34,7 @@ const PageNav: React.FunctionComponent<PageNavProps> = ({
           <p className="">Back</p>
         </button>
         <p className="opacity-50 ml-10 mr-10">
-          Page {currentPage} of {numPages}
+          {numPages === 0 ? "No Results" : `Page ${currentPage} of ${numPages}`}
         </p>
         <button
           type="button"
