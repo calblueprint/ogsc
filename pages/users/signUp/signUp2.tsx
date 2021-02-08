@@ -9,11 +9,12 @@ import { CreateUserDTO } from "pages/api/users";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import updateActionSignUp from "utils/updateActionSignUp";
+import { UserSignUpFormValues } from ".";
 
-type UserSignUpForm2Values = {
-  role: UserRoleType;
-  adminNote: string;
-};
+export type UserSignUpForm2Values = Pick<
+  UserSignUpFormValues,
+  "role" | "adminNote"
+>;
 
 const UserSignUpForm2Schema = Joi.object<UserSignUpForm2Values>({
   role: Joi.string()
@@ -42,7 +43,6 @@ const UserSignUpPageTwo: React.FC = () => {
       return;
     }
     try {
-      action(values);
       const response = await fetch("/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -52,13 +52,22 @@ const UserSignUpPageTwo: React.FC = () => {
           name: `${state.userData.firstName} ${state.userData.lastName}`,
           phoneNumber: state.userData.phoneNumber.toString(),
           password: state.userData.password,
-          role: state.userData.role,
+          role: values.role,
         } as CreateUserDTO),
       });
       if (!response.ok) {
         throw await response.json();
       }
       router.push("/users/signUp/signUpConfirmation");
+      action({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phoneNumber: "",
+        password: "",
+        role: null,
+        adminNote: "",
+      });
     } catch (err) {
       // TODO: better error handling (especially for duplicate email)
       setError(err.message);
