@@ -14,6 +14,8 @@
     "host": { "ENV": "PG_HOST" },
     "port": { "ENV": "PG_PORT" },
     "database": { "ENV": "PG_DB_NAME" },
-    "ssl": "true"
+    "ssl": {
+      "rejectUnauthorized": false
+    }
   }
 }
