@@ -13,7 +13,7 @@
     "db:migrate": "ts-node -O '{ \"module\": \"commonjs\" }' $(yarn bin db-migrate)",
     "db:migrate:create": "ts-node -O '{ \"module\": \"commonjs\" }' bin/create-migration.ts",
     "db:seed": "ts-node -O '{ \"module\": \"commonjs\" }' bin/seed-database.ts",
-    "heroku-postbuild": "yarn build && yarn build:scripts && yarn db:migrate up",
+    "heroku-postbuild": "yarn build && yarn build:scripts && yarn db:migrate up -e prod",
     "heroku-review-app-init": "node build/bin/set-nextauth-url.js && node build/bin/seed-database.js"
   },
   "lint-staged": {
@@ -34,6 +34,7 @@
     "@prisma/client": "2.8.0",
     "@sendgrid/mail": "^7.4.0",
     "autoprefixer": "9.8.6",
+    "babel-plugin-superjson-next": "^0.1.8",
     "dayjs": "^1.9.6",
     "db-migrate": "^0.11.11",
     "db-migrate-base": "^2.3.0",
@@ -67,7 +68,6 @@
     "@typescript-eslint/eslint-plugin": "^4.8.2",
     "@typescript-eslint/parser": "^4.8.1",
     "babel-eslint": "^10.1.0",
-    "babel-plugin-superjson-next": "^0.1.8",
     "db-migrate-pg": "^1.2.2",
     "db-migrate-plugin-typescript": "ethanlee16/plugin-typescript",
     "eslint": "^7.10.0",
