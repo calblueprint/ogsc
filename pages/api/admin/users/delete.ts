@@ -25,6 +25,18 @@ const handler = async (
     await prisma.userInvite.deleteMany({
       where: { user_id: userId },
     });
+    await prisma.role.deleteMany({
+      where: { OR: [{ userId }, { relatedPlayerId: userId }] },
+    });
+    await prisma.absence.deleteMany({
+      where: { userId },
+    });
+    await prisma.profileField.deleteMany({
+      where: { userId },
+    });
+    await prisma.resetPassword.deleteMany({
+      where: { userId },
+    });
     const user = await prisma.user.delete({
       where: { id: userId },
     });

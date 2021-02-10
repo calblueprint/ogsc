@@ -42,7 +42,7 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
   // update emailVerified field
   const acceptUser = async (): Promise<void> => {
     try {
-      const response = await fetch("/api/admin/users/update", {
+      const response = await fetch(`/api/admin/users/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -122,7 +122,7 @@ const UserDashboard: React.FunctionComponent = () => {
 
   const getUsers = async (): Promise<void> => {
     try {
-      const response = await fetch("/api/admin/users", {
+      const response = await fetch("/api/admin/users/?unverified=true", {
         method: "GET",
         headers: { "content-type": "application/json" },
         redirect: "follow",
