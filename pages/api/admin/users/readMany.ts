@@ -1,8 +1,8 @@
-import { FindManyUserArgs } from "@prisma/client";
-import prisma from "utils/prisma";
+import { Prisma } from "@prisma/client";
 import { IUser, UserRoleType, UserStatus } from "interfaces";
 import { NextApiRequest, NextApiResponse } from "next";
 import flattenUserRoles from "utils/flattenUserRoles";
+import prisma from "utils/prisma";
 import sanitizeUser from "utils/sanitizeUser";
 import { USER_PAGE_SIZE } from "../../../../constants";
 
@@ -26,7 +26,7 @@ export default async (
     | string
     | undefined;
   try {
-    const filterArgs: FindManyUserArgs = {
+    const filterArgs: Prisma.FindManyUserArgs = {
       where: {
         ...(userRole
           ? {

@@ -1,11 +1,11 @@
-import { AbsenceCreateWithoutUsersInput } from "@prisma/client";
-import prisma from "utils/prisma";
+import { Prisma } from "@prisma/client";
 import { ValidatedNextApiRequest } from "interfaces";
 import Joi from "lib/validate";
 import { NextApiResponse } from "next";
-import { validateBody } from "pages/api/helpers";
-import sanitizeUser from "utils/sanitizeUser";
 import type { AbsenceFormValues } from "pages/admin/players/playerForm/attendence";
+import { validateBody } from "pages/api/helpers";
+import prisma from "utils/prisma";
+import sanitizeUser from "utils/sanitizeUser";
 import { adminOnlyHandler } from "../../helpers";
 
 export type PlayerUserDTO = {
@@ -24,7 +24,7 @@ const handler = async (
   res: NextApiResponse
 ): Promise<void> => {
   try {
-    const absenceProfileFields: AbsenceCreateWithoutUsersInput[] = [];
+    const absenceProfileFields: Prisma.AbsenceCreateWithoutUsersInput[] = [];
     const userAbsenceInfo = req.body;
     Object.keys(userAbsenceInfo).forEach((key) => {
       if (key === "schoolAbsences") {

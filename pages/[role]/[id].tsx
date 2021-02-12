@@ -42,7 +42,7 @@ export async function getServerSideProps(
 ): Promise<{ props: gsspProps }> {
   const id = context.query.id as string;
 
-  const user = await prisma.user.findOne({
+  const user = await prisma.user.findUnique({
     where: { id: Number(id) },
     include: { roles: true },
   });

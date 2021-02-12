@@ -1,11 +1,11 @@
-import { PrismaClientKnownRequestError } from "@prisma/client";
-import prisma from "utils/prisma";
+import { Prisma } from "@prisma/client";
 import { NextApiResponse } from "next";
 import Joi from "lib/validate";
 import { UserRoleType, ValidatedNextApiRequest, UserStatus } from "interfaces";
 import Notifier from "lib/notify";
 import { NotificationType } from "lib/notify/types";
 import { validateBody } from "pages/api/helpers";
+import prisma from "utils/prisma";
 import { adminOnlyHandler } from "../helpers";
 
 export type AdminCreateUserDTO = {
@@ -76,7 +76,7 @@ const handler = async (
     });
     res.json(newUser);
   } catch (err) {
-    if (err instanceof PrismaClientKnownRequestError) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
       res.status(422).json({
         statusCode: 422,
         message: "User already exists with this email",
