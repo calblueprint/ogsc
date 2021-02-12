@@ -7,7 +7,7 @@ import {
   UserRoleType,
   ValidatedNextApiRequest,
 } from "interfaces";
-import Joi from "joi";
+import Joi from "lib/validate";
 import { validateBody } from "../helpers";
 import { getInviteById } from "../invites/[id]";
 
@@ -29,7 +29,9 @@ export const CreateUserDTOValidator = Joi.object<CreateUserDTO>({
   name: Joi.string().required(),
   email: Joi.string().email().required(),
   password: Joi.string().min(8).required(),
-  phoneNumber: Joi.string().allow(""),
+  phoneNumber: Joi.string()
+    .phoneNumber({ defaultCountry: "US", format: "national", strict: true })
+    .allow(""),
   inviteCodeId: Joi.string().allow(""),
   role: Joi.string()
     .valid(...Object.values(UserRoleType))

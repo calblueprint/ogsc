@@ -1,6 +1,6 @@
 import { PrismaClient, PrismaClientKnownRequestError } from "@prisma/client";
 import { NextApiResponse } from "next";
-import Joi from "joi";
+import Joi from "lib/validate";
 import { ValidatedNextApiRequest } from "interfaces";
 import sanitizeUser from "utils/sanitizeUser";
 import { validateBody } from "pages/api/helpers";

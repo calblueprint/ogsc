@@ -2,7 +2,7 @@ import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
 import FormField from "components/FormField";
 import { UserRoleLabel, UserRoleType } from "interfaces";
-import Joi from "joi";
+import Joi from "lib/validate";
 import { useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
 import { CreateUserDTO } from "pages/api/users";

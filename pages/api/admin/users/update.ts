@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { ValidatedNextApiRequest, UserRoleType } from "interfaces";
-import Joi from "joi";
+import Joi from "lib/validate";
 import { NextApiResponse } from "next";
 import { validateBody } from "pages/api/helpers";
 import flattenUserRoles from "utils/flattenUserRoles";
@@ -24,7 +24,10 @@ const expectedBody = Joi.object<UpdateUserDTO>({
   id: Joi.number(),
   name: Joi.string(),
   email: Joi.string(),
-  phoneNumber: Joi.string(),
+  phoneNumber: Joi.string().phoneNumber({
+    defaultCountry: "US",
+    format: "national",
+  }),
   emailVerified: Joi.date(),
   image: Joi.string(),
   roles: Joi.array().items(Joi.string()).optional(),

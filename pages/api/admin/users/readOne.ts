@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { NextApiResponse } from "next";
-import Joi from "joi";
+import Joi from "lib/validate";
 import { ValidatedNextApiRequest } from "interfaces";
 import flattenUserRoles from "utils/flattenUserRoles";
 import sanitizeUser from "utils/sanitizeUser";

@@ -1,7 +1,7 @@
 import { years, months, getDays } from "components/Player/PlayerForm/FormItems";
 import Button from "components/Button";
 import { useState } from "react";
-import Joi from "joi";
+import Joi from "lib/validate";
 import DateComboBox from "components/Player/PlayerForm/DateComboBox";
 
 type Props = React.PropsWithChildren<{

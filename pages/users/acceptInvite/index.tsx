@@ -2,7 +2,7 @@ import { joiResolver } from "@hookform/resolvers/joi";
 import { User } from "@prisma/client";
 import Button from "components/Button";
 import UserSignUpFormField from "components/UserSignUpFormField";
-import Joi from "joi";
+import Joi from "lib/validate";
 import { StateMachineProvider, useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -23,7 +23,9 @@ const UserAcceptInviteFormSchema = Joi.object<UserAcceptInviteFormValues>({
     .trim()
     .email({ tlds: { allow: false } })
     .optional(),
-  phoneNumber: Joi.string().required(),
+  phoneNumber: Joi.string()
+    .phoneNumber({ defaultCountry: "US", format: "national", strict: true })
+    .required(),
 });
 
 const UserAcceptInvitePageOne: React.FC = () => {

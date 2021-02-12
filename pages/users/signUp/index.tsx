@@ -2,7 +2,7 @@ import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
 import UserSignUpFormField from "components/UserSignUpFormField";
 import { UserRoleType } from "interfaces";
-import Joi from "joi";
+import Joi from "lib/validate";
 import { StateMachineProvider, useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
@@ -31,7 +31,10 @@ const UserSignUpForm1Schema = Joi.object<UserSignUpForm1Values>({
     .trim()
     .email({ tlds: { allow: false } })
     .required(),
-  phoneNumber: Joi.string().empty("").allow(null),
+  phoneNumber: Joi.string()
+    .phoneNumber({ defaultCountry: "US", format: "national", strict: true })
+    .empty("")
+    .allow(null),
   password: Joi.forbidden().required(),
 });
 
