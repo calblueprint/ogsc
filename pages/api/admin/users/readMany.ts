@@ -1,4 +1,4 @@
-import { FindManyUserArgs, PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { IUser, UserRoleType } from "interfaces";
 import { NextApiRequest, NextApiResponse } from "next";
 import flattenUserRoles from "utils/flattenUserRoles";
@@ -21,7 +21,7 @@ export default async (
   const search = req.query.search as string | undefined;
   const includeOnlyUnverified = req.query.unverified as string | undefined;
   try {
-    const filterArgs: FindManyUserArgs = {
+    const filterArgs: Prisma.FindManyUserArgs = {
       where: {
         ...(userRole
           ? {

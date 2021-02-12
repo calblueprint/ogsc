@@ -9,7 +9,7 @@ const handler = async (
   res: NextApiResponse
 ): Promise<void> => {
   try {
-    const view = await prisma.role.findOne({
+    const view = await prisma.role.findUnique({
       where: { id: Number(req.query.id) },
     });
     if (!view) {

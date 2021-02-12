@@ -23,7 +23,7 @@ const options = {
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials: AuthorizeDTO) => {
-        const user = await prisma.user.findOne({
+        const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
         if (!user) {

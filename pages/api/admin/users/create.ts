@@ -1,4 +1,4 @@
-import { PrismaClient, PrismaClientKnownRequestError } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import { NextApiResponse } from "next";
 import Joi from "lib/validate";
 import { UserRoleType, ValidatedNextApiRequest } from "interfaces";
@@ -69,7 +69,7 @@ const handler = async (
     });
     res.json(newUser);
   } catch (err) {
-    if (err instanceof PrismaClientKnownRequestError) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
       res.status(422).json({
         statusCode: 422,
         message: "User already exists with this email",

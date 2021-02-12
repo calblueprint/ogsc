@@ -1,4 +1,4 @@
-import { PrismaClient, PrismaClientKnownRequestError } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import { NextApiResponse } from "next";
 import Joi from "lib/validate";
 import { ValidatedNextApiRequest } from "interfaces";
@@ -45,7 +45,10 @@ const handler = async (
       user: sanitizeUser(user),
     });
   } catch (err) {
-    if (err instanceof PrismaClientKnownRequestError && err.code === "P2016") {
+    if (
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === "P2016"
+    ) {
       res.status(404).json({ statusCode: 404, message: "User not found" });
     } else {
       res.status(500);

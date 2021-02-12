@@ -1,4 +1,4 @@
-import { PrismaClient, AbsenceCreateWithoutUsersInput } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import { ValidatedNextApiRequest } from "interfaces";
 import Joi from "lib/validate";
 import { NextApiResponse } from "next";
@@ -25,7 +25,7 @@ const handler = async (
   res: NextApiResponse
 ): Promise<void> => {
   try {
-    const absenceProfileFields: AbsenceCreateWithoutUsersInput[] = [];
+    const absenceProfileFields: Prisma.AbsenceCreateWithoutUsersInput[] = [];
     const userAbsenceInfo = req.body;
     Object.keys(userAbsenceInfo).forEach((key) => {
       if (key === "schoolAbsences") {

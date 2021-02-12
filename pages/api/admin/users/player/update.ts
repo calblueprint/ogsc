@@ -1,8 +1,4 @@
-import {
-  PrismaClient,
-  ProfileFieldKey,
-  ProfileFieldCreateWithoutUserInput,
-} from "@prisma/client";
+import { PrismaClient, ProfileFieldKey, Prisma } from "@prisma/client";
 import Joi from "lib/validate";
 import { NextApiResponse } from "next";
 
@@ -75,7 +71,7 @@ const handler = async (
       }
       return null;
     });
-    const newProfileFields: ProfileFieldCreateWithoutUserInput[] = [];
+    const newProfileFields: Prisma.ProfileFieldCreateWithoutUserInput[] = [];
 
     profileFields.forEach((value, key) => {
       if (
@@ -116,7 +112,7 @@ const handler = async (
     });
 
     const playerId = userInfo.id || Number(req.query.id);
-    const updatingUser = await prisma.user.findOne({
+    const updatingUser = await prisma.user.findUnique({
       where: { id: playerId },
       include: {
         absences: true,
