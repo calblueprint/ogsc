@@ -6,7 +6,7 @@ import Joi from "joi";
 import { useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
 import { CreateUserDTO } from "pages/api/users";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import updateActionSignUp from "utils/updateActionSignUp";
 import { UserSignUpFormValues } from ".";
@@ -33,6 +33,13 @@ const UserSignUpPageTwo: React.FC = () => {
     resolver: joiResolver(UserSignUpForm2Schema),
   });
   const { state, action } = useStateMachine(updateActionSignUp);
+
+  useEffect(() => {
+    if (state.userData.email === "") {
+      router.push("/users/signUp");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function onSubmit(
     values: UserSignUpForm2Values,
