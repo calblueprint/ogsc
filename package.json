@@ -13,7 +13,7 @@
     "db:migrate": "ts-node -O '{ \"module\": \"commonjs\" }' $(yarn bin db-migrate)",
     "db:migrate:create": "ts-node -O '{ \"module\": \"commonjs\" }' bin/create-migration.ts",
     "db:seed": "ts-node -O '{ \"module\": \"commonjs\" }' bin/seed-database.ts",
-    "heroku-postbuild": "yarn build && yarn build:scripts && yarn db:migrate up",
+    "heroku-postbuild": "yarn build && yarn build:scripts && yarn db:migrate up -e prod",
     "heroku-review-app-init": "node build/bin/set-nextauth-url.js && node build/bin/seed-database.js"
   },
   "lint-staged": {

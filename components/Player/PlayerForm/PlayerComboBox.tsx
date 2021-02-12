@@ -9,7 +9,7 @@ const getInputPlayers = async (
   inputValue: string | undefined
 ): Promise<User[]> => {
   try {
-    const apiLink = `/api/admin/users/search/${inputValue}`;
+    const apiLink = `/api/players/search?phrase=${inputValue}`;
     const response = await fetch(apiLink);
     const data = await response.json();
     return data.users.map((player: User) => player);

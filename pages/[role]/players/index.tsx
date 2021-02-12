@@ -1,11 +1,28 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { IPlayer } from "interfaces";
 import DashboardLayout from "../../../components/DashboardLayout";
 import PlayerDashboard from "../../../components/PlayersDashboard";
 import Button from "../../../components/Button";
 
-const AdminView: React.FunctionComponent = () => {
-  const [phrase, setPhrase] = useState<string>(" ");
+const PlayersListPage: React.FunctionComponent = () => {
+  const [phrase, setPhrase] = useState<string>("");
+  const [players, setPlayers] = useState<IPlayer[]>();
+
+  useEffect(() => {
+    const getPlayers = async (): Promise<void> => {
+      try {
+        const apiLink = `/api/players/search?phrase=${phrase}`;
+        const response = await fetch(apiLink);
+        const data = await response.json();
+        setPlayers(data.users);
+      } catch (err) {
+        throw new Error(err.message);
+      }
+    };
+    getPlayers();
+  }, [phrase]);
+
   return (
     <DashboardLayout>
       <div className="flex mt-20 flex-wrap space-y-6 flex-col mx-16">
@@ -23,7 +40,7 @@ const AdminView: React.FunctionComponent = () => {
         <div className="grid grid-cols-4 gap-8">
           <div className="col-span-3">
             <hr className="border-unselected border-opacity-50" />
-            <PlayerDashboard phrase={phrase} />
+            {players ? <PlayerDashboard players={players} /> : null}
           </div>
           <div className="mt-1">
             <div className="pt-2 relative mx-auto text-gray-600 col-span-1">
@@ -42,4 +59,8 @@ const AdminView: React.FunctionComponent = () => {
   );
 };
 
-export default AdminView;
+export function getServerSideProps(): Record<string, unknown> {
+  return {};
+}
+
+export default PlayersListPage;
