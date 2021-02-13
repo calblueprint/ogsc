@@ -1,54 +1,11 @@
-import { Absence, ProfileField, Role, User } from "@prisma/client";
-
-// TODO: Use Prisma-generated types for this once prisma/prisma#3252 is resolved
-export const ProfileFieldKey = <const>{
-  AcademicEngagementScore: "AcademicEngagementScore",
-  AdvisingScore: "AdvisingScore",
-  AthleticScore: "AthleticScore",
-  BioAboutMe: "BioAboutMe",
-  BioFavoriteSubject: "BioFavoriteSubject",
-  BioHobbies: "BioHobbies",
-  BioMostDifficultSubject: "BioMostDifficultSubject",
-  BioParents: "BioParents",
-  BioSiblings: "BioSiblings",
-  BMI: "BMI",
-  DisciplinaryActions: "DisciplinaryActions",
-  GPA: "GPA",
-  HealthAndWellness: "HealthAndWellness",
-  Highlights: "Highlights",
-  IntroVideo: "IntroVideo",
-  MileTime: "MileTime",
-  PacerTest: "PacerTest",
-  PlayerNumber: "PlayerNumber",
-  Pushups: "Pushups",
-  Situps: "Situps",
-};
-export type ProfileFieldKey = typeof ProfileFieldKey[keyof typeof ProfileFieldKey];
-
-// TODO: Use Prisma-generated types for this once prisma/prisma#3252 is resolved
-export const AbsenceReason = <const>{
-  Excused: "Excused",
-  Unexcused: "Unexcused",
-};
-export type AbsenceReason = typeof AbsenceReason[keyof typeof AbsenceReason];
-
-// TODO: Use Prisma-generated types for this once prisma/prisma#3252 is resolved
-export const AbsenceType = <const>{
-  School: "School",
-  Academic: "Academic",
-  Athletic: "Athletic",
-};
-export type AbsenceType = typeof AbsenceType[keyof typeof AbsenceType];
-
-// TODO: Use Prisma-generated types for this once prisma/prisma#3252 is resolved
-export const UserRoleType = <const>{
-  Admin: "Admin",
-  Donor: "Donor",
-  Mentor: "Mentor",
-  Parent: "Parent",
-  Player: "Player",
-};
-export type UserRoleType = typeof UserRoleType[keyof typeof UserRoleType];
+import {
+  Absence,
+  ProfileField,
+  ProfileFieldKey,
+  Role,
+  User,
+  UserRoleType,
+} from "@prisma/client";
 
 export type PrivateUserFields = "hashedPassword";
 export type SanitizedUser = Omit<User, PrivateUserFields>;
@@ -60,15 +17,6 @@ export const UserRoleLabel: Record<UserRoleType, string> = {
   [UserRoleType.Player]: "Player",
   [UserRoleType.Donor]: "Donor",
 };
-
-// TODO: Use Prisma-generated types for this once prisma/prisma#3252 is resolved
-export const UserStatus = <const>{
-  Active: "Active",
-  Inactive: "Inactive",
-  PendingAdminApproval: "PendingAdminApproval",
-  PendingUserAcceptance: "PendingUserAcceptance",
-};
-export type UserStatus = typeof UserStatus[keyof typeof UserStatus];
 
 export enum ProfileFieldValue {
   Text = "text",

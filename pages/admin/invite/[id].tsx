@@ -1,15 +1,15 @@
+import { User, UserRoleType, UserStatus } from "@prisma/client";
 import { useRouter } from "next/router";
 import DashboardLayout from "components/DashboardLayout";
 import React, { useState, useEffect } from "react";
 import Button from "components/Button";
 import FormField from "components/FormField";
-import { IUser, UserRoleLabel, UserRoleType, UserStatus } from "interfaces";
+import { IUser, UserRoleLabel } from "interfaces";
 import Joi from "lib/validate";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { useForm } from "react-hook-form";
 import { NextPageContext } from "next";
-import { User } from "@prisma/client";
 import prisma from "utils/prisma";
 import Combobox from "components/Combobox";
 import { ViewingPermissionDTO } from "pages/api/admin/roles/create";

@@ -1,11 +1,7 @@
+import { AbsenceType, ProfileFieldKey } from "@prisma/client";
 import React, { useContext, useState } from "react";
 import Icon, { IconType } from "components/Icon";
-import {
-  AbsenceType,
-  IPlayer,
-  ProfileFieldKey,
-  UserRoleLabel,
-} from "interfaces";
+import { IPlayer, UserRoleLabel } from "interfaces";
 import updateActionPlayer from "utils/updateActionPlayer";
 import { useStateMachine } from "little-state-machine";
 import Button from "components/Button";
@@ -510,7 +506,6 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
   const [selectedCategory, setSelectedCategory] = useState(
     ProfileCategory.Overview
   );
-  console.log("Absences is:", player.absences);
   return (
     <div>
       <div className="flex flex-row text-sm text-center">

@@ -1,5 +1,5 @@
-import { Role } from "@prisma/client";
-import { DefaultRole, SanitizedUser, UserRoleType } from "interfaces";
+import { Role, UserRoleType } from "@prisma/client";
+import { DefaultRole, SanitizedUser } from "interfaces";
 
 export default function flattenUserRoles<
   T extends SanitizedUser & {

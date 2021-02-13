@@ -1,5 +1,5 @@
 import { joiResolver } from "@hookform/resolvers/joi";
-import { UserStatus } from "interfaces";
+import { UserStatus } from "@prisma/client";
 import Button from "components/Button";
 import FormField from "components/FormField";
 import Joi from "lib/validate";

@@ -1,5 +1,5 @@
+import { UserStatus } from "@prisma/client";
 import prisma from "utils/prisma";
-import { UserStatus } from "interfaces";
 import { NextApiRequest, NextApiResponse } from "next";
 import sanitizeUser from "utils/sanitizeUser";
 import { adminOnlyHandler } from "../helpers";

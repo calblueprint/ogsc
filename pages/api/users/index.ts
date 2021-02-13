@@ -1,13 +1,9 @@
 import { NextApiResponse } from "next";
+import { UserRoleType, UserStatus } from "@prisma/client";
 import prisma from "utils/prisma";
 import sanitizeUser from "utils/sanitizeUser";
 import hash from "utils/hashPassword";
-import {
-  SanitizedUser,
-  UserRoleType,
-  ValidatedNextApiRequest,
-  UserStatus,
-} from "interfaces";
+import { SanitizedUser, ValidatedNextApiRequest } from "interfaces";
 import Joi from "lib/validate";
 import { validateBody } from "../helpers";
 import { getInviteById } from "../invites/[id]";
