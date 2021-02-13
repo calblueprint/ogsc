@@ -10,37 +10,7 @@ import Button from "components/Button";
 // import { NextPageContext } from "next";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { UserRoleType, IUser } from "interfaces";
-// import buildUserProfile from "utils/buildUserProfile";
-// import flattenUserRoles from "utils/flattenUserRoles";
-// import sanitizeUser from "utils/sanitizeUser";
 
-// interface
-// type Props = {
-//   user?: IUser;
-// };
-// export async function getServerSideProps(
-//   context: NextPageContext
-// ): Promise<{ props: Props }> {
-//   const prisma = new PrismaClient();
-//   const id = context.query.id as string;
-//   const user = await prisma.user.findOne({
-//     where: { id: Number(id) },
-//     include: {
-//       absences: true,
-//       profileFields: true,
-//       roles: true,
-//     },
-//   });
-//   if (user == null) {
-//     return { props: {} };
-//   }
-//   return {
-//     props: {
-//       users: buildUserProfile(flattenUserRoles(sanitizeUser(user))),
-//     },
-//   };
-// }
-// eslint-disable-next-line react-hooks/rules-of-hooks
 const UserAccountPage: React.FunctionComponent<UserRequest> = ({
   onDelete,
   onAccept,
@@ -54,7 +24,6 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = ({
   // const router = useRouter();
   const { id } = router.query;
   // const createDate = new Date().toDateString;
-
   useEffect(() => {
     const getUser = async (): Promise<void> => {
       const response = await fetch(`/api/admin/users/${id}`, {
@@ -98,13 +67,14 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = ({
 
   const acceptUser = async (): Promise<void> => {
     try {
-      const response = await fetch(`/api/admin/users/${id}`, {
+      const response = await fetch(`/api/admin/users/${user?.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({
+        body: JSON.stringify(({
           emailVerified: new Date(),
-        } as UpdateUserDTO),
+          upstreamRoles: selectedPlayers,
+        } as unknown) as UpdateUserDTO),
       });
       if (!response.ok) {
         throw await response.json();
@@ -123,9 +93,7 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = ({
         </p>
         <p className="mb-10">Created {user?.createdAt}</p>
         <p className="text-3xl font-semibold mb-10">Basic Information </p>
-        <p className="text-1xl font-semibold">First Name</p>
-        <p className="mb-10">{user?.name}</p>
-        <p className="text-1xl font-semibold">Last Name</p>
+        <p className="text-1xl font-semibold">Name</p>
         <p className="mb-10">{user?.name}</p>
         <p className="text-1xl font-semibold">Email Address</p>
         <p className="mb-10">{user?.email}</p>
