@@ -1,8 +1,9 @@
 import { joiResolver } from "@hookform/resolvers/joi";
+import { UserRoleType, User } from "@prisma/client";
 import Button from "components/Button";
 import DashboardLayout from "components/DashboardLayout";
 import FormField from "components/FormField";
-import { UserRoleLabel, UserRoleType } from "interfaces";
+import { UserRoleLabel } from "interfaces";
 import Joi from "lib/validate";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -10,7 +11,6 @@ import { AdminCreateUserDTO } from "pages/api/admin/users/create";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import Combobox from "components/Combobox";
-import { User } from "@prisma/client";
 
 type AdminInviteFormValues = {
   firstName: string;

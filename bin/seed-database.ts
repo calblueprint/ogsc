@@ -1,14 +1,16 @@
 /* eslint-disable no-console */
 import {
   Absence,
+  AbsenceReason,
+  AbsenceType,
   Prisma,
   PrismaClient,
   ProfileFieldKey,
   User,
+  UserRoleType,
 } from "@prisma/client";
 import Faker from "faker";
 import Ora from "ora";
-import { AbsenceReason, AbsenceType, UserRoleType } from "../interfaces";
 import hashPassword from "../utils/hashPassword";
 
 const NUMBER_USERS = 10;

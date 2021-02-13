@@ -1,10 +1,5 @@
-import {
-  IPlayer,
-  IUser,
-  PlayerProfile,
-  ProfileFieldKey,
-  UserRoleType,
-} from "interfaces";
+import { ProfileFieldKey, UserRoleType } from "@prisma/client";
+import { IPlayer, IUser, PlayerProfile } from "interfaces";
 import ProfileAccessDefinitionsByRole from "lib/access/definitions";
 import resolveAccessValue from "lib/access/resolve";
 

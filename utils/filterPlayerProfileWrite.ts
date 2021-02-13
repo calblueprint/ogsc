@@ -1,5 +1,5 @@
-import { Prisma } from "@prisma/client";
-import { IPlayer, IUser, UserRoleType } from "interfaces";
+import { Prisma, UserRoleType } from "@prisma/client";
+import { IPlayer, IUser } from "interfaces";
 import ProfileAccessDefinitionsByRole from "lib/access/definitions";
 import resolveAccessValue from "lib/access/resolve";
 

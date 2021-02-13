@@ -1,4 +1,5 @@
-import { IPlayer, IUser, ProfileFieldKey } from "interfaces";
+import { ProfileFieldKey } from "@prisma/client";
+import { IPlayer, IUser } from "interfaces";
 
 type AccessValueBase = boolean | ((player: IPlayer, user: IUser) => boolean);
 export type AccessValue =

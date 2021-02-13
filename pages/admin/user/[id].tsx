@@ -1,10 +1,11 @@
+import { PrismaClient, User, UserRoleType } from "@prisma/client";
 import { NextRouter, useRouter } from "next/router";
 import DashboardLayout from "components/DashboardLayout";
 import React, { useState, useEffect } from "react";
 import Icon from "components/Icon";
 import Button from "components/Button";
 import FormField from "components/FormField";
-import { IUser, UserRoleLabel, UserRoleType } from "interfaces";
+import { IUser, UserRoleLabel } from "interfaces";
 import Joi from "lib/validate";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
@@ -12,7 +13,6 @@ import { useForm } from "react-hook-form";
 import { DeleteUserDTO } from "pages/api/admin/users/delete";
 import Link from "next/link";
 import { NextPageContext } from "next";
-import { PrismaClient, User } from "@prisma/client";
 
 interface AdminEditUserFormValues {
   firstName: string;

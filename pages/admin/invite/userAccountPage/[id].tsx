@@ -3,10 +3,10 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { DeleteUserDTO } from "pages/api/admin/users/delete";
 import Combobox from "components/Combobox";
-import { User } from "@prisma/client";
+import { User, UserRoleType } from "@prisma/client";
 import Button from "components/Button";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
-import { UserRoleType, IUser } from "interfaces";
+import { IUser } from "interfaces";
 
 const UserAccountPage: React.FunctionComponent<UserRequest> = ({
   onAccept,

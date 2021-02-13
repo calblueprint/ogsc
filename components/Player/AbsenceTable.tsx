@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { AbsenceReason, AbsenceType } from "interfaces";
-import { Absence } from "@prisma/client";
+import { Absence, AbsenceReason, AbsenceType } from "@prisma/client";
 import EditMoreAbsence from "components/Player/EditMoreAbsence";
 import Button from "components/Button";
 import Modal from "components/Modal";

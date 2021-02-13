@@ -1,6 +1,6 @@
+import { UserRoleType } from "@prisma/client";
 import DashboardLayout from "components/DashboardLayout";
 import UserDashboard from "components/UserDashboard";
-import { UserRoleType } from "interfaces";
 import { useState } from "react";
 
 interface adminNavBarProps {

@@ -1,4 +1,5 @@
-import { IPlayer, IUser, ProfileFieldKey, UserRoleType } from "interfaces";
+import { ProfileFieldKey, UserRoleType } from "@prisma/client";
+import { IPlayer, IUser } from "interfaces";
 import { AccessValue, ProfileAccessDefinition } from "./types";
 
 const isSharedPlayerProfile: AccessValue = (

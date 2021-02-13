@@ -1,7 +1,7 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, UserRoleType } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 
-import { IPlayer, IUser, UserRoleType } from "interfaces";
+import { IPlayer, IUser } from "interfaces";
 import buildUserProfile from "utils/buildUserProfile";
 import filterPlayerProfileRead from "utils/filterPlayerProfileRead";
 import flattenUserRoles from "utils/flattenUserRoles";

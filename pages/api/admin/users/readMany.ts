@@ -1,5 +1,5 @@
-import { Prisma, PrismaClient } from "@prisma/client";
-import { IUser, UserRoleType } from "interfaces";
+import { Prisma, PrismaClient, UserRoleType } from "@prisma/client";
+import { IUser } from "interfaces";
 import { NextApiRequest, NextApiResponse } from "next";
 import flattenUserRoles from "utils/flattenUserRoles";
 import sanitizeUser from "utils/sanitizeUser";

@@ -1,7 +1,7 @@
-import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaClient, Prisma, UserRoleType } from "@prisma/client";
 import { NextApiResponse } from "next";
 import Joi from "lib/validate";
-import { UserRoleType, ValidatedNextApiRequest } from "interfaces";
+import { ValidatedNextApiRequest } from "interfaces";
 import Notifier from "lib/notify";
 import { NotificationType } from "lib/notify/types";
 import { validateBody } from "pages/api/helpers";

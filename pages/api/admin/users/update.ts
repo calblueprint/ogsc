@@ -1,5 +1,5 @@
-import { PrismaClient } from "@prisma/client";
-import { ValidatedNextApiRequest, UserRoleType } from "interfaces";
+import { PrismaClient, UserRoleType } from "@prisma/client";
+import { ValidatedNextApiRequest } from "interfaces";
 import Joi from "lib/validate";
 import { NextApiResponse } from "next";
 import { validateBody } from "pages/api/helpers";

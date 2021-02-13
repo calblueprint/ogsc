@@ -1,7 +1,8 @@
+import { UserRoleType } from "@prisma/client";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import React from "react";
-import { UserRoleLabel, UserRoleType } from "interfaces";
+import { UserRoleLabel } from "interfaces";
 import useSessionInfo from "utils/useSessionInfo";
 import Icon from "components/Icon";
 

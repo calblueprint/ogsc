@@ -1,6 +1,7 @@
+import { AbsenceType, ProfileFieldKey } from "@prisma/client";
 import React, { useContext, useState } from "react";
 import Icon, { IconType } from "components/Icon";
-import { AbsenceType, IPlayer, ProfileFieldKey } from "interfaces";
+import { IPlayer } from "interfaces";
 import updateActionPlayer from "utils/updateActionPlayer";
 import { useStateMachine } from "little-state-machine";
 import Button from "components/Button";
