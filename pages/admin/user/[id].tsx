@@ -10,6 +10,9 @@ import { joiResolver } from "@hookform/resolvers/joi";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { useForm } from "react-hook-form";
 import { DeleteUserDTO } from "pages/api/admin/users/delete";
+import Link from "next/link";
+import { NextPageContext } from "next";
+import { PrismaClient, User } from "@prisma/client";
 
 interface AdminEditUserFormValues {
   firstName: string;
@@ -36,6 +39,50 @@ interface DeleteConfirmationProps {
 type ModalProps = React.PropsWithChildren<{
   open?: boolean;
 }>;
+
+type gsspProps = {
+  user?: User;
+  relatedPlayers?: User[];
+};
+
+export async function getServerSideProps(
+  context: NextPageContext
+): Promise<{ props: gsspProps }> {
+  const prisma = new PrismaClient();
+  const id = context.query.id as string;
+
+  const user = await prisma.user.findOne({
+    where: { id: Number(id) },
+    include: { roles: true },
+  });
+
+  if (user === null) {
+    // TODO: Set statusCode to 404
+    return { props: {} };
+  }
+
+  const relatedPlayerIds = user.roles
+    .filter((role) => role.type === "Mentor")
+    .map((role) => role.relatedPlayerId)
+    .filter(
+      (relatedPlayerId): relatedPlayerId is number => relatedPlayerId !== null
+    );
+
+  const users = await prisma.user.findMany({
+    where: {
+      id: {
+        in: relatedPlayerIds,
+      },
+    },
+  });
+
+  return {
+    props: {
+      user,
+      relatedPlayers: users,
+    },
+  };
+}
 
 // TODO: Make some styling changes
 const Modal: React.FC<ModalProps> = ({ children, open }: ModalProps) => {
@@ -304,7 +351,9 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
   );
 };
 
-const UserProfile: React.FunctionComponent = () => {
+const UserProfile: React.FunctionComponent<gsspProps> = ({
+  relatedPlayers,
+}) => {
   const [user, setUser] = useState<IUser>();
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -325,7 +374,7 @@ const UserProfile: React.FunctionComponent = () => {
   }, [id]);
   return (
     <DashboardLayout>
-      <div className="mx-16">
+      <div className="mx-16 mb-24">
         <div className="flex flex-row items-center pt-20 pb-12">
           <div className="w-24 h-24 mr-4 bg-placeholder rounded-full">
             {/* <img src={user?.image} alt="" />{" "} */}
@@ -366,12 +415,24 @@ const UserProfile: React.FunctionComponent = () => {
               <p>{user && UserRoleLabel[user.defaultRole.type]}</p>
             </div>
           </div>
-          <h2 className="text-lg pb-5">Mentor Information</h2>
-          <div className="flex flex-row text-sm">
-            <p className="text-blue mr-20 w-24">Menteed Players</p>
-            <p>List</p>
-          </div>
-          <p className="text-lg font-semibold pb-10 pt-16">Account Changes</p>
+          {user?.defaultRole.type === "Mentor" && (
+            <div className="pb-16">
+              <h2 className="text-lg pb-5">Mentor Information</h2>
+              <div className="flex flex-row text-sm">
+                <p className="text-blue mr-20 w-24">Menteed Players</p>
+                {relatedPlayers?.map((player: User) => {
+                  return (
+                    <Link href={`/admin/players/${player.id}`}>
+                      <div className="underline cursor-pointer">
+                        {player.name}
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+          <p className="text-lg font-semibold pb-10">Account Changes</p>
           <p className="font-semibold text-sm pb-3">Close Account</p>
           <p className="text-sm font-normal">
             Delete this user&apos;s account and account data
