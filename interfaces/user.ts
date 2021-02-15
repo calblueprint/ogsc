@@ -134,17 +134,8 @@ export type DefaultRole = {
   relatedPlayerIds: number[];
 };
 
-export type DashboardRole = {
-  relatedPlayer: User;
-};
-
 export type IUser = SanitizedUser & {
   defaultRole: DefaultRole;
-};
-
-export type PUser = SanitizedUser & {
-  defaultRole: DefaultRole;
-  roles?: DashboardRole[];
 };
 
 export type IPlayer = IUser & {

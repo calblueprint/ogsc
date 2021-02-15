@@ -4,19 +4,15 @@ import React, { useState, useEffect } from "react";
 import Icon from "components/Icon";
 import Button from "components/Button";
 import FormField from "components/FormField";
-import {
-  DashboardRole,
-  IUser,
-  PUser,
-  UserRoleLabel,
-  UserRoleType,
-} from "interfaces";
+import { IUser, UserRoleLabel, UserRoleType } from "interfaces";
 import Joi from "joi";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { useForm } from "react-hook-form";
 import { DeleteUserDTO } from "pages/api/admin/users/delete";
 import Link from "next/link";
+import { NextPageContext } from "next";
+import { PrismaClient, User } from "@prisma/client";
 
 interface AdminEditUserFormValues {
   firstName: string;
@@ -43,6 +39,50 @@ interface DeleteConfirmationProps {
 type ModalProps = React.PropsWithChildren<{
   open?: boolean;
 }>;
+
+type gsspProps = {
+  user?: User;
+  relatedPlayers?: User[];
+};
+
+export async function getServerSideProps(
+  context: NextPageContext
+): Promise<{ props: gsspProps }> {
+  const prisma = new PrismaClient();
+  const id = context.query.id as string;
+
+  const user = await prisma.user.findOne({
+    where: { id: Number(id) },
+    include: { roles: true },
+  });
+
+  if (user === null) {
+    // TODO: Set statusCode to 404
+    return { props: {} };
+  }
+
+  const relatedPlayerIds = user.roles
+    .filter((role) => role.type === "Mentor")
+    .map((role) => role.relatedPlayerId)
+    .filter(
+      (relatedPlayerId): relatedPlayerId is number => relatedPlayerId !== null
+    );
+
+  const users = await prisma.user.findMany({
+    where: {
+      id: {
+        in: relatedPlayerIds,
+      },
+    },
+  });
+
+  return {
+    props: {
+      user,
+      relatedPlayers: users,
+    },
+  };
+}
 
 // TODO: Make some styling changes
 const Modal: React.FC<ModalProps> = ({ children, open }: ModalProps) => {
@@ -311,8 +351,10 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
   );
 };
 
-const UserProfile: React.FunctionComponent = () => {
-  const [user, setUser] = useState<PUser>();
+const UserProfile: React.FunctionComponent<gsspProps> = ({
+  relatedPlayers,
+}) => {
+  const [user, setUser] = useState<IUser>();
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
@@ -320,13 +362,12 @@ const UserProfile: React.FunctionComponent = () => {
 
   useEffect(() => {
     const getUser = async (): Promise<void> => {
-      const response = await fetch(`/api/admin/users/menteed/${id}`, {
+      const response = await fetch(`/api/admin/users/${id}`, {
         method: "GET",
         headers: { "content-type": "application/json" },
         redirect: "follow",
       });
       const data = await response.json();
-      console.log(data);
       setUser(data.user);
     };
     getUser();
@@ -379,17 +420,15 @@ const UserProfile: React.FunctionComponent = () => {
               <h2 className="text-lg pb-5">Mentor Information</h2>
               <div className="flex flex-row text-sm">
                 <p className="text-blue mr-20 w-24">Menteed Players</p>
-                {user?.roles
-                  ?.filter((role: DashboardRole) => role.relatedPlayer !== null)
-                  .map((role: DashboardRole) => {
-                    return (
-                      <Link href={`${role.relatedPlayer.id}`}>
-                        <div className="underline">
-                          {role.relatedPlayer.name}
-                        </div>
-                      </Link>
-                    );
-                  })}
+                {relatedPlayers?.map((player: User) => {
+                  return (
+                    <Link href={`/admin/players/${player.id}`}>
+                      <div className="underline cursor-pointer">
+                        {player.name}
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           )}
