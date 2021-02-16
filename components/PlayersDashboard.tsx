@@ -1,6 +1,17 @@
-import { IPlayer } from "interfaces";
 import Link from "next/link";
 import useSessionInfo from "utils/useSessionInfo";
+import PageNav from "components/PageNav";
+import { IPlayer } from "interfaces";
+import usePagination from "./pagination";
+
+interface ReadManyPlayersDTO {
+  users: IPlayer[];
+  total: number;
+}
+
+type SearchProps = {
+  phrase: string;
+};
 
 const PlayerDashboardItem: React.FunctionComponent<IPlayer> = ({
   name,
@@ -36,13 +47,30 @@ const PlayerDashboardItem: React.FunctionComponent<IPlayer> = ({
   );
 };
 
-type Props = {
-  players: IPlayer[];
-};
+const PlayerDashboard: React.FunctionComponent<SearchProps> = ({
+  phrase,
+}: SearchProps) => {
+  const [
+    visibleData,
+    numUIPages,
+    currUIPage,
+    setUIPage,
+  ] = usePagination<IPlayer>([phrase], async (pageNumber: number) => {
+    const response = await fetch(
+      `/api/players/search?pageNumber=${pageNumber}&phrase=${phrase}&role=Player`,
+      {
+        method: "GET",
+        headers: { "content-type": "application/json" },
+        redirect: "follow",
+      }
+    );
+    const data = (await response.json()) as ReadManyPlayersDTO;
+    return {
+      data: data.users,
+      count: data.total,
+    };
+  });
 
-const PlayerDashboard: React.FunctionComponent<Props> = ({
-  players,
-}: Props) => {
   return (
     <div>
       <div>
@@ -53,9 +81,21 @@ const PlayerDashboard: React.FunctionComponent<Props> = ({
         </div>
       </div>
       <hr className="border-unselected border-opacity-0" />
-      {players.slice(0, 7).map((player) => (
+      {visibleData.map((player) => (
         <PlayerDashboardItem {...player} />
       ))}
+      <PageNav
+        currentPage={currUIPage + 1}
+        numPages={numUIPages}
+        onPrevPage={() => {
+          setUIPage(currUIPage - 1);
+        }}
+        onNextPage={() => {
+          setUIPage(currUIPage + 1);
+        }}
+        prevDisabled={currUIPage <= 0}
+        nextDisabled={currUIPage >= numUIPages - 1}
+      />
     </div>
   );
 };
