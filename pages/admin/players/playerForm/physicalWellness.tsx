@@ -1,7 +1,7 @@
 import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
 import PlayerFormField from "components/PlayerFormField";
-import Joi from "joi";
+import Joi from "lib/validate";
 import { useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
@@ -30,9 +30,11 @@ const UserSignUpPageOne: React.FC = () => {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const { errors, register, handleSubmit } = useForm<
-    PhysicalWellnessFormValues
-  >({
+  const {
+    errors,
+    register,
+    handleSubmit,
+  } = useForm<PhysicalWellnessFormValues>({
     resolver: joiResolver(PlayerProfileFormSchema),
   });
   const { action, state } = useStateMachine(updateActionPlayer);
