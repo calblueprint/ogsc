@@ -4,8 +4,9 @@ import DashboardLayout from "../../../components/DashboardLayout";
 import PlayerDashboard from "../../../components/PlayersDashboard";
 import Button from "../../../components/Button";
 
-const AdminView: React.FunctionComponent = () => {
-  const [phrase, setPhrase] = useState<string>(" ");
+const PlayersListPage: React.FunctionComponent = () => {
+  const [phrase, setPhrase] = useState<string>("");
+
   return (
     <DashboardLayout>
       <div className="flex mt-20 flex-wrap space-y-6 flex-col mx-16">
@@ -42,4 +43,8 @@ const AdminView: React.FunctionComponent = () => {
   );
 };
 
-export default AdminView;
+export function getServerSideProps(): Record<string, unknown> {
+  return {};
+}
+
+export default PlayersListPage;
