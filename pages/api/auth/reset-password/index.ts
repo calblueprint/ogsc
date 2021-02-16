@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import sanitizeUser from "utils/sanitizeUser";
 import hash from "utils/hashPassword";
 import { SanitizedUser } from "interfaces";
-import Joi from "joi";
+import Joi from "lib/validate";
 
 const prisma = new PrismaClient();
 

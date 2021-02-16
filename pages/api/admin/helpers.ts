@@ -1,37 +1,24 @@
-import { PrismaClient } from "@prisma/client";
 import { AuthenticatedNextApiHandler, UserRoleType } from "interfaces";
 import { NextApiRequest, NextApiResponse } from "next";
-import { getSession } from "next-auth/client";
-import flattenUserRoles from "utils/flattenUserRoles";
 
-const prisma = new PrismaClient();
+import flattenUserRoles from "utils/flattenUserRoles";
+import getAuthenticatedUser from "utils/getAuthenticatedUser";
 
 export const adminOnlyHandler = (
   handler: AuthenticatedNextApiHandler
 ) => async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
-  const session = await getSession({ req });
-  if (!session) {
-    res.statusCode = 401;
-    res.json({ message: "You are not logged in." });
-    return;
+  try {
+    const user = await getAuthenticatedUser(req);
+    if (flattenUserRoles(user).defaultRole?.type !== UserRoleType.Admin) {
+      throw new Error(
+        "You need to be logged in as an administrator to perform this function."
+      );
+    }
+    handler(req, res, user);
+  } catch (err) {
+    res.statusCode = 500;
+    res.json({ message: err.message });
   }
-  const user = await prisma.user.findOne({
-    where: { email: session.user.email },
-    include: { roles: true },
-  });
-  if (
-    user === null ||
-    flattenUserRoles(user).defaultRole?.type !== UserRoleType.Admin
-  ) {
-    res.statusCode = 401;
-    res.json({
-      message:
-        "You need to be logged in as an administrator to perform this function.",
-    });
-    return;
-  }
-
-  handler(req, res, user);
 };
 
 export default {

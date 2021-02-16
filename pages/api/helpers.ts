@@ -1,5 +1,5 @@
 import { ValidatedNextApiHandler, ValidatedNextApiRequest } from "interfaces";
-import Joi from "joi";
+import type Joi from "joi";
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 
 export const validateBody = <T>(

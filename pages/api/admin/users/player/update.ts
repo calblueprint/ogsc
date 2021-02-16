@@ -3,15 +3,17 @@ import {
   ProfileFieldKey,
   ProfileFieldCreateWithoutUserInput,
 } from "@prisma/client";
+import Joi from "lib/validate";
+import { NextApiResponse } from "next";
 
 import { ValidatedNextApiRequest } from "interfaces";
-import Joi from "joi";
-import { NextApiResponse } from "next";
-import { validateBody } from "pages/api/helpers";
-
-import sanitizeUser from "utils/sanitizeUser";
 import type { PlayerProfileFormValues } from "pages/admin/players/playerForm";
-import { adminOnlyHandler } from "../../helpers";
+import { validateBody } from "pages/api/helpers";
+import sanitizeUser from "utils/sanitizeUser";
+import filterPlayerProfileWrite from "utils/filterPlayerProfileWrite";
+import buildUserProfile from "utils/buildUserProfile";
+import flattenUserRoles from "utils/flattenUserRoles";
+import getAuthenticatedUser from "utils/getAuthenticatedUser";
 
 const prisma = new PrismaClient();
 
@@ -61,6 +63,7 @@ const handler = async (
   res: NextApiResponse
 ): Promise<void> => {
   try {
+    const authenticatedUser = await getAuthenticatedUser(req);
     const userInfo = req.body;
     const profileFields = new Map<ProfileFieldKey, string | string[]>();
     Object.keys(userInfo).map((key) => {
@@ -111,22 +114,40 @@ const handler = async (
         });
       }
     });
-    const user = await prisma.user.update({
-      where: { id: userInfo.id || Number(req.query.id) },
-      data: {
-        profileFields: {
-          create: newProfileFields,
-        },
+
+    const playerId = userInfo.id || Number(req.query.id);
+    const updatingUser = await prisma.user.findOne({
+      where: { id: playerId },
+      include: {
+        absences: true,
+        profileFields: true,
+        roles: true,
       },
     });
-    if (!user) {
+    if (!updatingUser) {
       res
         .status(404)
         .json({ statusCode: 404, message: "User does not exist." });
+      return;
     }
+
+    const player = buildUserProfile(flattenUserRoles(updatingUser));
+    const updatedUser = await prisma.user.update({
+      where: { id: playerId },
+      data: {
+        profileFields: filterPlayerProfileWrite(
+          player,
+          flattenUserRoles(authenticatedUser),
+          {
+            create: newProfileFields,
+          }
+        ),
+      },
+    });
+
     res.json({
       message: "Successfully updated user.",
-      user: sanitizeUser(user),
+      user: sanitizeUser(updatedUser),
     });
   } catch (err) {
     res.status(500);
@@ -134,4 +155,4 @@ const handler = async (
   }
 };
 
-export default validateBody(adminOnlyHandler(handler), expectedBody);
+export default validateBody(handler, expectedBody);

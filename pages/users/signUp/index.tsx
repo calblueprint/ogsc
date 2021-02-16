@@ -1,7 +1,8 @@
 import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
 import UserSignUpFormField from "components/UserSignUpFormField";
-import Joi from "joi";
+import { UserRoleType } from "interfaces";
+import Joi from "lib/validate";
 import { StateMachineProvider, useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
@@ -14,16 +15,26 @@ export type UserSignUpFormValues = {
   email: string;
   phoneNumber?: string;
   password: string;
+  role: UserRoleType;
+  adminNote: string;
 };
 
-const UserSignUpFormSchema = Joi.object<UserSignUpFormValues>({
+type UserSignUpForm1Values = Pick<
+  UserSignUpFormValues,
+  "firstName" | "lastName" | "email" | "phoneNumber" | "password"
+>;
+
+const UserSignUpForm1Schema = Joi.object<UserSignUpForm1Values>({
   firstName: Joi.string().trim().required(),
   lastName: Joi.string().trim().required(),
   email: Joi.string()
     .trim()
     .email({ tlds: { allow: false } })
     .required(),
-  phoneNumber: Joi.string().empty("").allow(null),
+  phoneNumber: Joi.string()
+    .phoneNumber({ defaultCountry: "US", format: "national", strict: true })
+    .empty("")
+    .allow(null),
   password: Joi.forbidden().required(),
 });
 
@@ -34,13 +45,13 @@ const UserSignUpPageOne: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [revealPassword, setRevealPassword] = useState(false);
-  const { errors, register, handleSubmit } = useForm<UserSignUpFormValues>({
-    resolver: joiResolver(UserSignUpFormSchema),
+  const { errors, register, handleSubmit } = useForm<UserSignUpForm1Values>({
+    resolver: joiResolver(UserSignUpForm1Schema),
   });
   const { action, state } = useStateMachine(updateActionSignUp);
 
   async function onSubmit(
-    values: UserSignUpFormValues,
+    values: UserSignUpForm1Values,
     event?: React.BaseSyntheticEvent
   ): Promise<void> {
     event?.preventDefault();

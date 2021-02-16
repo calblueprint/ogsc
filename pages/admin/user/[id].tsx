@@ -1,14 +1,18 @@
-import { useRouter } from "next/router";
+import { NextRouter, useRouter } from "next/router";
 import DashboardLayout from "components/DashboardLayout";
 import React, { useState, useEffect } from "react";
 import Icon from "components/Icon";
 import Button from "components/Button";
 import FormField from "components/FormField";
 import { IUser, UserRoleLabel, UserRoleType } from "interfaces";
-import Joi from "joi";
+import Joi from "lib/validate";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { useForm } from "react-hook-form";
+import { DeleteUserDTO } from "pages/api/admin/users/delete";
+import Link from "next/link";
+import { NextPageContext } from "next";
+import { PrismaClient, User } from "@prisma/client";
 
 interface AdminEditUserFormValues {
   firstName: string;
@@ -25,9 +29,60 @@ interface EditUserProps {
   setUser: (user: IUser) => void;
 }
 
+interface DeleteConfirmationProps {
+  user?: IUser;
+  isDeleting: boolean;
+  setIsDeleting: React.Dispatch<React.SetStateAction<boolean>>;
+  router: NextRouter;
+}
+
 type ModalProps = React.PropsWithChildren<{
   open?: boolean;
 }>;
+
+type gsspProps = {
+  user?: User;
+  relatedPlayers?: User[];
+};
+
+export async function getServerSideProps(
+  context: NextPageContext
+): Promise<{ props: gsspProps }> {
+  const prisma = new PrismaClient();
+  const id = context.query.id as string;
+
+  const user = await prisma.user.findOne({
+    where: { id: Number(id) },
+    include: { roles: true },
+  });
+
+  if (user === null) {
+    // TODO: Set statusCode to 404
+    return { props: {} };
+  }
+
+  const relatedPlayerIds = user.roles
+    .filter((role) => role.type === "Mentor")
+    .map((role) => role.relatedPlayerId)
+    .filter(
+      (relatedPlayerId): relatedPlayerId is number => relatedPlayerId !== null
+    );
+
+  const users = await prisma.user.findMany({
+    where: {
+      id: {
+        in: relatedPlayerIds,
+      },
+    },
+  });
+
+  return {
+    props: {
+      user,
+      relatedPlayers: users,
+    },
+  };
+}
 
 // TODO: Make some styling changes
 const Modal: React.FC<ModalProps> = ({ children, open }: ModalProps) => {
@@ -45,11 +100,59 @@ const AdminEditUserFormSchema = Joi.object<AdminEditUserFormValues>({
     .trim()
     .email({ tlds: { allow: false } })
     .required(),
-  phoneNumber: Joi.string().optional(),
+  phoneNumber: Joi.string()
+    .phoneNumber({ defaultCountry: "US", format: "national", strict: true })
+    .optional(),
   role: Joi.string()
     .valid(...Object.values(UserRoleType))
     .required(),
 });
+
+const DeleteConfirmation: React.FunctionComponent<DeleteConfirmationProps> = ({
+  user,
+  isDeleting,
+  setIsDeleting,
+  router,
+}) => {
+  async function onDelete(): Promise<void> {
+    const response = await fetch(`/api/admin/users/${user?.id}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        id: user?.id,
+      } as DeleteUserDTO),
+    });
+    if (!response.ok) {
+      throw await response.json();
+    }
+    setIsDeleting(false);
+    router.push("/admin/users");
+  }
+  return (
+    <Modal open={Boolean(isDeleting)}>
+      <p>Are you sure you want to delete this user?</p>
+      <div className="mb-2 flex">
+        <Button
+          className="button-primary px-10 py-2 mr-5"
+          onClick={() => {
+            onDelete();
+          }}
+        >
+          Delete
+        </Button>
+        <Button
+          className="button-hollow px-10 py-2"
+          onClick={() => {
+            setIsDeleting(false);
+          }}
+        >
+          Cancel
+        </Button>
+      </div>
+    </Modal>
+  );
+};
 
 const EditUser: React.FunctionComponent<EditUserProps> = ({
   user,
@@ -100,6 +203,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
       setIsEditing(false);
     }
   }
+
   return (
     <Modal open={Boolean(isEditing)}>
       <div className="mx-16 mt-24">
@@ -249,9 +353,12 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
   );
 };
 
-const UserProfile: React.FunctionComponent = () => {
+const UserProfile: React.FunctionComponent<gsspProps> = ({
+  relatedPlayers,
+}) => {
   const [user, setUser] = useState<IUser>();
   const [isEditing, setIsEditing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
   const { id } = router.query;
 
@@ -269,7 +376,7 @@ const UserProfile: React.FunctionComponent = () => {
   }, [id]);
   return (
     <DashboardLayout>
-      <div className="mx-16">
+      <div className="mx-16 mb-24">
         <div className="flex flex-row items-center pt-20 pb-12">
           <div className="w-24 h-24 mr-4 bg-placeholder rounded-full">
             {/* <img src={user?.image} alt="" />{" "} */}
@@ -310,12 +417,43 @@ const UserProfile: React.FunctionComponent = () => {
               <p>{user && UserRoleLabel[user.defaultRole.type]}</p>
             </div>
           </div>
-          <h2 className="text-lg pb-5">Mentor Information</h2>
-          <div className="flex flex-row text-sm">
-            <p className="text-blue mr-20 w-24">Menteed Players</p>
-            <p>List</p>
-          </div>
+          {user?.defaultRole.type === "Mentor" && (
+            <div className="pb-16">
+              <h2 className="text-lg pb-5">Mentor Information</h2>
+              <div className="flex flex-row text-sm">
+                <p className="text-blue mr-20 w-24">Menteed Players</p>
+                {relatedPlayers?.map((player: User) => {
+                  return (
+                    <Link href={`/admin/players/${player.id}`}>
+                      <div className="underline cursor-pointer">
+                        {player.name}
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+          <p className="text-lg font-semibold pb-10">Account Changes</p>
+          <p className="font-semibold text-sm pb-3">Close Account</p>
+          <p className="text-sm font-normal">
+            Delete this user&apos;s account and account data
+          </p>
+          <Button
+            className="button-primary mt-7 mb-52 mr-5 text-danger bg-danger-muted"
+            onClick={() => {
+              setIsDeleting(true);
+            }}
+          >
+            Close Account
+          </Button>
         </div>
+        {DeleteConfirmation({
+          user,
+          isDeleting,
+          setIsDeleting,
+          router,
+        })}
         <EditUser
           user={user}
           isEditing={isEditing}

@@ -1,6 +1,6 @@
 import { PrismaClient, PrismaClientKnownRequestError } from "@prisma/client";
 import { NextApiResponse } from "next";
-import Joi from "joi";
+import Joi from "lib/validate";
 import { ValidatedNextApiRequest } from "interfaces";
 import sanitizeUser from "utils/sanitizeUser";
 import { validateBody } from "pages/api/helpers";
@@ -24,6 +24,18 @@ const handler = async (
     // TODO: Update to only delete user when prisma/prisma#2057 is fixed.
     await prisma.userInvite.deleteMany({
       where: { user_id: userId },
+    });
+    await prisma.role.deleteMany({
+      where: { OR: [{ userId }, { relatedPlayerId: userId }] },
+    });
+    await prisma.absence.deleteMany({
+      where: { userId },
+    });
+    await prisma.profileField.deleteMany({
+      where: { userId },
+    });
+    await prisma.resetPassword.deleteMany({
+      where: { userId },
     });
     const user = await prisma.user.delete({
       where: { id: userId },

@@ -1,6 +1,6 @@
 import { PrismaClient, UserInvite } from "@prisma/client";
 import { SanitizedUser } from "interfaces";
-import Joi from "joi";
+import Joi from "lib/validate";
 import { NextApiRequest, NextApiResponse } from "next";
 import sanitizeUser from "utils/sanitizeUser";
 
