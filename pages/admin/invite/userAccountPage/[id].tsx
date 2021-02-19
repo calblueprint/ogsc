@@ -1,13 +1,10 @@
 import DashboardLayout from "components/DashboardLayout";
-// import Combobox from "components/Combobox";
 import React, { useState, useEffect } from "react";
-// import { User } from "@prisma/client";
 import { useRouter } from "next/router";
 import { DeleteUserDTO } from "pages/api/admin/users/delete";
 import Combobox from "components/Combobox";
 import { User } from "@prisma/client";
 import Button from "components/Button";
-// import { NextPageContext } from "next";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { UserRoleType, IUser } from "interfaces";
 
@@ -17,13 +14,8 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = ({
 }) => {
   const router = useRouter();
   const [selectedPlayers, setSelectedPlayers] = useState<User[]>([]);
-  // const [user, setUser] = useState<User[]>([]);
-  // const [roleChosen] = useState("");
   const [user, setUser] = useState<IUser>();
-  // const [isEditing, setIsEditing] = useState(false);
-  // const router = useRouter();
   const { id } = router.query;
-  // const createDate = new Date().toDateString;
   useEffect(() => {
     const getUser = async (): Promise<void> => {
       const response = await fetch(`/api/admin/users/${id}`, {
@@ -67,13 +59,12 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = ({
 
   const acceptUser = async (): Promise<void> => {
     try {
-      const response = await fetch(`/api/admin/users/${user?.id}`, {
+      const response = await fetch(`/api/admin/users/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(({
           emailVerified: new Date(),
-          upstreamRoles: selectedPlayers,
         } as unknown) as UpdateUserDTO),
       });
       if (!response.ok) {
@@ -84,23 +75,33 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = ({
       throw new Error(err.message);
     }
   };
-  // const created = new Date();
   return (
     <DashboardLayout>
       <div className="flex-col mx-16 mt-14">
+        <div className="mt-5 mb-10">
+          <Button
+            iconType="back"
+            className="bg-white hover:bg-white text-blue font-bold py-2 px-4 rounded border-solid border-4 border-blue"
+            onClick={() => {
+              router.push("../");
+            }}
+          >
+            Back to invites
+          </Button>
+        </div>
         <p className="text-4xl font-semibold">
           Invitation Request for {user?.name}{" "}
         </p>
         <p className="mb-10">Created {user?.createdAt}</p>
         <p className="text-3xl font-semibold mb-10">Basic Information </p>
-        <p className="text-1xl font-semibold">Name</p>
-        <p className="mb-10">{user?.name}</p>
-        <p className="text-1xl font-semibold">Email Address</p>
-        <p className="mb-10">{user?.email}</p>
-        <p className="text-1xl font-semibold">Phone number</p>
-        <p className="mb-10">{user?.phoneNumber}</p>
-        <p className="text-1xl font-semibold">Role</p>
-        <p className="mb-10">{user?.defaultRole.type}</p>
+        <p className="text-1xl">Name</p>
+        <p className="mb-10 font-semibold">{user?.name}</p>
+        <p className="text-1xl">Email Address</p>
+        <p className="mb-10 font-semibold">{user?.email}</p>
+        <p className="text-1xl">Phone number</p>
+        <p className="mb-10 font-semibold">{user?.phoneNumber}</p>
+        <p className="text-1xl">Role</p>
+        <p className="mb-10 font-semibold">{user?.defaultRole.type}</p>
         <p className="text-2xl font-semibold mb-10">Attached Note</p>
 
         <div className={showCombobox()}>
@@ -116,10 +117,13 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = ({
             )}
           </p>
         </div>
+        <div className="mb-10">
+          <hr className="border-unselected border-opacity-50" />
+        </div>
         <div className="flex space-x-4 mb-10">
           <div>
             <Button
-              className="bg-red-200 hover:bg-red-200 text-danger font-bold py-2 px-4 rounded"
+              className="bg-danger-muted hover:bg-danger-muted text-danger font-bold py-2 px-4 rounded"
               onClick={deleteUser}
             >
               Decline
@@ -128,7 +132,7 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = ({
           <div className="ml-4 ">
             <div>
               <Button
-                className="bg-green-200 hover:bg-green-200 text-success font-bold py-2 px-4 rounded"
+                className="bg-success-muted hover:bg-success-muted text-success font-bold py-2 px-4 rounded"
                 onClick={acceptUser}
               >
                 Accept
@@ -136,24 +140,10 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = ({
             </div>
           </div>
         </div>
-        <div className="mb-10">
-          <Button
-            className="bg-white hover:bg-white text-blue font-bold py-2 px-4 rounded border-solid border-4 border-blue"
-            onClick={() => {
-              router.push("../");
-            }}
-          >
-            Back to invites
-          </Button>
-        </div>
       </div>
     </DashboardLayout>
   );
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 };
-// UserProfile.defaultProps = {
-//   users: undefined,
-// }
 interface UserRequest {
   name: string;
   email: string;
