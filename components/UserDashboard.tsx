@@ -28,20 +28,20 @@ const UserDashboardItem: React.FunctionComponent<{ user: IUser }> = ({
 }) => {
   return (
     <Link href={`user/${id}`}>
-      <div className="flex flex-row justify-between text-sm h-16 items-center py-10 hover:bg-hover border-unselected border-opacity-50 border-b">
+      <div className="grid grid-cols-6 text-sm h-24 hover:bg-hover border-unselected border-opacity-50 border-b">
         {/* TODO: FIX PADDING ABOVE */}
-        <div className="flex flex-row justify-between self-center">
+        <div className="col-span-3 inline-flex self-center">
           <div className="w-10 h-10 mr-4 bg-placeholder rounded-full">
             <img src={image || "/placeholder-profile.png"} alt="" />
             {/* Not being used right now because seed data doesn't have images */}
           </div>
-          <div className="w-32">
+          <div>
             <p className="font-semibold">{name}</p>
             <p>{UserRoleLabel[defaultRole.type]}</p>
           </div>
         </div>
-        <p className="self-center">{email}</p>
-        <p className="self-center">{phoneNumber}</p>
+        <p className="col-span-2 self-center">{email}</p>
+        <p className="col-span-1 self-center">{phoneNumber}</p>
       </div>
     </Link>
   );
@@ -97,9 +97,9 @@ const UserDashboard: React.FunctionComponent<UserDashboardProps> = ({
   }, [uiPage, pageCache, userRole, phrase]);
   return (
     <div>
-      <div className="flex flex-row justify-between text-sm text-center text-unselected tracking-wide mt-10">
-        <p>Name</p>
-        <p>Email</p>
+      <div className="grid grid-cols-6 text-sm text-unselected tracking-wide mt-10">
+        <p className="col-span-3">Name</p>
+        <p className="col-span-2">Email</p>
         <p>Phone</p>
       </div>
       <hr className="border-unselected border-opacity-50" />

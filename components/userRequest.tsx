@@ -151,7 +151,7 @@ const userRequestsTable: React.FunctionComponent = () => (
   <div className="mx-0 mt-0">
     <div className="text-3xl font-display font-medium mb-10">
       <div className="mx-0 mt-0">
-        <p className="mx-0 mt-0">Invitation Requests</p>
+        <p className="text-2xl font-semibold mx-0 mt-0">Invitation Requests</p>
       </div>
     </div>
     <hr className="border-unselected border-opacity-50" />
