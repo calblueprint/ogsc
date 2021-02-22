@@ -144,14 +144,15 @@ enum ProfileFieldKey {
   AthleticScore @map("athletic_score")
   GPA @map("gpa")
   DisciplinaryActions @map("disciplinary_actions")
-  BMI @map("bmi")
+  Height @map("height")
   PacerTest @map("pacer_test")
   MileTime @map("mile_time")
   Situps @map("situps")
   Pushups @map("pushups")
   HealthAndWellness @map("health_and_wellness")
   Highlights @map("highlights")
-  PlayerNumber @map("player_number")
+  YearOfBirth @map("year_of_birth")
+  TeamName @map("team_name")
 
    @@map("profile_field_key")
 }
