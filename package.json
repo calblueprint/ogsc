@@ -42,7 +42,7 @@
     "faker": "^5.1.0",
     "joi": "^17.2.1",
     "joi-phone-number": "^5.0.0",
-    "little-state-machine": "^3.1.2",
+    "little-state-machine": "^4.0.2",
     "lodash.debounce": "^4.0.8",
     "next": "9.5.3",
     "next-auth": "^3.1.0",
