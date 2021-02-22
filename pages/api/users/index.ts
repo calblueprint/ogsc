@@ -6,6 +6,7 @@ import {
   SanitizedUser,
   UserRoleType,
   ValidatedNextApiRequest,
+  UserStatus,
 } from "interfaces";
 import Joi from "lib/validate";
 import { validateBody } from "../helpers";
@@ -61,6 +62,7 @@ export const createAccount = async (
       data: {
         name: user.name,
         email: user.email,
+        status: UserStatus.Active,
         phoneNumber: user.phoneNumber,
         hashedPassword: hash(user.password),
         ...(user.role
@@ -93,6 +95,7 @@ export const createAccount = async (
       data: {
         name: user.name,
         email: user.email,
+        status: UserStatus.PendingAdminApproval,
         phoneNumber: user.phoneNumber,
         hashedPassword: hash(user.password),
         ...(user.role

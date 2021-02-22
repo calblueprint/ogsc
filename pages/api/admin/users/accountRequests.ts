@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { UserStatus } from "interfaces";
 import { NextApiRequest, NextApiResponse } from "next";
 import sanitizeUser from "utils/sanitizeUser";
 import { adminOnlyHandler } from "../helpers";
@@ -6,12 +7,12 @@ import { adminOnlyHandler } from "../helpers";
 const prisma = new PrismaClient();
 
 const handler = async (
-  req: NextApiRequest, // pagination?
+  _req: NextApiRequest,
   res: NextApiResponse
 ): Promise<void> => {
   try {
     const users = await prisma.user.findMany({
-      where: { emailVerified: null },
+      where: { status: UserStatus.PendingAdminApproval },
     });
     if (!users) {
       res.status(404).json({

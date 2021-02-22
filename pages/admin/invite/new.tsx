@@ -2,7 +2,7 @@ import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
 import DashboardLayout from "components/DashboardLayout";
 import FormField from "components/FormField";
-import { UserRoleLabel, UserRoleType } from "interfaces";
+import { UserRoleLabel, UserRoleType, UserStatus } from "interfaces";
 import Joi from "lib/validate";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -66,6 +66,7 @@ const AdminNewInvitePage: React.FC = () => {
         body: JSON.stringify({
           email: values.email,
           name: `${values.firstName} ${values.lastName}`,
+          status: UserStatus.PendingUserAcceptance,
           phoneNumber: values.phoneNumber,
           role: values.role,
           linkedPlayers: selectedPlayers.map((user) => user.id),

@@ -14,7 +14,6 @@ export type UpdateUserDTO = {
   name?: string;
   email?: string;
   phoneNumber?: string;
-  emailVerified?: Date;
   image?: string;
   roles: [UserRoleType];
   hashedPassword?: string;
@@ -28,7 +27,6 @@ const expectedBody = Joi.object<UpdateUserDTO>({
     defaultCountry: "US",
     format: "national",
   }),
-  emailVerified: Joi.date(),
   image: Joi.string(),
   roles: Joi.array().items(Joi.string()).optional(),
   hashedPassword: Joi.string(),
@@ -49,7 +47,6 @@ const handler = async (
               name: userInfo.name,
               email: userInfo.email,
               phoneNumber: userInfo.phoneNumber,
-              emailVerified: userInfo.emailVerified,
               image: userInfo.image,
               hashedPassword: userInfo.hashedPassword,
               roles: {
@@ -73,7 +70,6 @@ const handler = async (
               name: userInfo.name,
               email: userInfo.email,
               phoneNumber: userInfo.phoneNumber,
-              emailVerified: userInfo.emailVerified,
               image: userInfo.image,
               hashedPassword: userInfo.hashedPassword,
               roles: {

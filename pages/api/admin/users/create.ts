@@ -1,7 +1,7 @@
 import { PrismaClient, PrismaClientKnownRequestError } from "@prisma/client";
 import { NextApiResponse } from "next";
 import Joi from "lib/validate";
-import { UserRoleType, ValidatedNextApiRequest } from "interfaces";
+import { UserRoleType, ValidatedNextApiRequest, UserStatus } from "interfaces";
 import Notifier from "lib/notify";
 import { NotificationType } from "lib/notify/types";
 import { validateBody } from "pages/api/helpers";
@@ -12,6 +12,7 @@ const prisma = new PrismaClient();
 export type AdminCreateUserDTO = {
   name: string;
   email: string;
+  status: UserStatus;
   phoneNumber?: string | undefined;
   role?: UserRoleType | undefined;
   linkedPlayers?: number[] | undefined;
@@ -20,6 +21,7 @@ export type AdminCreateUserDTO = {
 const AdminCreateUserDTOValidator = Joi.object<AdminCreateUserDTO>({
   name: Joi.string().required(),
   email: Joi.string().required(),
+  status: Joi.string().valid(...Object.values(UserStatus)),
   phoneNumber: Joi.string()
     .phoneNumber({ defaultCountry: "US", format: "national", strict: true })
     .allow(""),
@@ -33,7 +35,7 @@ const handler = async (
   req: ValidatedNextApiRequest<AdminCreateUserDTO>,
   res: NextApiResponse
 ): Promise<void> => {
-  const { name, email, phoneNumber, role, linkedPlayers } = req.body;
+  const { name, email, status, phoneNumber, role, linkedPlayers } = req.body;
   try {
     const newUser = await prisma.user.create({
       data: {
@@ -44,7 +46,7 @@ const handler = async (
         userInvites: {
           create: {},
         },
-        emailVerified: new Date(),
+        status,
         ...(role
           ? {
               roles: {
