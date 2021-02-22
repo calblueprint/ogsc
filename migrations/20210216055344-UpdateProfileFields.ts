@@ -4,7 +4,6 @@ import updateEnumMigration from "../utils/updateEnumMigration";
 /**
  * This migration updates the following profile fields:
  *
- * * Adds team name field
  * * Adds height field
  * * Adds year of birth field
  * * Removes BMI field
@@ -38,7 +37,6 @@ export async function up(
       "health_and_wellness",
       "highlights",
       "year_of_birth", // Added in the up migration
-      "team_name", // Added in the up migration
     ],
     [{ tableName: "profile_fields", columnName: "key" }],
     callback
@@ -48,7 +46,6 @@ export async function up(
 /**
  * This migration updates the following profile fields:
  *
- * * Removes team name field
  * * Removes height field
  * * Removes year of birth field
  * * Adds back BMI field
