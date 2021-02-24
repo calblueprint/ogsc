@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import Button from "components/Button";
 import { DeleteUserDTO } from "pages/api/admin/users/delete";
-
-// import { UpdateUserDTO } from "pages/api/admin/users/update";
-// const prisma = new PrismaClient();
-// import DeclineButton from "components/declineButton";
-// import AcceptButton from "components/acceptButton";
+import Link from "next/link";
+import { UpdateUserDTO } from "pages/api/admin/users/update";
+import { DefaultRole } from "interfaces/user";
 
 const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
   name,
   email,
   phoneNumber,
   id,
+  image,
+  defaultRole,
   onDelete,
   onAccept,
 }) => {
@@ -35,13 +35,13 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
   };
   const acceptUser = async (): Promise<void> => {
     try {
-      const response = await fetch("/api/admin/users/update", {
-        method: "GET",
+      const response = await fetch(`/api/admin/users/${id}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          id,
-        } as DeleteUserDTO),
+          emailVerified: new Date(),
+        } as UpdateUserDTO),
       });
       if (!response.ok) {
         throw await response.json();
@@ -51,46 +51,51 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
       throw new Error(err.message);
     }
   };
+
   return (
     <div>
-      <div className="grid grid-cols-4 gap-10 justify-items-start m-5">
-        <div className="flex flex-row">
-          <div className="w-10 h-10 mr-4 bg-placeholder rounded-full" />
-          <div className="w-32">
-            <p className="font-display self-center">{name}</p>
-            <p>User Role</p>
-          </div>
-        </div>
-        <div>
-          <p className="self-center font-normal">{email}</p>
-        </div>
-        <div>
-          <p className="self-center font-normal">{phoneNumber}</p>
-        </div>
-        <div>
-          <div className="flex space-x-4">
-            <div>
-              <Button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                onClick={deleteUser}
-              >
-                Decline
-              </Button>
-            </div>
-            <div className="ml-4 ">
+      <hr className="border-unselected border-opacity-50" />
+      <div className="hover:bg-placeholder grid grid-cols-3">
+        <div className="col-span-2">
+          <Link href={`invite/userAccountPage/${id}`}>
+            <div className="grid grid-cols-3 gap-32 justify-items-start m-5 font-display items-center py-3">
+              <div className="flex flex-row">
+                <div className="w-10 h-10 mr-4 rounded-full">
+                  <img src={image || "/placeholder-profile.png"} alt="" />
+                </div>
+                <div className="w-40">
+                  <p className="font-semibold">{name}</p>
+                  <p>{defaultRole.type}</p>
+                </div>
+              </div>
               <div>
-                <Button
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                  onClick={acceptUser}
-                >
-                  Accept
-                </Button>
+                <p className="self-center font-normal">{email}</p>
+              </div>
+              <div>
+                <p className="self-center font-normal">{phoneNumber}</p>
               </div>
             </div>
+          </Link>
+        </div>
+        <div className="flex space-x-8 self-center ml-12">
+          <div>
+            <Button
+              className="bg-danger-muted hover:bg-danger-muted text-danger font-bold py-2 px-8 rounded-md"
+              onClick={deleteUser}
+            >
+              Decline
+            </Button>
+          </div>
+          <div className="ml-6">
+            <Button
+              className="bg-success-muted hover:bg-success-muted text-success font-bold py-2 px-8 rounded-md"
+              onClick={acceptUser}
+            >
+              Accept
+            </Button>
           </div>
         </div>
       </div>
-      <hr className="border-unselected border-opacity-50" />
     </div>
   );
 };
@@ -98,18 +103,19 @@ interface UserRequest {
   name: string;
   email: string;
   phoneNumber: string;
+  defaultRole: DefaultRole;
+  image: string | null;
   id: number;
   onDelete: () => void;
   onAccept: () => void;
 }
 
 const UserDashboard: React.FunctionComponent = () => {
-  // eslint-disable-next-line @typescript-eslint/no-shadow
   const [users, setUsers] = useState<UserRequest[]>();
 
   const getUsers = async (): Promise<void> => {
     try {
-      const response = await fetch("/api/admin/users", {
+      const response = await fetch("/api/admin/users/?unverified=true", {
         method: "GET",
         headers: { "content-type": "application/json" },
         redirect: "follow",
@@ -120,24 +126,24 @@ const UserDashboard: React.FunctionComponent = () => {
       throw new Error(err.message);
     }
   };
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   useEffect(() => {
     getUsers();
   }, []);
   return (
     <div>
-      <div className="grid grid-cols-4 gap-12 justify-items-start m-5 font-display text-unselected">
+      <div className="grid grid-cols-4 gap-3 justify-items-start my-5 font-display text-unselected ml-5">
         <p>Name</p>
         <p>Email</p>
         <p>Phone</p>
       </div>
-      <hr className="border-unselected border-opacity-50" />
       <img src="" alt="" />
       {users?.map((user) => (
         <UserRequestDashboardItem
           name={user.name}
           email={user.email}
           phoneNumber={user.phoneNumber}
+          image={user.image}
+          defaultRole={user.defaultRole}
           id={user.id}
           onDelete={getUsers}
           onAccept={getUsers}

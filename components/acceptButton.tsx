@@ -3,7 +3,7 @@
 const AcceptButton: React.FunctionComponent = () => (
   <div className="flex space-x-4">
     <div>
-      <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+      <button className="bg-green-200 hover:bg-green-200 text-success font-bold py-2 px-4 rounded">
         Accept
       </button>{" "}
     </div>

@@ -19,6 +19,7 @@ export default async (
   const pageNumber: number = Number(req.query.pageNumber) || 0;
   const userRole = req.query.role as UserRoleType | undefined;
   const search = req.query.search as string | undefined;
+  const includeOnlyUnverified = req.query.unverified as string | undefined;
   try {
     const filterArgs: FindManyUserArgs = {
       where: {
@@ -37,6 +38,11 @@ export default async (
                 contains: search,
                 mode: "insensitive",
               },
+            }
+          : undefined),
+        ...(includeOnlyUnverified
+          ? {
+              emailVerified: null,
             }
           : undefined),
       },
