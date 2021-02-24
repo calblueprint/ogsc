@@ -56,15 +56,15 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
     <div>
       {/* <hr className="border-unselected border-opacity-50" /> */}
       <hr className="border-unselected border-opacity-50" />
-      <div className="hover:bg-placeholder grid grid-cols-6">
-        <div className="col-span-4">
+      <div className="hover:bg-placeholder grid grid-cols-3">
+        <div className="col-span-2">
           <Link href={`invite/userAccountPage/${id}`}>
-            <div className="grid grid-cols-3 gap-40 justify-items-start m-5 font-display items-center py-3">
+            <div className="grid grid-cols-3 gap-32 justify-items-start m-5 font-display items-center py-3">
               <div className="flex flex-row">
                 <div className="w-10 h-10 mr-4 rounded-full">
                   <img src={image || "/placeholder-profile.png"} alt="" />
                 </div>
-                <div className="w-32">
+                <div className="w-40">
                   <p className="font-semibold">{name}</p>
                   <p>{defaultRole.type}</p>
                 </div>
@@ -78,11 +78,10 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
             </div>
           </Link>
         </div>
-
-        <div className="flex space-x-4 self-center">
+        <div className="flex space-x-8 self-center ml-12">
           <div>
             <Button
-              className="bg-danger-muted hover:bg-danger-muted text-danger font-bold py-2 px-4 rounded-md"
+              className="bg-danger-muted hover:bg-danger-muted text-danger font-bold py-2 px-8 rounded-md"
               onClick={deleteUser}
             >
               Decline
@@ -90,7 +89,7 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
           </div>
           <div className="ml-6">
             <Button
-              className="bg-success-muted hover:bg-success-muted text-success font-bold py-2 px-4 rounded-md"
+              className="bg-success-muted hover:bg-success-muted text-success font-bold py-2 px-8 rounded-md"
               onClick={acceptUser}
             >
               Accept
@@ -133,12 +132,11 @@ const UserDashboard: React.FunctionComponent = () => {
   }, []);
   return (
     <div>
-      <div className="grid grid-cols-4 gap-5 justify-items-start m-5 font-display text-unselected">
+      <div className="grid grid-cols-4 gap-3 justify-items-start my-5 font-display text-unselected ml-5">
         <p>Name</p>
         <p>Email</p>
         <p>Phone</p>
       </div>
-      <hr className="border-unselected border-opacity-50" />
       <img src="" alt="" />
       {users?.map((user) => (
         <UserRequestDashboardItem
