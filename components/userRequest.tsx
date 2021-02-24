@@ -54,7 +54,6 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
 
   return (
     <div>
-      {/* <hr className="border-unselected border-opacity-50" /> */}
       <hr className="border-unselected border-opacity-50" />
       <div className="hover:bg-placeholder grid grid-cols-3">
         <div className="col-span-2">
