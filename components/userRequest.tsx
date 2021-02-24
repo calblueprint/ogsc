@@ -82,7 +82,7 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
         <div className="flex space-x-4 self-center">
           <div>
             <Button
-              className="bg-danger-muted hover:bg-danger-muted text-danger font-bold py-2 px-4 rounded"
+              className="bg-danger-muted hover:bg-danger-muted text-danger font-bold py-2 px-4 rounded-md"
               onClick={deleteUser}
             >
               Decline
@@ -90,7 +90,7 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
           </div>
           <div className="ml-6">
             <Button
-              className="bg-success-muted hover:bg-success-muted text-success font-bold py-2 px-4 rounded"
+              className="bg-success-muted hover:bg-success-muted text-success font-bold py-2 px-4 rounded-md"
               onClick={acceptUser}
             >
               Accept
@@ -98,7 +98,6 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
           </div>
         </div>
       </div>
-      <hr className="border-unselected border-opacity-0" />
     </div>
   );
 };

@@ -9,13 +9,12 @@ import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { UserRoleType, IUser } from "interfaces";
 
 const UserAccountPage: React.FunctionComponent<UserRequest> = ({
-  onDelete,
   onAccept,
 }) => {
   const router = useRouter();
   const [selectedPlayers, setSelectedPlayers] = useState<User[]>([]);
   const [user, setUser] = useState<IUser>();
-  const { id } = router.query;
+  const id = Number(router.query.id);
   useEffect(() => {
     const getUser = async (): Promise<void> => {
       const response = await fetch(`/api/admin/users/${id}`, {
@@ -51,7 +50,6 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = ({
       if (!response.ok) {
         throw await response.json();
       }
-      onDelete();
     } catch (err) {
       throw new Error(err.message);
     }
@@ -81,7 +79,7 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = ({
         <div className="mt-5 mb-10">
           <Button
             iconType="back"
-            className="bg-white hover:bg-white text-blue font-bold py-2 px-4 rounded border-solid border-4 border-blue"
+            className="bg-white hover:bg-white text-blue font-bold py-2 px-4 rounded border-blue"
             onClick={() => {
               router.push("../");
             }}
@@ -120,11 +118,12 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = ({
         <div className="mb-10">
           <hr className="border-unselected border-opacity-50" />
         </div>
-        <div className="flex space-x-4 mb-10">
+        <div className="flex space-x-4 self-center">
           <div>
             <Button
               className="bg-danger-muted hover:bg-danger-muted text-danger font-bold py-2 px-4 rounded"
               onClick={deleteUser}
+              // router.push("../");
             >
               Decline
             </Button>
