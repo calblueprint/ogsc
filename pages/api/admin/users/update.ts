@@ -28,7 +28,7 @@ const expectedBody = Joi.object<UpdateUserDTO>({
     format: "national",
   }),
   image: Joi.string(),
-  roles: Joi.array().items(Joi.string()).optional(),
+  roles: Joi.array().items(Joi.string()),
   hashedPassword: Joi.string(),
 });
 
@@ -38,9 +38,9 @@ const handler = async (
   res: NextApiResponse
 ): Promise<void> => {
   try {
-    const userInfo = req.body;
+    const { roles = [], ...userInfo } = req.body;
     const user =
-      userInfo.roles[0] === "Admin"
+      roles[0] === "Admin"
         ? await prisma.user.update({
             where: { id: userInfo.id || Number(req.query.id) },
             data: {
@@ -75,7 +75,7 @@ const handler = async (
               roles: {
                 updateMany: {
                   data: {
-                    type: userInfo.roles[0],
+                    type: roles[0],
                   },
                   where: {
                     type: {
