@@ -12,8 +12,8 @@ const prisma = new PrismaClient();
 export type AdminCreateUserDTO = {
   name: string;
   email: string;
-  adminNotes: string;
   phoneNumber?: string | undefined;
+  adminNotes?: string | undefined;
   role?: UserRoleType | undefined;
   linkedPlayers?: number[] | undefined;
 };
@@ -24,6 +24,7 @@ const AdminCreateUserDTOValidator = Joi.object<AdminCreateUserDTO>({
   phoneNumber: Joi.string()
     .phoneNumber({ defaultCountry: "US", format: "national", strict: true })
     .allow(""),
+  adminNotes: Joi.string(),
   role: Joi.string()
     .valid(...Object.values(UserRoleType))
     .allow(null),
@@ -34,7 +35,14 @@ const handler = async (
   req: ValidatedNextApiRequest<AdminCreateUserDTO>,
   res: NextApiResponse
 ): Promise<void> => {
-  const { name, email, phoneNumber, role, linkedPlayers } = req.body;
+  const {
+    name,
+    email,
+    phoneNumber,
+    adminNotes,
+    role,
+    linkedPlayers,
+  } = req.body;
   try {
     const newUser = await prisma.user.create({
       data: {
@@ -42,10 +50,10 @@ const handler = async (
         email,
         phoneNumber,
         hashedPassword: "<set on first login>",
+        adminNotes,
         userInvites: {
           create: {},
         },
-        adminNotes,
         ...(role
           ? {
               roles: {

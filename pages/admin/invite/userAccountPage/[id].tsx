@@ -99,12 +99,11 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = ({
         <p className="mb-10 font-semibold">{user?.email}</p>
         <p className="text-1xl">Phone number</p>
         <p className="mb-10 font-semibold">{user?.phoneNumber}</p>
-        <p className="text-1xl">Admin Notes</p>
-        <p className="mb-10 font-semibold">{user?.adminNotes}</p>
+
         <p className="text-1xl">Role</p>
         <p className="mb-10 font-semibold">{user?.defaultRole.type}</p>
         <p className="text-2xl font-semibold mb-10">Attached Note</p>
-
+        <p className="mb-10 font-semibold">{user?.adminNotes}</p>
         <div className={showCombobox()}>
           <p className="text-2xl font-semibold"> Role Information </p>
           <p className="text-1xl font-semibold">Linked Players</p>

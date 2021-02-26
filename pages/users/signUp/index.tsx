@@ -22,13 +22,12 @@ export type UserSignUpFormValues = {
 
 type UserSignUpForm1Values = Pick<
   UserSignUpFormValues,
-  "firstName" | "lastName" | "email" | "phoneNumber" | "password"
+  "firstName" | "lastName" | "email" | "phoneNumber" | "password" | "adminNotes"
 >;
 
 const UserSignUpForm1Schema = Joi.object<UserSignUpForm1Values>({
   firstName: Joi.string().trim().required(),
   lastName: Joi.string().trim().required(),
-  adminNotes: Joi.string().trim().required(),
   email: Joi.string()
     .trim()
     .email({ tlds: { allow: false } })
@@ -38,6 +37,7 @@ const UserSignUpForm1Schema = Joi.object<UserSignUpForm1Values>({
     .empty("")
     .allow(null),
   password: Joi.forbidden().required(),
+  adminNotes: Joi.string().trim().required(),
 });
 
 const UserSignUpPageOne: React.FC = () => {
