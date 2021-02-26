@@ -64,7 +64,7 @@ export const ProfileFieldsByCategory: Record<
   ],
   [ProfileCategory.Attendance]: [],
   [ProfileCategory.PhysicalWellness]: [
-    ProfileFieldKey.BMI,
+    ProfileFieldKey.Height,
     ProfileFieldKey.PacerTest,
     ProfileFieldKey.MileTime,
     ProfileFieldKey.Situps,
@@ -141,13 +141,6 @@ const ProfileContentCell: React.FC<ProfileContentCellProps> = ({
           values={profileField.history}
           valueLabel="point"
         />
-      );
-
-    case ProfileFieldKey.BMI:
-      return (
-        <>
-          <TextLayout title="BMI">{profileField.current}</TextLayout>
-        </>
       );
     case ProfileFieldKey.DisciplinaryActions:
       return (

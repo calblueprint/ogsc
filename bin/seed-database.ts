@@ -206,8 +206,8 @@ export default async function seedDatabase(): Promise<void> {
                   ProfileFieldKey.BioSiblings,
                   () => Faker.lorem.sentences(1)
                 ),
-                ...generateFieldsAcrossTimestamps(ProfileFieldKey.BMI, () =>
-                  Faker.random.float({ min: 18, max: 30, precision: 0.1 })
+                ...generateFieldsAcrossTimestamps(ProfileFieldKey.Height, () =>
+                  Faker.random.float({ min: 45, max: 75 })
                 ),
                 ...generateFieldsAcrossTimestamps(
                   ProfileFieldKey.DisciplinaryActions,
@@ -251,8 +251,12 @@ export default async function seedDatabase(): Promise<void> {
                   () => Faker.random.number({ min: 40, max: 100 })
                 ),
                 ...generateFieldsAcrossTimestamps(
-                  ProfileFieldKey.PlayerNumber,
-                  () => Faker.random.number(100)
+                  ProfileFieldKey.YearOfBirth,
+                  () =>
+                    Faker.random.number({
+                      min: new Date().getFullYear() - 18,
+                      max: new Date().getFullYear() - 8,
+                    })
                 ),
                 ...generateFieldsAcrossTimestamps(ProfileFieldKey.Pushups, () =>
                   Faker.random.number(100)

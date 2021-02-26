@@ -26,6 +26,10 @@ export enum ProfileFieldValue {
   IntegerWithComment = "integer_with_comment",
   FloatWithComment = "float_with_comment",
   TimeElapsed = "time_elapsed",
+  /**
+   * DistanceMeasured values are recorded in inches.
+   */
+  DistanceMeasured = "distance_measured",
 }
 
 export const ProfileFieldValues = <const>{
@@ -39,7 +43,7 @@ export const ProfileFieldValues = <const>{
   [ProfileFieldKey.BioMostDifficultSubject]: ProfileFieldValue.Text,
   [ProfileFieldKey.BioParents]: ProfileFieldValue.Text,
   [ProfileFieldKey.BioSiblings]: ProfileFieldValue.Text,
-  [ProfileFieldKey.BMI]: ProfileFieldValue.Float,
+  [ProfileFieldKey.Height]: ProfileFieldValue.DistanceMeasured,
   [ProfileFieldKey.DisciplinaryActions]: ProfileFieldValue.Text,
   [ProfileFieldKey.GPA]: ProfileFieldValue.FloatWithComment,
   [ProfileFieldKey.HealthAndWellness]: ProfileFieldValue.Text,
@@ -47,7 +51,7 @@ export const ProfileFieldValues = <const>{
   [ProfileFieldKey.IntroVideo]: ProfileFieldValue.URL,
   [ProfileFieldKey.MileTime]: ProfileFieldValue.TimeElapsed,
   [ProfileFieldKey.PacerTest]: ProfileFieldValue.Integer,
-  [ProfileFieldKey.PlayerNumber]: ProfileFieldValue.Text,
+  [ProfileFieldKey.YearOfBirth]: ProfileFieldValue.Integer,
   [ProfileFieldKey.Pushups]: ProfileFieldValue.Integer,
   [ProfileFieldKey.Situps]: ProfileFieldValue.Integer,
 };
@@ -68,6 +72,7 @@ export type ProfileFieldValueDeserializedTypes = {
   [ProfileFieldValue.Float]: number;
   [ProfileFieldValue.FloatWithComment]: WithComment & { value: number };
   [ProfileFieldValue.TimeElapsed]: string;
+  [ProfileFieldValue.DistanceMeasured]: number;
 };
 
 export type IProfileField<K extends ProfileFieldKey> = Omit<

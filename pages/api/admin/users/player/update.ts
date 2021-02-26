@@ -18,7 +18,7 @@ export type PlayerUserDTO = {
 
 const expectedBody = Joi.object<PlayerProfileFormValues & PlayerUserDTO>({
   id: Joi.number().required(),
-  [ProfileFieldKey.PlayerNumber]: Joi.string(),
+  [ProfileFieldKey.YearOfBirth]: Joi.number(),
   age: Joi.string(),
   [ProfileFieldKey.BioAboutMe]: Joi.string().allow(null),
   [ProfileFieldKey.BioHobbies]: Joi.string().allow(null),
@@ -43,7 +43,7 @@ const expectedBody = Joi.object<PlayerProfileFormValues & PlayerUserDTO>({
     .items(Joi.string())
     .optional()
     .allow(null),
-  [ProfileFieldKey.BMI]: Joi.string().allow(null),
+  [ProfileFieldKey.Height]: Joi.string().allow(null),
   [ProfileFieldKey.PacerTest]: Joi.string().allow(null),
   [ProfileFieldKey.MileTime]: Joi.string().allow(null),
   [ProfileFieldKey.Situps]: Joi.string().allow(null),
