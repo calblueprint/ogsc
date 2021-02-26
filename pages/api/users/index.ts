@@ -79,16 +79,6 @@ export const createAccount = async (
         id: inviteCode.user_id,
       },
     });
-    // update acceptedAt in userInvite
-    const userInviteEntry = await prisma.userInvite.update({
-      where: { id: user.inviteCodeId },
-      data: {
-        accepted_at: new Date(),
-      },
-    });
-    if (!userInviteEntry) {
-      return null;
-    }
   } else {
     // signing up without an invite code
     newUser = await prisma.user.create({

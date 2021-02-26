@@ -1,5 +1,5 @@
 import { FindManyUserArgs, PrismaClient } from "@prisma/client";
-import { IUser, UserRoleType } from "interfaces";
+import { IUser, UserRoleType, UserStatus } from "interfaces";
 import { NextApiRequest, NextApiResponse } from "next";
 import flattenUserRoles from "utils/flattenUserRoles";
 import sanitizeUser from "utils/sanitizeUser";
@@ -42,7 +42,7 @@ export default async (
           : undefined),
         ...(includeOnlyUnverified
           ? {
-              emailVerified: null,
+              status: UserStatus.PendingAdminApproval,
             }
           : undefined),
       },

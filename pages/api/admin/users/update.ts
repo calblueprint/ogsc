@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { ValidatedNextApiRequest, UserRoleType } from "interfaces";
+import { ValidatedNextApiRequest, UserRoleType, UserStatus } from "interfaces";
 import Joi from "lib/validate";
 import { NextApiResponse } from "next";
 import { validateBody } from "pages/api/helpers";
@@ -16,6 +16,7 @@ export type UpdateUserDTO = {
   phoneNumber?: string;
   image?: string;
   roles: [UserRoleType];
+  status?: UserStatus;
   hashedPassword?: string;
 };
 
@@ -49,6 +50,7 @@ const handler = async (
               phoneNumber: userInfo.phoneNumber,
               image: userInfo.image,
               hashedPassword: userInfo.hashedPassword,
+              status: userInfo.status,
               roles: {
                 deleteMany: {
                   type: {
@@ -72,6 +74,7 @@ const handler = async (
               phoneNumber: userInfo.phoneNumber,
               image: userInfo.image,
               hashedPassword: userInfo.hashedPassword,
+              status: userInfo.status,
               roles: {
                 updateMany: {
                   data: {

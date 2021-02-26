@@ -25,7 +25,7 @@ const getInputPlayers = async (
 type Props = React.PropsWithChildren<{
   selectedPlayers: User[];
   setSelectedPlayers: React.Dispatch<React.SetStateAction<User[]>>;
-  role: string;
+  role: string | undefined;
 }>;
 
 const Combobox: React.FC<Props> = ({
