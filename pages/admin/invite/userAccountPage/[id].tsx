@@ -50,6 +50,7 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = ({
       if (!response.ok) {
         throw await response.json();
       }
+      router.push("../");
     } catch (err) {
       throw new Error(err.message);
     }
