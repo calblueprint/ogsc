@@ -34,11 +34,7 @@ const PlayerDashboardItem: React.FunctionComponent<IPlayer> = ({
             <p className="font-semibold self-center">{name}</p>
           </div>
           <p className="self-center font-normal">
-            #{profile?.PlayerNumber?.current}
-          </p>
-          <p className="self-center font-normal">
-            {/* TODO: Replace with TeamName once added to profile */}
-            {profile?.PlayerNumber?.current}
+            {profile?.YearOfBirth?.current}
           </p>
         </div>
         <hr className="border-unselected border-opacity-0" />
@@ -76,8 +72,7 @@ const PlayerDashboard: React.FunctionComponent<SearchProps> = ({
       <div>
         <div className="grid grid-cols-3 gap-12 justify-items-start m-5 font-semibold text-unselected">
           <p>Name</p>
-          <p>Player #</p>
-          <p>Team</p>
+          <p>Birth Year</p>
         </div>
       </div>
       <hr className="border-unselected border-opacity-0" />

@@ -85,8 +85,7 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
           <div className="player-info grid grid-rows-2">
             <p className="pt-6 text-2xl font-semibold">{player.name}</p>
             <p className="pt-2 text-sm font-medium">
-              {player.profile?.PlayerNumber?.current &&
-                `#${player.profile?.PlayerNumber.current}`}
+              Birth Year: {player.profile?.YearOfBirth?.current}
             </p>
           </div>
         </div>

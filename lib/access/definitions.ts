@@ -16,7 +16,6 @@ const isOwnPlayerProfile: AccessValue = (
  * The standard access that all users share, minimally.
  */
 const standardReadAccess = {
-  [ProfileFieldKey.PlayerNumber]: { read: true },
   [ProfileFieldKey.BioAboutMe]: { read: true },
   [ProfileFieldKey.BioFavoriteSubject]: { read: true },
   [ProfileFieldKey.BioMostDifficultSubject]: { read: true },
@@ -39,7 +38,7 @@ const ProfileAccessDefinitionsByRole: Record<
   [UserRoleType.Mentor]: {
     ...standardReadAccess,
     [ProfileFieldKey.GPA]: { read: isSharedPlayerProfile },
-    [ProfileFieldKey.BMI]: { read: isSharedPlayerProfile },
+    [ProfileFieldKey.Height]: { read: isSharedPlayerProfile },
     [ProfileFieldKey.PacerTest]: { read: isSharedPlayerProfile },
     [ProfileFieldKey.MileTime]: { read: isSharedPlayerProfile },
     [ProfileFieldKey.Situps]: { read: isSharedPlayerProfile },
