@@ -2,18 +2,19 @@ import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
 import FormField from "components/FormField";
 import { UserRoleLabel, UserRoleType } from "interfaces";
-import Joi from "joi";
+import Joi from "lib/validate";
 import { useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
 import { CreateUserDTO } from "pages/api/users";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import updateActionSignUp from "utils/updateActionSignUp";
+import { UserSignUpFormValues } from ".";
 
-type UserSignUpForm2Values = {
-  role: UserRoleType;
-  adminNote: string;
-};
+export type UserSignUpForm2Values = Pick<
+  UserSignUpFormValues,
+  "role" | "adminNote"
+>;
 
 const UserSignUpForm2Schema = Joi.object<UserSignUpForm2Values>({
   role: Joi.string()
@@ -33,6 +34,13 @@ const UserSignUpPageTwo: React.FC = () => {
   });
   const { state, action } = useStateMachine(updateActionSignUp);
 
+  useEffect(() => {
+    if (state.userData.email === "") {
+      router.push("/users/signUp");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   async function onSubmit(
     values: UserSignUpForm2Values,
     event?: React.BaseSyntheticEvent
@@ -42,8 +50,7 @@ const UserSignUpPageTwo: React.FC = () => {
       return;
     }
     try {
-      action(values);
-      const response = await fetch("/api/users/", {
+      const response = await fetch("/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -52,12 +59,22 @@ const UserSignUpPageTwo: React.FC = () => {
           name: `${state.userData.firstName} ${state.userData.lastName}`,
           phoneNumber: state.userData.phoneNumber.toString(),
           password: state.userData.password,
+          role: values.role,
         } as CreateUserDTO),
       });
       if (!response.ok) {
         throw await response.json();
       }
       router.push("/users/signUp/signUpConfirmation");
+      action({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phoneNumber: "",
+        password: "",
+        role: null,
+        adminNote: "",
+      });
     } catch (err) {
       // TODO: better error handling (especially for duplicate email)
       setError(err.message);

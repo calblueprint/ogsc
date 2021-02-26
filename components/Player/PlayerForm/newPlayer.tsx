@@ -1,7 +1,7 @@
 import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
 import FormField from "components/FormField";
-import Joi from "joi";
+import Joi from "lib/validate";
 import { UserDTO } from "pages/api/admin/users/readOneEmail";
 import { AdminCreateUserDTO } from "pages/api/admin/users/create";
 import React, { useState } from "react";
@@ -17,7 +17,10 @@ const AdminInviteFormSchema = Joi.object<UserSignUpFormValues>({
     .trim()
     .email({ tlds: { allow: false } })
     .required(),
-  phoneNumber: Joi.string().empty("").optional(),
+  phoneNumber: Joi.string()
+    .phoneNumber({ defaultCountry: "US", format: "national", strict: true })
+    .empty("")
+    .optional(),
 });
 
 type Props = React.PropsWithChildren<{

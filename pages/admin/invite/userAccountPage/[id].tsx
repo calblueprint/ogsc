@@ -119,12 +119,11 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = ({
         <div className="mb-10">
           <hr className="border-unselected border-opacity-50" />
         </div>
-        <div className="flex space-x-4 self-center">
+        <div className="flex space-x-8 self-center mb-16">
           <div>
             <Button
-              className="bg-danger-muted hover:bg-danger-muted text-danger font-bold py-2 px-4 rounded"
+              className="bg-danger-muted hover:bg-danger-muted text-danger font-bold py-2 px-8 rounded"
               onClick={deleteUser}
-              // router.push("../");
             >
               Decline
             </Button>
@@ -132,7 +131,7 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = ({
           <div className="ml-4 ">
             <div>
               <Button
-                className="bg-success-muted hover:bg-success-muted text-success font-bold py-2 px-4 rounded"
+                className="bg-success-muted hover:bg-success-muted text-success font-bold py-2 px-8 rounded"
                 onClick={acceptUser}
               >
                 Accept

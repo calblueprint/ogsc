@@ -2,8 +2,12 @@ import { NextApiResponse } from "next";
 import { PrismaClient } from "@prisma/client";
 import sanitizeUser from "utils/sanitizeUser";
 import hash from "utils/hashPassword";
-import { SanitizedUser, ValidatedNextApiRequest } from "interfaces";
-import Joi from "joi";
+import {
+  SanitizedUser,
+  UserRoleType,
+  ValidatedNextApiRequest,
+} from "interfaces";
+import Joi from "lib/validate";
 import { validateBody } from "../helpers";
 import { getInviteById } from "../invites/[id]";
 
@@ -18,14 +22,20 @@ export type CreateUserDTO = {
   password: string;
   phoneNumber?: string;
   inviteCodeId?: string;
+  role?: UserRoleType;
 };
 
 export const CreateUserDTOValidator = Joi.object<CreateUserDTO>({
   name: Joi.string().required(),
   email: Joi.string().email().required(),
   password: Joi.string().min(8).required(),
-  phoneNumber: Joi.string().allow(""),
+  phoneNumber: Joi.string()
+    .phoneNumber({ defaultCountry: "US", format: "national", strict: true })
+    .allow(""),
   inviteCodeId: Joi.string().allow(""),
+  role: Joi.string()
+    .valid(...Object.values(UserRoleType))
+    .allow(null),
 });
 
 /**
@@ -41,12 +51,6 @@ export const createAccount = async (
   ) {
     throw new Error("Invalid inviteCodeId");
   }
-  const loginInfo = {
-    name: user.name,
-    email: user.email,
-    phoneNumber: user.phoneNumber,
-    hashedPassword: hash(user.password),
-  };
   let newUser;
   const inviteCode = user.inviteCodeId
     ? await getInviteById(user.inviteCodeId)
@@ -54,7 +58,21 @@ export const createAccount = async (
   if (inviteCode) {
     // inviteCodeId exists and valid invite code fetched
     newUser = await prisma.user.update({
-      data: loginInfo,
+      data: {
+        name: user.name,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        hashedPassword: hash(user.password),
+        ...(user.role
+          ? {
+              roles: {
+                create: {
+                  type: user.role,
+                },
+              },
+            }
+          : undefined),
+      },
       where: {
         id: inviteCode.user_id,
       },
@@ -72,7 +90,21 @@ export const createAccount = async (
   } else {
     // signing up without an invite code
     newUser = await prisma.user.create({
-      data: loginInfo,
+      data: {
+        name: user.name,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        hashedPassword: hash(user.password),
+        ...(user.role
+          ? {
+              roles: {
+                create: {
+                  type: user.role,
+                },
+              },
+            }
+          : undefined),
+      },
     });
   }
   if (!newUser) {

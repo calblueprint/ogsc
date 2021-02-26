@@ -1,6 +1,6 @@
 import Button from "components/Button";
 import { useState } from "react";
-import Joi from "joi";
+import Joi from "lib/validate";
 import AbsenceFieldContent from "components/Player/AbsenceFieldContent";
 
 type Props = React.PropsWithChildren<{

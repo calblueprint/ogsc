@@ -3,7 +3,7 @@ import Button from "components/Button";
 import DashboardLayout from "components/DashboardLayout";
 import FormField from "components/FormField";
 import { UserRoleLabel, UserRoleType } from "interfaces";
-import Joi from "joi";
+import Joi from "lib/validate";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { AdminCreateUserDTO } from "pages/api/admin/users/create";
@@ -28,7 +28,9 @@ const AdminInviteFormSchema = Joi.object<AdminInviteFormValues>({
     .trim()
     .email({ tlds: { allow: false } })
     .required(),
-  phoneNumber: Joi.string().allow(""),
+  phoneNumber: Joi.string()
+    .phoneNumber({ defaultCountry: "US", format: "national", strict: true })
+    .allow(""),
   role: Joi.string()
     .valid(...Object.values(UserRoleType))
     .required(),

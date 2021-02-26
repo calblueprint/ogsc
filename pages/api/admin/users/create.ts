@@ -1,6 +1,6 @@
 import { PrismaClient, PrismaClientKnownRequestError } from "@prisma/client";
 import { NextApiResponse } from "next";
-import Joi from "joi";
+import Joi from "lib/validate";
 import { UserRoleType, ValidatedNextApiRequest } from "interfaces";
 import Notifier from "lib/notify";
 import { NotificationType } from "lib/notify/types";
@@ -20,7 +20,9 @@ export type AdminCreateUserDTO = {
 const AdminCreateUserDTOValidator = Joi.object<AdminCreateUserDTO>({
   name: Joi.string().required(),
   email: Joi.string().required(),
-  phoneNumber: Joi.string().allow(""),
+  phoneNumber: Joi.string()
+    .phoneNumber({ defaultCountry: "US", format: "national", strict: true })
+    .allow(""),
   role: Joi.string()
     .valid(...Object.values(UserRoleType))
     .allow(null),

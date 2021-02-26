@@ -1,27 +1,11 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { IPlayer } from "interfaces";
 import DashboardLayout from "../../../components/DashboardLayout";
 import PlayerDashboard from "../../../components/PlayersDashboard";
 import Button from "../../../components/Button";
 
 const PlayersListPage: React.FunctionComponent = () => {
   const [phrase, setPhrase] = useState<string>("");
-  const [players, setPlayers] = useState<IPlayer[]>();
-
-  useEffect(() => {
-    const getPlayers = async (): Promise<void> => {
-      try {
-        const apiLink = `/api/players/search?phrase=${phrase}`;
-        const response = await fetch(apiLink);
-        const data = await response.json();
-        setPlayers(data.users);
-      } catch (err) {
-        throw new Error(err.message);
-      }
-    };
-    getPlayers();
-  }, [phrase]);
 
   return (
     <DashboardLayout>
@@ -40,7 +24,7 @@ const PlayersListPage: React.FunctionComponent = () => {
         <div className="grid grid-cols-4 gap-8">
           <div className="col-span-3">
             <hr className="border-unselected border-opacity-50" />
-            {players ? <PlayerDashboard players={players} /> : null}
+            <PlayerDashboard phrase={phrase} />
           </div>
           <div className="mt-1">
             <div className="pt-2 relative mx-auto text-gray-600 col-span-1">

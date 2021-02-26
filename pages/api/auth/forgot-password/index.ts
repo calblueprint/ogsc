@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { PrismaClient, ResetPassword } from "@prisma/client";
-import Joi from "joi";
+import Joi from "lib/validate";
 import Notifier from "lib/notify";
 import { NotificationType } from "lib/notify/types";
 
