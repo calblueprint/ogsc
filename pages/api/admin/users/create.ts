@@ -12,6 +12,7 @@ const prisma = new PrismaClient();
 export type AdminCreateUserDTO = {
   name: string;
   email: string;
+  adminNotes: string;
   phoneNumber?: string | undefined;
   role?: UserRoleType | undefined;
   linkedPlayers?: number[] | undefined;
@@ -44,6 +45,7 @@ const handler = async (
         userInvites: {
           create: {},
         },
+        adminNotes,
         ...(role
           ? {
               roles: {

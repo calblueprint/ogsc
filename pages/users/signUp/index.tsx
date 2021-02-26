@@ -13,6 +13,7 @@ export type UserSignUpFormValues = {
   firstName: string;
   lastName: string;
   email: string;
+  adminNotes: string;
   phoneNumber?: string;
   password: string;
   role: UserRoleType;
@@ -27,6 +28,7 @@ type UserSignUpForm1Values = Pick<
 const UserSignUpForm1Schema = Joi.object<UserSignUpForm1Values>({
   firstName: Joi.string().trim().required(),
   lastName: Joi.string().trim().required(),
+  adminNotes: Joi.string().trim().required(),
   email: Joi.string()
     .trim()
     .email({ tlds: { allow: false } })
