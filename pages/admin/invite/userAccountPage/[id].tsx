@@ -6,7 +6,7 @@ import Combobox from "components/Combobox";
 import { User } from "@prisma/client";
 import Button from "components/Button";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
-import { UserRoleType, IUser } from "interfaces";
+import { UserRoleType, IUser, UserStatus } from "interfaces";
 
 const UserAccountPage: React.FunctionComponent<UserRequest> = ({
   onAccept,
@@ -63,7 +63,7 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = ({
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(({
-          emailVerified: new Date(),
+          status: UserStatus.Active,
         } as unknown) as UpdateUserDTO),
       });
       if (!response.ok) {

@@ -158,7 +158,6 @@ const userRequestsTable: React.FunctionComponent = () => (
         <p className="text-2xl font-semibold mx-0 mt-0">Invitation Requests</p>
       </div>
     </div>
-    <hr className="border-unselected border-opacity-50" />
     {UserDashboard({})}
   </div>
 );

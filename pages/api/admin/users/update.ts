@@ -5,7 +5,10 @@ import { NextApiResponse } from "next";
 import { validateBody } from "pages/api/helpers";
 import flattenUserRoles from "utils/flattenUserRoles";
 import sanitizeUser from "utils/sanitizeUser";
+import { NotificationType } from "lib/notify/types";
+import Notifier from "lib/notify";
 import { adminOnlyHandler } from "../helpers";
+import { ViewingPermissionDTO } from "../roles/create";
 
 const prisma = new PrismaClient();
 
@@ -15,9 +18,10 @@ export type UpdateUserDTO = {
   email?: string;
   phoneNumber?: string;
   image?: string;
-  roles: [UserRoleType];
+  roles?: [ViewingPermissionDTO];
   status?: UserStatus;
   hashedPassword?: string;
+  sendEmail?: boolean;
 };
 
 const expectedBody = Joi.object<UpdateUserDTO>({
@@ -31,6 +35,7 @@ const expectedBody = Joi.object<UpdateUserDTO>({
   image: Joi.string(),
   roles: Joi.array().items(Joi.string()),
   hashedPassword: Joi.string(),
+  sendEmail: Joi.boolean(),
 });
 
 // NOTE: deletes all viewer permissions if changing role to Admin
@@ -60,6 +65,7 @@ const handler = async (
           status: userInfo.status,
           image: userInfo.image,
           hashedPassword: userInfo.hashedPassword,
+          updatedAt: new Date(),
           roles: {
             deleteMany: {
               type: {
@@ -73,6 +79,7 @@ const handler = async (
         },
         include: {
           roles: true,
+          userInvites: true,
         },
       });
     } else {
@@ -85,6 +92,7 @@ const handler = async (
           status: userInfo.status,
           image: userInfo.image,
           hashedPassword: userInfo.hashedPassword,
+          updatedAt: new Date(),
           ...(roles !== undefined
             ? {
                 roles: {
@@ -99,6 +107,7 @@ const handler = async (
         },
         include: {
           roles: true,
+          userInvites: true,
         },
       });
 
@@ -140,6 +149,18 @@ const handler = async (
       res
         .status(404)
         .json({ statusCode: 404, message: "User does not exist." });
+    }
+    console.log("before");
+    console.log(userInfo.sendEmail);
+    console.log(user.userInvites);
+
+    if (userInfo.sendEmail && user.userInvites !== undefined) {
+      console.log("email");
+      const { email } = user;
+      await Notifier.sendNotification(NotificationType.SignUpInvitation, {
+        email,
+        inviteCodeId: user.userInvites[0].id,
+      });
     }
     res.json({
       message: "Successfully updated user.",
