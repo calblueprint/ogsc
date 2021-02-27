@@ -13,6 +13,8 @@ import { DeleteUserDTO } from "pages/api/admin/users/delete";
 import Link from "next/link";
 import { NextPageContext } from "next";
 import { PrismaClient, User } from "@prisma/client";
+import Combobox from "components/Combobox";
+import { ViewingPermissionDTO } from "pages/api/admin/roles/create";
 
 interface AdminEditUserFormValues {
   firstName: string;
@@ -20,6 +22,7 @@ interface AdminEditUserFormValues {
   email: string;
   phoneNumber?: string;
   role: UserRoleType;
+  menteedPlayers: [User];
 }
 
 interface EditUserProps {
@@ -27,6 +30,8 @@ interface EditUserProps {
   isEditing: boolean;
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
   setUser: (user: IUser) => void;
+  relatedPlayers?: User[];
+  originalPlayers: User[];
 }
 
 interface DeleteConfirmationProps {
@@ -159,13 +164,22 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
   isEditing,
   setIsEditing,
   setUser,
+  relatedPlayers,
+  originalPlayers,
 }) => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [currRole, setCurrRole] = useState<UserRoleType>();
+  const [selectedPlayers, setSelectedPlayers] = useState<User[]>(
+    relatedPlayers || []
+  );
   const { errors, register, handleSubmit } = useForm<AdminEditUserFormValues>({
     resolver: joiResolver(AdminEditUserFormSchema),
   });
+  const router = useRouter();
+  const refreshData = (): void => {
+    router.replace(router.asPath);
+  };
 
   useEffect(() => {
     setCurrRole(user?.defaultRole.type);
@@ -179,6 +193,17 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
     if (submitting) {
       return;
     }
+
+    const linkedPlayers: ViewingPermissionDTO[] = [];
+    selectedPlayers.forEach((role) => {
+      const body = (JSON.stringify({
+        type: currRole,
+        userId: user?.id,
+        relatedPlayerId: role.id,
+      }) as unknown) as ViewingPermissionDTO;
+      linkedPlayers.push(body);
+    });
+
     try {
       const response = await fetch(`/api/admin/users/${user?.id}`, {
         method: "PATCH",
@@ -188,13 +213,14 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
           email: values.email,
           name: `${values.firstName} ${values.lastName}`,
           phoneNumber: values.phoneNumber,
-          roles: [values.role as UserRoleType],
+          roles: linkedPlayers,
         } as UpdateUserDTO),
       });
       if (!response.ok) {
         throw await response.json();
       } else {
         setUser((await response.json()).user);
+        refreshData();
       }
     } catch (err) {
       setError(err.message);
@@ -329,6 +355,17 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
                 </label>
               ))}
             </FormField>
+            <FormField
+              label="Linked Players"
+              name="linkedPlayers"
+              error="" // TODO: fix this
+            >
+              <Combobox
+                selectedPlayers={selectedPlayers}
+                setSelectedPlayers={setSelectedPlayers}
+                role={currRole}
+              />
+            </FormField>
           </fieldset>
           <hr />
           <div className="my-10">
@@ -340,6 +377,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
                 className="button-hollow px-10 py-2"
                 onClick={() => {
                   setIsEditing(false);
+                  setSelectedPlayers(originalPlayers);
                 }}
               >
                 Cancel
@@ -361,6 +399,7 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
   const { id } = router.query;
+  const [originalPlayers, setOriginalPlayers] = useState<User[]>([]);
 
   useEffect(() => {
     const getUser = async (): Promise<void> => {
@@ -395,6 +434,7 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
             className="py-3 px-5 rounded-full font-bold tracking-wide bg-button h-10 items-center text-sm flex-row flex"
             onClick={() => {
               setIsEditing(true);
+              setOriginalPlayers((relatedPlayers && [...relatedPlayers]) || []);
             }}
           >
             <Icon type="edit" />
@@ -421,16 +461,18 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
             <div className="pb-16">
               <h2 className="text-lg pb-5">Mentor Information</h2>
               <div className="flex flex-row text-sm">
-                <p className="text-blue mr-20 w-24">Menteed Players</p>
-                {relatedPlayers?.map((player: User) => {
-                  return (
-                    <Link href={`/admin/players/${player.id}`}>
-                      <div className="underline cursor-pointer">
-                        {player.name}
-                      </div>
-                    </Link>
-                  );
-                })}
+                <p className="text-blue mr-20 w-24">Linked Players</p>
+                <div className="flex flex-col">
+                  {relatedPlayers?.map((player: User) => {
+                    return (
+                      <Link href={`/admin/players/${player.id}`}>
+                        <div className="underline cursor-pointer text-blue mb-2">
+                          <p>{player.name}</p>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}
@@ -459,6 +501,8 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
           isEditing={isEditing}
           setIsEditing={setIsEditing}
           setUser={setUser}
+          relatedPlayers={relatedPlayers}
+          originalPlayers={originalPlayers}
         />
       </div>
     </DashboardLayout>
