@@ -113,7 +113,7 @@ const UserDashboard: React.FunctionComponent = () => {
 
   const getUsers = async (): Promise<void> => {
     try {
-      const response = await fetch("/api/admin/users/?unverified=true", {
+      const response = await fetch("/api/admin/users/?admin_unapproved=true", {
         method: "GET",
         headers: { "content-type": "application/json" },
         redirect: "follow",
