@@ -28,6 +28,7 @@ const standardReadAccess = {
   [ProfileFieldKey.BioSiblings]: { read: true },
   [ProfileFieldKey.IntroVideo]: { read: true },
   [ProfileFieldKey.Highlights]: { read: true },
+  [ProfileFieldKey.YearOfBirth]: { read: true },
 };
 
 /**
