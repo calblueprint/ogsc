@@ -134,6 +134,7 @@ const handler = async (
                 user: {
                   include: {
                     roles: true,
+                    userInvites: true,
                   },
                 },
               },
@@ -150,15 +151,10 @@ const handler = async (
         .status(404)
         .json({ statusCode: 404, message: "User does not exist." });
     }
-    console.log("before");
-    console.log(userInfo.sendEmail);
-    console.log(user.userInvites);
 
-    if (userInfo.sendEmail && user.userInvites !== undefined) {
-      console.log("email");
-      const { email } = user;
+    if (userInfo.sendEmail) {
       await Notifier.sendNotification(NotificationType.SignUpInvitation, {
-        email,
+        email: user.email,
         inviteCodeId: user.userInvites[0].id,
       });
     }
