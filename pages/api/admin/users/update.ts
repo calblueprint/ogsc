@@ -1,10 +1,12 @@
 import { PrismaClient } from "@prisma/client";
-import { ValidatedNextApiRequest, UserRoleType } from "interfaces";
+import { ValidatedNextApiRequest, UserRoleType, UserStatus } from "interfaces";
 import Joi from "lib/validate";
 import { NextApiResponse } from "next";
 import { validateBody } from "pages/api/helpers";
 import flattenUserRoles from "utils/flattenUserRoles";
 import sanitizeUser from "utils/sanitizeUser";
+import { NotificationType } from "lib/notify/types";
+import Notifier from "lib/notify";
 import { adminOnlyHandler } from "../helpers";
 import { ViewingPermissionDTO } from "../roles/create";
 
@@ -15,10 +17,11 @@ export type UpdateUserDTO = {
   name?: string;
   email?: string;
   phoneNumber?: string;
-  emailVerified?: Date;
   image?: string;
   roles?: [ViewingPermissionDTO];
+  status?: UserStatus;
   hashedPassword?: string;
+  sendEmail?: boolean;
 };
 
 const expectedBody = Joi.object<UpdateUserDTO>({
@@ -29,10 +32,10 @@ const expectedBody = Joi.object<UpdateUserDTO>({
     defaultCountry: "US",
     format: "national",
   }),
-  emailVerified: Joi.date(),
   image: Joi.string(),
   roles: Joi.array().items(Joi.string()),
   hashedPassword: Joi.string(),
+  sendEmail: Joi.boolean(),
 });
 
 // NOTE: deletes all viewer permissions if changing role to Admin
@@ -59,9 +62,10 @@ const handler = async (
           name: userInfo.name,
           email: userInfo.email,
           phoneNumber: userInfo.phoneNumber,
-          emailVerified: userInfo.emailVerified,
+          status: userInfo.status,
           image: userInfo.image,
           hashedPassword: userInfo.hashedPassword,
+          updatedAt: new Date(),
           roles: {
             deleteMany: {
               type: {
@@ -75,6 +79,7 @@ const handler = async (
         },
         include: {
           roles: true,
+          userInvites: true,
         },
       });
     } else {
@@ -84,9 +89,10 @@ const handler = async (
           name: userInfo.name,
           email: userInfo.email,
           phoneNumber: userInfo.phoneNumber,
-          emailVerified: userInfo.emailVerified,
+          status: userInfo.status,
           image: userInfo.image,
           hashedPassword: userInfo.hashedPassword,
+          updatedAt: new Date(),
           ...(roles !== undefined
             ? {
                 roles: {
@@ -101,6 +107,7 @@ const handler = async (
         },
         include: {
           roles: true,
+          userInvites: true,
         },
       });
 
@@ -127,6 +134,7 @@ const handler = async (
                 user: {
                   include: {
                     roles: true,
+                    userInvites: true,
                   },
                 },
               },
@@ -142,6 +150,13 @@ const handler = async (
       res
         .status(404)
         .json({ statusCode: 404, message: "User does not exist." });
+    }
+
+    if (userInfo.sendEmail) {
+      await Notifier.sendNotification(NotificationType.SignUpInvitation, {
+        email: user.email,
+        inviteCodeId: user.userInvites[0].id,
+      });
     }
     res.json({
       message: "Successfully updated user.",

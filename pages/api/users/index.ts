@@ -6,6 +6,7 @@ import {
   SanitizedUser,
   UserRoleType,
   ValidatedNextApiRequest,
+  UserStatus,
 } from "interfaces";
 import Joi from "lib/validate";
 import { validateBody } from "../helpers";
@@ -61,6 +62,7 @@ export const createAccount = async (
       data: {
         name: user.name,
         email: user.email,
+        status: UserStatus.Active,
         phoneNumber: user.phoneNumber,
         hashedPassword: hash(user.password),
         ...(user.role
@@ -77,22 +79,13 @@ export const createAccount = async (
         id: inviteCode.user_id,
       },
     });
-    // update acceptedAt in userInvite
-    const userInviteEntry = await prisma.userInvite.update({
-      where: { id: user.inviteCodeId },
-      data: {
-        accepted_at: new Date(),
-      },
-    });
-    if (!userInviteEntry) {
-      return null;
-    }
   } else {
     // signing up without an invite code
     newUser = await prisma.user.create({
       data: {
         name: user.name,
         email: user.email,
+        status: UserStatus.PendingAdminApproval,
         phoneNumber: user.phoneNumber,
         hashedPassword: hash(user.password),
         ...(user.role
