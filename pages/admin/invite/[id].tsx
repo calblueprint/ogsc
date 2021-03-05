@@ -1,49 +1,25 @@
-import { NextRouter, useRouter } from "next/router";
+import { useRouter } from "next/router";
 import DashboardLayout from "components/DashboardLayout";
 import React, { useState, useEffect } from "react";
-import Icon from "components/Icon";
 import Button from "components/Button";
 import FormField from "components/FormField";
-import { IUser, UserRoleLabel, UserRoleType } from "interfaces";
+import { IUser, UserRoleLabel, UserRoleType, UserStatus } from "interfaces";
 import Joi from "lib/validate";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { useForm } from "react-hook-form";
-import { DeleteUserDTO } from "pages/api/admin/users/delete";
-import Link from "next/link";
 import { NextPageContext } from "next";
 import { PrismaClient, User } from "@prisma/client";
 import Combobox from "components/Combobox";
 import { ViewingPermissionDTO } from "pages/api/admin/roles/create";
 
-interface AdminEditUserFormValues {
+interface AdminEditUserInviteFormValues {
   firstName: string;
   lastName: string;
   email: string;
   phoneNumber?: string;
   role: UserRoleType;
-  menteedPlayers: [User];
 }
-
-interface EditUserProps {
-  user?: IUser;
-  isEditing: boolean;
-  setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
-  setUser: (user: IUser) => void;
-  relatedPlayers?: User[];
-  originalPlayers: User[];
-}
-
-interface DeleteConfirmationProps {
-  user?: IUser;
-  isDeleting: boolean;
-  setIsDeleting: React.Dispatch<React.SetStateAction<boolean>>;
-  router: NextRouter;
-}
-
-type ModalProps = React.PropsWithChildren<{
-  open?: boolean;
-}>;
 
 type gsspProps = {
   user?: User;
@@ -67,7 +43,12 @@ export async function getServerSideProps(
   }
 
   const relatedPlayerIds = user.roles
-    .filter((role) => role.type === "Mentor")
+    .filter(
+      (role) =>
+        role.type === "Mentor" ||
+        role.type === "Donor" ||
+        role.type === "Parent"
+    )
     .map((role) => role.relatedPlayerId)
     .filter(
       (relatedPlayerId): relatedPlayerId is number => relatedPlayerId !== null
@@ -89,16 +70,7 @@ export async function getServerSideProps(
   };
 }
 
-// TODO: Make some styling changes
-const Modal: React.FC<ModalProps> = ({ children, open }: ModalProps) => {
-  return open ? (
-    <div className="absolute top-0 left-0 w-screen h-screen bg-dark bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white rounded w-3/4 px-10 pt-12 pb-8">{children}</div>
-    </div>
-  ) : null;
-};
-
-const AdminEditUserFormSchema = Joi.object<AdminEditUserFormValues>({
+const AdminEditUserFormSchema = Joi.object<AdminEditUserInviteFormValues>({
   firstName: Joi.string().trim().required(),
   lastName: Joi.string().trim().required(),
   email: Joi.string()
@@ -113,87 +85,59 @@ const AdminEditUserFormSchema = Joi.object<AdminEditUserFormValues>({
     .required(),
 });
 
-const DeleteConfirmation: React.FunctionComponent<DeleteConfirmationProps> = ({
-  user,
-  isDeleting,
-  setIsDeleting,
-  router,
-}) => {
-  async function onDelete(): Promise<void> {
-    const response = await fetch(`/api/admin/users/${user?.id}`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        id: user?.id,
-      } as DeleteUserDTO),
-    });
-    if (!response.ok) {
-      throw await response.json();
-    }
-    setIsDeleting(false);
-    router.push("/admin/users");
-  }
-  return (
-    <Modal open={Boolean(isDeleting)}>
-      <p>Are you sure you want to delete this user?</p>
-      <div className="mb-2 flex">
-        <Button
-          className="button-primary px-10 py-2 mr-5"
-          onClick={() => {
-            onDelete();
-          }}
-        >
-          Delete
-        </Button>
-        <Button
-          className="button-hollow px-10 py-2"
-          onClick={() => {
-            setIsDeleting(false);
-          }}
-        >
-          Cancel
-        </Button>
-      </div>
-    </Modal>
-  );
-};
-
-const EditUser: React.FunctionComponent<EditUserProps> = ({
-  user,
-  isEditing,
-  setIsEditing,
-  setUser,
+const UserInvitation: React.FunctionComponent<gsspProps> = ({
   relatedPlayers,
-  originalPlayers,
 }) => {
+  const [user, setUser] = useState<IUser>();
+
+  const router = useRouter();
+  const { id } = router.query;
+
+  useEffect(() => {
+    const getUser = async (): Promise<void> => {
+      const response = await fetch(`/api/admin/users/${id}`, {
+        method: "GET",
+        headers: { "content-type": "application/json" },
+        redirect: "follow",
+      });
+      const data = await response.json();
+      // check user is pending
+      if (data.user.status !== UserStatus.PendingUserAcceptance) {
+        throw new Error("Invalid user invite");
+      }
+      setUser(data.user);
+    };
+    getUser();
+  }, [id]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [currRole, setCurrRole] = useState<UserRoleType>();
-  const [selectedPlayers, setSelectedPlayers] = useState<User[]>(
-    relatedPlayers || []
-  );
-  const { errors, register, handleSubmit } = useForm<AdminEditUserFormValues>({
+  const [selectedPlayers, setSelectedPlayers] = useState<User[]>([]);
+  const {
+    errors,
+    register,
+    handleSubmit,
+  } = useForm<AdminEditUserInviteFormValues>({
     resolver: joiResolver(AdminEditUserFormSchema),
   });
-  const router = useRouter();
-  const refreshData = (): void => {
-    router.replace(router.asPath);
-  };
 
   useEffect(() => {
     setCurrRole(user?.defaultRole.type);
-  }, [user]);
+    if (!relatedPlayers) {
+      setSelectedPlayers([]);
+    } else {
+      setSelectedPlayers(relatedPlayers);
+    }
+  }, [relatedPlayers, user]);
 
   async function onSubmit(
-    values: AdminEditUserFormValues,
+    values: AdminEditUserInviteFormValues,
     event?: React.BaseSyntheticEvent
   ): Promise<void> {
     event?.preventDefault();
     if (submitting) {
       return;
     }
-
     const linkedPlayers: ViewingPermissionDTO[] = [];
     selectedPlayers.forEach((role) => {
       const body = (JSON.stringify({
@@ -203,7 +147,6 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
       }) as unknown) as ViewingPermissionDTO;
       linkedPlayers.push(body);
     });
-
     try {
       const response = await fetch(`/api/admin/users/${user?.id}`, {
         method: "PATCH",
@@ -214,30 +157,32 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
           name: `${values.firstName} ${values.lastName}`,
           phoneNumber: values.phoneNumber,
           roles: linkedPlayers,
+          sendEmail: true,
         } as UpdateUserDTO),
       });
       if (!response.ok) {
         throw await response.json();
       } else {
         setUser((await response.json()).user);
-        refreshData();
+        router.push("/admin/invite");
       }
     } catch (err) {
       setError(err.message);
     } finally {
       setSubmitting(false);
-      setIsEditing(false);
     }
   }
 
   return (
-    <Modal open={Boolean(isEditing)}>
+    <DashboardLayout>
       <div className="mx-16 mt-24">
-        <h1 className="text-3xl font-display font-medium mb-2">
-          Basic Information
-        </h1>
+        <h1 className="text-3xl font-display font-medium mb-2">Edit Invite</h1>
+        <p>Description</p>
         <form className="mt-10" onSubmit={handleSubmit(onSubmit)}>
           <fieldset>
+            <legend className="text-lg font-semibold mb-8">
+              Basic Information
+            </legend>
             <FormField
               label="First Name"
               name="firstName"
@@ -355,29 +300,41 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
                 </label>
               ))}
             </FormField>
-            <FormField
-              label="Linked Players"
-              name="linkedPlayers"
-              error="" // TODO: fix this
+            <div
+              className={
+                currRole === "Mentor" ||
+                currRole === "Donor" ||
+                currRole === "Parent"
+                  ? ""
+                  : "hidden"
+              }
             >
-              <Combobox
-                selectedPlayers={selectedPlayers}
-                setSelectedPlayers={setSelectedPlayers}
-                role={currRole}
-              />
-            </FormField>
+              <legend className="text-lg font-medium mb-10 mt-16">
+                Role Information
+              </legend>
+              <FormField
+                label="Linked Players"
+                name="linkedPlayers"
+                error="" // TODO: fix this
+              >
+                <Combobox
+                  selectedPlayers={selectedPlayers}
+                  setSelectedPlayers={setSelectedPlayers}
+                  role={currRole}
+                />
+              </FormField>
+            </div>
           </fieldset>
           <hr />
           <div className="my-10">
             <div className="mb-2 flex">
               <Button className="button-primary px-10 py-2 mr-5" type="submit">
-                Save
+                Re-Send Invite
               </Button>
               <Button
                 className="button-hollow px-10 py-2"
                 onClick={() => {
-                  setIsEditing(false);
-                  setSelectedPlayers(originalPlayers);
+                  router.push("/admin/invite");
                 }}
               >
                 Cancel
@@ -387,126 +344,8 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
           </div>
         </form>
       </div>
-    </Modal>
-  );
-};
-
-const UserProfile: React.FunctionComponent<gsspProps> = ({
-  relatedPlayers,
-}) => {
-  const [user, setUser] = useState<IUser>();
-  const [isEditing, setIsEditing] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const router = useRouter();
-  const { id } = router.query;
-  const [originalPlayers, setOriginalPlayers] = useState<User[]>([]);
-
-  useEffect(() => {
-    const getUser = async (): Promise<void> => {
-      const response = await fetch(`/api/admin/users/${id}`, {
-        method: "GET",
-        headers: { "content-type": "application/json" },
-        redirect: "follow",
-      });
-      const data = await response.json();
-      setUser(data.user);
-    };
-    getUser();
-  }, [id]);
-  return (
-    <DashboardLayout>
-      <div className="mx-16 mb-24">
-        <div className="flex flex-row items-center pt-20 pb-12">
-          <div className="w-24 h-24 mr-4 bg-placeholder rounded-full">
-            {/* <img src={user?.image} alt="" />{" "} */}
-          </div>
-          <div>
-            <p className="text-2xl">{user?.name}</p>
-            <p className="text-sm">
-              {user && UserRoleLabel[user.defaultRole.type]}
-            </p>
-          </div>
-        </div>
-        <hr className="border-unselected border-opacity-50 pb-10" />
-        <div className="justify-end flex-row flex">
-          <button
-            type="button"
-            className="py-3 px-5 rounded-full font-bold tracking-wide bg-button h-10 items-center text-sm flex-row flex"
-            onClick={() => {
-              setIsEditing(true);
-              setOriginalPlayers((relatedPlayers && [...relatedPlayers]) || []);
-            }}
-          >
-            <Icon type="edit" />
-            <p className="pl-2">Edit</p>
-          </button>
-        </div>
-        <div>
-          <div className="pb-16 pt-">
-            <h2 className="text-lg pb-5">Basic Information</h2>
-            <div className="flex flex-row text-sm pb-6">
-              <p className="text-blue mr-20 w-24">Email Address</p>
-              <p>{user?.email}</p>
-            </div>
-            <div className="flex flex-row text-sm pb-6">
-              <p className="text-blue mr-20 w-24">Phone Number</p>
-              <p>{user?.phoneNumber}</p>
-            </div>
-            <div className="flex flex-row text-sm">
-              <p className="text-blue mr-20 w-24">User Role</p>
-              <p>{user && UserRoleLabel[user.defaultRole.type]}</p>
-            </div>
-          </div>
-          {user?.defaultRole.type === "Mentor" && (
-            <div className="pb-16">
-              <h2 className="text-lg pb-5">Mentor Information</h2>
-              <div className="flex flex-row text-sm">
-                <p className="text-blue mr-20 w-24">Linked Players</p>
-                <div className="flex flex-col">
-                  {relatedPlayers?.map((player: User) => {
-                    return (
-                      <Link href={`/admin/players/${player.id}`}>
-                        <div className="underline cursor-pointer text-blue mb-2">
-                          <p>{player.name}</p>
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          )}
-          <p className="text-lg font-semibold pb-10">Account Changes</p>
-          <p className="font-semibold text-sm pb-3">Close Account</p>
-          <p className="text-sm font-normal">
-            Delete this user&apos;s account and account data
-          </p>
-          <Button
-            className="button-primary mt-7 mb-52 mr-5 text-danger bg-danger-muted"
-            onClick={() => {
-              setIsDeleting(true);
-            }}
-          >
-            Close Account
-          </Button>
-        </div>
-        {DeleteConfirmation({
-          user,
-          isDeleting,
-          setIsDeleting,
-          router,
-        })}
-        <EditUser
-          user={user}
-          isEditing={isEditing}
-          setIsEditing={setIsEditing}
-          setUser={setUser}
-          relatedPlayers={relatedPlayers}
-          originalPlayers={originalPlayers}
-        />
-      </div>
     </DashboardLayout>
   );
 };
 
-export default UserProfile;
+export default UserInvitation;

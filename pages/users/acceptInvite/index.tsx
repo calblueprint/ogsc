@@ -1,8 +1,9 @@
 import { joiResolver } from "@hookform/resolvers/joi";
 import { User } from "@prisma/client";
+import { UserStatus } from "interfaces";
 import Button from "components/Button";
 import UserSignUpFormField from "components/UserSignUpFormField";
-import Joi from "joi";
+import Joi from "lib/validate";
 import { StateMachineProvider, useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -23,7 +24,9 @@ const UserAcceptInviteFormSchema = Joi.object<UserAcceptInviteFormValues>({
     .trim()
     .email({ tlds: { allow: false } })
     .optional(),
-  phoneNumber: Joi.string().required(),
+  phoneNumber: Joi.string()
+    .phoneNumber({ defaultCountry: "US", format: "national", strict: true })
+    .required(),
 });
 
 const UserAcceptInvitePageOne: React.FC = () => {
@@ -44,7 +47,7 @@ const UserAcceptInvitePageOne: React.FC = () => {
         const data = await response.json();
         if (!response.ok || !data.user) {
           router.push("/users/acceptInvite/error?type=noAccess");
-        } else if (data.acceptedAt) {
+        } else if (data.user.status !== UserStatus.PendingUserAcceptance) {
           router.push("/users/acceptInvite/error?type=expired");
         } else {
           setUser(data.user);
@@ -61,9 +64,11 @@ const UserAcceptInvitePageOne: React.FC = () => {
   // TODO: Add loading state to form submission
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const { errors, register, handleSubmit } = useForm<
-    UserAcceptInviteFormValues
-  >({
+  const {
+    errors,
+    register,
+    handleSubmit,
+  } = useForm<UserAcceptInviteFormValues>({
     resolver: joiResolver(UserAcceptInviteFormSchema),
   });
 

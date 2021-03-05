@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 import UserRequestsTable from "../../../components/userRequest";
+import PendingInvitesTable from "../../../components/pendingInvitesTable";
 
 const AdminInvitePage: React.FC = () => {
   const router = useRouter();
@@ -14,10 +15,16 @@ const AdminInvitePage: React.FC = () => {
       <div className="mx-16 mt-24">
         <h1 className="text-3xl font-semibold mb-10">Invites</h1>
         <Link href="/admin/invite/new">
-          <Button iconType="plus">Invite a new user</Button>
+          <Button
+            className="font-display text-sm px-6 bg-blue-muted text-blue rounded-lg h-10"
+            iconType="plus"
+          >
+            Invite a new user
+          </Button>
         </Link>
         <div className="mt-10">
           <UserRequestsTable />
+          <PendingInvitesTable />
         </div>
       </div>
       <Modal className="w-2/5" open={Boolean(router.query.success)}>

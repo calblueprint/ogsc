@@ -1,6 +1,6 @@
 import Button from "components/Button";
 import { useState } from "react";
-import Joi from "joi";
+import Joi from "lib/validate";
 import GPAFieldContent from "components/Player/GPAFieldContent";
 
 type Props = React.PropsWithChildren<{

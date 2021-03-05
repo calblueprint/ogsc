@@ -1,7 +1,7 @@
 import { PrismaClient, Absence } from "@prisma/client";
 
 import { ValidatedNextApiRequest } from "interfaces";
-import Joi from "joi";
+import Joi from "lib/validate";
 import { NextApiResponse } from "next";
 import { validateBody } from "pages/api/helpers";
 

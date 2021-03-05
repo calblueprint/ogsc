@@ -3,7 +3,7 @@ import {
   ProfileFieldKey,
   ProfileFieldCreateWithoutUserInput,
 } from "@prisma/client";
-import Joi from "joi";
+import Joi from "lib/validate";
 import { NextApiResponse } from "next";
 
 import { ValidatedNextApiRequest } from "interfaces";

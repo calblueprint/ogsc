@@ -1,7 +1,8 @@
 import { joiResolver } from "@hookform/resolvers/joi";
+import { UserStatus } from "interfaces";
 import Button from "components/Button";
 import FormField from "components/FormField";
-import Joi from "joi";
+import Joi from "lib/validate";
 import { useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
 import { CreateUserDTO } from "pages/api/users";
@@ -33,7 +34,7 @@ const UserAcceptInvitePageTwo: React.FC = () => {
       const data = await response.json();
       if (!response.ok || !data.user) {
         router.push("/users/acceptInvite/error?type=noAccess");
-      } else if (data.acceptedAt) {
+      } else if (data.user.status !== UserStatus.PendingUserAcceptance) {
         router.push("/users/acceptInvite/error?type=expired");
       }
     };
@@ -46,9 +47,11 @@ const UserAcceptInvitePageTwo: React.FC = () => {
   const [revealPassword, setRevealPassword] = useState(false);
   const [revealConfirmPassword, setRevealConfirmPassword] = useState(false);
 
-  const { errors, register, handleSubmit } = useForm<
-    UserAcceptInviteForm2Values
-  >({
+  const {
+    errors,
+    register,
+    handleSubmit,
+  } = useForm<UserAcceptInviteForm2Values>({
     resolver: joiResolver(UserAcceptInviteForm2Schema),
   });
   const { state, action } = useStateMachine(updateActionAcceptInvite);
