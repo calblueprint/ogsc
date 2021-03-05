@@ -1,11 +1,14 @@
 import { PrismaClient } from "@prisma/client";
-import { ValidatedNextApiRequest, UserRoleType } from "interfaces";
+import { ValidatedNextApiRequest, UserRoleType, UserStatus } from "interfaces";
 import Joi from "lib/validate";
 import { NextApiResponse } from "next";
 import { validateBody } from "pages/api/helpers";
 import flattenUserRoles from "utils/flattenUserRoles";
 import sanitizeUser from "utils/sanitizeUser";
+import { NotificationType } from "lib/notify/types";
+import Notifier from "lib/notify";
 import { adminOnlyHandler } from "../helpers";
+import { ViewingPermissionDTO } from "../roles/create";
 
 const prisma = new PrismaClient();
 
@@ -14,10 +17,11 @@ export type UpdateUserDTO = {
   name?: string;
   email?: string;
   phoneNumber?: string;
-  emailVerified?: Date;
   image?: string;
-  roles: [UserRoleType];
+  roles?: [ViewingPermissionDTO];
+  status?: UserStatus;
   hashedPassword?: string;
+  sendEmail?: boolean;
 };
 
 const expectedBody = Joi.object<UpdateUserDTO>({
@@ -28,10 +32,10 @@ const expectedBody = Joi.object<UpdateUserDTO>({
     defaultCountry: "US",
     format: "national",
   }),
-  emailVerified: Joi.date(),
   image: Joi.string(),
   roles: Joi.array().items(Joi.string()),
   hashedPassword: Joi.string(),
+  sendEmail: Joi.boolean(),
 });
 
 // NOTE: deletes all viewer permissions if changing role to Admin
@@ -40,63 +44,119 @@ const handler = async (
   res: NextApiResponse
 ): Promise<void> => {
   try {
-    const { roles = [], ...userInfo } = req.body;
-    const user =
-      roles[0] === "Admin"
-        ? await prisma.user.update({
-            where: { id: userInfo.id || Number(req.query.id) },
-            data: {
-              name: userInfo.name,
-              email: userInfo.email,
-              phoneNumber: userInfo.phoneNumber,
-              emailVerified: userInfo.emailVerified,
-              image: userInfo.image,
-              hashedPassword: userInfo.hashedPassword,
-              roles: {
-                deleteMany: {
-                  type: {
-                    not: undefined,
-                  },
-                },
-                create: {
-                  type: UserRoleType.Admin,
-                },
+    const userInfo = req.body;
+
+    let user;
+
+    const roles =
+      (userInfo.roles &&
+        userInfo.roles.map((role) =>
+          JSON.parse((role as unknown) as string)
+        )) ||
+      [];
+
+    if (roles && roles[0].type === "Admin") {
+      user = await prisma.user.update({
+        where: { id: userInfo.id || Number(req.query.id) },
+        data: {
+          name: userInfo.name,
+          email: userInfo.email,
+          phoneNumber: userInfo.phoneNumber,
+          status: userInfo.status,
+          image: userInfo.image,
+          hashedPassword: userInfo.hashedPassword,
+          updatedAt: new Date(),
+          roles: {
+            deleteMany: {
+              type: {
+                not: undefined,
               },
             },
-            include: {
-              roles: true,
+            create: {
+              type: UserRoleType.Admin,
             },
-          })
-        : await prisma.user.update({
-            where: { id: userInfo.id || Number(req.query.id) },
-            data: {
-              name: userInfo.name,
-              email: userInfo.email,
-              phoneNumber: userInfo.phoneNumber,
-              emailVerified: userInfo.emailVerified,
-              image: userInfo.image,
-              hashedPassword: userInfo.hashedPassword,
-              roles: {
-                updateMany: {
-                  data: {
-                    type: roles[0],
-                  },
-                  where: {
+          },
+        },
+        include: {
+          roles: true,
+          userInvites: true,
+        },
+      });
+    } else {
+      user = await prisma.user.update({
+        where: { id: userInfo.id || Number(req.query.id) },
+        data: {
+          name: userInfo.name,
+          email: userInfo.email,
+          phoneNumber: userInfo.phoneNumber,
+          status: userInfo.status,
+          image: userInfo.image,
+          hashedPassword: userInfo.hashedPassword,
+          updatedAt: new Date(),
+          ...(roles !== undefined
+            ? {
+                roles: {
+                  deleteMany: {
                     type: {
                       not: undefined,
                     },
                   },
                 },
+              }
+            : {}),
+        },
+        include: {
+          roles: true,
+          userInvites: true,
+        },
+      });
+
+      if (roles !== undefined) {
+        const allResults = await Promise.all(
+          roles.map((role) => {
+            return prisma.role.create({
+              data: {
+                type: role.type,
+                relatedPlayer: role.relatedPlayerId
+                  ? {
+                      connect: {
+                        id: role.relatedPlayerId,
+                      },
+                    }
+                  : {},
+                user: {
+                  connect: {
+                    id: role.userId,
+                  },
+                },
               },
-            },
-            include: {
-              roles: true,
-            },
-          });
+              include: {
+                user: {
+                  include: {
+                    roles: true,
+                    userInvites: true,
+                  },
+                },
+              },
+            });
+          })
+        );
+
+        user = allResults[allResults.length - 1].user;
+      }
+    }
+
     if (!user) {
       res
         .status(404)
         .json({ statusCode: 404, message: "User does not exist." });
+    }
+
+    if (userInfo.sendEmail) {
+      await Notifier.sendNotification(NotificationType.SignUpInvitation, {
+        email: user.email,
+        inviteCodeId: user.userInvites[0].id,
+      });
     }
     res.json({
       message: "Successfully updated user.",

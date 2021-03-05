@@ -18,6 +18,7 @@ model User {
   hashedPassword String          @map("hashed_password")
   phoneNumber    String?         @map("phone_number")
   adminNote      String?
+  status         UserStatus
   absences       Absence[]       @relation("AbsencesToUsers")
   profileFields  ProfileField[]  @relation("ProfileFieldToUsers")
   resetPassword  ResetPassword[] @relation("ResetPasswordToUsers")
@@ -72,11 +73,10 @@ model verification_requests {
 }
 
 model UserInvite {
-  id          String    @id @default(dbgenerated())
-  created_at  DateTime  @default(now())
-  user_id     Int
-  accepted_at DateTime?
-  user        User      @relation("UserInvitesToUsers", fields: [user_id], references: [id])
+  id         String   @id @default(dbgenerated())
+  created_at DateTime @default(now())
+  user_id    Int
+  user       User     @relation("UserInvitesToUsers", fields: [user_id], references: [id])
 
   @@map("user_invites")
 }
@@ -177,4 +177,13 @@ enum UserRoleType {
   Player @map("player")
 
    @@map("user_role")
+}
+
+enum UserStatus {
+  Active @map("active")
+  Inactive @map("inactive")
+  PendingAdminApproval @map("pending_admin_approval")
+  PendingUserAcceptance @map("pending_user_acceptance")
+
+   @@map("user_status")
 }

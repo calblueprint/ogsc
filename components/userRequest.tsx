@@ -39,9 +39,7 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({
-          emailVerified: new Date(),
-        } as UpdateUserDTO),
+        body: JSON.stringify({} as UpdateUserDTO),
       });
       if (!response.ok) {
         throw await response.json();
@@ -115,7 +113,7 @@ const UserDashboard: React.FunctionComponent = () => {
 
   const getUsers = async (): Promise<void> => {
     try {
-      const response = await fetch("/api/admin/users/?unverified=true", {
+      const response = await fetch("/api/admin/users/?admin_unapproved=true", {
         method: "GET",
         headers: { "content-type": "application/json" },
         redirect: "follow",
@@ -160,7 +158,6 @@ const userRequestsTable: React.FunctionComponent = () => (
         <p className="text-2xl font-semibold mx-0 mt-0">Invitation Requests</p>
       </div>
     </div>
-    <hr className="border-unselected border-opacity-50" />
     {UserDashboard({})}
   </div>
 );

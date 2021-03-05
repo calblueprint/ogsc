@@ -1,4 +1,5 @@
 import { joiResolver } from "@hookform/resolvers/joi";
+import { UserStatus } from "interfaces";
 import Button from "components/Button";
 import FormField from "components/FormField";
 import Joi from "lib/validate";
@@ -33,7 +34,7 @@ const UserAcceptInvitePageTwo: React.FC = () => {
       const data = await response.json();
       if (!response.ok || !data.user) {
         router.push("/users/acceptInvite/error?type=noAccess");
-      } else if (data.acceptedAt) {
+      } else if (data.user.status !== UserStatus.PendingUserAcceptance) {
         router.push("/users/acceptInvite/error?type=expired");
       }
     };

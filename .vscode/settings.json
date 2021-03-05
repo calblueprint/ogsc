@@ -1,5 +1,8 @@
 {
   "typescript.tsdk": "node_modules/typescript/lib",
   "css.validate": false,
-  "prisma.plugin.nextjs.hasPrompted": true
+  "prisma.plugin.nextjs.hasPrompted": true,
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }
