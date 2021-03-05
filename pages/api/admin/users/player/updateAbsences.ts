@@ -1,6 +1,6 @@
 import { PrismaClient, AbsenceCreateWithoutUsersInput } from "@prisma/client";
 import { ValidatedNextApiRequest } from "interfaces";
-import Joi from "joi";
+import Joi from "lib/validate";
 import { NextApiResponse } from "next";
 import { validateBody } from "pages/api/helpers";
 import sanitizeUser from "utils/sanitizeUser";

@@ -15,7 +15,12 @@ const AdminInvitePage: React.FC = () => {
       <div className="mx-16 mt-24">
         <h1 className="text-3xl font-semibold mb-10">Invites</h1>
         <Link href="/admin/invite/new">
-          <Button iconType="plus">Invite a new user</Button>
+          <Button
+            className="font-display text-sm px-6 bg-blue-muted text-blue rounded-lg h-10"
+            iconType="plus"
+          >
+            Invite a new user
+          </Button>
         </Link>
         <div className="mt-10">
           <UserRequestsTable />

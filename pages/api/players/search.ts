@@ -14,7 +14,8 @@ const prisma = new PrismaClient();
 export default async (
   req: NextApiRequest,
   res: NextApiResponse<
-    { users: IPlayer[] } | { statusCode: number; message: string }
+    | { users: IPlayer[]; total: number }
+    | { statusCode: number; message: string }
   >
 ): Promise<void> => {
   const pageNumber: number = Number(req.query.pageNumber) || 0;
@@ -52,6 +53,24 @@ export default async (
       },
     });
 
+    const userCount = await prisma.user.count({
+      where: {
+        ...(phrase
+          ? {
+              name: {
+                contains: phrase,
+                mode: "insensitive",
+              },
+            }
+          : undefined),
+        roles: {
+          some: {
+            type: UserRoleType.Player,
+          },
+        },
+      },
+    });
+
     if (!user) {
       res
         .status(404)
@@ -65,6 +84,7 @@ export default async (
           .map((player: IPlayer) =>
             filterPlayerProfileRead(player, authenticatedUser)
           ),
+        total: userCount,
       });
     }
   } catch (err) {

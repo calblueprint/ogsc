@@ -1,6 +1,6 @@
 import Button from "components/Button";
 import { useState } from "react";
-import Joi from "joi";
+import Joi from "lib/validate";
 import DateComboBox from "components/Player/PlayerForm/DateComboBox";
 import { years, months } from "components/Player/PlayerForm/FormItems";
 import type { field } from "components/Player/EditMore";

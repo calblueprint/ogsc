@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useCombobox } from "downshift";
-import { User } from "@prisma/client";
 import debounce from "lodash.debounce";
 import { UserRoleLabel, UserRoleType } from "interfaces";
+import { User } from "@prisma/client";
 import Button from "./Button";
 import Card from "./Card";
 
@@ -25,7 +25,7 @@ const getInputPlayers = async (
 type Props = React.PropsWithChildren<{
   selectedPlayers: User[];
   setSelectedPlayers: React.Dispatch<React.SetStateAction<User[]>>;
-  role: string;
+  role: string | undefined;
 }>;
 
 const Combobox: React.FC<Props> = ({

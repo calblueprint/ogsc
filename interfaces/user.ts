@@ -61,6 +61,15 @@ export const UserRoleLabel: Record<UserRoleType, string> = {
   [UserRoleType.Donor]: "Donor",
 };
 
+// TODO: Use Prisma-generated types for this once prisma/prisma#3252 is resolved
+export const UserStatus = <const>{
+  Active: "Active",
+  Inactive: "Inactive",
+  PendingAdminApproval: "PendingAdminApproval",
+  PendingUserAcceptance: "PendingUserAcceptance",
+};
+export type UserStatus = typeof UserStatus[keyof typeof UserStatus];
+
 export enum ProfileFieldValue {
   Text = "text",
   URL = "url",
