@@ -1,5 +1,6 @@
 import { joiResolver } from "@hookform/resolvers/joi";
 import { User } from "@prisma/client";
+import { UserStatus } from "interfaces";
 import Button from "components/Button";
 import UserSignUpFormField from "components/UserSignUpFormField";
 import Joi from "lib/validate";
@@ -46,7 +47,7 @@ const UserAcceptInvitePageOne: React.FC = () => {
         const data = await response.json();
         if (!response.ok || !data.user) {
           router.push("/users/acceptInvite/error?type=noAccess");
-        } else if (data.acceptedAt) {
+        } else if (data.user.status !== UserStatus.PendingUserAcceptance) {
           router.push("/users/acceptInvite/error?type=expired");
         } else {
           setUser(data.user);

@@ -10,7 +10,12 @@ import {
 } from "@prisma/client";
 import Faker from "faker";
 import Ora from "ora";
-import { AbsenceReason, AbsenceType, UserRoleType } from "../interfaces";
+import {
+  AbsenceReason,
+  AbsenceType,
+  UserRoleType,
+  UserStatus,
+} from "../interfaces";
 import hashPassword from "../utils/hashPassword";
 
 const NUMBER_USERS = 10;
@@ -107,6 +112,7 @@ export default async function seedDatabase(): Promise<void> {
         email: "admin@ogsc.dev",
         phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
         hashedPassword: hashPassword("password"),
+        status: UserStatus.Active,
         roles: {
           create: {
             type: UserRoleType.Admin,
@@ -131,6 +137,7 @@ export default async function seedDatabase(): Promise<void> {
             hashedPassword: hashPassword("password"),
             name: `${Faker.name.firstName()} ${Faker.name.lastName()}`,
             phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
+            status: UserStatus.Active,
             roles: {
               create: {
                 type: UserRoleType.Player,
@@ -282,6 +289,7 @@ export default async function seedDatabase(): Promise<void> {
             hashedPassword: hashPassword("password"),
             name: `${Faker.name.firstName()} ${Faker.name.lastName()}`,
             phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
+            status: UserStatus.Active,
             roles: {
               create: {
                 type: UserRoleType.Mentor,
@@ -315,6 +323,7 @@ export default async function seedDatabase(): Promise<void> {
             hashedPassword: hashPassword("password"),
             name: `${Faker.name.firstName()} ${Faker.name.lastName()}`,
             phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
+            status: UserStatus.Active,
             roles: {
               create: {
                 type: UserRoleType.Parent,
@@ -348,6 +357,7 @@ export default async function seedDatabase(): Promise<void> {
             hashedPassword: hashPassword("password"),
             name: `${Faker.name.firstName()} ${Faker.name.lastName()}`,
             phoneNumber: Faker.phone.phoneNumber("(!##) !##-####"),
+            status: UserStatus.Active,
             roles: {
               create: {
                 type: UserRoleType.Donor,

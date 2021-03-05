@@ -1,5 +1,5 @@
 import { FindManyUserArgs, PrismaClient } from "@prisma/client";
-import { IUser, UserRoleType } from "interfaces";
+import { IUser, UserRoleType, UserStatus } from "interfaces";
 import { NextApiRequest, NextApiResponse } from "next";
 import flattenUserRoles from "utils/flattenUserRoles";
 import sanitizeUser from "utils/sanitizeUser";
@@ -19,7 +19,12 @@ export default async (
   const pageNumber: number = Number(req.query.pageNumber) || 0;
   const userRole = req.query.role as UserRoleType | undefined;
   const search = req.query.search as string | undefined;
-  const includeOnlyUnverified = req.query.unverified as string | undefined;
+  const includeOnlyAdminUnapproved = req.query.admin_unapproved as
+    | string
+    | undefined;
+  const includeOnlyUserUnaccepted = req.query.user_unaccepted as
+    | string
+    | undefined;
   try {
     const filterArgs: FindManyUserArgs = {
       where: {
@@ -40,9 +45,14 @@ export default async (
               },
             }
           : undefined),
-        ...(includeOnlyUnverified
+        ...(includeOnlyAdminUnapproved
           ? {
-              emailVerified: null,
+              status: UserStatus.PendingAdminApproval,
+            }
+          : undefined),
+        ...(includeOnlyUserUnaccepted
+          ? {
+              status: UserStatus.PendingUserAcceptance,
             }
           : undefined),
       },
