@@ -107,7 +107,11 @@ const Sidebar: React.FC = () => {
               {showHoverMenu && (
                 <div className="absolute ml-56 w-32 h-24 rounded-md shadow-lg bg-white border">
                   <div className="h-14 pt-3 pb-3 hover:bg-hover hover:font-semibold cursor-pointer">
-                    <Link href={`/admin/user/${session.user?.id}`}>
+                    <Link
+                      href={`/${UserRoleLabel[
+                        session.sessionType
+                      ].toLowerCase()}/${session.user?.id}`}
+                    >
                       <div>
                         <Icon type="person" className="inline ml-4" />
                         <p className="inline ml-2 text-sm">Profile</p>

@@ -129,60 +129,60 @@ model Role {
 }
 
 enum ProfileFieldKey {
-  AcademicEngagementScore @map("academic_engagement_score")
-  AdvisingScore @map("advising_score")
-  AthleticScore @map("athletic_score")
-  BioAboutMe @map("bio_about_me")
-  BioFavoriteSubject @map("bio_favorite_subject")
-  BioHobbies @map("bio_hobbies")
-  BioMostDifficultSubject @map("bio_most_difficult_subject")
-  BioParents @map("bio_parents")
-  BioSiblings @map("bio_siblings")
-  BMI @map("bmi")
-  DisciplinaryActions @map("disciplinary_actions")
-  GPA @map("gpa")
-  HealthAndWellness @map("health_and_wellness")
-  Highlights @map("highlights")
-  IntroVideo @map("intro_video")
-  MileTime @map("mile_time")
-  PacerTest @map("pacer_test")
-  PlayerNumber @map("player_number")
-  Pushups @map("pushups")
-  Situps @map("situps")
+  AcademicEngagementScore  @map("academic_engagement_score")
+  AdvisingScore            @map("advising_score")
+  AthleticScore            @map("athletic_score")
+  BioAboutMe               @map("bio_about_me")
+  BioFavoriteSubject       @map("bio_favorite_subject")
+  BioHobbies               @map("bio_hobbies")
+  BioMostDifficultSubject  @map("bio_most_difficult_subject")
+  BioParents               @map("bio_parents")
+  BioSiblings              @map("bio_siblings")
+  BMI                      @map("bmi")
+  DisciplinaryActions      @map("disciplinary_actions")
+  GPA                      @map("gpa")
+  HealthAndWellness        @map("health_and_wellness")
+  Highlights               @map("highlights")
+  IntroVideo               @map("intro_video")
+  MileTime                 @map("mile_time")
+  PacerTest                @map("pacer_test")
+  PlayerNumber             @map("player_number")
+  Pushups                  @map("pushups")
+  Situps                   @map("situps")
 
-   @@map("profile_field_key")
+  @@map("profile_field_key")
 }
 
 enum AbsenceReason {
-  Excused @map("excused")
-  Unexcused @map("unexcused")
+  Excused    @map("excused")
+  Unexcused  @map("unexcused")
 
-   @@map("absence_reason")
+  @@map("absence_reason")
 }
 
 enum AbsenceType {
-  Academic @map("academic")
-  Athletic @map("athletic")
-  School @map("school")
+  Academic  @map("academic")
+  Athletic  @map("athletic")
+  School    @map("school")
 
-   @@map("absence_type")
+  @@map("absence_type")
 }
 
 enum UserRoleType {
-  Admin @map("admin")
-  Donor @map("donor")
-  Mentor @map("mentor")
-  Parent @map("parent")
-  Player @map("player")
+  Admin   @map("admin")
+  Donor   @map("donor")
+  Mentor  @map("mentor")
+  Parent  @map("parent")
+  Player  @map("player")
 
-   @@map("user_role")
+  @@map("user_role")
 }
 
 enum UserStatus {
-  Active @map("active")
-  Inactive @map("inactive")
-  PendingAdminApproval @map("pending_admin_approval")
-  PendingUserAcceptance @map("pending_user_acceptance")
+  Active                 @map("active")
+  Inactive               @map("inactive")
+  PendingAdminApproval   @map("pending_admin_approval")
+  PendingUserAcceptance  @map("pending_user_acceptance")
 
-   @@map("user_status")
+  @@map("user_status")
 }
