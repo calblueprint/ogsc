@@ -1,7 +1,7 @@
 import Base from "db-migrate-base";
 
 /**
- * Creating the adminNotes column for the users table
+ * Creating the adminNote column for the users table
  */
 export async function up(
   db: Base,
@@ -9,7 +9,7 @@ export async function up(
 ): Promise<void> {
   db.addColumn(
     "users",
-    "adminNotes",
+    "adminNote",
     {
       type: "string",
     },
@@ -18,13 +18,13 @@ export async function up(
 }
 
 /**
- * deleting the adminNotes column for the users table
+ * deleting the adminNote column for the users table
  */
 export async function down(
   db: Base,
   callback: Base.CallbackFunction
 ): Promise<void> {
-  db.removeColumn("users", "adminNotes", callback);
+  db.removeColumn("users", "adminNote", callback);
 }
 
 // eslint-disable-next-line no-underscore-dangle

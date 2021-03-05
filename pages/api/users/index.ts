@@ -23,6 +23,7 @@ export type CreateUserDTO = {
   phoneNumber?: string;
   inviteCodeId?: string;
   role?: UserRoleType;
+  adminNote?: string;
 };
 
 export const CreateUserDTOValidator = Joi.object<CreateUserDTO>({
@@ -36,6 +37,7 @@ export const CreateUserDTOValidator = Joi.object<CreateUserDTO>({
   role: Joi.string()
     .valid(...Object.values(UserRoleType))
     .allow(null),
+  adminNote: Joi.string().allow(""),
 });
 
 /**
@@ -63,6 +65,7 @@ export const createAccount = async (
         email: user.email,
         phoneNumber: user.phoneNumber,
         hashedPassword: hash(user.password),
+        adminNote: user.adminNote,
         ...(user.role
           ? {
               roles: {
@@ -95,6 +98,7 @@ export const createAccount = async (
         email: user.email,
         phoneNumber: user.phoneNumber,
         hashedPassword: hash(user.password),
+        adminNote: user.adminNote,
         ...(user.role
           ? {
               roles: {
