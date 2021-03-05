@@ -206,7 +206,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
     });
 
     try {
-      const response = await fetch(`/api/admin/users/${user?.id}`, {
+      const response = await fetch(`/api/users/${user?.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -404,7 +404,7 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
 
   useEffect(() => {
     const getUser = async (): Promise<void> => {
-      const response = await fetch(`/api/admin/users/${id}`, {
+      const response = await fetch(`/api/users/${id}`, {
         method: "GET",
         headers: { "content-type": "application/json" },
         redirect: "follow",
@@ -431,9 +431,7 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
         </div>
         <hr className="border-unselected border-opacity-50 pb-10" />
         {UserRoleLabel[session.sessionType] === "Admin" ||
-        (user &&
-          UserRoleLabel[session.sessionType] ===
-            UserRoleLabel[user.defaultRole.type]) ? (
+        (user && session.user.id.toString() === id) ? (
           <div className="justify-end flex-row flex">
             <button
               type="button"
