@@ -17,6 +17,7 @@ model User {
   updatedAt      DateTime        @default(now()) @map("updated_at")
   hashedPassword String          @map("hashed_password")
   phoneNumber    String?         @map("phone_number")
+  adminNote      String?
   status         UserStatus
   absences       Absence[]       @relation("AbsencesToUsers")
   profileFields  ProfileField[]  @relation("ProfileFieldToUsers")
