@@ -60,7 +60,7 @@ const UserSignUpPageTwo: React.FC = () => {
           phoneNumber: state.userData.phoneNumber.toString(),
           password: state.userData.password,
           role: values.role,
-          adminNote: state.userData.adminNote,
+          adminNote: values.adminNote,
         } as CreateUserDTO),
       });
       if (!response.ok) {
