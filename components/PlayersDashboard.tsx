@@ -11,8 +11,10 @@ interface ReadManyPlayersDTO {
   total: number;
 }
 
-type SearchProps = {
+type PlayerDashboardProps = {
   phrase: string;
+  isFilterOn: boolean;
+  relatedPlayerIds: number[];
 };
 
 const PlayerDashboardItem: React.FunctionComponent<
@@ -73,36 +75,43 @@ const PlayerDashboardItem: React.FunctionComponent<
   );
 };
 
-const PlayerDashboard: React.FunctionComponent<SearchProps> = ({
+const PlayerDashboard: React.FunctionComponent<PlayerDashboardProps> = ({
   phrase,
-}: SearchProps) => {
+  isFilterOn,
+  relatedPlayerIds,
+}: PlayerDashboardProps) => {
   const [
     visibleData,
     numUIPages,
     currUIPage,
     setUIPage,
-  ] = usePagination<IPlayer>([phrase], async (pageNumber: number) => {
-    const response = await fetch(
-      `/api/players/search?pageNumber=${pageNumber}&phrase=${phrase}&role=Player`,
-      {
-        method: "GET",
-        headers: { "content-type": "application/json" },
-        redirect: "follow",
-      }
-    );
-    const data = (await response.json()) as ReadManyPlayersDTO;
-    return {
-      data: data.users,
-      count: data.total,
-    };
-  });
-
-  const session = useSessionInfo();
-  const relatedPlayerIds = (session.user.roles || [])
-    .map((role) => role.relatedPlayerId)
-    .filter(
-      (relatedPlayerId): relatedPlayerId is number => relatedPlayerId !== null
-    );
+  ] = usePagination<IPlayer>(
+    [phrase, isFilterOn],
+    async (pageNumber: number) => {
+      const response = isFilterOn
+        ? await fetch(
+            `/api/players/search?pageNumber=${pageNumber}&phrase=${phrase}&role=Player&relatedPlayerIds=${relatedPlayerIds}`,
+            {
+              method: "GET",
+              headers: { "content-type": "application/json" },
+              redirect: "follow",
+            }
+          )
+        : await fetch(
+            `/api/players/search?pageNumber=${pageNumber}&phrase=${phrase}&role=Player&relatedPlayerIds=${null}`,
+            {
+              method: "GET",
+              headers: { "content-type": "application/json" },
+              redirect: "follow",
+            }
+          );
+      const data = (await response.json()) as ReadManyPlayersDTO;
+      return {
+        data: data.users,
+        count: data.total,
+      };
+    }
+  );
 
   return (
     <div>
