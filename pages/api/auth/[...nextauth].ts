@@ -5,7 +5,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import hashPassword from "utils/hashPassword";
 import sanitizeUser from "utils/sanitizeUser";
 
-type AuthorizeDTO = {
+export type AuthorizeDTO = {
   email: string;
   password: string;
   inviteCode?: string;
@@ -38,6 +38,14 @@ const options = {
       },
     }),
   ],
+
+  pages: {
+    signIn: "/auth/signin",
+    signOut: "/auth/signout",
+    error: "/auth/error", // Error code passed in query string as ?error=
+    verifyRequest: "/auth/verify-request", // (used for check email message)
+    newUser: null, // If set, new users will be directed here on first sign in
+  },
 
   database: process.env.DATABASE_URL,
   session: {
