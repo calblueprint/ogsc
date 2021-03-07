@@ -8,8 +8,16 @@ import {
 import ProfileAccessDefinitionsByRole from "lib/access/definitions";
 import resolveAccessValue from "lib/access/resolve";
 
-const filterPlayerProfileRead = (player: IPlayer, user: IUser): IPlayer => {
-  if (!player.profile || user.defaultRole.type === UserRoleType.Admin) {
+const filterPlayerProfileRead = (
+  player: IPlayer,
+  user: IUser,
+  isLinked?: boolean
+): IPlayer => {
+  if (
+    !player.profile ||
+    user.defaultRole.type === UserRoleType.Admin ||
+    isLinked
+  ) {
     return player;
   }
 

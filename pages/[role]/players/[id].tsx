@@ -41,6 +41,23 @@ export async function getServerSideProps(
     // TODO: Set statusCode to 401
     return { props: {} };
   }
+
+  const sessionUser = await prisma.user.findOne({
+    where: { email: session.user.email },
+    include: {
+      roles: true,
+    },
+  });
+  if (!sessionUser) {
+    // TODO: Set statusCode to 401
+    return { props: {} };
+  }
+
+  const relatedPlayerIds = (sessionUser.roles || [])
+    .map((role) => role.relatedPlayerId)
+    .filter(
+      (relatedPlayerId): relatedPlayerId is number => relatedPlayerId !== null
+    );
   const authenticatedUser = await prisma.user.findOne({
     where: { email: session.user.email },
     include: { roles: true },
@@ -50,11 +67,14 @@ export async function getServerSideProps(
     return { props: {} };
   }
 
+  const isLinked = relatedPlayerIds.includes(user.id);
+
   return {
     props: {
       player: filterPlayerProfileRead(
         buildUserProfile(flattenUserRoles(sanitizeUser(user))),
-        flattenUserRoles(authenticatedUser)
+        flattenUserRoles(authenticatedUser),
+        isLinked
       ),
     },
   };
