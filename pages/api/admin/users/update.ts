@@ -82,6 +82,33 @@ const handler = async (
           userInvites: true,
         },
       });
+    } else if (roles && roles[0].type === "Player") {
+      user = await prisma.user.update({
+        where: { id: userInfo.id || Number(req.query.id) },
+        data: {
+          name: userInfo.name,
+          email: userInfo.email,
+          phoneNumber: userInfo.phoneNumber,
+          status: userInfo.status,
+          image: userInfo.image,
+          hashedPassword: userInfo.hashedPassword,
+          updatedAt: new Date(),
+          roles: {
+            deleteMany: {
+              type: {
+                not: undefined,
+              },
+            },
+            create: {
+              type: UserRoleType.Player,
+            },
+          },
+        },
+        include: {
+          roles: true,
+          userInvites: true,
+        },
+      });
     } else {
       user = await prisma.user.update({
         where: { id: userInfo.id || Number(req.query.id) },
