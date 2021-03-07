@@ -15,8 +15,9 @@ import { NextPageContext } from "next";
 import { PrismaClient, User } from "@prisma/client";
 import Combobox from "components/Combobox";
 import { ViewingPermissionDTO } from "pages/api/admin/roles/create";
+import useSessionInfo from "utils/useSessionInfo";
 
-interface AdminEditUserFormValues {
+interface EditUserFormValues {
   firstName: string;
   lastName: string;
   email: string;
@@ -98,7 +99,7 @@ const Modal: React.FC<ModalProps> = ({ children, open }: ModalProps) => {
   ) : null;
 };
 
-const AdminEditUserFormSchema = Joi.object<AdminEditUserFormValues>({
+const EditUserFormSchema = Joi.object<EditUserFormValues>({
   firstName: Joi.string().trim().required(),
   lastName: Joi.string().trim().required(),
   email: Joi.string()
@@ -173,8 +174,8 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
   const [selectedPlayers, setSelectedPlayers] = useState<User[]>(
     relatedPlayers || []
   );
-  const { errors, register, handleSubmit } = useForm<AdminEditUserFormValues>({
-    resolver: joiResolver(AdminEditUserFormSchema),
+  const { errors, register, handleSubmit } = useForm<EditUserFormValues>({
+    resolver: joiResolver(EditUserFormSchema),
   });
   const router = useRouter();
   const refreshData = (): void => {
@@ -186,7 +187,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
   }, [user]);
 
   async function onSubmit(
-    values: AdminEditUserFormValues,
+    values: EditUserFormValues,
     event?: React.BaseSyntheticEvent
   ): Promise<void> {
     event?.preventDefault();
@@ -205,7 +206,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
     });
 
     try {
-      const response = await fetch(`/api/admin/users/${user?.id}`, {
+      const response = await fetch(`/api/users/${user?.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -403,7 +404,7 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
 
   useEffect(() => {
     const getUser = async (): Promise<void> => {
-      const response = await fetch(`/api/admin/users/${id}`, {
+      const response = await fetch(`/api/users/${id}`, {
         method: "GET",
         headers: { "content-type": "application/json" },
         redirect: "follow",
@@ -413,6 +414,7 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
     };
     getUser();
   }, [id]);
+  const session = useSessionInfo();
   return (
     <DashboardLayout>
       <div className="mx-16 mb-24">
@@ -428,19 +430,26 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
           </div>
         </div>
         <hr className="border-unselected border-opacity-50 pb-10" />
-        <div className="justify-end flex-row flex">
-          <button
-            type="button"
-            className="py-3 px-5 rounded-full font-bold tracking-wide bg-button h-10 items-center text-sm flex-row flex"
-            onClick={() => {
-              setIsEditing(true);
-              setOriginalPlayers((relatedPlayers && [...relatedPlayers]) || []);
-            }}
-          >
-            <Icon type="edit" />
-            <p className="pl-2">Edit</p>
-          </button>
-        </div>
+        {UserRoleLabel[session.sessionType] === "Admin" ||
+        (user && session.user.id.toString() === id) ? (
+          <div className="justify-end flex-row flex">
+            <button
+              type="button"
+              className="py-3 px-5 rounded-full font-bold tracking-wide bg-button h-10 items-center text-sm flex-row flex"
+              onClick={() => {
+                setIsEditing(true);
+                setOriginalPlayers(
+                  (relatedPlayers && [...relatedPlayers]) || []
+                );
+              }}
+            >
+              <Icon type="edit" />
+              <p className="pl-2">Edit</p>
+            </button>
+          </div>
+        ) : (
+          []
+        )}
         <div>
           <div className="pb-16 pt-">
             <h2 className="text-lg pb-5">Basic Information</h2>
@@ -476,19 +485,26 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
               </div>
             </div>
           )}
-          <p className="text-lg font-semibold pb-10">Account Changes</p>
-          <p className="font-semibold text-sm pb-3">Close Account</p>
-          <p className="text-sm font-normal">
-            Delete this user&apos;s account and account data
-          </p>
-          <Button
-            className="button-primary mt-7 mb-52 mr-5 text-danger bg-danger-muted"
-            onClick={() => {
-              setIsDeleting(true);
-            }}
-          >
-            Close Account
-          </Button>
+          {UserRoleLabel[session.sessionType] === "Admin" ? (
+            <div>
+              {" "}
+              <p className="text-lg font-semibold pb-10">Account Changes</p>
+              <p className="font-semibold text-sm pb-3">Close Account</p>
+              <p className="text-sm font-normal">
+                Delete this user&apos;s account and account data
+              </p>
+              <Button
+                className="button-primary mt-7 mb-52 mr-5 text-danger bg-danger-muted"
+                onClick={() => {
+                  setIsDeleting(true);
+                }}
+              >
+                Close Account
+              </Button>
+            </div>
+          ) : (
+            []
+          )}
         </div>
         {DeleteConfirmation({
           user,
