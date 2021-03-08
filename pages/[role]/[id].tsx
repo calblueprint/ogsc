@@ -68,7 +68,6 @@ export async function getServerSideProps(
   }
 
   const relatedPlayerIds = user.roles
-    .filter((role) => role.type === "Mentor")
     .map((role) => role.relatedPlayerId)
     .filter(
       (relatedPlayerId): relatedPlayerId is number => relatedPlayerId !== null
@@ -466,9 +465,13 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
               <p>{user && UserRoleLabel[user.defaultRole.type]}</p>
             </div>
           </div>
-          {user?.defaultRole.type === "Mentor" && (
+          {user?.defaultRole.type === "Mentor" ||
+          user?.defaultRole.type === "Parent" ||
+          user?.defaultRole.type === "Donor" ? (
             <div className="pb-16">
-              <h2 className="text-lg pb-5">Mentor Information</h2>
+              <h2 className="text-lg pb-5">
+                {user && UserRoleLabel[user.defaultRole.type]} Information
+              </h2>
               <div className="flex flex-row text-sm">
                 <p className="text-blue mr-20 w-24">Linked Players</p>
                 <div className="flex flex-col">
@@ -484,7 +487,10 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
                 </div>
               </div>
             </div>
+          ) : (
+            []
           )}
+          ;
           {UserRoleLabel[session.sessionType] === "Admin" ? (
             <div>
               {" "}
