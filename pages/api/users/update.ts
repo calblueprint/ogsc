@@ -7,8 +7,7 @@ import flattenUserRoles from "utils/flattenUserRoles";
 import sanitizeUser from "utils/sanitizeUser";
 import { NotificationType } from "lib/notify/types";
 import Notifier from "lib/notify";
-import { adminOnlyHandler } from "../helpers";
-import { ViewingPermissionDTO } from "../roles/create";
+import { ViewingPermissionDTO } from "../admin/roles/create";
 
 const prisma = new PrismaClient();
 
@@ -74,33 +73,6 @@ const handler = async (
             },
             create: {
               type: UserRoleType.Admin,
-            },
-          },
-        },
-        include: {
-          roles: true,
-          userInvites: true,
-        },
-      });
-    } else if (roles && roles[0].type === "Player") {
-      user = await prisma.user.update({
-        where: { id: userInfo.id || Number(req.query.id) },
-        data: {
-          name: userInfo.name,
-          email: userInfo.email,
-          phoneNumber: userInfo.phoneNumber,
-          status: userInfo.status,
-          image: userInfo.image,
-          hashedPassword: userInfo.hashedPassword,
-          updatedAt: new Date(),
-          roles: {
-            deleteMany: {
-              type: {
-                not: undefined,
-              },
-            },
-            create: {
-              type: UserRoleType.Player,
             },
           },
         },
@@ -195,4 +167,4 @@ const handler = async (
   }
 };
 
-export default validateBody(adminOnlyHandler(handler), expectedBody);
+export default validateBody(handler, expectedBody);

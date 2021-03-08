@@ -11,7 +11,7 @@ const getInputPlayers = async (
   selectedPlayers: User[]
 ): Promise<User[]> => {
   try {
-    const apiLink = `/api/players/search?phrase=${inputValue}`;
+    const apiLink = `/api/players/search?phrase=${inputValue}&relatedPlayerIds=${null}`;
     const response = await fetch(apiLink);
     const data = await response.json();
     return data.users.filter(
