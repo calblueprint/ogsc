@@ -5,6 +5,7 @@ import {
   User,
   UserRoleType,
 } from "@prisma/client";
+import { IconType } from "components/Icon";
 
 export type PrivateUserFields = "hashedPassword";
 export type SanitizedUser = Omit<User, PrivateUserFields>;
@@ -56,6 +57,83 @@ export const ProfileFieldValues = <const>{
 };
 export type ProfileFieldValues = typeof ProfileFieldValues;
 
+export const ProfileFieldLabels = {
+  [ProfileFieldKey.BioAboutMe]: "About Me",
+  [ProfileFieldKey.BioHobbies]: "Hobbies",
+  [ProfileFieldKey.BioFavoriteSubject]: "Favorite Subject",
+  [ProfileFieldKey.BioMostDifficultSubject]: "Most Difficult Subject",
+  [ProfileFieldKey.BioSiblings]: "Siblings",
+  [ProfileFieldKey.BioParents]: "Parents",
+  [ProfileFieldKey.IntroVideo]: "Intro Video",
+  [ProfileFieldKey.PacerTest]: "Pacer Test",
+  [ProfileFieldKey.MileTime]: "1 Mile Time",
+  [ProfileFieldKey.Situps]: "Sit-Ups",
+  [ProfileFieldKey.Pushups]: "Push-Ups",
+  [ProfileFieldKey.AcademicEngagementScore]: "School Engagement",
+  [ProfileFieldKey.AdvisingScore]: "Academic Advising Engagement",
+  [ProfileFieldKey.AthleticScore]: "Athletics Engagement",
+  [ProfileFieldKey.GPA]: "Grade Point Average",
+} as const;
+
+export enum ProfileCategory {
+  Overview = "Overview",
+  Engagement = "Engagement",
+  AcademicPerformance = "Academics",
+  Attendance = "Attendance",
+  PhysicalWellness = "Physical Wellness",
+  Highlights = "Highlights",
+}
+
+export const ProfileCategoryIcons: Record<ProfileCategory, IconType> = {
+  [ProfileCategory.Overview]: "profile",
+  [ProfileCategory.Engagement]: "lightning",
+  [ProfileCategory.AcademicPerformance]: "book",
+  [ProfileCategory.Attendance]: "calendar",
+  [ProfileCategory.PhysicalWellness]: "shoe",
+  [ProfileCategory.Highlights]: "star",
+};
+
+/**
+ * Categorizes each profile field, for determining if a category should appear given a partial
+ * profile.
+ *
+ * Modifying this object will not update the display behavior of the profile field, those changes
+ * must be added to the `ProfileContents` component.
+ */
+export const ProfileFieldsByCategory: Record<
+  ProfileCategory,
+  ProfileFieldKey[]
+> = {
+  [ProfileCategory.Overview]: [
+    ProfileFieldKey.BioAboutMe,
+    ProfileFieldKey.BioHobbies,
+    ProfileFieldKey.BioFavoriteSubject,
+    ProfileFieldKey.BioMostDifficultSubject,
+    ProfileFieldKey.BioSiblings,
+    ProfileFieldKey.BioParents,
+    ProfileFieldKey.IntroVideo,
+  ],
+  [ProfileCategory.Engagement]: [
+    ProfileFieldKey.AcademicEngagementScore,
+    ProfileFieldKey.AdvisingScore,
+    ProfileFieldKey.AthleticScore,
+  ],
+  [ProfileCategory.AcademicPerformance]: [
+    ProfileFieldKey.GPA,
+    ProfileFieldKey.DisciplinaryActions,
+  ],
+  [ProfileCategory.Attendance]: [],
+  [ProfileCategory.PhysicalWellness]: [
+    ProfileFieldKey.Height,
+    ProfileFieldKey.PacerTest,
+    ProfileFieldKey.MileTime,
+    ProfileFieldKey.Situps,
+    ProfileFieldKey.Pushups,
+    ProfileFieldKey.HealthAndWellness,
+  ],
+  [ProfileCategory.Highlights]: [ProfileFieldKey.Highlights],
+};
+
 type WithComment = {
   /**
    * An optional description to provide context about the value or to add commentary.
@@ -85,6 +163,10 @@ export type PlayerProfile = {
   [K in ProfileFieldKey]: {
     key: K;
     current: ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]] | null;
+    /**
+     * In an editing context, `draft` will refer to the temporary value that the user has entered.
+     */
+    draft?: ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]];
     lastUpdated: Date | null;
     history: IProfileField<K>[];
   };
