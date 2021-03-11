@@ -51,18 +51,25 @@ const SignIn: React.FC<Props> = ({ csrfToken }: Props) => {
     try {
       // console.log(values.email);
       // console.log(values.password);
+      const body = new URLSearchParams(
+        `email=${values.email}&password=${values.password}`
+      );
       const response = await fetch("/api/auth/callback/credentials", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
         credentials: "include",
-        body: JSON.stringify({
-          email: values.email,
-          password: values.password,
-        } as AuthorizeDTO),
+        body,
+        // csrf token?
+        // body: JSON.stringify({
+        //   email: values.email,
+        //   password: values.password,
+        //   // csrf token?
+        // } as AuthorizeDTO),
       });
       if (!response.ok) {
         throw await response.json();
       } else {
+        debugger;
         router.push("/admin/players");
       }
     } catch (err) {
