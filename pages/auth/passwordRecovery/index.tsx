@@ -6,9 +6,7 @@ import Button from "components/Button";
 import { useRouter } from "next/router";
 import FormField from "components/FormField";
 import { NewPasswordUserDTO } from "pages/api/auth/reset-password";
-import { PrismaClient } from "@prisma/client";
-
-// const prisma = new PrismaClient();
+import { VerifyResetPasswordDTO } from "pages/api/auth/reset-password/verify";
 
 type PasswordRecoveryFormValues = {
   newPassword: string;
@@ -28,34 +26,28 @@ const PasswordRecovery: React.FC = () => {
   const [revealConfirmPassword, setRevealConfirmPassword] = useState(false);
   const resetCodeId = router.query.resetCode; // as string;
 
-  // useEffect(() => {
-  //   let mounted = true;
-  //   const getUser = async (): Promise<void> => {
-  //     if (mounted) {
-  //       // if (
-
-  //       // ) {
-  //       //   throw new Error("Invalid resetCodeId");
-  //       // }
-
-  //       const resetPasswordRecord = await prisma.resetPassword.findOne({
-  //         where: { id: resetCodeId },
-  //       });
-  //       if (
-  //         Joi.string().uuid({ version: "uuidv4" }).validate(resetCodeId)
-  //           .error ||
-  //         !resetPasswordRecord ||
-  //         resetPasswordRecord.isUsed
-  //       ) {
-  //         router.push("/users/acceptInvite/error?type=noAccess");
-  //       }
-  //     }
-  //     mounted = false;
-  //   };
-  //   if (resetCodeId) {
-  //     getUser();
-  //   }
-  // }, [resetCodeId, router]);
+  useEffect(() => {
+    let mounted = true;
+    const checkCode = async (): Promise<void> => {
+      if (mounted) {
+        const response = await fetch("/api/auth/reset-password/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            resetCodeId,
+          } as VerifyResetPasswordDTO),
+        });
+        if (!response.ok) {
+          router.push("/auth/passwordRecovery/error");
+        }
+      }
+      mounted = false;
+    };
+    if (resetCodeId) {
+      checkCode();
+    }
+  }, [resetCodeId, router]);
 
   const {
     errors,
