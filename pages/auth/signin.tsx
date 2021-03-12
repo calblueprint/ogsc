@@ -1,17 +1,12 @@
-import { csrfToken } from "next-auth/client";
+import { signIn } from "next-auth/client";
 import Joi from "lib/validate";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import FormField from "components/FormField";
-import { AuthorizeDTO } from "pages/api/auth/[...nextauth]";
-
-type Props = React.PropsWithChildren<{
-  csrfToken: Promise<string | null>;
-}>;
 
 type UserSignInFormValues = {
   email: string;
@@ -25,20 +20,24 @@ const UserSignInFormSchema = Joi.object<UserSignInFormValues>({
   password: Joi.forbidden().required(),
 });
 
-const SignIn: React.FC<Props> = ({ csrfToken }: Props) => {
+const SignIn: React.FC = () => {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [email, setEmail] = useState("");
   const [revealPassword, setRevealPassword] = useState(false);
   const { errors, register, handleSubmit } = useForm<UserSignInFormValues>({
     resolver: joiResolver(UserSignInFormSchema),
   });
 
-  // static async function getInitialProps(context: NextContext) {
-  //   return {
-  //     csrfToken: await csrfToken(context),
-  //   };
-  // }
+  useEffect(() => {
+    if (router.query.error) {
+      setError(router.query.error as string);
+    }
+    if (router.query.email) {
+      setEmail(router.query.email as string);
+    }
+  }, [router.query.error, router.query.email]);
 
   async function onSubmit(
     values: UserSignInFormValues,
@@ -49,29 +48,11 @@ const SignIn: React.FC<Props> = ({ csrfToken }: Props) => {
       return;
     }
     try {
-      // console.log(values.email);
-      // console.log(values.password);
-      const body = new URLSearchParams(
-        `email=${values.email}&password=${values.password}`
-      );
-      const response = await fetch("/api/auth/callback/credentials", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        credentials: "include",
-        body,
-        // csrf token?
-        // body: JSON.stringify({
-        //   email: values.email,
-        //   password: values.password,
-        //   // csrf token?
-        // } as AuthorizeDTO),
+      await signIn("credentials", {
+        email: values.email,
+        password: values.password,
+        callbackUrl: `${window.location.origin}/admin/players`,
       });
-      if (!response.ok) {
-        throw await response.json();
-      } else {
-        debugger;
-        router.push("/admin/players");
-      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -91,6 +72,7 @@ const SignIn: React.FC<Props> = ({ csrfToken }: Props) => {
               className="input input-full"
               name="email"
               ref={register}
+              defaultValue={email}
             />
           </FormField>
           <FormField
@@ -143,11 +125,5 @@ const SignIn: React.FC<Props> = ({ csrfToken }: Props) => {
     </div>
   );
 };
-
-// SignIn.getInitialProps = async (context: NextContext) => {
-//   return {
-//     csrfToken: await csrfToken(context),
-//   };
-// };
 
 export default SignIn;

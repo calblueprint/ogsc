@@ -27,14 +27,16 @@ const options = {
           where: { email: credentials.email },
         });
         if (!user) {
-          throw new Error("No account exists");
+          return Promise.reject(new Error("No account exists"));
         }
         // Verify that their password matches
         if (user.hashedPassword === hashPassword(credentials.password)) {
-          return sanitizeUser(user);
+          return Promise.resolve(sanitizeUser(user));
         }
         // Password mismatch
-        throw new Error("Invalid password");
+        return Promise.reject(
+          new Error(`${"Invalid password&email="}${credentials.email}`)
+        );
       },
     }),
   ],
@@ -42,9 +44,7 @@ const options = {
   pages: {
     signIn: "/auth/signin",
     signOut: "/auth/signout",
-    error: "/auth/error", // Error code passed in query string as ?error=
-    verifyRequest: "/auth/verify-request", // (used for check email message)
-    newUser: null, // If set, new users will be directed here on first sign in
+    error: "/auth/signin", // Error code passed in query string as ?error=
   },
 
   database: process.env.DATABASE_URL,
