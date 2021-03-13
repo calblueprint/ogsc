@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Icon from "components/Icon";
 import Button from "components/Button";
 import FormField from "components/FormField";
-import { IUser, UserRoleLabel, UserRoleType } from "interfaces";
+import { IUser, UserRoleLabel, UserRoleType, UserStatus } from "interfaces";
 import Joi from "lib/validate";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
@@ -397,10 +397,15 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
   const [user, setUser] = useState<IUser>();
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [newStatus, setNewStatus] = useState("");
+  const [error, setError] = useState("");
   const router = useRouter();
+  let statusButtonText;
+  const refreshData = (): void => {
+    router.replace(router.asPath);
+  };
   const { id } = router.query;
   const [originalPlayers, setOriginalPlayers] = useState<User[]>([]);
-
   useEffect(() => {
     const getUser = async (): Promise<void> => {
       const response = await fetch(`/api/admin/users/${id}`, {
@@ -408,11 +413,45 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
         headers: { "content-type": "application/json" },
         redirect: "follow",
       });
-      const data = await response.json();
-      setUser(data.user);
+      if (!response.ok) {
+        throw await response.json();
+      } else {
+        setUser((await response.json()).user);
+      }
     };
     getUser();
   }, [id]);
+
+  async function changeUserStatus(currentStatus?: string): Promise<void> {
+    if (currentStatus === UserStatus.Active) {
+      setNewStatus(UserStatus.Inactive);
+    } else {
+      setNewStatus(UserStatus.Active);
+    }
+    try {
+      const response = await fetch(`/api/admin/users/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          status: newStatus,
+        } as UpdateUserDTO),
+      });
+      if (!response.ok) {
+        throw await response.json();
+      } else {
+        setUser((await response.json()).user);
+        refreshData();
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+  if (user?.status === UserStatus.Active) {
+    statusButtonText = "Deactivate Account";
+  } else {
+    statusButtonText = "Activate Acconut";
+  }
   return (
     <DashboardLayout>
       <div className="mx-16 mb-24">
@@ -477,6 +516,16 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
             </div>
           )}
           <p className="text-lg font-semibold pb-10">Account Changes</p>
+          <Button
+            className="button-primary mt-7 mb-52 mr-5"
+            onClick={() => {
+              changeUserStatus(user?.status);
+            }}
+          >
+            {statusButtonText}
+          </Button>
+          {error && <p className="text-red-600 text-sm">{error}</p>}
+
           <p className="font-semibold text-sm pb-3">Close Account</p>
           <p className="text-sm font-normal">
             Delete this user&apos;s account and account data

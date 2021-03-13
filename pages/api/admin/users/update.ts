@@ -36,6 +36,7 @@ const expectedBody = Joi.object<UpdateUserDTO>({
   roles: Joi.array().items(Joi.string()),
   hashedPassword: Joi.string(),
   sendEmail: Joi.boolean(),
+  status: Joi.string(),
 });
 
 // NOTE: deletes all viewer permissions if changing role to Admin
@@ -53,7 +54,7 @@ const handler = async (
         userInfo.roles.map((role) =>
           JSON.parse((role as unknown) as string)
         )) ||
-      [];
+      undefined;
 
     if (roles && roles[0].type === "Admin") {
       user = await prisma.user.update({
