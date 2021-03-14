@@ -17,24 +17,6 @@ import Combobox from "components/Combobox";
 import { ViewingPermissionDTO } from "pages/api/admin/roles/create";
 import useSessionInfo from "utils/useSessionInfo";
 
-interface EditUserFormValues {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber?: string;
-  role: UserRoleType;
-  menteedPlayers: [User];
-}
-
-interface EditUserProps {
-  user?: IUser;
-  isEditing: boolean;
-  setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
-  setUser: (user: IUser) => void;
-  relatedPlayers?: User[];
-  originalPlayers: User[];
-}
-
 interface DeleteConfirmationProps {
   user?: IUser;
   isDeleting: boolean;
@@ -68,7 +50,12 @@ export async function getServerSideProps(
   }
 
   const relatedPlayerIds = user.roles
-    .filter((role) => role.type === "Mentor")
+    .filter(
+      (role) =>
+        role.type === "Mentor" ||
+        role.type === "Parent" ||
+        role.type === "Donor"
+    )
     .map((role) => role.relatedPlayerId)
     .filter(
       (relatedPlayerId): relatedPlayerId is number => relatedPlayerId !== null
@@ -98,21 +85,6 @@ const Modal: React.FC<ModalProps> = ({ children, open }: ModalProps) => {
     </div>
   ) : null;
 };
-
-const EditUserFormSchema = Joi.object<EditUserFormValues>({
-  firstName: Joi.string().trim().required(),
-  lastName: Joi.string().trim().required(),
-  email: Joi.string()
-    .trim()
-    .email({ tlds: { allow: false } })
-    .required(),
-  phoneNumber: Joi.string()
-    .phoneNumber({ defaultCountry: "US", format: "national", strict: true })
-    .optional(),
-  role: Joi.string()
-    .valid(...Object.values(UserRoleType))
-    .required(),
-});
 
 const DeleteConfirmation: React.FunctionComponent<DeleteConfirmationProps> = ({
   user,
@@ -160,34 +132,51 @@ const DeleteConfirmation: React.FunctionComponent<DeleteConfirmationProps> = ({
   );
 };
 
-const EditUser: React.FunctionComponent<EditUserProps> = ({
+interface BasicInfoFormValues {
+  email: string;
+  phoneNumber: string;
+  role: UserRoleType;
+}
+const BasicInfoFormSchema = Joi.object<BasicInfoFormValues>({
+  email: Joi.string()
+    .trim()
+    .email({ tlds: { allow: false } })
+    .required(),
+  phoneNumber: Joi.string()
+    .phoneNumber({ defaultCountry: "US", format: "national", strict: true })
+    .optional(),
+  role: Joi.string()
+    .valid(...Object.values(UserRoleType))
+    .required(),
+});
+
+interface BasicInfoProps {
+  user?: IUser;
+  setUser: (user: IUser) => void;
+  relatedPlayers?: User[];
+  canEdit?: boolean;
+}
+
+const BasicInfo: React.FunctionComponent<BasicInfoProps> = ({
   user,
-  isEditing,
-  setIsEditing,
   setUser,
   relatedPlayers,
-  originalPlayers,
+  canEdit,
 }) => {
+  const [isEditing, setIsEditing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [currRole, setCurrRole] = useState<UserRoleType>();
-  const [selectedPlayers, setSelectedPlayers] = useState<User[]>(
-    relatedPlayers || []
-  );
-  const { errors, register, handleSubmit } = useForm<EditUserFormValues>({
-    resolver: joiResolver(EditUserFormSchema),
+  const { errors, register, handleSubmit } = useForm<BasicInfoFormValues>({
+    resolver: joiResolver(BasicInfoFormSchema),
   });
-  const router = useRouter();
-  const refreshData = (): void => {
-    router.replace(router.asPath);
-  };
+  const [currRole, setCurrRole] = useState<UserRoleType>();
 
   useEffect(() => {
     setCurrRole(user?.defaultRole.type);
   }, [user]);
 
   async function onSubmit(
-    values: EditUserFormValues,
+    values: BasicInfoFormValues,
     event?: React.BaseSyntheticEvent
   ): Promise<void> {
     event?.preventDefault();
@@ -196,7 +185,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
     }
 
     const linkedPlayers: ViewingPermissionDTO[] = [];
-    selectedPlayers.forEach((role) => {
+    (relatedPlayers || []).forEach((role) => {
       const body = (JSON.stringify({
         type: currRole,
         userId: user?.id,
@@ -212,8 +201,242 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
         credentials: "include",
         body: JSON.stringify({
           email: values.email,
-          name: `${values.firstName} ${values.lastName}`,
           phoneNumber: values.phoneNumber,
+          roles: linkedPlayers,
+        } as UpdateUserDTO),
+      });
+      if (!response.ok) {
+        throw await response.json();
+      } else {
+        setUser((await response.json()).user);
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+      setIsEditing(false);
+    }
+  }
+
+  const router = useRouter();
+  const refreshData = (): void => {
+    router.replace(router.asPath);
+  };
+
+  return (
+    <div className="pb-16 grid grid-cols-2 justify-items-start w-4/6">
+      <div>
+        <div className="flex flex-row items-start">
+          <h2 className="text-lg mr-6 font-medium">Basic Information</h2>
+          {canEdit ? (
+            <button
+              type="button"
+              onClick={() => {
+                setIsEditing(true);
+                setCurrRole(user?.defaultRole.type);
+              }}
+            >
+              <Icon type="editCircle" />
+            </button>
+          ) : (
+            []
+          )}
+        </div>
+      </div>
+      {isEditing ? (
+        <div>
+          <form id="basic-info-form" onSubmit={handleSubmit(onSubmit)}>
+            <fieldset>
+              <FormField
+                label="Email Address"
+                name="email"
+                error={errors.email?.message}
+                mb={3}
+              >
+                {user?.email ? (
+                  <input
+                    type="text"
+                    className="input"
+                    name="email"
+                    defaultValue={user?.email}
+                    placeholder="e.g., soccer@fifa.com"
+                    ref={register}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    className="input"
+                    name="email"
+                    placeholder="e.g., soccer@fifa.com"
+                    ref={register}
+                  />
+                )}
+              </FormField>
+              <FormField
+                label="Phone Number"
+                name="phoneNumber"
+                error={errors.phoneNumber?.message}
+                mb={3}
+              >
+                {user?.phoneNumber ? (
+                  <input
+                    type="text"
+                    className="input"
+                    name="phoneNumber"
+                    defaultValue={user?.phoneNumber}
+                    placeholder="e.g., 123-456-7890"
+                    ref={register}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    className="input"
+                    name="phoneNumber"
+                    placeholder="e.g., 123-456-7890"
+                    ref={register}
+                  />
+                )}
+              </FormField>
+              <FormField
+                label="Role"
+                name="role"
+                error={errors.role?.message}
+                mb={3}
+              >
+                {Object.values(UserRoleType).map((role: UserRoleType) => (
+                  <label
+                    className="block font-normal"
+                    htmlFor={role}
+                    key={role}
+                  >
+                    <input
+                      className="mr-3"
+                      type="radio"
+                      name="role"
+                      id={role}
+                      defaultValue={role}
+                      onChange={() => setCurrRole(role)}
+                      checked={currRole === role}
+                      ref={register}
+                    />
+                    {UserRoleLabel[role]}
+                  </label>
+                ))}
+              </FormField>
+            </fieldset>
+
+            <div className="my-10">
+              <div className="mb-2 flex">
+                <Button
+                  className="button-primary px-10 py-2 mr-5"
+                  type="submit"
+                >
+                  Save
+                </Button>
+                <Button
+                  className="button-hollow px-10 py-2"
+                  onClick={() => {
+                    setIsEditing(false);
+                    refreshData();
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
+              {error && <p className="text-red-600 text-sm">{error}</p>}
+            </div>
+          </form>
+        </div>
+      ) : (
+        <div>
+          <div className="text-sm pb-6">
+            <p className="text-dark mr-20 font-semibold">Email Address</p>
+            <p className="font-normal">{user?.email}</p>
+          </div>
+          <div className="text-sm pb-6">
+            <p className="text-dark mr-20 font-semibold">Phone Number</p>
+            <p className="font-normal">{user?.phoneNumber}</p>
+          </div>
+          <div className="text-sm">
+            <p className="text-dark mr-20 font-semibold">User Role</p>
+            <p className="font-normal">
+              {user && UserRoleLabel[user.defaultRole.type]}
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+interface RoleInfoFormValues {
+  menteedPlayers: [User];
+}
+
+interface RoleInfoProps {
+  user?: IUser;
+  setUser: (user: IUser) => void;
+  relatedPlayers?: User[];
+  canEdit?: boolean;
+}
+
+const RoleInfo: React.FunctionComponent<RoleInfoProps> = ({
+  user,
+  setUser,
+  relatedPlayers,
+  canEdit,
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const { handleSubmit } = useForm<RoleInfoFormValues>();
+  const [currRole, setCurrRole] = useState<UserRoleType>();
+  const [selectedPlayers, setSelectedPlayers] = useState<User[]>(
+    relatedPlayers || []
+  );
+  const [originalPlayers, setOriginalPlayers] = useState<User[]>([]);
+
+  const router = useRouter();
+  const refreshData = (): void => {
+    router.replace(router.asPath);
+  };
+
+  console.log("default role");
+  console.log(user?.defaultRole);
+  useEffect(() => {
+    setCurrRole(user?.defaultRole.type);
+  }, [user]);
+
+  async function onSubmit(
+    values: RoleInfoFormValues,
+    event?: React.BaseSyntheticEvent
+  ): Promise<void> {
+    event?.preventDefault();
+    if (submitting) {
+      return;
+    }
+    console.log("PLSSS");
+
+    const linkedPlayers: ViewingPermissionDTO[] = [];
+    (relatedPlayers || []).forEach((role) => {
+      const body = (JSON.stringify({
+        type: currRole,
+        userId: user?.id,
+        relatedPlayerId: role.id,
+      }) as unknown) as ViewingPermissionDTO;
+      linkedPlayers.push(body);
+    });
+
+    console.log("helloooo");
+    console.log(linkedPlayers);
+
+    try {
+      const response = await fetch(`/api/users/${user?.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          id: user?.id,
           roles: linkedPlayers,
         } as UpdateUserDTO),
       });
@@ -232,163 +455,81 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
   }
 
   return (
-    <Modal open={Boolean(isEditing)}>
-      <div className="mx-16 mt-24">
-        <h1 className="text-3xl font-display font-medium mb-2">
-          Basic Information
-        </h1>
-        <form className="mt-10" onSubmit={handleSubmit(onSubmit)}>
-          <fieldset>
-            <FormField
-              label="First Name"
-              name="firstName"
-              error={errors.firstName?.message}
-            >
-              {user?.name ? (
-                <input
-                  type="text"
-                  className="input input-full"
-                  name="firstName"
-                  defaultValue={user?.name?.split(" ")[0]}
-                  placeholder="e.g., Cristiano"
-                  ref={register}
-                />
-              ) : (
-                <input
-                  type="text"
-                  className="input input-full"
-                  name="firstName"
-                  placeholder="e.g., Cristiano"
-                  ref={register}
-                />
-              )}
-            </FormField>
-            <FormField
-              label="Last Name"
-              name="lastName"
-              error={errors.lastName?.message}
-            >
-              {user?.name ? (
-                <input
-                  type="text"
-                  className="input input-full"
-                  name="lastName"
-                  defaultValue={
-                    user?.name?.split(" ").length === 1
-                      ? undefined
-                      : user?.name?.substr(user?.name?.indexOf(" ") + 1)
-                  }
-                  placeholder="e.g., Ronaldo"
-                  ref={register}
-                />
-              ) : (
-                <input
-                  type="text"
-                  className="input input-full"
-                  name="lastName"
-                  placeholder="e.g., Ronaldo"
-                  ref={register}
-                />
-              )}
-            </FormField>
-            <FormField
-              label="Email Address"
-              name="email"
-              error={errors.email?.message}
-            >
-              {user?.email ? (
-                <input
-                  type="text"
-                  className="input input-full"
-                  name="email"
-                  defaultValue={user?.email}
-                  placeholder="e.g., soccer@fifa.com"
-                  ref={register}
-                />
-              ) : (
-                <input
-                  type="text"
-                  className="input"
-                  name="email"
-                  placeholder="e.g., soccer@fifa.com"
-                  ref={register}
-                />
-              )}
-            </FormField>
-            <FormField
-              label="Phone Number"
-              name="phoneNumber"
-              error={errors.phoneNumber?.message}
-            >
-              {user?.phoneNumber ? (
-                <input
-                  type="text"
-                  className="input"
-                  name="phoneNumber"
-                  defaultValue={user?.phoneNumber}
-                  placeholder="e.g., 123-456-7890"
-                  ref={register}
-                />
-              ) : (
-                <input
-                  type="text"
-                  className="input"
-                  name="phoneNumber"
-                  placeholder="e.g., 123-456-7890"
-                  ref={register}
-                />
-              )}
-            </FormField>
-            <FormField label="Role" name="role" error={errors.role?.message}>
-              {Object.values(UserRoleType).map((role: UserRoleType) => (
-                <label className="block font-normal" htmlFor={role} key={role}>
-                  <input
-                    className="mr-3"
-                    type="radio"
-                    name="role"
-                    id={role}
-                    defaultValue={role}
-                    onChange={() => setCurrRole(role)}
-                    checked={currRole === role}
-                    ref={register}
-                  />
-                  {UserRoleLabel[role]}
-                </label>
-              ))}
-            </FormField>
-            <FormField
-              label="Linked Players"
-              name="linkedPlayers"
-              error="" // TODO: fix this
-            >
-              <Combobox
-                selectedPlayers={selectedPlayers}
-                setSelectedPlayers={setSelectedPlayers}
-                role={currRole}
-              />
-            </FormField>
-          </fieldset>
-          <hr />
-          <div className="my-10">
-            <div className="mb-2 flex">
-              <Button className="button-primary px-10 py-2 mr-5" type="submit">
-                Save
-              </Button>
-              <Button
-                className="button-hollow px-10 py-2"
-                onClick={() => {
-                  setIsEditing(false);
-                  setSelectedPlayers(originalPlayers);
-                }}
-              >
-                Cancel
-              </Button>
-            </div>
-            {error && <p className="text-red-600 text-sm">{error}</p>}
-          </div>
-        </form>
+    <div className="pb-16 grid grid-cols-2 justify-items-start w-4/6">
+      <div className="flex flex-row pb-5 items-start">
+        <h2 className="text-lg mr-6 font-medium">Role Information</h2>
+        {canEdit ? (
+          <button
+            type="button"
+            onClick={() => {
+              setIsEditing(true);
+              setOriginalPlayers((relatedPlayers && [...relatedPlayers]) || []);
+            }}
+          >
+            <Icon type="editCircle" />
+          </button>
+        ) : (
+          []
+        )}
       </div>
-    </Modal>
+      {isEditing ? (
+        <div>
+          <form id="basic-info-form" onSubmit={handleSubmit(onSubmit)}>
+            <fieldset>
+              <FormField
+                label="Linked Players"
+                name="linkedPlayers"
+                error="" // TODO: fix this
+              >
+                <Combobox
+                  selectedPlayers={selectedPlayers}
+                  setSelectedPlayers={setSelectedPlayers}
+                  role={currRole}
+                  promptOff
+                />
+              </FormField>
+            </fieldset>
+
+            <div className="my-10">
+              <div className="mb-2 flex">
+                <Button
+                  className="button-primary px-10 py-2 mr-5"
+                  type="submit"
+                >
+                  Save
+                </Button>
+                <Button
+                  className="button-hollow px-10 py-2"
+                  onClick={() => {
+                    setIsEditing(false);
+                    setSelectedPlayers(originalPlayers);
+                    // refreshData();
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
+              {error && <p className="text-red-600 text-sm">{error}</p>}
+            </div>
+          </form>
+        </div>
+      ) : (
+        <div className="text-sm pb-6">
+          <p className="text-dark mr-20 font-semibold">Linked Players</p>
+          <div className="flex flex-col">
+            {relatedPlayers?.map((player: User) => {
+              return (
+                <Link href={`/admin/players/${player.id}`}>
+                  <div className="underline cursor-pointer text-blue mb-2 font-normal">
+                    <p>{player.name}</p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -396,11 +537,9 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
   relatedPlayers,
 }) => {
   const [user, setUser] = useState<IUser>();
-  const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
   const { id } = router.query;
-  const [originalPlayers, setOriginalPlayers] = useState<User[]>([]);
 
   useEffect(() => {
     const getUser = async (): Promise<void> => {
@@ -415,6 +554,7 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
     getUser();
   }, [id]);
   const session = useSessionInfo();
+
   return (
     <DashboardLayout>
       <div className="mx-16 mb-24">
@@ -432,15 +572,7 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
               </p>
               {UserRoleLabel[session.sessionType] === "Admin" ||
               (user && session.user.id.toString() === id) ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsEditing(true);
-                    setOriginalPlayers(
-                      (relatedPlayers && [...relatedPlayers]) || []
-                    );
-                  }}
-                >
+                <button type="button">
                   <Icon type="editCircle" />
                 </button>
               ) : (
@@ -452,81 +584,31 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
         <hr className="border-unselected border-opacity-50 pb-16" />
         <p className="text-blue text-2xl font-medium pb-10">User Profile</p>
         <hr className="border-unselected border-opacity-50 pb-10" />
-        <div className="pb-16 grid grid-cols-2 justify-items-start w-4/6">
-          <div className="flex flex-row items-start">
-            <h2 className="text-lg mr-6 font-medium">Basic Information</h2>
-            {UserRoleLabel[session.sessionType] === "Admin" ||
-            (user && session.user.id.toString() === id) ? (
-              <button
-                type="button"
-                onClick={() => {
-                  setIsEditing(true);
-                  setOriginalPlayers(
-                    (relatedPlayers && [...relatedPlayers]) || []
-                  );
-                }}
-              >
-                <Icon type="editCircle" />
-              </button>
-            ) : (
-              []
-            )}
-          </div>
-          <div>
-            <div className="text-sm pb-6">
-              <p className="text-dark mr-20 font-semibold">Email Address</p>
-              <p className="font-normal">{user?.email}</p>
-            </div>
-            <div className="text-sm pb-6">
-              <p className="text-dark mr-20 font-semibold">Phone Number</p>
-              <p className="font-normal">{user?.phoneNumber}</p>
-            </div>
-            <div className="text-sm">
-              <p className="text-dark mr-20 font-semibold">User Role</p>
-              <p className="font-normal">
-                {user && UserRoleLabel[user.defaultRole.type]}
-              </p>
-            </div>
-          </div>
+        <div>
+          <BasicInfo
+            user={user}
+            setUser={setUser}
+            relatedPlayers={relatedPlayers || []}
+            canEdit={
+              UserRoleLabel[session.sessionType] === "Admin" ||
+              (user && session.user.id.toString() === id)
+            }
+          />
         </div>
-        <hr className="border-unselected border-opacity-50 pb-16" />
         {user?.defaultRole.type === "Mentor" ||
         user?.defaultRole.type === "Parent" ||
         user?.defaultRole.type === "Donor" ? (
-          <div className="pb-16 grid grid-cols-2 justify-items-start w-4/6">
-            <div className="flex flex-row pb-5 items-start">
-              <h2 className="text-lg mr-6 font-medium">Role Information</h2>
-              {UserRoleLabel[session.sessionType] === "Admin" ||
-              (user && session.user.id.toString() === id) ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsEditing(true);
-                    setOriginalPlayers(
-                      (relatedPlayers && [...relatedPlayers]) || []
-                    );
-                  }}
-                >
-                  <Icon type="editCircle" />
-                </button>
-              ) : (
-                []
-              )}
-            </div>
-            <div className="text-sm">
-              <p className="text-dark mr-20 font-semibold">Linked Players</p>
-              <div className="flex flex-col">
-                {relatedPlayers?.map((player: User) => {
-                  return (
-                    <Link href={`/admin/players/${player.id}`}>
-                      <div className="underline cursor-pointer text-blue mb-2 font-normal">
-                        <p>{player.name}</p>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
+          <div>
+            <hr className="border-unselected border-opacity-50 pb-16" />
+            <RoleInfo
+              user={user}
+              setUser={setUser}
+              relatedPlayers={relatedPlayers}
+              canEdit={
+                UserRoleLabel[session.sessionType] === "Admin" ||
+                (user && session.user.id.toString() === id)
+              }
+            />
           </div>
         ) : (
           []
@@ -536,25 +618,8 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
             <div>
               <hr className="border-unselected border-opacity-50 pb-10" />
               <div className="pb-16 grid grid-cols-2 justify-items-start w-4/6">
-                <div className="flex flex-row items-start">
-                  <p className="text-lg mr-6 font-medium">Account Changes</p>
-                  {UserRoleLabel[session.sessionType] === "Admin" ||
-                  (user && session.user.id.toString() === id) ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsEditing(true);
-                        setOriginalPlayers(
-                          (relatedPlayers && [...relatedPlayers]) || []
-                        );
-                      }}
-                    >
-                      <Icon type="editCircle" />
-                    </button>
-                  ) : (
-                    []
-                  )}
-                </div>
+                <p className="text-lg mr-6 font-medium">Account Changes</p>
+
                 <div>
                   <p className="font-semibold text-sm pb-3">Close Account</p>
                   <p className="text-sm font-normal">
@@ -581,14 +646,6 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
           setIsDeleting,
           router,
         })}
-        <EditUser
-          user={user}
-          isEditing={isEditing}
-          setIsEditing={setIsEditing}
-          setUser={setUser}
-          relatedPlayers={relatedPlayers}
-          originalPlayers={originalPlayers}
-        />
       </div>
     </DashboardLayout>
   );
