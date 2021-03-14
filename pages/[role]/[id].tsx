@@ -185,7 +185,7 @@ const BasicInfo: React.FunctionComponent<BasicInfoProps> = ({
     }
 
     const linkedPlayers: ViewingPermissionDTO[] = [];
-    (relatedPlayers || []).forEach((role) => {
+    (relatedPlayers || [])?.forEach((role) => {
       const body = (JSON.stringify({
         type: currRole,
         userId: user?.id,
@@ -193,6 +193,13 @@ const BasicInfo: React.FunctionComponent<BasicInfoProps> = ({
       }) as unknown) as ViewingPermissionDTO;
       linkedPlayers.push(body);
     });
+    if (linkedPlayers.length === 0) {
+      const body = (JSON.stringify({
+        type: currRole,
+        userId: user?.id,
+      }) as unknown) as ViewingPermissionDTO;
+      linkedPlayers.push(body);
+    }
 
     try {
       const response = await fetch(`/api/users/${user?.id}`, {
@@ -400,9 +407,6 @@ const RoleInfo: React.FunctionComponent<RoleInfoProps> = ({
   const refreshData = (): void => {
     router.replace(router.asPath);
   };
-
-  console.log("default role");
-  console.log(user?.defaultRole);
   useEffect(() => {
     setCurrRole(user?.defaultRole.type);
   }, [user]);
@@ -412,13 +416,12 @@ const RoleInfo: React.FunctionComponent<RoleInfoProps> = ({
     event?: React.BaseSyntheticEvent
   ): Promise<void> {
     event?.preventDefault();
-    if (submitting) {
+    if (values && submitting) {
       return;
     }
-    console.log("PLSSS");
 
     const linkedPlayers: ViewingPermissionDTO[] = [];
-    (relatedPlayers || []).forEach((role) => {
+    selectedPlayers.forEach((role) => {
       const body = (JSON.stringify({
         type: currRole,
         userId: user?.id,
@@ -426,9 +429,13 @@ const RoleInfo: React.FunctionComponent<RoleInfoProps> = ({
       }) as unknown) as ViewingPermissionDTO;
       linkedPlayers.push(body);
     });
-
-    console.log("helloooo");
-    console.log(linkedPlayers);
+    if (linkedPlayers.length === 0) {
+      const body = (JSON.stringify({
+        type: currRole,
+        userId: user?.id,
+      }) as unknown) as ViewingPermissionDTO;
+      linkedPlayers.push(body);
+    }
 
     try {
       const response = await fetch(`/api/users/${user?.id}`, {
@@ -503,7 +510,6 @@ const RoleInfo: React.FunctionComponent<RoleInfoProps> = ({
                   onClick={() => {
                     setIsEditing(false);
                     setSelectedPlayers(originalPlayers);
-                    // refreshData();
                   }}
                 >
                   Cancel
