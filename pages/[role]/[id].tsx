@@ -74,7 +74,7 @@ export async function getServerSideProps(
       (relatedPlayerId): relatedPlayerId is number => relatedPlayerId !== null
     );
 
-  const users = await prisma.user.findMany({
+  const relatedUsers = await prisma.user.findMany({
     where: {
       id: {
         in: relatedPlayerIds,
@@ -85,7 +85,7 @@ export async function getServerSideProps(
   return {
     props: {
       user,
-      relatedPlayers: users,
+      relatedPlayers: relatedUsers,
     },
   };
 }
@@ -419,88 +419,157 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
     <DashboardLayout>
       <div className="mx-16 mb-24">
         <div className="flex flex-row items-center pt-20 pb-12">
-          <div className="w-24 h-24 mr-4 bg-placeholder rounded-full">
-            {/* <img src={user?.image} alt="" />{" "} */}
-          </div>
+          <img
+            src={user?.image || "/placeholder-profile.png"}
+            alt=""
+            className="w-24 h-24 mr-12 bg-placeholder rounded-full"
+          />
           <div>
-            <p className="text-2xl">{user?.name}</p>
-            <p className="text-sm">
-              {user && UserRoleLabel[user.defaultRole.type]}
-            </p>
+            <p className="text-2xl font-semibold">{user?.name}</p>
+            <div className="flex flex-row items-center">
+              <p className="text-sm font-medium mr-4">
+                {user && UserRoleLabel[user.defaultRole.type]}
+              </p>
+              {UserRoleLabel[session.sessionType] === "Admin" ||
+              (user && session.user.id.toString() === id) ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsEditing(true);
+                    setOriginalPlayers(
+                      (relatedPlayers && [...relatedPlayers]) || []
+                    );
+                  }}
+                >
+                  <Icon type="editCircle" />
+                </button>
+              ) : (
+                []
+              )}
+            </div>
           </div>
         </div>
+        <hr className="border-unselected border-opacity-50 pb-16" />
+        <p className="text-blue text-2xl font-medium pb-10">User Profile</p>
         <hr className="border-unselected border-opacity-50 pb-10" />
-        {UserRoleLabel[session.sessionType] === "Admin" ||
-        (user && session.user.id.toString() === id) ? (
-          <div className="justify-end flex-row flex">
-            <button
-              type="button"
-              className="py-3 px-5 rounded-full font-bold tracking-wide bg-button h-10 items-center text-sm flex-row flex"
-              onClick={() => {
-                setIsEditing(true);
-                setOriginalPlayers(
-                  (relatedPlayers && [...relatedPlayers]) || []
-                );
-              }}
-            >
-              <Icon type="edit" />
-              <p className="pl-2">Edit</p>
-            </button>
+        <div className="pb-16 grid grid-cols-2 justify-items-start w-4/6">
+          <div className="flex flex-row items-start">
+            <h2 className="text-lg mr-6 font-medium">Basic Information</h2>
+            {UserRoleLabel[session.sessionType] === "Admin" ||
+            (user && session.user.id.toString() === id) ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setIsEditing(true);
+                  setOriginalPlayers(
+                    (relatedPlayers && [...relatedPlayers]) || []
+                  );
+                }}
+              >
+                <Icon type="editCircle" />
+              </button>
+            ) : (
+              []
+            )}
+          </div>
+          <div>
+            <div className="text-sm pb-6">
+              <p className="text-dark mr-20 font-semibold">Email Address</p>
+              <p className="font-normal">{user?.email}</p>
+            </div>
+            <div className="text-sm pb-6">
+              <p className="text-dark mr-20 font-semibold">Phone Number</p>
+              <p className="font-normal">{user?.phoneNumber}</p>
+            </div>
+            <div className="text-sm">
+              <p className="text-dark mr-20 font-semibold">User Role</p>
+              <p className="font-normal">
+                {user && UserRoleLabel[user.defaultRole.type]}
+              </p>
+            </div>
+          </div>
+        </div>
+        <hr className="border-unselected border-opacity-50 pb-16" />
+        {user?.defaultRole.type === "Mentor" ||
+        user?.defaultRole.type === "Parent" ||
+        user?.defaultRole.type === "Donor" ? (
+          <div className="pb-16 grid grid-cols-2 justify-items-start w-4/6">
+            <div className="flex flex-row pb-5 items-start">
+              <h2 className="text-lg mr-6 font-medium">Role Information</h2>
+              {UserRoleLabel[session.sessionType] === "Admin" ||
+              (user && session.user.id.toString() === id) ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsEditing(true);
+                    setOriginalPlayers(
+                      (relatedPlayers && [...relatedPlayers]) || []
+                    );
+                  }}
+                >
+                  <Icon type="editCircle" />
+                </button>
+              ) : (
+                []
+              )}
+            </div>
+            <div className="text-sm">
+              <p className="text-dark mr-20 font-semibold">Linked Players</p>
+              <div className="flex flex-col">
+                {relatedPlayers?.map((player: User) => {
+                  return (
+                    <Link href={`/admin/players/${player.id}`}>
+                      <div className="underline cursor-pointer text-blue mb-2 font-normal">
+                        <p>{player.name}</p>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         ) : (
           []
         )}
         <div>
-          <div className="pb-16 pt-">
-            <h2 className="text-lg pb-5">Basic Information</h2>
-            <div className="flex flex-row text-sm pb-6">
-              <p className="text-blue mr-20 w-24">Email Address</p>
-              <p>{user?.email}</p>
-            </div>
-            <div className="flex flex-row text-sm pb-6">
-              <p className="text-blue mr-20 w-24">Phone Number</p>
-              <p>{user?.phoneNumber}</p>
-            </div>
-            <div className="flex flex-row text-sm">
-              <p className="text-blue mr-20 w-24">User Role</p>
-              <p>{user && UserRoleLabel[user.defaultRole.type]}</p>
-            </div>
-          </div>
-          {user?.defaultRole.type === "Mentor" && (
-            <div className="pb-16">
-              <h2 className="text-lg pb-5">Mentor Information</h2>
-              <div className="flex flex-row text-sm">
-                <p className="text-blue mr-20 w-24">Linked Players</p>
-                <div className="flex flex-col">
-                  {relatedPlayers?.map((player: User) => {
-                    return (
-                      <Link href={`/admin/players/${player.id}`}>
-                        <div className="underline cursor-pointer text-blue mb-2">
-                          <p>{player.name}</p>
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          )}
           {UserRoleLabel[session.sessionType] === "Admin" ? (
             <div>
-              {" "}
-              <p className="text-lg font-semibold pb-10">Account Changes</p>
-              <p className="font-semibold text-sm pb-3">Close Account</p>
-              <p className="text-sm font-normal">
-                Delete this user&apos;s account and account data
-              </p>
-              <Button
-                className="button-primary mt-7 mb-52 mr-5 text-danger bg-danger-muted"
-                onClick={() => {
-                  setIsDeleting(true);
-                }}
-              >
-                Close Account
-              </Button>
+              <hr className="border-unselected border-opacity-50 pb-10" />
+              <div className="pb-16 grid grid-cols-2 justify-items-start w-4/6">
+                <div className="flex flex-row items-start">
+                  <p className="text-lg mr-6 font-medium">Account Changes</p>
+                  {UserRoleLabel[session.sessionType] === "Admin" ||
+                  (user && session.user.id.toString() === id) ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsEditing(true);
+                        setOriginalPlayers(
+                          (relatedPlayers && [...relatedPlayers]) || []
+                        );
+                      }}
+                    >
+                      <Icon type="editCircle" />
+                    </button>
+                  ) : (
+                    []
+                  )}
+                </div>
+                <div>
+                  <p className="font-semibold text-sm pb-3">Close Account</p>
+                  <p className="text-sm font-normal">
+                    Delete this user&apos;s account and account data
+                  </p>
+                  <Button
+                    className="button-primary mt-7 mb-52 mr-5 text-danger bg-danger-muted"
+                    onClick={() => {
+                      setIsDeleting(true);
+                    }}
+                  >
+                    Close Account
+                  </Button>
+                </div>
+              </div>
             </div>
           ) : (
             []
