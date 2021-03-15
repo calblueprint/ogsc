@@ -45,14 +45,14 @@ const PendingInvitesItem: React.FunctionComponent<PendingInvites> = ({
               <p className="self-center font-normal">{phoneNumber}</p>
             </div>
             <div>
-              {createdAt.localeCompare(updatedAt) === 0 ? (
+              {createdAt
+                .substring(0, 19)
+                .localeCompare(updatedAt.substring(0, 19)) === 0 ? (
                 <p className="self-center font-normal">
-                  {" "}
-                  Created {new Date(createdAt).toLocaleDateString()}{" "}
+                  Created {new Date(createdAt).toLocaleDateString()}
                 </p>
               ) : (
                 <p className="self-center font-normal">
-                  {" "}
                   Modified {new Date(updatedAt).toLocaleDateString()}
                 </p>
               )}
@@ -97,7 +97,7 @@ const PendingInvitesTable: React.FunctionComponent = () => {
         <p>Name</p>
         <p>Email</p>
         <p>Phone</p>
-        <p>Date Created/ Modified</p>
+        <p>Date Created/Modified</p>
         <hr className="border-unselected border-opacity-50" />
       </div>
       {users?.map((user) => (

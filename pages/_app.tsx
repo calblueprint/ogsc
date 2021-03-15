@@ -6,9 +6,11 @@ import {
 import { createStore, StateMachineProvider } from "little-state-machine";
 import { useSession } from "next-auth/client";
 import type { AppProps } from "next/app";
-import { useRouter } from "next/router";
+import { useRouter, Router } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
 import "../styles/globals.css";
+import NProgress from "nprogress"; // nprogress module
+import "nprogress/nprogress.css"; // styles of nprogress
 
 export const AuthContext = React.createContext<AuthenticatedSessionInfo | null>(
   null
@@ -25,6 +27,9 @@ function chooseDefaultRoleType(user: SessionInfo["user"]): UserRoleType {
 const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
   const [session, loadingSession] = useSession();
   const router = useRouter();
+  Router.events.on("routeChangeStart", () => NProgress.start());
+  Router.events.on("routeChangeComplete", () => NProgress.done());
+  Router.events.on("routeChangeError", () => NProgress.done());
   const [user, setUser] = useState<SessionInfo["user"] | null>(null);
   const accessingAuthenticatedRoute =
     router.asPath.match(
