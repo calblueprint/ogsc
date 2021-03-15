@@ -39,7 +39,6 @@ const PasswordRecovery: React.FC = () => {
           } as VerifyResetPasswordDTO),
         });
         if (!response.ok) {
-          console.log(response);
           router.push("/auth/passwordRecovery/error");
         }
       }
