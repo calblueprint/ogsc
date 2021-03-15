@@ -610,10 +610,7 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
               user={user}
               setUser={setUser}
               relatedPlayers={relatedPlayers}
-              canEdit={
-                UserRoleLabel[session.sessionType] === "Admin" ||
-                (user && session.user.id.toString() === id)
-              }
+              canEdit={UserRoleLabel[session.sessionType] === "Admin"}
             />
           </div>
         ) : (
