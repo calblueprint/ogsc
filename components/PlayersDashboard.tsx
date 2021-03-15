@@ -2,6 +2,7 @@ import Link from "next/link";
 import useSessionInfo from "utils/useSessionInfo";
 import PageNav from "components/PageNav";
 import { IPlayer } from "interfaces";
+import { deserializeProfileFieldValue } from "utils/buildUserProfile";
 import usePagination from "./pagination";
 
 interface ReadManyPlayersDTO {
@@ -34,7 +35,7 @@ const PlayerDashboardItem: React.FunctionComponent<IPlayer> = ({
             <p className="font-semibold self-center">{name}</p>
           </div>
           <p className="self-center font-normal">
-            {profile?.YearOfBirth?.current}
+            {deserializeProfileFieldValue(profile?.YearOfBirth?.current)}
           </p>
         </div>
         <hr className="border-unselected border-opacity-0" />

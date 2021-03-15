@@ -3,17 +3,18 @@ import { IPlayer, IUser } from "interfaces";
 import ProfileAccessDefinitionsByRole from "lib/access/definitions";
 import resolveAccessValue from "lib/access/resolve";
 
-const filterPlayerProfileWrite = (
+const filterPlayerProfileWrite = <
+  T extends Prisma.ProfileFieldCreateWithoutUserInput
+>(
   player: IPlayer,
   user: IUser,
-  profileFields: Prisma.ProfileFieldUpdateManyWithoutUserInput
-): Prisma.ProfileFieldUpdateManyWithoutUserInput => {
-  const filteredProfileFields: Prisma.ProfileFieldUpdateManyWithoutUserInput = {};
-  if (profileFields.create) {
-    filteredProfileFields.create = (Array.isArray(profileFields.create)
-      ? profileFields.create
-      : [profileFields.create]
-    ).filter((fieldCreate: Prisma.ProfileFieldCreateWithoutUserInput) => {
+  profileFields: T[]
+): T[] => {
+  if (user.defaultRole.type === UserRoleType.Admin) {
+    return profileFields;
+  }
+  return profileFields.filter(
+    (fieldCreate: Prisma.ProfileFieldCreateWithoutUserInput) => {
       const accessValue =
         ProfileAccessDefinitionsByRole[
           user.defaultRole.type as Exclude<UserRoleType, "Admin">
@@ -22,9 +23,8 @@ const filterPlayerProfileWrite = (
         return false;
       }
       return resolveAccessValue(accessValue, "write", player, user);
-    });
-  }
-  return filteredProfileFields;
+    }
+  );
 };
 
 export default filterPlayerProfileWrite;

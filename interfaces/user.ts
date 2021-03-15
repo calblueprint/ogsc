@@ -6,6 +6,7 @@ import {
   UserRoleType,
 } from "@prisma/client";
 import { IconType } from "components/Icon";
+import { Duration } from "dayjs/plugin/duration";
 
 export type PrivateUserFields = "hashedPassword";
 export type SanitizedUser = Omit<User, PrivateUserFields>;
@@ -73,6 +74,8 @@ export const ProfileFieldLabels = {
   [ProfileFieldKey.AdvisingScore]: "Academic Advising Engagement",
   [ProfileFieldKey.AthleticScore]: "Athletics Engagement",
   [ProfileFieldKey.GPA]: "Grade Point Average",
+  [ProfileFieldKey.DisciplinaryActions]: "Disciplinary Actions",
+  [ProfileFieldKey.HealthAndWellness]: "Comments",
 } as const;
 
 export enum ProfileCategory {
@@ -148,8 +151,8 @@ export type ProfileFieldValueDeserializedTypes = {
   [ProfileFieldValue.IntegerWithComment]: WithComment & { value: number };
   [ProfileFieldValue.Float]: number;
   [ProfileFieldValue.FloatWithComment]: WithComment & { value: number };
-  [ProfileFieldValue.TimeElapsed]: string;
-  [ProfileFieldValue.DistanceMeasured]: number;
+  [ProfileFieldValue.TimeElapsed]: Duration;
+  [ProfileFieldValue.DistanceMeasured]: { feet: number; inches: number };
 };
 
 export type IProfileField<K extends ProfileFieldKey> = Omit<
@@ -159,18 +162,29 @@ export type IProfileField<K extends ProfileFieldKey> = Omit<
   key: K;
 };
 
-export type PlayerProfile = {
-  [K in ProfileFieldKey]: {
-    key: K;
-    current: ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]] | null;
-    /**
-     * In an editing context, `draft` will refer to the temporary value that the user has entered.
-     */
-    draft?: ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]];
-    lastUpdated: Date | null;
-    history: IProfileField<K>[];
-  };
+export type IProfileFieldBuilt<K extends ProfileFieldKey> = {
+  key: K;
+  current?: IProfileField<K>;
+  /**
+   * In an editing context, `draft` will refer to the temporary value that the user has entered.
+   */
+  draft?: ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]];
+  lastUpdated: Date | null;
+  history: IProfileField<K>[];
 };
+
+export type PlayerProfile = {
+  [K in ProfileFieldKey]: IProfileFieldBuilt<K>;
+};
+
+export type ProfileFieldKeysOfProfileValueType<
+  T extends ProfileFieldValue
+> = Exclude<
+  {
+    [K in ProfileFieldKey]: ProfileFieldValues[K] extends T ? K : never;
+  }[ProfileFieldKey],
+  never
+>;
 
 export type DefaultRole = {
   type: UserRoleType;
