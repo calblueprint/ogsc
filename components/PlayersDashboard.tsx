@@ -4,6 +4,7 @@ import PageNav from "components/PageNav";
 import { IPlayer, UserRoleLabel } from "interfaces";
 import Icon from "components/Icon";
 import { useState } from "react";
+import { deserializeProfileFieldValue } from "utils/buildUserProfile";
 import usePagination from "./pagination";
 
 interface ReadManyPlayersDTO {
@@ -37,7 +38,7 @@ const PlayerDashboardItem: React.FunctionComponent<
             <p className="font-semibold self-center">{name}</p>
           </div>
           <p className="self-center font-normal">
-            {profile?.YearOfBirth?.current}
+            {deserializeProfileFieldValue(profile?.YearOfBirth?.current)}
           </p>
           <div className="flex flex-row">
             <p className="self-center font-normal mr-56">

@@ -128,13 +128,13 @@ const handler = async (
     const updatedUser = await prisma.user.update({
       where: { id: playerId },
       data: {
-        profileFields: filterPlayerProfileWrite(
-          player,
-          flattenUserRoles(authenticatedUser),
-          {
-            create: newProfileFields,
-          }
-        ),
+        profileFields: {
+          create: filterPlayerProfileWrite(
+            player,
+            flattenUserRoles(authenticatedUser),
+            newProfileFields
+          ),
+        },
       },
     });
     res.json({

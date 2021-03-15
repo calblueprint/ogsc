@@ -24,7 +24,8 @@ type ProfileAction =
       value: ProfileFieldValueDeserializedTypes[ProfileFieldValue];
     }
   | { type: "OPEN_EDIT_SECTION"; section: string }
-  | { type: "CLOSE_EDIT_SECTION"; section: string };
+  | { type: "CLOSE_EDIT_SECTION"; section: string }
+  | { type: "SAVE_SECTION"; section: string; updatedPlayer: IPlayer };
 
 const initialProfileState: ProfileState = {
   player: null,
@@ -95,6 +96,19 @@ export const useProfileContext = (): [
         case "CLOSE_EDIT_SECTION":
           return {
             ...state,
+            editingState: {
+              ...state.editingState,
+              sections: {
+                ...state.editingState.sections,
+                [action.section]: { editing: false },
+              },
+            },
+          };
+
+        case "SAVE_SECTION":
+          return {
+            ...state,
+            player: action.updatedPlayer,
             editingState: {
               ...state.editingState,
               sections: {

@@ -14,24 +14,27 @@ declare module "joi" {
   }
 }
 
+/**
+ * Contains a map of ProfileFieldValues to runtime validators for _serialized_ values.
+ */
 export const ProfileFieldValueValidators: Record<
   ProfileFieldValue,
   Joi.Schema
 > = {
-  [ProfileFieldValue.Text]: Joi.string(),
-  [ProfileFieldValue.URL]: Joi.string().uri(),
-  [ProfileFieldValue.Integer]: Joi.number().integer(),
+  [ProfileFieldValue.Text]: Joi.string().required(),
+  [ProfileFieldValue.URL]: Joi.string().uri().required(),
+  [ProfileFieldValue.Integer]: Joi.number().integer().required(),
   [ProfileFieldValue.IntegerWithComment]: Joi.object({
     comment: Joi.string(),
     value: Joi.number().integer().required(),
-  }),
-  [ProfileFieldValue.Float]: Joi.number(),
+  }).required(),
+  [ProfileFieldValue.Float]: Joi.number().required(),
   [ProfileFieldValue.FloatWithComment]: Joi.object({
     comment: Joi.string(),
     value: Joi.number().required(),
-  }),
-  [ProfileFieldValue.TimeElapsed]: Joi.string().isoDuration(),
-  [ProfileFieldValue.DistanceMeasured]: Joi.number(),
+  }).required(),
+  [ProfileFieldValue.TimeElapsed]: Joi.string().isoDuration().required(),
+  [ProfileFieldValue.DistanceMeasured]: Joi.number().required(),
 };
 
 export default Joi.extend(JoiPhoneNumber as ExtensionFactory) as typeof Joi;

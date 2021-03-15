@@ -10,6 +10,7 @@ import {
   UserRoleType,
   UserStatus,
 } from "@prisma/client";
+import dayjs from "lib/day";
 import Faker from "faker";
 import Ora from "ora";
 import hashPassword from "../utils/hashPassword";
@@ -251,13 +252,15 @@ export default async function seedDatabase(): Promise<void> {
                 ...generateFieldsAcrossTimestamps(
                   ProfileFieldKey.MileTime,
                   () =>
-                    `${Faker.random.number({
-                      min: 4,
-                      max: 8,
-                    })}:${String(Faker.random.number({ max: 59 })).padStart(
-                      2,
-                      "0"
-                    )}`
+                    dayjs
+                      .duration({
+                        minutes: Faker.random.number({
+                          min: 4,
+                          max: 8,
+                        }),
+                        seconds: Faker.random.number({ max: 59 }),
+                      })
+                      .toISOString()
                 ),
                 ...generateFieldsAcrossTimestamps(
                   ProfileFieldKey.PacerTest,

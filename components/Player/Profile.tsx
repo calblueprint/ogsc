@@ -5,18 +5,13 @@ import {
   IPlayer,
   ProfileCategory,
   ProfileCategoryIcons,
-  ProfileFieldLabels,
   ProfileFieldsByCategory,
   UserRoleLabel,
 } from "interfaces";
-import updateActionPlayer from "utils/updateActionPlayer";
 import useSessionInfo from "utils/useSessionInfo";
-import { useStateMachine } from "little-state-machine";
 import Button from "components/Button";
 import Modal from "components/Modal";
 import AbsenceTable from "./AbsenceTable";
-import EditLayout from "./EditLayout";
-import BioEdit from "./BioEdit";
 import AddScore from "./AddScore";
 import AddGPA from "./AddGPA";
 import ProfileFieldCell from "./ProfileFieldCell";
@@ -33,11 +28,8 @@ const ProfileContents = <T extends ProfileCategory>({
   const {
     state: { player },
   } = useContext(ProfileContext);
-  const [schoolScoreState, setSchoolScoreState] = useState(false);
-  const [bmiState, setBMIState] = useState(false);
   const [addScoreState, setAddScoreState] = useState(false);
   const [scoreCategory, setScoreCategory] = useState("");
-  const { action } = useStateMachine(updateActionPlayer);
   const session = useSessionInfo();
 
   switch (category) {
@@ -153,85 +145,19 @@ const ProfileContents = <T extends ProfileCategory>({
         <div>
           <h1 className="mb-10 text-2xl font-semibold">Physical Wellness</h1>
           <hr className="mb-10" />
-          <div className="grid grid-cols-3">
-            <div className="mb-6 text-lg font-semibold">
-              Body Mass Index
-              {UserRoleLabel[session.sessionType] === "Admin" ? (
-                <button
-                  type="button"
-                  onClick={() => setBMIState(true)}
-                  className="pl-4"
-                >
-                  <Icon type="edit" />
-                </button>
-              ) : (
-                []
-              )}
-            </div>
-            <div className="col-span-2">
-              {bmiState ? (
-                <BioEdit editState={setBMIState} playerID={player?.id}>
-                  <EditLayout
-                    title={ProfileFieldKey.BMI}
-                    currentText={player?.profile?.BMI?.current?.toString()}
-                    setState={(input) => action({ BMI: input })}
-                  />
-                </BioEdit>
-              ) : (
-                <ProfileFieldCell fieldKey={ProfileFieldKey.BMI} />
-              )}
-            </div>
-          </div>
+          <ProfileSection sectionName="Height">
+            <ProfileFieldCell fieldKey={ProfileFieldKey.Height} />
+          </ProfileSection>
           <hr className="mt-4" />
-          <div className="mt-16 grid grid-cols-3">
-            <div className="mb-6 text-lg font-semibold">
-              Fitness Testing
-              {UserRoleLabel[session.sessionType] === "Admin" ? (
-                <button
-                  type="button"
-                  onClick={() => setSchoolScoreState(true)}
-                  className="pl-4"
-                >
-                  <Icon type="edit" />
-                </button>
-              ) : (
-                []
-              )}
-            </div>
-            <div className="col-span-2">
-              {schoolScoreState ? (
-                <BioEdit editState={setSchoolScoreState} playerID={player?.id}>
-                  <EditLayout
-                    title={ProfileFieldLabels[ProfileFieldKey.PacerTest]}
-                    currentText={player?.profile?.PacerTest?.current?.toString()}
-                    setState={(input) => action({ PacerTest: input })}
-                  />
-                  <EditLayout
-                    title={ProfileFieldLabels[ProfileFieldKey.MileTime]}
-                    currentText={player?.profile?.MileTime?.current}
-                    setState={(input) => action({ MileTime: input })}
-                  />
-                  <EditLayout
-                    title={ProfileFieldLabels[ProfileFieldKey.Situps]}
-                    currentText={player?.profile?.Situps?.current?.toString()}
-                    setState={(input) => action({ Situps: input })}
-                  />
-                  <EditLayout
-                    title={ProfileFieldLabels[ProfileFieldKey.Pushups]}
-                    currentText={player?.profile?.Pushups?.current?.toString()}
-                    setState={(input) => action({ Pushups: input })}
-                  />
-                </BioEdit>
-              ) : (
-                <div>
-                  <ProfileFieldCell fieldKey={ProfileFieldKey.PacerTest} />
-                  <ProfileFieldCell fieldKey={ProfileFieldKey.MileTime} />
-                  <ProfileFieldCell fieldKey={ProfileFieldKey.Situps} />
-                  <ProfileFieldCell fieldKey={ProfileFieldKey.Pushups} />
-                </div>
-              )}
-            </div>
-          </div>
+          <ProfileSection sectionName="Fitness Testing">
+            <ProfileFieldCell fieldKey={ProfileFieldKey.PacerTest} />
+            <ProfileFieldCell fieldKey={ProfileFieldKey.MileTime} />
+            <ProfileFieldCell fieldKey={ProfileFieldKey.Situps} />
+            <ProfileFieldCell fieldKey={ProfileFieldKey.Pushups} />
+          </ProfileSection>
+          <ProfileSection sectionName="Health & Wellness">
+            <ProfileFieldCell fieldKey={ProfileFieldKey.HealthAndWellness} />
+          </ProfileSection>
         </div>
       );
     case ProfileCategory.Attendance:
@@ -255,8 +181,9 @@ const ProfileContents = <T extends ProfileCategory>({
     case ProfileCategory.Highlights:
       return (
         <div>
-          <h1 className="mb-10 text-2xl font-semibold">Highlights</h1>
-          <ProfileFieldCell fieldKey={ProfileFieldKey.Highlights} />
+          <ProfileSection sectionName="Highlights">
+            <ProfileFieldCell fieldKey={ProfileFieldKey.Highlights} />
+          </ProfileSection>
         </div>
       );
     default:

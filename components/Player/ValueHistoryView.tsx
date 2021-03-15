@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import dayjs from "dayjs";
+import dayjs from "lib/day";
 import {
   VictoryArea,
   VictoryAxis,
@@ -12,30 +12,24 @@ import {
   VictoryTooltip,
   VictoryVoronoiContainer,
 } from "victory";
-import { ProfileField, ProfileFieldKey } from "@prisma/client";
+import { ProfileField } from "@prisma/client";
 import Button from "components/Button";
 import Icon, { IconType } from "components/Icon";
 import {
   IProfileField,
+  ProfileFieldKeysOfProfileValueType,
   ProfileFieldValue,
-  ProfileFieldValues,
 } from "interfaces";
 import { deserializeProfileFieldValue } from "utils/buildUserProfile";
 import EditMore from "components/Player/EditMore";
 import SuccessfulChange from "components/Player/successChange";
 import colors from "../../constants/colors";
 
-type NumericProfileFields = Exclude<
-  {
-    [K in ProfileFieldKey]: ProfileFieldValues[K] extends
-      | ProfileFieldValue.Integer
-      | ProfileFieldValue.Float
-      | ProfileFieldValue.IntegerWithComment
-      | ProfileFieldValue.FloatWithComment
-      ? K
-      : never;
-  }[ProfileFieldKey],
-  never
+type NumericProfileFields = ProfileFieldKeysOfProfileValueType<
+  | ProfileFieldValue.Integer
+  | ProfileFieldValue.Float
+  | ProfileFieldValue.IntegerWithComment
+  | ProfileFieldValue.FloatWithComment
 >;
 
 type Props = {
