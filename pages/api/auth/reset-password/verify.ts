@@ -33,7 +33,6 @@ const handler = async (
 ): Promise<void> => {
   try {
     const expectedBody = Joi.object({
-      newPassword: Joi.string().required(),
       resetCodeId: Joi.string().required(),
     });
     const { value, error } = expectedBody.validate(req.body);

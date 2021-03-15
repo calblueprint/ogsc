@@ -39,6 +39,7 @@ const PasswordRecovery: React.FC = () => {
           } as VerifyResetPasswordDTO),
         });
         if (!response.ok) {
+          console.log(response);
           router.push("/auth/passwordRecovery/error");
         }
       }
@@ -82,7 +83,7 @@ const PasswordRecovery: React.FC = () => {
       if (!response.ok) {
         throw await response.json();
       } else {
-        router.push("/passwordRecovery/confirmation");
+        router.push("/auth/passwordRecovery/confirmation");
       }
     } catch (err) {
       setError(err.message);
