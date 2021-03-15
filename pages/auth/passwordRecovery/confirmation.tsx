@@ -13,7 +13,7 @@ const Confirmation: React.FC = () => {
           </div>
           <div className="flex flex-row mt-10">
             <p className="text-gray-600">Continue to the </p>{" "}
-            <Link href="/admin/players">
+            <Link href="/api/auth/signin">
               <a className="ml-1 text-blue hover:font-semibold">
                 Oakland Genesis Soccer Club Portal
               </a>

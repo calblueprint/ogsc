@@ -88,6 +88,13 @@ export default async function seedDatabase(): Promise<void> {
         },
       },
     });
+    await prisma.resetPassword.deleteMany({
+      where: {
+        userId: {
+          in: users.map((user: User) => user.id),
+        },
+      },
+    });
     await prisma.user.deleteMany({
       where: {
         email: {
