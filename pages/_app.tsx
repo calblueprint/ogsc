@@ -9,8 +9,8 @@ import type { AppProps } from "next/app";
 import { useRouter, Router } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
 import "../styles/globals.css";
-import NProgress from "nprogress"; // nprogress module
-import "nprogress/nprogress.css"; // styles of nprogress
+import NProgress from "nprogress";
+import "nprogress/nprogress.css";
 
 export const AuthContext = React.createContext<AuthenticatedSessionInfo | null>(
   null
