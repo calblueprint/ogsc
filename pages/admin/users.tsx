@@ -1,22 +1,25 @@
 import DashboardLayout from "components/DashboardLayout";
 import UserDashboard from "components/UserDashboard";
-import { UserRoleType } from "interfaces";
+import { UserRoleType, UserStatus } from "interfaces";
 import { useState } from "react";
 
 interface adminNavBarProps {
-  title: UserRoleType | null;
-  setTitle: (title: UserRoleType | null) => void;
+  title: string | null;
+  setTitle: (title: UserRoleType | UserStatus | null) => void;
 }
-
+interface Dictionary<T> {
+  [key: string]: T;
+}
 /**
- * Pluralized forms of UserRoleType.
+ * Pluralized forms of UserRoleType and UserStatus.
  */
-const RoleFilterLabels: Record<UserRoleType, string> = {
+const FilterLabels: Dictionary<string> = {
   [UserRoleType.Admin]: "Admins",
   [UserRoleType.Player]: "Players",
   [UserRoleType.Mentor]: "Mentors",
   [UserRoleType.Parent]: "Parents",
   [UserRoleType.Donor]: "Donors",
+  [UserStatus.Inactive]: "Inactive",
 };
 
 const AdminNavbar: React.FunctionComponent<adminNavBarProps> = ({
@@ -35,7 +38,7 @@ const AdminNavbar: React.FunctionComponent<adminNavBarProps> = ({
         >
           All Users
         </button>
-        {Object.keys(RoleFilterLabels).map((role: string) => (
+        {Object.keys(FilterLabels).map((role: string) => (
           <button
             key={role}
             type="button"
@@ -43,10 +46,10 @@ const AdminNavbar: React.FunctionComponent<adminNavBarProps> = ({
               title === role ? "navigation-tab-highlighted" : ""
             }`}
             onClick={() => {
-              setTitle(role as UserRoleType);
+              setTitle(role as UserStatus | UserRoleType);
             }}
           >
-            {RoleFilterLabels[role as UserRoleType]}
+            {FilterLabels[role as UserStatus | UserRoleType]}
           </button>
         ))}
       </div>
@@ -56,7 +59,7 @@ const AdminNavbar: React.FunctionComponent<adminNavBarProps> = ({
 
 // TODO: Responsive Spacing
 const AdminView: React.FunctionComponent = () => {
-  const [title, setTitle] = useState<UserRoleType | null>(null);
+  const [title, setTitle] = useState<UserRoleType | UserStatus | null>(null);
   const [phrase, setPhrase] = useState<string>(" ");
 
   return (
@@ -69,7 +72,7 @@ const AdminView: React.FunctionComponent = () => {
           <div className="col-span-3">
             <AdminNavbar title={title} setTitle={setTitle} />
             <hr className="border-unselected border-opacity-50" />
-            <UserDashboard userRole={title} phrase={phrase} />
+            <UserDashboard filterValue={title} phrase={phrase} />
           </div>
           <div className="mt-1">
             <div className="pt-2 relative mx-auto text-gray-600 col-span-1">

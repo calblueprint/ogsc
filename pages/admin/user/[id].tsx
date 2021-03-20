@@ -421,13 +421,15 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
     };
     getUser();
   }, [id]);
+  useEffect(() => {
+    setNewStatus(
+      user?.status === UserStatus.Inactive
+        ? UserStatus.Active
+        : UserStatus.Inactive
+    );
+  }, [user]);
 
-  async function changeUserStatus(currentStatus?: string): Promise<void> {
-    if (currentStatus === UserStatus.Active) {
-      setNewStatus(UserStatus.Inactive);
-    } else {
-      setNewStatus(UserStatus.Active);
-    }
+  async function changeUserStatus(): Promise<void> {
     try {
       const response = await fetch(`/api/admin/users/${id}`, {
         method: "PATCH",
@@ -519,7 +521,7 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
           <Button
             className="button-primary mt-7 mb-52 mr-5"
             onClick={() => {
-              changeUserStatus(user?.status);
+              changeUserStatus();
             }}
           >
             {statusButtonText}

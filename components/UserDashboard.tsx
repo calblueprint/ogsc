@@ -1,16 +1,21 @@
 import Link from "next/link";
 import PageNav from "components/PageNav";
-import { IUser, UserRoleLabel, UserRoleType } from "interfaces/user";
+import {
+  IUser,
+  UserRoleLabel,
+  UserRoleType,
+  UserStatus,
+} from "interfaces/user";
 import { ReadManyUsersDTO } from "pages/api/admin/users/readMany";
 import usePagination from "./pagination";
 
 interface UserDashboardProps {
-  userRole: UserRoleType | null;
+  filterValue: UserRoleType | UserStatus | null;
   phrase: string;
 }
 
 const UserDashboardItem: React.FunctionComponent<{ user: IUser }> = ({
-  user: { id, name, email, image, phoneNumber, defaultRole },
+  user: { id, name, email, image, phoneNumber, defaultRole, status },
 }) => {
   return (
     <Link href={`user/${id}`}>
@@ -22,7 +27,15 @@ const UserDashboardItem: React.FunctionComponent<{ user: IUser }> = ({
             {/* Not being used right now because seed data doesn't have images */}
           </div>
           <div>
-            <p className="font-semibold">{name}</p>
+            <p className="font-semibold">
+              {name}
+              {status === UserStatus.Inactive && (
+                // eslint-disable-next-line react/button-has-type
+                <button className="px-3 ml-6 rounded-full font-semibold text-unselected bg-button">
+                  INACTIVE
+                </button>
+              )}
+            </p>
             <p>{UserRoleLabel[defaultRole.type]}</p>
           </div>
         </div>
@@ -35,16 +48,22 @@ const UserDashboardItem: React.FunctionComponent<{ user: IUser }> = ({
 
 // TODO: Responsive Spacing
 const UserDashboard: React.FunctionComponent<UserDashboardProps> = ({
-  userRole,
+  filterValue,
   phrase,
 }) => {
+  let roleFilter = ``;
+  let statusFilter = ``;
+  if (filterValue && filterValue in UserRoleType) {
+    roleFilter = `&role=${filterValue}`;
+  }
+  if (filterValue && filterValue in UserStatus) {
+    statusFilter = `?inactive=true`;
+  }
   const [visibleData, numUIPages, currUIPage, setUIPage] = usePagination<IUser>(
-    [userRole, phrase],
+    [filterValue, phrase],
     async (pageNumber: number) => {
       const response = await fetch(
-        `/api/admin/users?pageNumber=${pageNumber}&search=${phrase}${
-          userRole ? `&role=${userRole}` : ""
-        }`,
+        `/api/admin/users${statusFilter}?pageNumber=${pageNumber}&search=${phrase}${roleFilter}`,
         {
           method: "GET",
           headers: { "content-type": "application/json" },

@@ -35,6 +35,7 @@
     "@sendgrid/mail": "^7.4.0",
     "autoprefixer": "9.8.6",
     "babel-plugin-superjson-next": "^0.1.8",
+    "color-name": "^1.1.4",
     "dayjs": "^1.9.6",
     "db-migrate": "^0.11.11",
     "db-migrate-base": "^2.3.0",
