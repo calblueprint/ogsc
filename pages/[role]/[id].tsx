@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Icon from "components/Icon";
 import Button from "components/Button";
 import FormField from "components/FormField";
-import { IUser, UserRoleLabel, UserRoleType } from "interfaces";
+import { IUser, UserRoleLabel, UserRoleType, UserStatus } from "interfaces";
 import Joi from "lib/validate";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
@@ -544,8 +544,48 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
 }) => {
   const [user, setUser] = useState<IUser>();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [newStatus, setNewStatus] = useState("");
+  const [error, setError] = useState("");
   const router = useRouter();
   const { id } = router.query;
+  let statusButtonText;
+  const refreshData = (): void => {
+    router.replace(router.asPath);
+  };
+
+  useEffect(() => {
+    setNewStatus(
+      user?.status === UserStatus.Inactive
+        ? UserStatus.Active
+        : UserStatus.Inactive
+    );
+  }, [user]);
+
+  async function changeUserStatus(): Promise<void> {
+    try {
+      const response = await fetch(`/api/admin/users/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          status: newStatus,
+        } as UpdateUserDTO),
+      });
+      if (!response.ok) {
+        throw await response.json();
+      } else {
+        setUser((await response.json()).user);
+        refreshData();
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+  if (user?.status === UserStatus.Active) {
+    statusButtonText = "Deactivate Account";
+  } else {
+    statusButtonText = "Activate Acconut";
+  }
 
   useEffect(() => {
     const getUser = async (): Promise<void> => {
@@ -624,18 +664,27 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
                 <p className="text-lg mr-6 font-medium">Account Changes</p>
 
                 <div>
-                  <p className="font-semibold text-sm pb-3">Close Account</p>
-                  <p className="text-sm font-normal">
-                    Delete this user&apos;s account and account data
-                  </p>
+                  <p className="font-semibold text-sm pb-2">User Access</p>
+                  <div className="text-sm pb-3">
+                    {user?.status === UserStatus.Active &&
+                      "Inactive users will no longer be able to access their account but their data will remain intact. This can be undone at any point."}
+                  </div>
                   <Button
-                    className="button-primary mt-7 mb-52 mr-5 text-danger bg-danger-muted"
+                    className="button-primary mt-7 mb-52 mr-5"
                     onClick={() => {
-                      setIsDeleting(true);
+                      changeUserStatus();
                     }}
                   >
-                    Close Account
+                    {statusButtonText}
                   </Button>
+                  <div className="pt-3">
+                    {user?.name} is currently{" "}
+                    <span className="text-blue font-semibold">
+                      {user?.status}
+                    </span>
+                    .
+                  </div>
+                  {error && <p className="text-red-600 text-sm">{error}</p>}
                 </div>
               </div>
             </div>

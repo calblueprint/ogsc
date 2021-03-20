@@ -33,7 +33,6 @@ interface EditUserProps {
   relatedPlayers?: User[];
   originalPlayers: User[];
 }
-
 interface DeleteConfirmationProps {
   user?: IUser;
   isDeleting: boolean;
