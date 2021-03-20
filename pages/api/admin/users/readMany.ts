@@ -22,6 +22,7 @@ export default async (
   const includeOnlyAdminUnapproved = req.query.admin_unapproved as
     | string
     | undefined;
+  const includeOnlyInactive = req.query.inactive as string | undefined;
   const includeOnlyUserUnaccepted = req.query.user_unaccepted as
     | string
     | undefined;
@@ -53,6 +54,11 @@ export default async (
         ...(includeOnlyUserUnaccepted
           ? {
               status: UserStatus.PendingUserAcceptance,
+            }
+          : undefined),
+        ...(includeOnlyInactive
+          ? {
+              status: UserStatus.Inactive,
             }
           : undefined),
       },
