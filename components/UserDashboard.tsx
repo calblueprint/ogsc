@@ -30,10 +30,9 @@ const UserDashboardItem: React.FunctionComponent<{ user: IUser }> = ({
             <p className="font-semibold">
               {name}
               {status === UserStatus.Inactive && (
-                // eslint-disable-next-line react/button-has-type
-                <button className="px-3 ml-6 rounded-full font-semibold text-unselected bg-button">
+                <text className="px-3 ml-5 rounded-full font-semibold text-unselected bg-button">
                   INACTIVE
-                </button>
+                </text>
               )}
             </p>
             <p>{UserRoleLabel[defaultRole.type]}</p>
