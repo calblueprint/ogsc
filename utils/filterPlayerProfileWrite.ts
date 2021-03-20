@@ -12,6 +12,9 @@ const filterPlayerProfileWrite = (
   profileFields: ProfileFieldUpdateManyWithoutUserInput
 ): ProfileFieldUpdateManyWithoutUserInput => {
   const filteredProfileFields: ProfileFieldUpdateManyWithoutUserInput = {};
+  if (user.defaultRole.type === UserRoleType.Admin) {
+    return profileFields;
+  }
   if (profileFields.create) {
     filteredProfileFields.create = (Array.isArray(profileFields.create)
       ? profileFields.create

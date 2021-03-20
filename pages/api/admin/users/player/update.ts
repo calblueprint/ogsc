@@ -114,7 +114,6 @@ const handler = async (
         });
       }
     });
-
     const playerId = userInfo.id || Number(req.query.id);
     const updatingUser = await prisma.user.findOne({
       where: { id: playerId },
@@ -130,7 +129,6 @@ const handler = async (
         .json({ statusCode: 404, message: "User does not exist." });
       return;
     }
-
     const player = buildUserProfile(flattenUserRoles(updatingUser));
     const updatedUser = await prisma.user.update({
       where: { id: playerId },
@@ -144,7 +142,6 @@ const handler = async (
         ),
       },
     });
-
     res.json({
       message: "Successfully updated user.",
       user: sanitizeUser(updatedUser),

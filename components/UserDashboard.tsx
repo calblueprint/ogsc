@@ -7,6 +7,7 @@ import {
   UserStatus,
 } from "interfaces/user";
 import { ReadManyUsersDTO } from "pages/api/admin/users/readMany";
+import useSessionInfo from "utils/useSessionInfo";
 import usePagination from "./pagination";
 
 interface UserDashboardProps {
@@ -17,8 +18,9 @@ interface UserDashboardProps {
 const UserDashboardItem: React.FunctionComponent<{ user: IUser }> = ({
   user: { id, name, email, image, phoneNumber, defaultRole, status },
 }) => {
+  const session = useSessionInfo();
   return (
-    <Link href={`user/${id}`}>
+    <Link href={`/${UserRoleLabel[session.sessionType].toLowerCase()}/${id}`}>
       <div className="grid grid-cols-6 text-sm h-24 hover:bg-hover border-unselected border-opacity-50 border-b">
         {/* TODO: FIX PADDING ABOVE */}
         <div className="col-span-3 inline-flex self-center">

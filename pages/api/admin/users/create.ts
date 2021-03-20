@@ -50,14 +50,19 @@ const handler = async (
         ...(role
           ? {
               roles: {
-                create: linkedPlayers?.map((playerID: number) => ({
-                  type: role,
-                  relatedPlayer: {
-                    connect: {
-                      id: playerID,
-                    },
-                  },
-                })),
+                create:
+                  linkedPlayers && linkedPlayers.length > 0
+                    ? linkedPlayers?.map((playerID: number) => ({
+                        type: role,
+                        relatedPlayer: {
+                          connect: {
+                            id: playerID,
+                          },
+                        },
+                      }))
+                    : {
+                        type: role,
+                      },
               },
             }
           : undefined),
