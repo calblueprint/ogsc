@@ -667,7 +667,7 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
                   <p className="font-semibold text-sm pb-2">User Access</p>
                   <div className="text-sm pb-3">
                     {user?.status === UserStatus.Active &&
-                      "Inactive users will no longer be able to access their account but their data will remain intact. This can be undone at any point."}
+                      "Inactive users will no longer be able to access their account but their data will remain intact. This action can be undone at any point."}
                   </div>
                   <Button
                     className="button-primary mt-7 mb-52 mr-5"
