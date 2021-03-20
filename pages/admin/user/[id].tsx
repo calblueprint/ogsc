@@ -517,7 +517,8 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
               </div>
             </div>
           )}
-          <p className="text-lg font-semibold pb-10">Account Changes</p>
+          <p className="text-lg font-semibold pb-5">Account Changes</p>
+
           <Button
             className="button-primary mt-7 mb-52 mr-5"
             onClick={() => {
@@ -527,19 +528,6 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
             {statusButtonText}
           </Button>
           {error && <p className="text-red-600 text-sm">{error}</p>}
-
-          <p className="font-semibold text-sm pb-3">Close Account</p>
-          <p className="text-sm font-normal">
-            Delete this user&apos;s account and account data
-          </p>
-          <Button
-            className="button-primary mt-7 mb-52 mr-5 text-danger bg-danger-muted"
-            onClick={() => {
-              setIsDeleting(true);
-            }}
-          >
-            Close Account
-          </Button>
         </div>
         {DeleteConfirmation({
           user,
