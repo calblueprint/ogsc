@@ -16,6 +16,7 @@ import { PrismaClient, User } from "@prisma/client";
 import Combobox from "components/Combobox";
 import { ViewingPermissionDTO } from "pages/api/admin/roles/create";
 import useSessionInfo from "utils/useSessionInfo";
+import { signOut } from "next-auth/client";
 
 interface DeleteConfirmationProps {
   user?: IUser;
@@ -603,7 +604,7 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
 
   return (
     <DashboardLayout>
-      <div className="mx-16 mb-24">
+      <div className="mx-16 mb-24 ">
         <div className="flex flex-row items-center pt-20 pb-12">
           <img
             src={user?.image || "/placeholder-profile.png"}
@@ -612,6 +613,7 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
           />
           <div>
             <p className="text-2xl font-semibold">{user?.name}</p>
+
             <div className="flex flex-row items-center">
               <p className="text-sm font-medium mr-4">
                 {user && UserRoleLabel[user.defaultRole.type]}
@@ -626,6 +628,17 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
               )}
             </div>
           </div>
+          {user && session.user.id.toString() === id ? (
+            <button
+              className="absolute top-24 right-0 mr-20"
+              type="button"
+              onClick={() => signOut()}
+            >
+              <Icon type="logoutButton" />
+            </button>
+          ) : (
+            []
+          )}
         </div>
         <hr className="border-unselected border-opacity-50 pb-16" />
         <p className="text-blue text-2xl font-medium pb-10">User Profile</p>

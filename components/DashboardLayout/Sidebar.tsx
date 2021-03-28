@@ -124,7 +124,7 @@ const Sidebar: React.FC = () => {
                     type="button"
                     onClick={() => signOut()}
                   >
-                    <Icon type="logout" className="inline ml-4" />
+                    <Icon type="logoutToggle" className="inline ml-4" />
                     <p className="inline ml-2 text-sm">Log Out</p>
                   </button>
                 </div>
