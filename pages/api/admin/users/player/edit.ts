@@ -1,5 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-
+import prisma from "utils/prisma";
 import { ValidatedNextApiRequest } from "interfaces";
 import Joi from "lib/validate";
 import { NextApiResponse } from "next";
@@ -7,8 +6,6 @@ import { validateBody } from "pages/api/helpers";
 
 import sanitizeUser from "utils/sanitizeUser";
 import { adminOnlyHandler } from "../../helpers";
-
-const prisma = new PrismaClient();
 
 export type PlayerDTO = {
   id: number;

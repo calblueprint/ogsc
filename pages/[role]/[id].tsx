@@ -12,7 +12,8 @@ import { useForm } from "react-hook-form";
 import { DeleteUserDTO } from "pages/api/admin/users/delete";
 import Link from "next/link";
 import { NextPageContext } from "next";
-import { PrismaClient, User } from "@prisma/client";
+import { User } from "@prisma/client";
+import prisma from "utils/prisma";
 import Combobox from "components/Combobox";
 import { ViewingPermissionDTO } from "pages/api/admin/roles/create";
 import useSessionInfo from "utils/useSessionInfo";
@@ -37,7 +38,6 @@ type gsspProps = {
 export async function getServerSideProps(
   context: NextPageContext
 ): Promise<{ props: gsspProps }> {
-  const prisma = new PrismaClient();
   const id = context.query.id as string;
 
   const user = await prisma.user.findOne({

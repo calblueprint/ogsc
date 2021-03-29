@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PrismaClient } from "@prisma/client";
+import prisma from "utils/prisma";
 import { NextPageContext } from "next";
 import { useRouter } from "next/router";
 import { getSession } from "next-auth/client";
@@ -21,7 +21,6 @@ type Props = {
 export async function getServerSideProps(
   context: NextPageContext
 ): Promise<{ props: Props }> {
-  const prisma = new PrismaClient();
   const id = context.query.id as string;
   const user = await prisma.user.findOne({
     where: { id: Number(id) },

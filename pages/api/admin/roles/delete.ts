@@ -1,11 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+import prisma from "utils/prisma";
 import { NextApiResponse } from "next";
 import Joi from "lib/validate";
 import { ValidatedNextApiRequest } from "interfaces";
 import { validateBody } from "pages/api/helpers";
 import { adminOnlyHandler } from "../helpers";
-
-const prisma = new PrismaClient();
 
 type DeleteViewingPermissionDTO = {
   id?: number;

@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import prisma from "utils/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 
 import { IPlayer, IUser, UserRoleType } from "interfaces";
@@ -8,8 +8,6 @@ import flattenUserRoles from "utils/flattenUserRoles";
 import getAuthenticatedUser from "utils/getAuthenticatedUser";
 import sanitizeUser from "utils/sanitizeUser";
 import { USER_PAGE_SIZE } from "../../../constants";
-
-const prisma = new PrismaClient();
 
 export default async (
   req: NextApiRequest,
