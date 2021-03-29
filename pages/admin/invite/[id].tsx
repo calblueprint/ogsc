@@ -147,6 +147,13 @@ const UserInvitation: React.FunctionComponent<gsspProps> = ({
       }) as unknown) as ViewingPermissionDTO;
       linkedPlayers.push(body);
     });
+    let role = [
+      (JSON.stringify({
+        type: currRole,
+        userId: user?.id,
+      }) as unknown) as ViewingPermissionDTO,
+    ];
+    role = linkedPlayers.length > 0 ? linkedPlayers : role;
     try {
       const response = await fetch(`/api/admin/users/${user?.id}`, {
         method: "PATCH",
@@ -156,7 +163,7 @@ const UserInvitation: React.FunctionComponent<gsspProps> = ({
           email: values.email,
           name: `${values.firstName} ${values.lastName}`,
           phoneNumber: values.phoneNumber,
-          roles: linkedPlayers,
+          roles: role,
           sendEmail: true,
         } as UpdateUserDTO),
       });
