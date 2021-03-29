@@ -33,7 +33,7 @@ const UserDashboardItem: React.FunctionComponent<{ user: IUser }> = ({
               {name}
               {status === UserStatus.Inactive && (
                 <text className="px-3 ml-5 rounded-full font-semibold text-unselected bg-button">
-                  INACTIVE
+                  {UserStatus.Inactive.toUpperCase()}
                 </text>
               )}
             </p>
