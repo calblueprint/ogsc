@@ -510,6 +510,7 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
   const [selectedCategory, setSelectedCategory] = useState(
     ProfileCategory.Overview
   );
+  console.log("Absences is:", player.absences);
   return (
     <div>
       <div className="flex flex-row text-sm text-center">

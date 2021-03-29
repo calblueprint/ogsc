@@ -3,7 +3,7 @@ import {
   ProfileFieldUpdateManyWithoutUserInput,
 } from "@prisma/client";
 import { IPlayer, IUser, UserRoleType } from "interfaces";
-import ProfileAccessDefinitionsByRole from "lib/access/definitions";
+import { ProfileAccessDefinitionsByRole } from "lib/access/definitions";
 import resolveAccessValue from "lib/access/resolve";
 
 const filterPlayerProfileWrite = (
