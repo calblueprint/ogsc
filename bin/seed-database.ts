@@ -7,9 +7,9 @@ import {
   User,
   UserCreateArgs,
 } from "@prisma/client";
-import prisma from "utils/prisma";
 import Faker from "faker";
 import Ora from "ora";
+import prisma from "../utils/prisma";
 import {
   AbsenceReason,
   AbsenceType,
