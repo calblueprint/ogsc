@@ -22,6 +22,7 @@ const handler = async (
   try {
     const user = await prisma.user.findOne({
       where: { email: req.body.email || String(req.query.email) },
+      include: { roles: true },
     });
     if (!user) {
       res
