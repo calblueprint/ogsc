@@ -8,28 +8,78 @@ import { UserDTO } from "./api/admin/users/readOneEmail";
 
 // export const getServerSideProps: GetServerSideProps = async (context) => {
 //   try {
+//     const prisma = new PrismaClient();
+
 //     const session = await getSession(context);
-//     if (!session) {
-//       throw Error;
-//     }
-//   } catch (e) {
+//     console.log(session);
+//     // if (session && session.user) {
+//     //   const user = await prisma.user.findOne({
+//     //     where: { email: session.user.email },
+//     //     include: { roles: true },
+//     //   });
+//     //   if (user && user.roles) {
+//     //     return {
+//     //       redirect: {
+//     //         permanent: false,
+//     //         destination: `/${user.roles[0].type.toLowerCase()}/invite`,
+//     //       },
+//     //     };
+//     //   }
+//     //   return {
+//     //     notFound: true,
+//     //   };
+//     // }
+//     // return {
+//     //   redirect: {
+//     //     permanent: false,
+//     //     destination: "/",
+//     //   },
+//     // };
+//   } catch (err) {
 //     return {
 //       redirect: {
 //         permanent: false,
-//         destination: "/admin/invite",
+//         destination: "/auth/signin",
 //       },
 //     };
 //   }
+
+//   // const session = await getSession(context);
+//   // if (!session) {
+//   //   return {
+//   //     redirect: {
+//   //       permanent: false,
+//   //       destination: "/auth/signin",
+//   //     },
+//   //   };
+//   // }
+
+//   // return null;
+//   // try {
+//   //   const session = await getSession(context);
+//   //   if (!session) {
+//   //     throw Error;
+//   //   }
+//   // } catch (e) {
+//   //   return {
+//   //     redirect: {
+//   //       permanent: false,
+//   //       destination: "/admin/invite",
+//   //     },
+//   //   };
+//   // }
+//   return { props: {} };
 // };
 
 const Home: React.FC = () => {
   const [session, loading] = useSession();
   const router = useRouter();
 
+  console.log(session);
   useEffect(() => {
     const fetchUserRole = async (): Promise<void> => {
       if (session) {
-        console.log(session);
+        console.log(">>", session);
         const response = await fetch("/api/admin/users/readOneEmail", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -38,29 +88,43 @@ const Home: React.FC = () => {
             email: session.user.email,
           } as UserDTO),
         });
+        const data = await response.json();
+        // if (!response.ok || !data.user) {
+        //   console.log("bad");
+        //   router.push("/auth/signin");
+        // } else {
+        //   setUserRole(data.user.roles[0].type);
+        // }
         if (!response.ok) {
-          throw await response.json();
-        }
-        const user = await response.json();
-        console.log(user);
-        // console.log(user?.user.roles[0].type);
-        // setUserRole(user?.user.roles[0].type.toLowerCase());
-        // setUpdated(true);
-        const role = user?.user.roles[0].type;
-        if (role in UserRoleType) {
-          router.push(`/${role.toLowerCase()}/invite`);
-        } else {
           router.push("/auth/signin");
         }
+        console.log(data);
+        const role = data?.user.roles[0].type;
+        if (role in UserRoleType) {
+          router.push(`/${role.toLowerCase()}/players`);
+        }
+      } else {
+        router.push("/auth/signin");
       }
     };
-    fetchUserRole();
-  }, [session, router]);
+    if (!loading) {
+      fetchUserRole();
+    }
+  }, [session, router, loading]);
 
-  if (loading) {
-    return <p>Loading...</p>;
-  }
-  return null;
+  // if (session && userRole) {
+  //   router.push(`/${userRole.toLowerCase()}/invite`);
+  // }
+
+  return (
+    <div>
+      <p>Loading...</p>
+    </div>
+  );
+  // if (loading) {
+  //   return <p>Loading...</p>;
+  // }
+  // return null;
 };
 
 // const Home: React.FC = () => {
