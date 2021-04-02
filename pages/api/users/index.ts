@@ -1,5 +1,5 @@
 import { NextApiResponse } from "next";
-import { PrismaClient } from "@prisma/client";
+import prisma from "utils/prisma";
 import sanitizeUser from "utils/sanitizeUser";
 import hash from "utils/hashPassword";
 import {
@@ -11,8 +11,6 @@ import {
 import Joi from "lib/validate";
 import { validateBody } from "../helpers";
 import { getInviteById } from "../invites/[id]";
-
-const prisma = new PrismaClient();
 
 /**
  * All users signing up

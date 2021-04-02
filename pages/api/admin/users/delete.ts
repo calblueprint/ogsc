@@ -1,4 +1,5 @@
-import { PrismaClient, PrismaClientKnownRequestError } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client";
+import prisma from "utils/prisma";
 import { NextApiResponse } from "next";
 import Joi from "lib/validate";
 import { ValidatedNextApiRequest } from "interfaces";
@@ -6,7 +7,6 @@ import sanitizeUser from "utils/sanitizeUser";
 import { validateBody } from "pages/api/helpers";
 import { adminOnlyHandler } from "../helpers";
 
-const prisma = new PrismaClient();
 export type DeleteUserDTO = {
   id?: number;
 };

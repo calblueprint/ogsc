@@ -14,6 +14,10 @@ import {
 import resolveAccessValue from "lib/access/resolve";
 
 const filterPlayerProfileRead = (player: IPlayer, user: IUser): IPlayer => {
+  if (!player.profile || user.defaultRole.type === UserRoleType.Admin) {
+    return player;
+  }
+
   const canAccessAbsenceType = (type: AbsenceType): boolean => {
     const accessValue =
       AttendanceAccessDefinitionsByRole[

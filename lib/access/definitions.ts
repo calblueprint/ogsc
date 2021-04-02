@@ -50,7 +50,6 @@ const sharedReadAccess = {
   [ProfileFieldKey.AcademicEngagementScore]: { read: isSharedPlayerProfile },
   [ProfileFieldKey.AdvisingScore]: { read: isSharedPlayerProfile },
   [ProfileFieldKey.AthleticScore]: { read: isSharedPlayerProfile },
-  [ProfileFieldKey.BMI]: { read: isSharedPlayerProfile },
   [ProfileFieldKey.DisciplinaryActions]: { read: isSharedPlayerProfile },
 };
 
