@@ -1,11 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { PrismaClient } from "@prisma/client";
+import prisma from "utils/prisma";
 import sanitizeUser from "utils/sanitizeUser";
 import hash from "utils/hashPassword";
 import { SanitizedUser } from "interfaces";
 import Joi from "lib/validate";
-
-const prisma = new PrismaClient();
 
 /**
  * User DTO with new password

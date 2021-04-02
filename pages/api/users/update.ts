@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import prisma from "utils/prisma";
 import { ValidatedNextApiRequest, UserRoleType, UserStatus } from "interfaces";
 import Joi from "lib/validate";
 import { NextApiResponse } from "next";
@@ -8,8 +8,6 @@ import sanitizeUser from "utils/sanitizeUser";
 import { NotificationType } from "lib/notify/types";
 import Notifier from "lib/notify";
 import { ViewingPermissionDTO } from "../admin/roles/create";
-
-const prisma = new PrismaClient();
 
 export type UpdateUserDTO = {
   id?: number;

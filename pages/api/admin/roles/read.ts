@@ -1,8 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import prisma from "utils/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import { adminOnlyHandler } from "../helpers";
-
-const prisma = new PrismaClient();
 
 const handler = async (
   req: NextApiRequest,

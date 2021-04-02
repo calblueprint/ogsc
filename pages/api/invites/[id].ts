@@ -1,10 +1,9 @@
-import { PrismaClient, UserInvite } from "@prisma/client";
+import { UserInvite } from "@prisma/client";
+import prisma from "utils/prisma";
 import { SanitizedUser } from "interfaces";
 import Joi from "lib/validate";
 import { NextApiRequest, NextApiResponse } from "next";
 import sanitizeUser from "utils/sanitizeUser";
-
-const prisma = new PrismaClient();
 
 /**
  * Retrieve a UserInvite by its UUID and include the user object.

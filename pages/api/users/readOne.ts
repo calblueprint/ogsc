@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import prisma from "utils/prisma";
 import { NextApiResponse } from "next";
 import Joi from "lib/validate";
 import { ValidatedNextApiRequest } from "interfaces";
@@ -6,7 +6,6 @@ import flattenUserRoles from "utils/flattenUserRoles";
 import sanitizeUser from "utils/sanitizeUser";
 import { validateBody } from "pages/api/helpers";
 
-const prisma = new PrismaClient();
 type UserDTO = {
   id?: number;
 };
