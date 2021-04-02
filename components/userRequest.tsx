@@ -4,6 +4,10 @@ import { DeleteUserDTO } from "pages/api/admin/users/delete";
 import Link from "next/link";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { DefaultRole } from "interfaces/user";
+// import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
+// import Modal from "components/Modal";
+// import { useRouter } from "next/router";
+import { UserStatus } from "interfaces";
 
 const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
   name,
@@ -14,7 +18,9 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
   defaultRole,
   onDelete,
   onAccept,
+  // isDeleting,
 }) => {
+  // const router = useRouter();
   const deleteUser = async (): Promise<void> => {
     try {
       const response = await fetch("/api/admin/users/delete", {
@@ -39,7 +45,7 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({} as UpdateUserDTO),
+        body: JSON.stringify({ status: UserStatus.Active } as UpdateUserDTO),
       });
       if (!response.ok) {
         throw await response.json();
@@ -49,6 +55,20 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
       throw new Error(err.message);
     }
   };
+  // type Props = React.PropsWithChildren<{
+  //   open?: boolean;
+  //   className: string;
+  // }>;
+  // const declineModal = async (): Promise<Modal> => {
+  //   return (
+  //     <div className="fixed pin top-0 left-0 w-full h-full overscroll-auto bg-dark bg-opacity-50 flex justify-center items-center">
+  //       <div>
+  //         {/* {children} */}
+  //         this is a modal
+  //       </div>
+  //     </div>
+  //   );
+  // };
 
   return (
     <div>
@@ -62,7 +82,10 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
                   <img src={image || "/placeholder-profile.png"} alt="" />
                 </div>
                 <div className="w-40">
-                  <p className="font-semibold">{name}</p>
+                  <p className="font-semibold">
+                    {name}
+                    {id}
+                  </p>
                   <p>{defaultRole.type}</p>
                 </div>
               </div>
@@ -104,6 +127,7 @@ interface UserRequest {
   defaultRole: DefaultRole;
   image: string | null;
   id: number;
+  isDeleting: boolean;
   onDelete: () => void;
   onAccept: () => void;
 }
@@ -135,18 +159,20 @@ const UserDashboard: React.FunctionComponent = () => {
         <p>Phone</p>
       </div>
       <img src="" alt="" />
-      {users?.map((user) => (
-        <UserRequestDashboardItem
-          name={user.name}
-          email={user.email}
-          phoneNumber={user.phoneNumber}
-          image={user.image}
-          defaultRole={user.defaultRole}
-          id={user.id}
-          onDelete={getUsers}
-          onAccept={getUsers}
-        />
-      ))}
+      {users !== [] &&
+        users?.map((user) => (
+          <UserRequestDashboardItem
+            name={user.name}
+            email={user.email}
+            phoneNumber={user.phoneNumber}
+            image={user.image}
+            defaultRole={user.defaultRole}
+            id={user.id}
+            isDeleting={user.isDeleting}
+            onDelete={getUsers}
+            onAccept={getUsers}
+          />
+        ))}
     </div>
   );
 };

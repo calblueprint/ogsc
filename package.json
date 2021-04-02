@@ -53,6 +53,8 @@
     "react": "16.14.0",
     "react-dom": "16.13.1",
     "react-hook-form": "^6.9.6",
+    "react-toastify": "^7.0.3",
+    "rodal": "^1.8.1",
     "superjson": "^1.4.1",
     "tailwindcss": "^1.9.4",
     "victory": "^35.3.5"

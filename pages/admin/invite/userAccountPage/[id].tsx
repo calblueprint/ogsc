@@ -83,12 +83,12 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({
+        body: JSON.stringify(({
           email: values.email,
           name: `${values.firstName} ${values.lastName}`,
           phoneNumber: values.phoneNumber,
           roles: [values.role as UserRoleType],
-        } as UpdateUserDTO),
+        } as unknown) as UpdateUserDTO),
       });
       if (!response.ok) {
         throw await response.json();
@@ -305,14 +305,14 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = () => {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(({
+        body: JSON.stringify({
           status: UserStatus.Active,
-        } as unknown) as UpdateUserDTO),
+        } as UpdateUserDTO),
       });
       if (!response.ok) {
         throw await response.json();
       }
-      // onAccept();
+      router.push("/admin/invite");
     } catch (err) {
       throw new Error(err.message);
     }

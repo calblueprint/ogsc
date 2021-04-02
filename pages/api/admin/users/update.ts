@@ -54,7 +54,7 @@ const handler = async (
         )) ||
       undefined;
 
-    if (roles && roles[0].type === "Admin") {
+    if (roles && roles[0]?.type === "Admin") {
       user = await prisma.user.update({
         where: { id: userInfo.id || Number(req.query.id) },
         data: {
