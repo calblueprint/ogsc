@@ -30,8 +30,6 @@ const SignIn: React.FC = () => {
   const { errors, register, handleSubmit } = useForm<UserSignInFormValues>({
     resolver: joiResolver(UserSignInFormSchema),
   });
-  // const session = getSession(AuthContext);
-  // useSessionInfo();
 
   useEffect(() => {
     if (router.query.error) {
@@ -51,11 +49,10 @@ const SignIn: React.FC = () => {
       return;
     }
     try {
-      // const link = `/${session.sessionType.toLowerCase()}/players/${id}`;
       await signIn("credentials", {
         email: values.email,
         password: values.password,
-        callbackUrl: `${window.location.origin}/admin/players`,
+        callbackUrl: `${window.location.origin}`,
       });
     } catch (err) {
       setError(err.message);
