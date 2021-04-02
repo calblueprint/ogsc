@@ -20,5 +20,5 @@
     "target": "esnext"
   },
   "exclude": ["node_modules"],
-  "include": ["**/*.ts", "**/*.tsx", "constants/colors.js"]
+  "include": ["**/*.ts", "**/*.tsx", "constants/colors.js", "next-env.d.ts"]
 }

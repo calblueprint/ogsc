@@ -1,9 +1,10 @@
 import { useRouter } from "next/router";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import { UserRoleLabel, UserRoleType } from "interfaces";
 import useSessionInfo from "utils/useSessionInfo";
 import Icon from "components/Icon";
+import { signOut } from "next-auth/client";
 
 type SidebarLinkProps = {
   href: string;
@@ -74,6 +75,8 @@ const SidebarsByRole: Record<UserRoleType, React.ReactNode> = {
 
 const Sidebar: React.FC = () => {
   const session = useSessionInfo();
+  const [showHoverMenu, setShowHoverMenu] = useState(false);
+
   return (
     <div className="fixed top-0 flex flex-col justify-between w-56 h-screen bg-button bg-opacity-75">
       <div className="px-12 py-24">
@@ -83,13 +86,50 @@ const Sidebar: React.FC = () => {
         {SidebarsByRole[session.sessionType]}
       </div>
       <div className="mb-12 px-6">
-        <div className="flex items-center">
-          <div className="w-10 h-10 mr-4 bg-placeholder rounded-full" />
-          <div>
-            <p className="font-semibold">{session.user?.name}</p>
-            <p className="text-unselected">
-              {UserRoleLabel[session.sessionType]}
-            </p>
+        <div>
+          <div className="flex items-center">
+            <div className="w-10 h-10 mr-4 bg-placeholder rounded-full" />
+            <div>
+              <p className="font-semibold">{session.user?.name}</p>
+              <p className="text-unselected">
+                {UserRoleLabel[session.sessionType]}
+              </p>
+            </div>
+            <div
+              className="absolute h-24"
+              style={{ width: showHoverMenu ? "22rem" : "22rem" }}
+              onMouseEnter={() => {
+                setShowHoverMenu(true);
+              }}
+              onMouseLeave={() => {
+                setShowHoverMenu(false);
+              }}
+            >
+              {showHoverMenu && (
+                <div className="absolute ml-56 w-32 h-24 rounded-md shadow-lg bg-white border">
+                  <div className="h-14 pt-3 pb-3 hover:bg-hover hover:font-semibold cursor-pointer">
+                    <Link
+                      href={`/${UserRoleLabel[
+                        session.sessionType
+                      ].toLowerCase()}/${session.user?.id}`}
+                    >
+                      <div>
+                        <Icon type="person" className="inline ml-4" />
+                        <p className="inline ml-2 text-sm">Profile</p>
+                      </div>
+                    </Link>
+                  </div>
+                  <button
+                    className="h-14 pt-3 pb-3 hover:bg-hover hover:font-semibold cursor-pointer w-full text-left"
+                    type="button"
+                    onClick={() => signOut()}
+                  >
+                    <Icon type="logoutToggle" className="inline ml-4" />
+                    <p className="inline ml-2 text-sm">Log Out</p>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

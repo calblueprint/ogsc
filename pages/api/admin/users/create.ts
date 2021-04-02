@@ -1,4 +1,5 @@
-import { PrismaClient, PrismaClientKnownRequestError } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client";
+import prisma from "utils/prisma";
 import { NextApiResponse } from "next";
 import Joi from "lib/validate";
 import { UserRoleType, ValidatedNextApiRequest, UserStatus } from "interfaces";
@@ -6,8 +7,6 @@ import Notifier from "lib/notify";
 import { NotificationType } from "lib/notify/types";
 import { validateBody } from "pages/api/helpers";
 import { adminOnlyHandler } from "../helpers";
-
-const prisma = new PrismaClient();
 
 export type AdminCreateUserDTO = {
   name: string;
@@ -50,14 +49,19 @@ const handler = async (
         ...(role
           ? {
               roles: {
-                create: linkedPlayers?.map((playerID: number) => ({
-                  type: role,
-                  relatedPlayer: {
-                    connect: {
-                      id: playerID,
-                    },
-                  },
-                })),
+                create:
+                  linkedPlayers && linkedPlayers.length > 0
+                    ? linkedPlayers?.map((playerID: number) => ({
+                        type: role,
+                        relatedPlayer: {
+                          connect: {
+                            id: playerID,
+                          },
+                        },
+                      }))
+                    : {
+                        type: role,
+                      },
               },
             }
           : undefined),

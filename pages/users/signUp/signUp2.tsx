@@ -60,6 +60,7 @@ const UserSignUpPageTwo: React.FC = () => {
           phoneNumber: state.userData.phoneNumber.toString(),
           password: state.userData.password,
           role: values.role,
+          adminNote: values.adminNote,
         } as CreateUserDTO),
       });
       if (!response.ok) {
@@ -117,7 +118,7 @@ const UserSignUpPageTwo: React.FC = () => {
               type="text"
               className="input input-full"
               name="adminNote"
-              placeholder="Briefly describe your involvment in Oakland Genisis Soccer Club"
+              placeholder="Briefly describe your involvement in Oakland Genesis Soccer Club"
               ref={register}
               defaultValue={state.userData.adminNote}
             />

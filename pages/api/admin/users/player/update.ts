@@ -1,8 +1,8 @@
 import {
-  PrismaClient,
   ProfileFieldKey,
   ProfileFieldCreateWithoutUserInput,
 } from "@prisma/client";
+import prisma from "utils/prisma";
 import Joi from "lib/validate";
 import { NextApiResponse } from "next";
 
@@ -14,8 +14,6 @@ import filterPlayerProfileWrite from "utils/filterPlayerProfileWrite";
 import buildUserProfile from "utils/buildUserProfile";
 import flattenUserRoles from "utils/flattenUserRoles";
 import getAuthenticatedUser from "utils/getAuthenticatedUser";
-
-const prisma = new PrismaClient();
 
 export type PlayerUserDTO = {
   id: number;
@@ -114,7 +112,6 @@ const handler = async (
         });
       }
     });
-
     const playerId = userInfo.id || Number(req.query.id);
     const updatingUser = await prisma.user.findOne({
       where: { id: playerId },
@@ -130,7 +127,6 @@ const handler = async (
         .json({ statusCode: 404, message: "User does not exist." });
       return;
     }
-
     const player = buildUserProfile(flattenUserRoles(updatingUser));
     const updatedUser = await prisma.user.update({
       where: { id: playerId },
@@ -144,7 +140,6 @@ const handler = async (
         ),
       },
     });
-
     res.json({
       message: "Successfully updated user.",
       user: sanitizeUser(updatedUser),
