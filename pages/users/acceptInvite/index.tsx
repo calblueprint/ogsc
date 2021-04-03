@@ -9,6 +9,7 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import updateActionAcceptInvite from "utils/updateActionAcceptInvite";
+import SignUpLayout from "components/SignUpLayout";
 
 export type UserAcceptInviteFormValues = {
   firstName: string;
@@ -95,93 +96,96 @@ const UserAcceptInvitePageOne: React.FC = () => {
   if (inviteCodeId && user) {
     return (
       <StateMachineProvider>
-        <div className="form flex ml-20 mt-10 mr-32 flex-col">
-          <p className="pt-6 text-2xl h-16">
-            Complete your account setup, {user?.name}.
-          </p>
-          <form className="mt-10" onSubmit={handleSubmit(onSubmit)}>
-            <fieldset>
-              <div className="flex mr-32">
-                <UserSignUpFormField
-                  label="First Name"
-                  name="firstName"
-                  error={errors.firstName?.message}
-                >
-                  <input
-                    type="text"
-                    className="input"
+        <SignUpLayout>
+          <div className="form flex ml-20 mt-10 mr-32 flex-col">
+            <p className="pt-6 text-2xl h-16">
+              Complete your account setup, {user?.name}.
+            </p>
+            <form className="mt-10" onSubmit={handleSubmit(onSubmit)}>
+              <fieldset>
+                <div className="flex mr-32">
+                  <UserSignUpFormField
+                    label="First Name"
                     name="firstName"
-                    placeholder="e.g., Cristiano"
-                    ref={register}
-                    defaultValue={
-                      state.acceptUserData.firstName ||
-                      user?.name?.split(" ")[0]
-                    }
-                  />
-                </UserSignUpFormField>
-                <UserSignUpFormField
-                  label="Last Name"
-                  name="lastName"
-                  error={errors.lastName?.message}
-                >
-                  <input
-                    type="text"
-                    className="input"
-                    name="lastName"
-                    placeholder="e.g., Ronaldo"
-                    ref={register}
-                    defaultValue={
-                      state.acceptUserData.lastName || user?.name?.split(" ")[1]
-                    }
-                  />
-                </UserSignUpFormField>
-              </div>
-              <div className="flex mr-32">
-                <UserSignUpFormField
-                  label="Email Address"
-                  name="email"
-                  error=""
-                >
-                  <input
-                    type="text"
-                    className="input"
-                    name="email"
-                    ref={register}
-                    defaultValue={state.acceptUserData.email}
-                    disabled
-                  />
-                </UserSignUpFormField>
-                <UserSignUpFormField
-                  label="Phone Number"
-                  name="phoneNumber"
-                  error={errors.phoneNumber?.message}
-                >
-                  <input
-                    type="text"
-                    className="input"
-                    name="phoneNumber"
-                    placeholder="e.g., 123-456-7890"
-                    ref={register}
-                    defaultValue={
-                      state.acceptUserData.phoneNumber || user?.phoneNumber
-                    }
-                  />
-                </UserSignUpFormField>
-              </div>
-              <div className="flex mt-24 mb-32 justify-end align-middle">
-                <div className="mb-2 flex ">
-                  <Button
-                    className="button-primary text-base px-10 py-2 "
-                    type="submit"
+                    error={errors.firstName?.message}
                   >
-                    Next step &#x2192;
-                  </Button>
+                    <input
+                      type="text"
+                      className="input"
+                      name="firstName"
+                      placeholder="e.g., Cristiano"
+                      ref={register}
+                      defaultValue={
+                        state.acceptUserData.firstName ||
+                        user?.name?.split(" ")[0]
+                      }
+                    />
+                  </UserSignUpFormField>
+                  <UserSignUpFormField
+                    label="Last Name"
+                    name="lastName"
+                    error={errors.lastName?.message}
+                  >
+                    <input
+                      type="text"
+                      className="input"
+                      name="lastName"
+                      placeholder="e.g., Ronaldo"
+                      ref={register}
+                      defaultValue={
+                        state.acceptUserData.lastName ||
+                        user?.name?.split(" ")[1]
+                      }
+                    />
+                  </UserSignUpFormField>
                 </div>
-                {error && <p className="text-red-600 text-sm">{error}</p>}
-              </div>
-            </fieldset>
-          </form>
-        </div>
+                <div className="flex mr-32">
+                  <UserSignUpFormField
+                    label="Email Address"
+                    name="email"
+                    error=""
+                  >
+                    <input
+                      type="text"
+                      className="input"
+                      name="email"
+                      ref={register}
+                      defaultValue={state.acceptUserData.email}
+                      disabled
+                    />
+                  </UserSignUpFormField>
+                  <UserSignUpFormField
+                    label="Phone Number"
+                    name="phoneNumber"
+                    error={errors.phoneNumber?.message}
+                  >
+                    <input
+                      type="text"
+                      className="input"
+                      name="phoneNumber"
+                      placeholder="e.g., 123-456-7890"
+                      ref={register}
+                      defaultValue={
+                        state.acceptUserData.phoneNumber || user?.phoneNumber
+                      }
+                    />
+                  </UserSignUpFormField>
+                </div>
+                <div className="flex mt-24 mb-32 justify-end align-middle">
+                  <div className="mb-2 flex ">
+                    <Button
+                      className="button-primary text-base px-10 py-2 "
+                      type="submit"
+                    >
+                      Next step &#x2192;
+                    </Button>
+                  </div>
+                  {error && <p className="text-red-600 text-sm">{error}</p>}
+                </div>
+              </fieldset>
+            </form>
+          </div>
+        </SignUpLayout>
       </StateMachineProvider>
     );
   }

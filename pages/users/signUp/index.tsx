@@ -74,7 +74,14 @@ const UserSignUpPageOne: React.FC = () => {
 
   return (
     <StateMachineProvider>
-      <div className="form flex ml-20 mt-10 mr-32 flex-col">
+      <div className="fixed top-0 flex flex-col justify-between w-64 h-screen bg-blue-muted" />
+
+      {/* <div className="grid gap-2 grid-cols-2">
+        <div className="object-contain w-96 h-full bg-blue" /> */}
+      {/* <div className="bg-blue" /> */}
+      {/* <div className="bg-blue object-contain w-96 h-full" /> */}
+      <div className="form flex ml-64 pl-20 mt-10 mr-32 flex-col">
+        <p className="text-6xl font-semibold mb-4">Join the Team</p>
         <p className="pt-6 text-2xl h-16">Create your account</p>
         <form className="mt-10" onSubmit={handleSubmit(onSubmit)}>
           <fieldset>
