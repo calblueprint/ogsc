@@ -1,11 +1,10 @@
-import { FindManyUserArgs, PrismaClient } from "@prisma/client";
+import { FindManyUserArgs } from "@prisma/client";
+import prisma from "utils/prisma";
 import { IUser, UserRoleType, UserStatus } from "interfaces";
 import { NextApiRequest, NextApiResponse } from "next";
 import flattenUserRoles from "utils/flattenUserRoles";
 import sanitizeUser from "utils/sanitizeUser";
 import { USER_PAGE_SIZE } from "../../../../constants";
-
-const prisma = new PrismaClient();
 
 export type ReadManyUsersDTO = {
   users: IUser[];

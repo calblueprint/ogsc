@@ -12,12 +12,14 @@ import { useForm } from "react-hook-form";
 import { DeleteUserDTO } from "pages/api/admin/users/delete";
 import Link from "next/link";
 import { NextPageContext } from "next";
-import { PrismaClient, User } from "@prisma/client";
+import { User } from "@prisma/client";
+import prisma from "utils/prisma";
 import Combobox from "components/Combobox";
 import { ViewingPermissionDTO } from "pages/api/admin/roles/create";
 import useSessionInfo from "utils/useSessionInfo";
 import toast, { Toaster } from "react-hot-toast";
 import colors from "../../constants/colors";
+import { signOut } from "next-auth/client";
 
 interface DeleteConfirmationProps {
   user?: IUser;
@@ -38,7 +40,6 @@ type gsspProps = {
 export async function getServerSideProps(
   context: NextPageContext
 ): Promise<{ props: gsspProps }> {
-  const prisma = new PrismaClient();
   const id = context.query.id as string;
 
   const user = await prisma.user.findOne({
@@ -620,7 +621,7 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
 
   return (
     <DashboardLayout>
-      <div className="mx-16 mb-24">
+      <div className="mx-16 mb-24 ">
         <div className="flex flex-row items-center pt-20 pb-12">
           <img
             src={user?.image || "/placeholder-profile.png"}
@@ -636,7 +637,6 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
                 </text>
               )}
             </div>
-
             <div className="flex flex-row items-center">
               <p className="text-sm font-medium mr-4">
                 {user && UserRoleLabel[user.defaultRole.type]}
@@ -651,6 +651,17 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
               )}
             </div>
           </div>
+          {user && session.user.id.toString() === id ? (
+            <button
+              className="absolute top-24 right-0 mr-20"
+              type="button"
+              onClick={() => signOut()}
+            >
+              <Icon type="logoutButton" />
+            </button>
+          ) : (
+            []
+          )}
         </div>
         <hr className="border-unselected border-opacity-50 pb-16" />
         <p className="text-blue text-2xl font-medium pb-10">User Profile</p>

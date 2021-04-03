@@ -1,9 +1,8 @@
-import { FindManyUserArgs, PrismaClient, User } from "@prisma/client";
+import { FindManyUserArgs, User } from "@prisma/client";
+import prisma from "utils/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import sanitizeUser from "utils/sanitizeUser";
 import flattenUserRoles from "utils/flattenUserRoles";
-
-const prisma = new PrismaClient();
 
 export type ReadVerifiedUsersDTO = {
   users: User;

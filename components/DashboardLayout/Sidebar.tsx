@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { UserRoleLabel, UserRoleType } from "interfaces";
 import useSessionInfo from "utils/useSessionInfo";
 import Icon from "components/Icon";
+import { signOut } from "next-auth/client";
 
 type SidebarLinkProps = {
   href: string;
@@ -118,10 +119,14 @@ const Sidebar: React.FC = () => {
                       </div>
                     </Link>
                   </div>
-                  <div className="h-14 pt-3 pb-3 hover:bg-hover hover:font-semibold cursor-pointer">
-                    <Icon type="logout" className="inline ml-4" />
+                  <button
+                    className="h-14 pt-3 pb-3 hover:bg-hover hover:font-semibold cursor-pointer w-full text-left"
+                    type="button"
+                    onClick={() => signOut()}
+                  >
+                    <Icon type="logoutToggle" className="inline ml-4" />
                     <p className="inline ml-2 text-sm">Log Out</p>
-                  </div>
+                  </button>
                 </div>
               )}
             </div>
