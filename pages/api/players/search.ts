@@ -18,6 +18,10 @@ export default async (
 ): Promise<void> => {
   const pageNumber: number = Number(req.query.pageNumber) || 0;
   const phrase = (req.query.phrase as string | undefined)?.trim();
+  const relatedPlayers =
+    req.query.relatedPlayerIds === "null"
+      ? null
+      : (req.query.relatedPlayerIds as string).split(",").map(Number);
   let authenticatedUser: IUser;
 
   try {
@@ -39,6 +43,13 @@ export default async (
               },
             }
           : undefined),
+        ...(relatedPlayers !== null
+          ? {
+              id: {
+                in: relatedPlayers,
+              },
+            }
+          : {}),
         roles: {
           some: {
             type: UserRoleType.Player,
@@ -61,6 +72,13 @@ export default async (
               },
             }
           : undefined),
+        ...(relatedPlayers !== null
+          ? {
+              id: {
+                in: relatedPlayers,
+              },
+            }
+          : {}),
         roles: {
           some: {
             type: UserRoleType.Player,

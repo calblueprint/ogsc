@@ -1,4 +1,4 @@
-import { Absence, ProfileField, User } from "@prisma/client";
+import { Absence, ProfileField, Role, User } from "@prisma/client";
 
 // TODO: Use Prisma-generated types for this once prisma/prisma#3252 is resolved
 export const ProfileFieldKey = <const>{
@@ -145,6 +145,7 @@ export type DefaultRole = {
 
 export type IUser = SanitizedUser & {
   defaultRole: DefaultRole;
+  roles?: Role[];
 };
 
 export type IPlayer = IUser & {

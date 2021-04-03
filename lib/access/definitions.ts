@@ -1,5 +1,15 @@
-import { IPlayer, IUser, ProfileFieldKey, UserRoleType } from "interfaces";
-import { AccessValue, ProfileAccessDefinition } from "./types";
+import {
+  AbsenceType,
+  IPlayer,
+  IUser,
+  ProfileFieldKey,
+  UserRoleType,
+} from "interfaces";
+import {
+  AccessValue,
+  ProfileAccessDefinition,
+  AttendanceAccessDefinition,
+} from "./types";
 
 const isSharedPlayerProfile: AccessValue = (
   player: IPlayer,
@@ -27,23 +37,61 @@ const standardReadAccess = {
 };
 
 /**
+ * Additional access given to non-players.
+ */
+const sharedReadAccess = {
+  [ProfileFieldKey.GPA]: { read: isSharedPlayerProfile },
+  [ProfileFieldKey.BMI]: { read: isSharedPlayerProfile },
+  [ProfileFieldKey.PacerTest]: { read: isSharedPlayerProfile },
+  [ProfileFieldKey.MileTime]: { read: isSharedPlayerProfile },
+  [ProfileFieldKey.Situps]: { read: isSharedPlayerProfile },
+  [ProfileFieldKey.Pushups]: { read: isSharedPlayerProfile },
+  [ProfileFieldKey.HealthAndWellness]: { read: isSharedPlayerProfile },
+  [ProfileFieldKey.AcademicEngagementScore]: { read: isSharedPlayerProfile },
+  [ProfileFieldKey.AdvisingScore]: { read: isSharedPlayerProfile },
+  [ProfileFieldKey.AthleticScore]: { read: isSharedPlayerProfile },
+  [ProfileFieldKey.DisciplinaryActions]: { read: isSharedPlayerProfile },
+};
+
+const allAbsencesSharedReadAccess = {
+  [AbsenceType.Academic]: { read: isSharedPlayerProfile },
+  [AbsenceType.Athletic]: { read: isSharedPlayerProfile },
+  [AbsenceType.School]: { read: isSharedPlayerProfile },
+};
+
+export const AttendanceAccessDefinitionsByRole: Record<
+  Exclude<UserRoleType, "Admin">,
+  AttendanceAccessDefinition
+> = {
+  [UserRoleType.Donor]: {},
+  [UserRoleType.Mentor]: {
+    ...allAbsencesSharedReadAccess,
+  },
+  [UserRoleType.Parent]: {
+    ...allAbsencesSharedReadAccess,
+  },
+  [UserRoleType.Player]: {
+    [AbsenceType.Academic]: { read: isOwnPlayerProfile },
+    [AbsenceType.Athletic]: { read: isOwnPlayerProfile },
+    [AbsenceType.School]: { read: isOwnPlayerProfile },
+  },
+};
+
+/**
  * A map of UserRoleTypes (except for Admins, who by default have full access) to
  * ProfileAccessDefinitions.
  */
-const ProfileAccessDefinitionsByRole: Record<
+export const ProfileAccessDefinitionsByRole: Record<
   Exclude<UserRoleType, "Admin">,
   ProfileAccessDefinition
 > = {
-  [UserRoleType.Donor]: standardReadAccess,
+  [UserRoleType.Donor]: {
+    ...standardReadAccess,
+    ...sharedReadAccess,
+  },
   [UserRoleType.Mentor]: {
     ...standardReadAccess,
-    [ProfileFieldKey.GPA]: { read: isSharedPlayerProfile },
-    [ProfileFieldKey.BMI]: { read: isSharedPlayerProfile },
-    [ProfileFieldKey.PacerTest]: { read: isSharedPlayerProfile },
-    [ProfileFieldKey.MileTime]: { read: isSharedPlayerProfile },
-    [ProfileFieldKey.Situps]: { read: isSharedPlayerProfile },
-    [ProfileFieldKey.Pushups]: { read: isSharedPlayerProfile },
-    [ProfileFieldKey.HealthAndWellness]: { read: isSharedPlayerProfile },
+    ...sharedReadAccess,
   },
   [UserRoleType.Parent]: {
     ...standardReadAccess,
@@ -59,6 +107,7 @@ const ProfileAccessDefinitionsByRole: Record<
     [ProfileFieldKey.BioHobbies]: { read: true, write: isSharedPlayerProfile },
     [ProfileFieldKey.BioParents]: { read: true, write: isSharedPlayerProfile },
     [ProfileFieldKey.BioSiblings]: { read: true, write: isSharedPlayerProfile },
+    ...sharedReadAccess,
   },
   [UserRoleType.Player]: {
     ...standardReadAccess,
@@ -74,7 +123,14 @@ const ProfileAccessDefinitionsByRole: Record<
     [ProfileFieldKey.BioHobbies]: { read: true, write: isOwnPlayerProfile },
     [ProfileFieldKey.BioParents]: { read: true, write: isOwnPlayerProfile },
     [ProfileFieldKey.BioSiblings]: { read: true, write: isOwnPlayerProfile },
+    [ProfileFieldKey.GPA]: { read: isOwnPlayerProfile },
+    [ProfileFieldKey.BMI]: { read: isOwnPlayerProfile },
+    [ProfileFieldKey.PacerTest]: { read: isOwnPlayerProfile },
+    [ProfileFieldKey.MileTime]: { read: isOwnPlayerProfile },
+    [ProfileFieldKey.Situps]: { read: isOwnPlayerProfile },
+    [ProfileFieldKey.Pushups]: { read: isOwnPlayerProfile },
+    [ProfileFieldKey.HealthAndWellness]: { read: isOwnPlayerProfile },
+    [ProfileFieldKey.BMI]: { read: isOwnPlayerProfile },
+    [ProfileFieldKey.DisciplinaryActions]: { read: isOwnPlayerProfile },
   },
 };
-
-export default ProfileAccessDefinitionsByRole;
