@@ -86,7 +86,7 @@ const UserSignUpPageOne: React.FC = () => {
               >
                 <input
                   type="text"
-                  className="input "
+                  className="input"
                   name="firstName"
                   placeholder="e.g., Cristiano"
                   ref={register}
@@ -100,7 +100,7 @@ const UserSignUpPageOne: React.FC = () => {
               >
                 <input
                   type="text"
-                  className="input "
+                  className="input"
                   name="lastName"
                   placeholder="e.g., Ronaldo"
                   ref={register}
@@ -116,7 +116,7 @@ const UserSignUpPageOne: React.FC = () => {
               >
                 <input
                   type="text"
-                  className="input "
+                  className="input"
                   name="email"
                   placeholder="e.g., soccer@fifa.com"
                   ref={register}
