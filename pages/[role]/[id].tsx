@@ -16,6 +16,8 @@ import { PrismaClient, User } from "@prisma/client";
 import Combobox from "components/Combobox";
 import { ViewingPermissionDTO } from "pages/api/admin/roles/create";
 import useSessionInfo from "utils/useSessionInfo";
+import toast, { Toaster } from "react-hot-toast";
+import colors from "../../constants/colors";
 
 interface DeleteConfirmationProps {
   user?: IUser;
@@ -576,6 +578,21 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
       } else {
         setUser((await response.json()).user);
         refreshData();
+        let toastMessage;
+        if (user?.status === UserStatus.Inactive) {
+          toastMessage = "User account deactivated";
+        } else {
+          toastMessage = "User account activated";
+        }
+        toast.success(toastMessage, {
+          duration: 2000,
+          iconTheme: { primary: colors.dark, secondary: colors.button },
+          style: {
+            background: colors.dark,
+            color: colors.button,
+            margin: "50px",
+          },
+        });
       }
     } catch (err) {
       setError(err.message);
@@ -695,6 +712,7 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
                     </span>
                     .
                   </div>
+                  <Toaster position="bottom-left" />
                   {error && <p className="text-red-600 text-sm">{error}</p>}
                 </div>
               </div>
