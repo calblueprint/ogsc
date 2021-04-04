@@ -18,8 +18,8 @@ import Combobox from "components/Combobox";
 import { ViewingPermissionDTO } from "pages/api/admin/roles/create";
 import useSessionInfo from "utils/useSessionInfo";
 import toast, { Toaster } from "react-hot-toast";
-import colors from "../../constants/colors";
 import { signOut } from "next-auth/client";
+import colors from "../../constants/colors";
 
 interface DeleteConfirmationProps {
   user?: IUser;
@@ -581,9 +581,9 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
         refreshData();
         let toastMessage;
         if (user?.status === UserStatus.Inactive) {
-          toastMessage = "User account deactivated";
-        } else {
           toastMessage = "User account activated";
+        } else {
+          toastMessage = "User account deactivated";
         }
         toast.success(toastMessage, {
           duration: 2000,
