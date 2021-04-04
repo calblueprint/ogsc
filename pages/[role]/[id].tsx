@@ -17,7 +17,9 @@ import prisma from "utils/prisma";
 import Combobox from "components/Combobox";
 import { ViewingPermissionDTO } from "pages/api/admin/roles/create";
 import useSessionInfo from "utils/useSessionInfo";
+import toast, { Toaster } from "react-hot-toast";
 import { signOut } from "next-auth/client";
+import colors from "../../constants/colors";
 
 interface DeleteConfirmationProps {
   user?: IUser;
@@ -577,6 +579,21 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
       } else {
         setUser((await response.json()).user);
         refreshData();
+        let toastMessage;
+        if (user?.status === UserStatus.Inactive) {
+          toastMessage = "User account activated";
+        } else {
+          toastMessage = "User account deactivated";
+        }
+        toast.success(toastMessage, {
+          duration: 2000,
+          iconTheme: { primary: colors.dark, secondary: colors.button },
+          style: {
+            background: colors.dark,
+            color: colors.button,
+            margin: "50px",
+          },
+        });
       }
     } catch (err) {
       setError(err.message);
@@ -612,8 +629,14 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
             className="w-24 h-24 mr-12 bg-placeholder rounded-full"
           />
           <div>
-            <p className="text-2xl font-semibold">{user?.name}</p>
-
+            <div className="flex flex-row items-center">
+              <p className="text-2xl font-semibold">{user?.name}</p>
+              {user?.status === UserStatus.Inactive && (
+                <text className="px-3 ml-5 rounded-full font-semibold text-unselected bg-button">
+                  {UserStatus.Inactive.toUpperCase()}
+                </text>
+              )}
+            </div>
             <div className="flex flex-row items-center">
               <p className="text-sm font-medium mr-4">
                 {user && UserRoleLabel[user.defaultRole.type]}
@@ -678,10 +701,13 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
 
                 <div>
                   <p className="font-semibold text-sm pb-2">User Access</p>
-                  <div className="text-sm pb-3">
-                    {user?.status === UserStatus.Active &&
-                      "Inactive users will no longer be able to access their account but their data will remain intact. This action can be undone at any point."}
-                  </div>
+                  {user?.status === UserStatus.Active && (
+                    <div className="text-sm pb-3">
+                      Inactive users will no longer be able to access their
+                      account but their data will remain intact. This action can
+                      be undone at any point.
+                    </div>
+                  )}
                   <Button
                     className="button-primary mt-7 mb-52 mr-5"
                     onClick={() => {
@@ -690,13 +716,14 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
                   >
                     {statusButtonText}
                   </Button>
-                  <div className="pt-3">
+                  <div className="text-sm pt-3">
                     {user?.name} is currently{" "}
                     <span className="text-blue font-semibold">
-                      {user?.status}
+                      {user?.status.toLowerCase()}
                     </span>
                     .
                   </div>
+                  <Toaster position="bottom-left" />
                   {error && <p className="text-red-600 text-sm">{error}</p>}
                 </div>
               </div>

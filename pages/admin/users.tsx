@@ -1,7 +1,8 @@
 import DashboardLayout from "components/DashboardLayout";
 import UserDashboard from "components/UserDashboard";
-import { UserRoleType, UserStatus } from "interfaces";
+import { UserRoleType, UserStatus, UserRoleLabel } from "interfaces";
 import { useState } from "react";
+import useSessionInfo from "utils/useSessionInfo";
 
 interface adminNavBarProps {
   title: string | null;
@@ -19,13 +20,16 @@ const FilterLabels: Dictionary<string> = {
   [UserRoleType.Mentor]: "Mentors",
   [UserRoleType.Parent]: "Parents",
   [UserRoleType.Donor]: "Donors",
-  [UserStatus.Inactive]: "Inactive",
 };
 
 const AdminNavbar: React.FunctionComponent<adminNavBarProps> = ({
   title,
   setTitle,
 }) => {
+  const session = useSessionInfo();
+  if (UserRoleLabel[session.sessionType] === "Admin") {
+    FilterLabels[UserStatus.Inactive] = "Inactive";
+  }
   return (
     <div>
       <div className="flex flex-row justify-between text-sm text-center mt-8 mb-5">
