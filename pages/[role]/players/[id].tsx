@@ -40,6 +40,18 @@ export async function getServerSideProps(
     // TODO: Set statusCode to 401
     return { props: {} };
   }
+
+  const sessionUser = await prisma.user.findOne({
+    where: { email: session.user.email },
+    include: {
+      roles: true,
+    },
+  });
+  if (!sessionUser) {
+    // TODO: Set statusCode to 401
+    return { props: {} };
+  }
+
   const authenticatedUser = await prisma.user.findOne({
     where: { email: session.user.email },
     include: { roles: true },

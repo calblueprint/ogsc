@@ -6,10 +6,10 @@ import {
   ProfileFieldKey,
   User,
   UserCreateArgs,
+  PrismaClient,
 } from "@prisma/client";
 import Faker from "faker";
 import Ora from "ora";
-import prisma from "../utils/prisma";
 import {
   AbsenceReason,
   AbsenceType,
@@ -19,6 +19,7 @@ import {
 import hashPassword from "../utils/hashPassword";
 
 const NUMBER_USERS = 10;
+const prisma = new PrismaClient();
 
 function generateFieldsAcrossTimestamps(
   key: ProfileFieldKey,
