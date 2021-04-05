@@ -1,113 +1,105 @@
-import React, { useState } from "react";
+/* eslint-disable react/destructuring-assignment */
+import { Absence } from "@prisma/client";
+import React, { useContext, useState } from "react";
 import Icon from "components/Icon";
 import Modal from "components/Modal";
-import EditScore from "components/Player/EditScore";
+import EditField from "components/Player/EditField";
+import Popover from "components/Popover";
+import { IProfileField, NumericProfileFields } from "interfaces/user";
 import DeleteField from "./DeleteField";
+import ProfileContext from "./ProfileContext";
 
-export function getCategory(key: string): string {
-  if (key === "AcademicEngagementScore") {
-    return "School";
+type EditProps =
+  | {
+      fieldKey: NumericProfileFields;
+    }
+  | {
+      absenceId: number;
+    };
+
+const EditMore: React.FunctionComponent<EditProps> = (props: EditProps) => {
+  const [selectedOption, setSelectedOption] = useState<
+    "edit" | "delete" | null
+  >(null);
+  const {
+    state: { player },
+    refreshProfile,
+  } = useContext(ProfileContext);
+
+  const profileFields: IProfileField<NumericProfileFields>[] | undefined =
+    "fieldKey" in props
+      ? player?.profile?.[props.fieldKey]?.history
+      : undefined;
+  const field =
+    "fieldKey" in props
+      ? profileFields?.find(
+          (profileField: IProfileField<NumericProfileFields>) =>
+            profileField.key === props.fieldKey
+        )
+      : player?.absences?.find(
+          (absence: Absence) => props.absenceId === absence.id
+        );
+
+  if (!field) {
+    return null;
   }
-  if (key === "AdvisingScore") {
-    return "Advising";
-  }
-  if (key === "AthleticScore") {
-    return "Athletic";
-  }
-  return "GPA";
-}
 
-export type field = {
-  value: number | undefined;
-  createdAt: Date;
-  comment?: string | undefined;
-  id: number;
-  userId: number;
-  key:
-    | "AcademicEngagementScore"
-    | "AdvisingScore"
-    | "AthleticScore"
-    | "BMI"
-    | "GPA"
-    | "PacerTest"
-    | "Pushups"
-    | "Situps";
-};
-
-type EditProps = React.PropsWithChildren<{
-  field: field;
-  setSuccess: React.Dispatch<React.SetStateAction<boolean>>;
-  setType: React.Dispatch<
-    React.SetStateAction<"updated" | "added" | "deleted" | undefined>
-  >;
-  setDate: React.Dispatch<React.SetStateAction<string>>;
-}>;
-
-const EditMore: React.FunctionComponent<EditProps> = ({
-  field,
-  setSuccess,
-  setType,
-  setDate,
-}: EditProps) => {
-  const [editMode, setEditMode] = useState(false);
-  const [selectedOption, setSelectedOption] = useState("");
   return (
     <div>
-      <button type="button" onClick={() => setEditMode(!editMode)}>
-        <Icon type="more" className="h-5 ml-4 fill-current" />
-        {editMode ? (
-          <div className="absolute border border-unselected bg-white rounded-lg h-24 w-1/12 grid grid-rows-2">
-            <button
-              type="button"
-              className=" text-dark grid grid-cols-3 place-items-center hover:bg-button rounded-b-none rounded-lg"
-              onClick={() => {
-                setSelectedOption("edit");
-                setEditMode(false);
-              }}
-            >
-              <Icon type="edit" className="h-3" />
-              <p className="justify-self-start">Edit</p>
-            </button>
-            <button
-              type="button"
-              className="text-dark grid grid-cols-3 place-items-center hover:bg-button rounded-t-none rounded-lg"
-              onClick={() => {
-                setSelectedOption("delete");
-                setEditMode(false);
-              }}
-            >
-              <Icon type="delete" />
-              <p className="justify-self-start">Delete</p>
-            </button>
-          </div>
-        ) : null}
-      </button>
-      <Modal open={selectedOption === "edit"} className="w-2/3">
-        <EditScore
-          setSuccess={setSuccess}
-          setType={setType}
-          setDate={setDate}
-          currentScore={field}
-          setOption={setSelectedOption}
-          scoreCategory={getCategory(field.key)}
-        />
-      </Modal>
-      <Modal open={selectedOption === "delete"} className="w-2/3">
-        <DeleteField
-          setSuccess={setSuccess}
-          setType={setType}
-          setDate={setDate}
-          setOption={setSelectedOption}
-          fieldType={getCategory(field.key) === "GPA" ? "gpa" : "Score"}
-          id={field.id}
-          userId={field.userId}
-          date={`
-          ${new Date(field.createdAt).toLocaleString("default", {
-            month: "long",
-          })}${" "}
-          ${field.createdAt.getFullYear().toString()}`}
-        />
-      </Modal>
+      <Popover
+        trigger={
+          <button type="button">
+            <Icon type="more" className="h-5 ml-4 fill-current" />
+          </button>
+        }
+      >
+        <div className="border border-unselected bg-white rounded-lg h-24 w-1/12 grid grid-rows-2">
+          <button
+            type="button"
+            className=" text-dark grid grid-cols-3 place-items-center hover:bg-button rounded-b-none rounded-lg"
+            onClick={() => {
+              setSelectedOption("edit");
+            }}
+          >
+            <Icon type="edit" className="h-3" />
+            <p className="justify-self-start">Edit</p>
+          </button>
+          <button
+            type="button"
+            className="text-dark grid grid-cols-3 place-items-center hover:bg-button rounded-t-none rounded-lg"
+            onClick={() => {
+              setSelectedOption("delete");
+            }}
+          >
+            <Icon type="delete" />
+            <p className="justify-self-start">Delete</p>
+          </button>
+        </div>
+        <Modal open={selectedOption === "edit"} className="w-2/3">
+          <EditField
+            field={field}
+            onComplete={(updated?: IProfileField | Absence) => {
+              setSelectedOption(null);
+              if (updated) {
+                refreshProfile();
+              }
+              // TODO: Dispatch notification
+            }}
+          />
+        </Modal>
+        <Modal open={selectedOption === "delete"} className="w-2/3">
+          <DeleteField
+            field={field}
+            onComplete={(deleted?: IProfileField | Absence) => {
+              setSelectedOption(null);
+              if (deleted) {
+                refreshProfile();
+              }
+              // TODO: Dispatch notification
+            }}
+          />
+        </Modal>
+      </Popover>
     </div>
   );
 };

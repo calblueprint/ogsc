@@ -156,7 +156,7 @@ export type ProfileFieldValueDeserializedTypes = {
   [ProfileFieldValue.DistanceMeasured]: { feet: number; inches: number };
 };
 
-export type IProfileField<K extends ProfileFieldKey> = Omit<
+export type IProfileField<K extends ProfileFieldKey = ProfileFieldKey> = Omit<
   ProfileField,
   "key"
 > & {
@@ -185,6 +185,13 @@ export type ProfileFieldKeysOfProfileValueType<
     [K in ProfileFieldKey]: ProfileFieldValues[K] extends T ? K : never;
   }[ProfileFieldKey],
   never
+>;
+
+export type NumericProfileFields = ProfileFieldKeysOfProfileValueType<
+  | ProfileFieldValue.Integer
+  | ProfileFieldValue.Float
+  | ProfileFieldValue.IntegerWithComment
+  | ProfileFieldValue.FloatWithComment
 >;
 
 export type DefaultRole = {

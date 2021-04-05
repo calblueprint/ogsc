@@ -1,58 +1,34 @@
+import { Absence } from "@prisma/client";
 import Button from "components/Button";
+import dayjs from "dayjs";
+import { IProfileField } from "interfaces/user";
 import { useState } from "react";
-import { DeleteFieldDTO } from "pages/api/admin/users/player/delete";
-import { useRouter } from "next/router";
+import isAbsence from "utils/isAbsence";
+import labelProfileField from "utils/labelProfileField";
 
-type Props = React.PropsWithChildren<{
-  setOption: React.Dispatch<React.SetStateAction<string>>;
-  setSuccess: React.Dispatch<React.SetStateAction<boolean>>;
-  setType: React.Dispatch<
-    React.SetStateAction<"updated" | "added" | "deleted" | undefined>
-  >;
-  setDate: React.Dispatch<React.SetStateAction<string>>;
-  id: number;
-  userId: number;
-  fieldType: string;
-  date: string;
-}>;
+type Props = {
+  field: IProfileField | Absence;
+  onComplete?: (deleted?: IProfileField | Absence) => void;
+};
 
-const DeleteField: React.FC<Props> = ({
-  setOption,
-  setSuccess,
-  setDate,
-  setType,
-  fieldType,
-  id,
-  userId,
-  date,
-}: Props) => {
-  const router = useRouter();
+const DeleteField: React.FC<Props> = ({ field, onComplete }: Props) => {
   const [error, setError] = useState("");
-  const link =
-    fieldType === "absence"
-      ? "/api/admin/users/player/deleteAbsences"
-      : "/api/admin/users/player/delete";
 
-  async function ScoreSubmit(event?: React.BaseSyntheticEvent): Promise<void> {
-    event?.preventDefault();
+  async function deleteField(): Promise<void> {
     try {
-      const response = await fetch(link, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          id,
-          userId,
-        } as DeleteFieldDTO),
-      });
+      const response = await fetch(
+        isAbsence(field)
+          ? `/api/absences/${field.id}`
+          : `/api/profileFields/${field.id}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
       if (!response.ok) {
         throw await response.json();
       }
-      setDate(date);
-      setType("deleted");
-      setSuccess(true);
-      setOption("");
-      router.replace(router.asPath);
+      onComplete?.(field);
     } catch (err) {
       setError(err.message);
     }
@@ -60,18 +36,20 @@ const DeleteField: React.FC<Props> = ({
   return (
     <div>
       <p>
-        Are you sure you want to delete this{" "}
-        {fieldType === "Score" ? "Engagement Score" : ""}{" "}
-        {fieldType === "gpa" ? "GPA" : ""}{" "}
-        {fieldType === "absence" ? "Absence" : ""} for {date} ?
+        Are you sure you want to delete this {labelProfileField(field)} entry
+        for{" "}
+        {dayjs(isAbsence(field) ? field.date : field.createdAt).format(
+          "MM/DD/YYYY"
+        )}{" "}
+        ?
       </p>
       <div className="flex flex-row gap-6 mt-10">
-        <Button className="py-2 px-16 text-sm" onClick={() => ScoreSubmit()}>
+        <Button className="py-2 px-16 text-sm" onClick={deleteField}>
           Yes
         </Button>
         <Button
           className="border border-blue bg-white py-2 px-12 text-sm border-opacity-100"
-          onClick={() => setOption("")}
+          onClick={() => onComplete?.()}
         >
           Cancel
         </Button>
@@ -80,4 +58,9 @@ const DeleteField: React.FC<Props> = ({
     </div>
   );
 };
+
+DeleteField.defaultProps = {
+  onComplete: undefined,
+};
+
 export default DeleteField;

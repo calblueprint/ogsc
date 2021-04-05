@@ -9,7 +9,13 @@ import { ProfileFieldKey } from "@prisma/client";
 type ProfileState = {
   player: IPlayer | null;
   editingState: {
-    sections: { [sectionName: string]: { editing: boolean } | undefined };
+    sections: {
+      [sectionName: string]:
+        | {
+            editing: boolean;
+          }
+        | undefined;
+    };
   };
 };
 
@@ -35,6 +41,7 @@ const initialProfileState: ProfileState = {
 const ProfileContext = React.createContext<{
   state: ProfileState;
   dispatch: React.Dispatch<ProfileAction>;
+  refreshProfile: () => void;
 }>({
   state: initialProfileState,
   dispatch: (action: ProfileAction) => {
@@ -42,6 +49,12 @@ const ProfileContext = React.createContext<{
     console.warn(
       "ProfileContext#dispatch was called before the reducer was initialized. This action was ignored.",
       action
+    );
+  },
+  refreshProfile: () => {
+    // eslint-disable-next-line no-console
+    console.warn(
+      "ProfileContext#refreshProfile was called before the reducer was initialized. This action was ignored."
     );
   },
 });
