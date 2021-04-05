@@ -1,7 +1,7 @@
 import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
 import FormField from "components/FormField";
-import SignUpSidebar from "components/SignUpLayout/SignUpSidebar";
+import SignUpLayout from "components/SignUpLayout";
 import { UserRoleLabel, UserRoleType } from "interfaces";
 import Joi from "lib/validate";
 import { StateMachineProvider, useStateMachine } from "little-state-machine";
@@ -105,8 +105,8 @@ const UserSignUpPageTwo: React.FC = () => {
 
   return (
     <StateMachineProvider>
-      <SignUpSidebar>
-        <div className="form flex ml-20 mt-10 mr-32 flex-col">
+      <SignUpLayout>
+        <div className="form flex mt-10 mr-32 flex-col">
           <p className="text-6xl font-semibold mb-4">Join the Team</p>
           <p className="pt-6 text-2xl h-16">Create your account</p>
           <form className="mt-10" onSubmit={handleSubmit(onSubmit)}>
@@ -163,7 +163,7 @@ const UserSignUpPageTwo: React.FC = () => {
             </div>
           </form>
         </div>
-      </SignUpSidebar>
+      </SignUpLayout>
     </StateMachineProvider>
   );
 };

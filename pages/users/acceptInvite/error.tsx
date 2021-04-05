@@ -25,7 +25,7 @@ const Error: React.FC = () => {
   // }
   return (
     <SignUpLayout>
-      <div className="flex ml-20 justify-center flex-col space-y-7 h-screen">
+      <div className="flex justify-center flex-col space-y-7 h-screen">
         <div>
           <p className="text-6xl">
             {router.query.type === "expired" ? Title.Expired : Title.NoAccess}
