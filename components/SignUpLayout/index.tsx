@@ -1,5 +1,4 @@
 import React from "react";
-import SignUpSidebar from "./SignUpSidebar";
 
 type Props = {
   children: React.ReactNode;
@@ -8,7 +7,7 @@ type Props = {
 const SignUpLayout: React.FC<Props> = ({ children }: Props) => {
   return (
     <div>
-      <SignUpSidebar />
+      <div className="fixed top-0 flex flex-col justify-between w-64 h-screen bg-blue-muted" />
       <div className="ml-64 pl-20">{children}</div>
     </div>
   );
