@@ -1,4 +1,5 @@
-import { PrismaClient, Absence } from "@prisma/client";
+import { Absence } from "@prisma/client";
+import prisma from "utils/prisma";
 
 import { ValidatedNextApiRequest } from "interfaces";
 import Joi from "lib/validate";
@@ -7,8 +8,6 @@ import { validateBody } from "pages/api/helpers";
 
 import sanitizeUser from "utils/sanitizeUser";
 import { adminOnlyHandler } from "../../helpers";
-
-const prisma = new PrismaClient();
 
 const expectedBody = Joi.object<Absence>({
   id: Joi.number().required(),

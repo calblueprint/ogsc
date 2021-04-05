@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Icon from "components/Icon";
 import Button from "components/Button";
 import FormField from "components/FormField";
-import { IUser, UserRoleLabel, UserRoleType } from "interfaces";
+import { IUser, UserRoleLabel, UserRoleType, UserStatus } from "interfaces";
 import Joi from "lib/validate";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
@@ -12,10 +12,14 @@ import { useForm } from "react-hook-form";
 import { DeleteUserDTO } from "pages/api/admin/users/delete";
 import Link from "next/link";
 import { NextPageContext } from "next";
-import { PrismaClient, User } from "@prisma/client";
+import { User } from "@prisma/client";
+import prisma from "utils/prisma";
 import Combobox from "components/Combobox";
 import { ViewingPermissionDTO } from "pages/api/admin/roles/create";
 import useSessionInfo from "utils/useSessionInfo";
+import toast, { Toaster } from "react-hot-toast";
+import { signOut } from "next-auth/client";
+import colors from "../../constants/colors";
 
 interface DeleteConfirmationProps {
   user?: IUser;
@@ -36,7 +40,6 @@ type gsspProps = {
 export async function getServerSideProps(
   context: NextPageContext
 ): Promise<{ props: gsspProps }> {
-  const prisma = new PrismaClient();
   const id = context.query.id as string;
 
   const user = await prisma.user.findOne({
@@ -544,8 +547,63 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
 }) => {
   const [user, setUser] = useState<IUser>();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [newStatus, setNewStatus] = useState("");
+  const [error, setError] = useState("");
   const router = useRouter();
   const { id } = router.query;
+  let statusButtonText;
+  const refreshData = (): void => {
+    router.replace(router.asPath);
+  };
+
+  useEffect(() => {
+    setNewStatus(
+      user?.status === UserStatus.Inactive
+        ? UserStatus.Active
+        : UserStatus.Inactive
+    );
+  }, [user]);
+
+  async function changeUserStatus(): Promise<void> {
+    try {
+      const response = await fetch(`/api/admin/users/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          status: newStatus,
+        } as UpdateUserDTO),
+      });
+      if (!response.ok) {
+        throw await response.json();
+      } else {
+        setUser((await response.json()).user);
+        refreshData();
+        let toastMessage;
+        if (user?.status === UserStatus.Inactive) {
+          toastMessage = "User account activated";
+        } else {
+          toastMessage = "User account deactivated";
+        }
+        toast.success(toastMessage, {
+          duration: 2000,
+          iconTheme: { primary: colors.dark, secondary: colors.button },
+          style: {
+            background: colors.dark,
+            color: colors.button,
+            margin: "50px",
+          },
+        });
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+  if (user?.status === UserStatus.Active) {
+    statusButtonText = "Deactivate Account";
+  } else {
+    statusButtonText = "Activate Acconut";
+  }
 
   useEffect(() => {
     const getUser = async (): Promise<void> => {
@@ -563,7 +621,7 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
 
   return (
     <DashboardLayout>
-      <div className="mx-16 mb-24">
+      <div className="mx-16 mb-24 ">
         <div className="flex flex-row items-center pt-20 pb-12">
           <img
             src={user?.image || "/placeholder-profile.png"}
@@ -571,7 +629,14 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
             className="w-24 h-24 mr-12 bg-placeholder rounded-full"
           />
           <div>
-            <p className="text-2xl font-semibold">{user?.name}</p>
+            <div className="flex flex-row items-center">
+              <p className="text-2xl font-semibold">{user?.name}</p>
+              {user?.status === UserStatus.Inactive && (
+                <text className="px-3 ml-5 rounded-full font-semibold text-unselected bg-button">
+                  {UserStatus.Inactive.toUpperCase()}
+                </text>
+              )}
+            </div>
             <div className="flex flex-row items-center">
               <p className="text-sm font-medium mr-4">
                 {user && UserRoleLabel[user.defaultRole.type]}
@@ -586,6 +651,17 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
               )}
             </div>
           </div>
+          {user && session.user.id.toString() === id ? (
+            <button
+              className="absolute top-24 right-0 mr-20"
+              type="button"
+              onClick={() => signOut()}
+            >
+              <Icon type="logoutButton" />
+            </button>
+          ) : (
+            []
+          )}
         </div>
         <hr className="border-unselected border-opacity-50 pb-16" />
         <p className="text-blue text-2xl font-medium pb-10">User Profile</p>
@@ -624,18 +700,31 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
                 <p className="text-lg mr-6 font-medium">Account Changes</p>
 
                 <div>
-                  <p className="font-semibold text-sm pb-3">Close Account</p>
-                  <p className="text-sm font-normal">
-                    Delete this user&apos;s account and account data
-                  </p>
+                  <p className="font-semibold text-sm pb-2">User Access</p>
+                  {user?.status === UserStatus.Active && (
+                    <div className="text-sm pb-3">
+                      Inactive users will no longer be able to access their
+                      account but their data will remain intact. This action can
+                      be undone at any point.
+                    </div>
+                  )}
                   <Button
-                    className="button-primary mt-7 mb-52 mr-5 text-danger bg-danger-muted"
+                    className="button-primary mt-7 mb-52 mr-5"
                     onClick={() => {
-                      setIsDeleting(true);
+                      changeUserStatus();
                     }}
                   >
-                    Close Account
+                    {statusButtonText}
                   </Button>
+                  <div className="text-sm pt-3">
+                    {user?.name} is currently{" "}
+                    <span className="text-blue font-semibold">
+                      {user?.status.toLowerCase()}
+                    </span>
+                    .
+                  </div>
+                  <Toaster position="bottom-left" />
+                  {error && <p className="text-red-600 text-sm">{error}</p>}
                 </div>
               </div>
             </div>

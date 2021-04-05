@@ -1,14 +1,7 @@
-import {
-  Absence,
-  PrismaClient,
-  ProfileField,
-  Role,
-  User,
-} from "@prisma/client";
+import { Absence, ProfileField, Role, User } from "@prisma/client";
+import prisma from "utils/prisma";
 import { NextApiRequest } from "next";
 import { getSession } from "next-auth/client";
-
-const prisma = new PrismaClient();
 
 async function getAuthenticatedUser(
   req: NextApiRequest

@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import prisma from "utils/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 
 import { IPlayer, IUser, UserRoleType } from "interfaces";
@@ -9,8 +9,6 @@ import getAuthenticatedUser from "utils/getAuthenticatedUser";
 import sanitizeUser from "utils/sanitizeUser";
 import { USER_PAGE_SIZE } from "../../../constants";
 
-const prisma = new PrismaClient();
-
 export default async (
   req: NextApiRequest,
   res: NextApiResponse<
@@ -20,6 +18,10 @@ export default async (
 ): Promise<void> => {
   const pageNumber: number = Number(req.query.pageNumber) || 0;
   const phrase = (req.query.phrase as string | undefined)?.trim();
+  const relatedPlayers =
+    req.query.relatedPlayerIds === "null"
+      ? null
+      : (req.query.relatedPlayerIds as string).split(",").map(Number);
   let authenticatedUser: IUser;
 
   try {
@@ -41,6 +43,13 @@ export default async (
               },
             }
           : undefined),
+        ...(relatedPlayers !== null
+          ? {
+              id: {
+                in: relatedPlayers,
+              },
+            }
+          : {}),
         roles: {
           some: {
             type: UserRoleType.Player,
@@ -63,6 +72,13 @@ export default async (
               },
             }
           : undefined),
+        ...(relatedPlayers !== null
+          ? {
+              id: {
+                in: relatedPlayers,
+              },
+            }
+          : {}),
         roles: {
           some: {
             type: UserRoleType.Player,

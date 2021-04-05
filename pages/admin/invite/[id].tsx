@@ -9,7 +9,8 @@ import { joiResolver } from "@hookform/resolvers/joi";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { useForm } from "react-hook-form";
 import { NextPageContext } from "next";
-import { PrismaClient, User } from "@prisma/client";
+import { User } from "@prisma/client";
+import prisma from "utils/prisma";
 import Combobox from "components/Combobox";
 import { ViewingPermissionDTO } from "pages/api/admin/roles/create";
 
@@ -29,7 +30,6 @@ type gsspProps = {
 export async function getServerSideProps(
   context: NextPageContext
 ): Promise<{ props: gsspProps }> {
-  const prisma = new PrismaClient();
   const id = context.query.id as string;
 
   const user = await prisma.user.findOne({
@@ -147,6 +147,13 @@ const UserInvitation: React.FunctionComponent<gsspProps> = ({
       }) as unknown) as ViewingPermissionDTO;
       linkedPlayers.push(body);
     });
+    let role = [
+      (JSON.stringify({
+        type: currRole,
+        userId: user?.id,
+      }) as unknown) as ViewingPermissionDTO,
+    ];
+    role = linkedPlayers.length > 0 ? linkedPlayers : role;
     try {
       const response = await fetch(`/api/admin/users/${user?.id}`, {
         method: "PATCH",
@@ -156,7 +163,7 @@ const UserInvitation: React.FunctionComponent<gsspProps> = ({
           email: values.email,
           name: `${values.firstName} ${values.lastName}`,
           phoneNumber: values.phoneNumber,
-          roles: linkedPlayers,
+          roles: role,
           sendEmail: true,
         } as UpdateUserDTO),
       });

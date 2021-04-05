@@ -1,10 +1,16 @@
 import React, { useContext, useState } from "react";
 import Icon, { IconType } from "components/Icon";
-import { AbsenceType, IPlayer, ProfileFieldKey } from "interfaces";
+import {
+  AbsenceType,
+  IPlayer,
+  ProfileFieldKey,
+  UserRoleLabel,
+} from "interfaces";
 import updateActionPlayer from "utils/updateActionPlayer";
 import { useStateMachine } from "little-state-machine";
 import Button from "components/Button";
 import Modal from "components/Modal";
+import useSessionInfo from "utils/useSessionInfo";
 import TextLayout from "./TextLayout";
 import AbsenceTable from "./AbsenceTable";
 import ValueHistoryView from "./ValueHistoryView";
@@ -199,6 +205,7 @@ const ProfileContents = <T extends ProfileCategory>({
   const [addScoreState, setAddScoreState] = useState(false);
   const [scoreCategory, setScoreCategory] = useState("");
   const { action } = useStateMachine(updateActionPlayer);
+  const session = useSessionInfo();
 
   switch (category) {
     case ProfileCategory.Overview:
@@ -209,13 +216,17 @@ const ProfileContents = <T extends ProfileCategory>({
           <div className="mt-10 grid grid-cols-3">
             <div className="flex flex-row">
               <div className="mb-6 text-lg font-semibold pr-6">Student Bio</div>
-              <button
-                type="button"
-                onClick={() => setBioEditState(true)}
-                className="h-6"
-              >
-                <Icon type="edit" />
-              </button>
+              {UserRoleLabel[session.sessionType] === "Admin" ? (
+                <button
+                  type="button"
+                  onClick={() => setBioEditState(true)}
+                  className="h-6"
+                >
+                  <Icon type="edit" />
+                </button>
+              ) : (
+                []
+              )}
             </div>
             <div className="col-span-2">
               {BioEditState ? (
@@ -292,45 +303,57 @@ const ProfileContents = <T extends ProfileCategory>({
             <ProfileContentCell
               fieldKey={ProfileFieldKey.AcademicEngagementScore}
             />
-            <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
-              <Button
-                iconType="plus"
-                onClick={() => {
-                  setAddScoreState(true);
-                  setScoreCategory("School");
-                }}
-              >
-                Add Engagement Score
-              </Button>
-            </div>
+            {UserRoleLabel[session.sessionType] === "Admin" ? (
+              <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
+                <Button
+                  iconType="plus"
+                  onClick={() => {
+                    setAddScoreState(true);
+                    setScoreCategory("School");
+                  }}
+                >
+                  Add Engagement Score
+                </Button>
+              </div>
+            ) : (
+              []
+            )}
           </div>
           <div className="mb-16">
             <ProfileContentCell fieldKey={ProfileFieldKey.AdvisingScore} />
-            <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
-              <Button
-                iconType="plus"
-                onClick={() => {
-                  setAddScoreState(true);
-                  setScoreCategory("Advising");
-                }}
-              >
-                Add Engagement Score
-              </Button>
-            </div>
+            {UserRoleLabel[session.sessionType] === "Admin" ? (
+              <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
+                <Button
+                  iconType="plus"
+                  onClick={() => {
+                    setAddScoreState(true);
+                    setScoreCategory("Advising");
+                  }}
+                >
+                  Add Engagement Score
+                </Button>
+              </div>
+            ) : (
+              []
+            )}
           </div>
           <div className="mb-16">
             <ProfileContentCell fieldKey={ProfileFieldKey.AthleticScore} />
-            <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
-              <Button
-                iconType="plus"
-                onClick={() => {
-                  setAddScoreState(true);
-                  setScoreCategory("Athletic");
-                }}
-              >
-                Add Engagement Score
-              </Button>
-            </div>
+            {UserRoleLabel[session.sessionType] === "Admin" ? (
+              <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
+                <Button
+                  iconType="plus"
+                  onClick={() => {
+                    setAddScoreState(true);
+                    setScoreCategory("Athletic");
+                  }}
+                >
+                  Add Engagement Score
+                </Button>
+              </div>
+            ) : (
+              []
+            )}
           </div>
           <Modal open={addScoreState} className="w-2/3">
             <AddScore
@@ -346,11 +369,15 @@ const ProfileContents = <T extends ProfileCategory>({
         <div>
           <h1 className="mb-10 text-2xl font-semibold">Academic Performance</h1>
           <ProfileContentCell fieldKey={ProfileFieldKey.GPA} />
-          <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
-            <Button iconType="plus" onClick={() => setAddScoreState(true)}>
-              Add Grade Point Average
-            </Button>
-          </div>
+          {UserRoleLabel[session.sessionType] === "Admin" ? (
+            <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
+              <Button iconType="plus" onClick={() => setAddScoreState(true)}>
+                Add Grade Point Average
+              </Button>
+            </div>
+          ) : (
+            []
+          )}
           <ProfileContentCell fieldKey={ProfileFieldKey.DisciplinaryActions} />
           <Modal open={addScoreState} className="w-2/3">
             <AddGPA setHidden={setAddScoreState} userId={player?.id} />
@@ -365,13 +392,17 @@ const ProfileContents = <T extends ProfileCategory>({
           <div className="grid grid-cols-3">
             <div className="mb-6 text-lg font-semibold">
               Body Mass Index
-              <button
-                type="button"
-                onClick={() => setBMIState(true)}
-                className="pl-4"
-              >
-                <Icon type="edit" />
-              </button>
+              {UserRoleLabel[session.sessionType] === "Admin" ? (
+                <button
+                  type="button"
+                  onClick={() => setBMIState(true)}
+                  className="pl-4"
+                >
+                  <Icon type="edit" />
+                </button>
+              ) : (
+                []
+              )}
             </div>
             <div className="col-span-2">
               {bmiState ? (
@@ -391,13 +422,17 @@ const ProfileContents = <T extends ProfileCategory>({
           <div className="mt-16 grid grid-cols-3">
             <div className="mb-6 text-lg font-semibold">
               Fitness Testing
-              <button
-                type="button"
-                onClick={() => setSchoolScoreState(true)}
-                className="pl-4"
-              >
-                <Icon type="edit" />
-              </button>
+              {UserRoleLabel[session.sessionType] === "Admin" ? (
+                <button
+                  type="button"
+                  onClick={() => setSchoolScoreState(true)}
+                  className="pl-4"
+                >
+                  <Icon type="edit" />
+                </button>
+              ) : (
+                []
+              )}
             </div>
             <div className="col-span-2">
               {schoolScoreState ? (
@@ -475,6 +510,7 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
   const [selectedCategory, setSelectedCategory] = useState(
     ProfileCategory.Overview
   );
+  console.log("Absences is:", player.absences);
   return (
     <div>
       <div className="flex flex-row text-sm text-center">

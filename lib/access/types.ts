@@ -1,4 +1,5 @@
 import { IPlayer, IUser, ProfileFieldKey } from "interfaces";
+import { AbsenceType } from "interfaces/user";
 
 type AccessValueBase = boolean | ((player: IPlayer, user: IUser) => boolean);
 export type AccessValue =
@@ -19,4 +20,8 @@ export type AccessValue =
  */
 export type ProfileAccessDefinition = Partial<
   Record<ProfileFieldKey, AccessValue>
+>;
+
+export type AttendanceAccessDefinition = Partial<
+  Record<AbsenceType, AccessValue>
 >;

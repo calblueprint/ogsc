@@ -1,8 +1,8 @@
 import {
-  PrismaClient,
   ProfileFieldKey,
   ProfileFieldCreateWithoutUserInput,
 } from "@prisma/client";
+import prisma from "utils/prisma";
 import Joi from "lib/validate";
 import { NextApiResponse } from "next";
 
@@ -14,8 +14,6 @@ import filterPlayerProfileWrite from "utils/filterPlayerProfileWrite";
 import buildUserProfile from "utils/buildUserProfile";
 import flattenUserRoles from "utils/flattenUserRoles";
 import getAuthenticatedUser from "utils/getAuthenticatedUser";
-
-const prisma = new PrismaClient();
 
 export type PlayerUserDTO = {
   id: number;

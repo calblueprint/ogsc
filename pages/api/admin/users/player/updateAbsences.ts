@@ -1,4 +1,5 @@
-import { PrismaClient, AbsenceCreateWithoutUsersInput } from "@prisma/client";
+import { AbsenceCreateWithoutUsersInput } from "@prisma/client";
+import prisma from "utils/prisma";
 import { ValidatedNextApiRequest } from "interfaces";
 import Joi from "lib/validate";
 import { NextApiResponse } from "next";
@@ -6,8 +7,6 @@ import { validateBody } from "pages/api/helpers";
 import sanitizeUser from "utils/sanitizeUser";
 import type { AbsenceFormValues } from "pages/admin/players/playerForm/attendence";
 import { adminOnlyHandler } from "../../helpers";
-
-const prisma = new PrismaClient();
 
 export type PlayerUserDTO = {
   id: number;

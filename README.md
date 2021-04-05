@@ -31,27 +31,27 @@ The page auto-updates as you edit the file.
 
 In the project directory you can run:
 
-### `yarn`
+`yarn`
 
 Installs all dependencies.<br />
 
-### `yarn dev`
+`yarn dev`
 
 Runs the app in the development mode.<br />
 
-### `yarn db: seed`
+`yarn db: seed`
 
 Generates seed data for use in the local environment.<br />
 
-### `yarn db:migrate up`
+`yarn db:migrate up`
 
 Safely run all migrations and perform the database changes.<br />
 
-### `yarn db:migrate down`
+`yarn db:migrate down`
 
 Safely reverts all database changes you made.<br />
 
-### You will need to run `yarn prisma introspect ` and `yarn prisma genereate` after running a migration
+**You will need to run `yarn prisma introspect ` and `yarn prisma genereate` after running a migration**
 
 ## Learn More
 
