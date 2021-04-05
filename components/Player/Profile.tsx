@@ -1,5 +1,5 @@
 import { AbsenceType, ProfileFieldKey } from "@prisma/client";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import Icon from "components/Icon";
 import {
   IPlayer,
@@ -7,11 +7,8 @@ import {
   ProfileCategoryIcons,
   ProfileFieldsByCategory,
 } from "interfaces";
-import Button from "components/Button";
-import Modal from "components/Modal";
+import { useRouter } from "next/router";
 import AbsenceTable from "./AbsenceTable";
-import AddScore from "./AddScore";
-import AddGPA from "./AddGPA";
 import ProfileFieldCell from "./ProfileFieldCell";
 import ProfileContext, { useProfileContext } from "./ProfileContext";
 import ProfileSection from "./ProfileSection";
@@ -26,8 +23,6 @@ const ProfileContents = <T extends ProfileCategory>({
   const {
     state: { player },
   } = useContext(ProfileContext);
-  const [addScoreState, setAddScoreState] = useState(false);
-  const [scoreCategory, setScoreCategory] = useState("");
 
   switch (category) {
     case ProfileCategory.Overview:
@@ -52,57 +47,11 @@ const ProfileContents = <T extends ProfileCategory>({
       return (
         <div>
           <h1 className="mb-10 text-2xl font-semibold">Engagement</h1>
-          <div>
-            <ProfileFieldCell
-              fieldKey={ProfileFieldKey.AcademicEngagementScore}
-            />
-            <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
-              <Button
-                iconType="plus"
-                onClick={() => {
-                  setAddScoreState(true);
-                  setScoreCategory("School");
-                }}
-              >
-                Add Engagement Score
-              </Button>
-            </div>
-          </div>
-          <div className="mb-16">
-            <ProfileFieldCell fieldKey={ProfileFieldKey.AdvisingScore} />
-            <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
-              <Button
-                iconType="plus"
-                onClick={() => {
-                  setAddScoreState(true);
-                  setScoreCategory("Advising");
-                }}
-              >
-                Add Engagement Score
-              </Button>
-            </div>
-          </div>
-          <div className="mb-16">
-            <ProfileFieldCell fieldKey={ProfileFieldKey.AthleticScore} />
-            <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
-              <Button
-                iconType="plus"
-                onClick={() => {
-                  setAddScoreState(true);
-                  setScoreCategory("Athletic");
-                }}
-              >
-                Add Engagement Score
-              </Button>
-            </div>
-          </div>
-          <Modal open={addScoreState} className="w-2/3">
-            <AddScore
-              setHidden={setAddScoreState}
-              userId={player?.id}
-              category={scoreCategory}
-            />
-          </Modal>
+          <ProfileFieldCell
+            fieldKey={ProfileFieldKey.AcademicEngagementScore}
+          />
+          <ProfileFieldCell fieldKey={ProfileFieldKey.AdvisingScore} />
+          <ProfileFieldCell fieldKey={ProfileFieldKey.AthleticScore} />
         </div>
       );
     case ProfileCategory.AcademicPerformance:
@@ -110,15 +59,7 @@ const ProfileContents = <T extends ProfileCategory>({
         <div>
           <h1 className="mb-10 text-2xl font-semibold">Academic Performance</h1>
           <ProfileFieldCell fieldKey={ProfileFieldKey.GPA} />
-          <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
-            <Button iconType="plus" onClick={() => setAddScoreState(true)}>
-              Add Grade Point Average
-            </Button>
-          </div>
           <ProfileFieldCell fieldKey={ProfileFieldKey.DisciplinaryActions} />
-          <Modal open={addScoreState} className="w-2/3">
-            <AddGPA setHidden={setAddScoreState} userId={player?.id} />
-          </Modal>
         </div>
       );
     case ProfileCategory.PhysicalWellness:
@@ -183,6 +124,12 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
     ProfileCategory.Overview
   );
   const [state, dispatch] = useProfileContext();
+  const router = useRouter();
+
+  const refreshProfile = useCallback(() => {
+    router.replace(router.asPath);
+  }, [router]);
+
   useEffect(() => {
     dispatch({ type: "SET_PLAYER", player });
   }, [player, dispatch]);
@@ -220,7 +167,7 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
           ))}
       </div>
       <hr className="my-10" />
-      <ProfileContext.Provider value={{ state, dispatch }}>
+      <ProfileContext.Provider value={{ state, dispatch, refreshProfile }}>
         <ProfileContents category={selectedCategory} />
       </ProfileContext.Provider>
     </div>
