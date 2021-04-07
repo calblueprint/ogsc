@@ -1,11 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { PrismaClient, ResetPassword } from "@prisma/client";
+import { ResetPassword } from "@prisma/client";
+import prisma from "utils/prisma";
 import Joi from "lib/validate";
 import Notifier from "lib/notify";
 import { NotificationType } from "lib/notify/types";
 import { UserStatus } from "interfaces";
-
-const prisma = new PrismaClient();
 
 /**
  * Users who forgot their password

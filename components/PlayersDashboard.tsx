@@ -1,7 +1,9 @@
 import Link from "next/link";
 import useSessionInfo from "utils/useSessionInfo";
 import PageNav from "components/PageNav";
-import { IPlayer } from "interfaces";
+import { IPlayer, UserRoleLabel } from "interfaces";
+import Icon from "components/Icon";
+import { useState } from "react";
 import usePagination from "./pagination";
 
 interface ReadManyPlayersDTO {
@@ -9,17 +11,18 @@ interface ReadManyPlayersDTO {
   total: number;
 }
 
-type SearchProps = {
+type PlayerDashboardProps = {
   phrase: string;
+  isFilterOn: boolean;
+  relatedPlayerIds: number[];
 };
 
-const PlayerDashboardItem: React.FunctionComponent<IPlayer> = ({
-  name,
-  profile,
-  id,
-  image,
-}) => {
+const PlayerDashboardItem: React.FunctionComponent<
+  IPlayer & { relatedPlayerIds: number[] }
+> = ({ name, profile, id, image, relatedPlayerIds }) => {
   const session = useSessionInfo();
+  const [showHoverPlayer, setShowHoverPlayer] = useState(false);
+
   const link = `/${session.sessionType.toLowerCase()}/players/${id}`;
   return (
     <Link href={link}>
@@ -36,10 +39,35 @@ const PlayerDashboardItem: React.FunctionComponent<IPlayer> = ({
           <p className="self-center font-normal">
             #{profile?.PlayerNumber?.current}
           </p>
-          <p className="self-center font-normal">
-            {/* TODO: Replace with TeamName once added to profile */}
-            {profile?.PlayerNumber?.current}
-          </p>
+          <div className="flex flex-row">
+            <p className="self-center font-normal mr-56">
+              {/* TODO: Replace with TeamName once added to profile */}
+              {profile?.PlayerNumber?.current}
+            </p>
+            {(UserRoleLabel[session.sessionType] === "Donor" ||
+              UserRoleLabel[session.sessionType] === "Mentor" ||
+              UserRoleLabel[session.sessionType] === "Parent") &&
+            relatedPlayerIds.includes(id) ? (
+              <div className="h-12 w-12 self-center">
+                <div
+                  className="h-12 w-12 absolute"
+                  onMouseEnter={() => {
+                    setShowHoverPlayer(true);
+                  }}
+                  onMouseLeave={() => {
+                    setShowHoverPlayer(false);
+                  }}
+                >
+                  {showHoverPlayer && (
+                    <Icon type="yourPlayer" className="absolute -ml-6 -mt-10" />
+                  )}
+                </div>
+                <Icon type="goldStar" className="ml-5 mt-4 w-4 h-4" />
+              </div>
+            ) : (
+              []
+            )}
+          </div>
         </div>
         <hr className="border-unselected border-opacity-0" />
       </div>
@@ -47,29 +75,43 @@ const PlayerDashboardItem: React.FunctionComponent<IPlayer> = ({
   );
 };
 
-const PlayerDashboard: React.FunctionComponent<SearchProps> = ({
+const PlayerDashboard: React.FunctionComponent<PlayerDashboardProps> = ({
   phrase,
-}: SearchProps) => {
+  isFilterOn,
+  relatedPlayerIds,
+}: PlayerDashboardProps) => {
   const [
     visibleData,
     numUIPages,
     currUIPage,
     setUIPage,
-  ] = usePagination<IPlayer>([phrase], async (pageNumber: number) => {
-    const response = await fetch(
-      `/api/players/search?pageNumber=${pageNumber}&phrase=${phrase}&role=Player`,
-      {
-        method: "GET",
-        headers: { "content-type": "application/json" },
-        redirect: "follow",
-      }
-    );
-    const data = (await response.json()) as ReadManyPlayersDTO;
-    return {
-      data: data.users,
-      count: data.total,
-    };
-  });
+  ] = usePagination<IPlayer>(
+    [phrase, isFilterOn],
+    async (pageNumber: number) => {
+      const response = isFilterOn
+        ? await fetch(
+            `/api/players/search?pageNumber=${pageNumber}&phrase=${phrase}&role=Player&relatedPlayerIds=${relatedPlayerIds}`,
+            {
+              method: "GET",
+              headers: { "content-type": "application/json" },
+              redirect: "follow",
+            }
+          )
+        : await fetch(
+            `/api/players/search?pageNumber=${pageNumber}&phrase=${phrase}&role=Player&relatedPlayerIds=${null}`,
+            {
+              method: "GET",
+              headers: { "content-type": "application/json" },
+              redirect: "follow",
+            }
+          );
+      const data = (await response.json()) as ReadManyPlayersDTO;
+      return {
+        data: data.users,
+        count: data.total,
+      };
+    }
+  );
 
   return (
     <div>
@@ -82,7 +124,7 @@ const PlayerDashboard: React.FunctionComponent<SearchProps> = ({
       </div>
       <hr className="border-unselected border-opacity-0" />
       {visibleData.map((player) => (
-        <PlayerDashboardItem {...player} />
+        <PlayerDashboardItem {...player} relatedPlayerIds={relatedPlayerIds} />
       ))}
       <PageNav
         currentPage={currUIPage + 1}

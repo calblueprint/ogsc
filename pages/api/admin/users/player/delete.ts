@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import prisma from "utils/prisma";
 
 import { ValidatedNextApiRequest } from "interfaces";
 import Joi from "lib/validate";
@@ -7,8 +7,6 @@ import { validateBody } from "pages/api/helpers";
 
 import sanitizeUser from "utils/sanitizeUser";
 import { adminOnlyHandler } from "../../helpers";
-
-const prisma = new PrismaClient();
 
 export type DeleteFieldDTO = {
   id: number;

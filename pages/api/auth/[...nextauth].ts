@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import Providers from "next-auth/providers";
-import { PrismaClient } from "@prisma/client";
+import prisma from "utils/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import hashPassword from "utils/hashPassword";
 import sanitizeUser from "utils/sanitizeUser";
@@ -10,8 +10,6 @@ export type AuthorizeDTO = {
   password: string;
   inviteCode?: string;
 };
-
-const prisma = new PrismaClient();
 
 const options = {
   // Configure one or more authentication providers

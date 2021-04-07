@@ -1,11 +1,10 @@
-import { FindManyUserArgs, PrismaClient } from "@prisma/client";
+import { FindManyUserArgs } from "@prisma/client";
+import prisma from "utils/prisma";
 import { IUser, UserRoleType, UserStatus } from "interfaces";
 import { NextApiRequest, NextApiResponse } from "next";
 import flattenUserRoles from "utils/flattenUserRoles";
 import sanitizeUser from "utils/sanitizeUser";
 import { USER_PAGE_SIZE } from "../../../../constants";
-
-const prisma = new PrismaClient();
 
 export type ReadManyUsersDTO = {
   users: IUser[];
@@ -22,6 +21,7 @@ export default async (
   const includeOnlyAdminUnapproved = req.query.admin_unapproved as
     | string
     | undefined;
+  const includeOnlyInactive = req.query.inactive as string | undefined;
   const includeOnlyUserUnaccepted = req.query.user_unaccepted as
     | string
     | undefined;
@@ -53,6 +53,11 @@ export default async (
         ...(includeOnlyUserUnaccepted
           ? {
               status: UserStatus.PendingUserAcceptance,
+            }
+          : undefined),
+        ...(includeOnlyInactive
+          ? {
+              status: UserStatus.Inactive,
             }
           : undefined),
       },

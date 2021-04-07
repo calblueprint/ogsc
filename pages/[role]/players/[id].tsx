@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PrismaClient } from "@prisma/client";
+import prisma from "utils/prisma";
 import { NextPageContext } from "next";
 import { useRouter } from "next/router";
 import { getSession } from "next-auth/client";
@@ -21,7 +21,6 @@ type Props = {
 export async function getServerSideProps(
   context: NextPageContext
 ): Promise<{ props: Props }> {
-  const prisma = new PrismaClient();
   const id = context.query.id as string;
   const user = await prisma.user.findOne({
     where: { id: Number(id) },
@@ -41,6 +40,18 @@ export async function getServerSideProps(
     // TODO: Set statusCode to 401
     return { props: {} };
   }
+
+  const sessionUser = await prisma.user.findOne({
+    where: { email: session.user.email },
+    include: {
+      roles: true,
+    },
+  });
+  if (!sessionUser) {
+    // TODO: Set statusCode to 401
+    return { props: {} };
+  }
+
   const authenticatedUser = await prisma.user.findOne({
     where: { email: session.user.email },
     include: { roles: true },

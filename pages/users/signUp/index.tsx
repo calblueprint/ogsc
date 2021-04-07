@@ -13,10 +13,10 @@ export type UserSignUpFormValues = {
   firstName: string;
   lastName: string;
   email: string;
+  adminNote?: string;
   phoneNumber?: string;
   password: string;
   role: UserRoleType;
-  adminNote: string;
 };
 
 type UserSignUpForm1Values = Pick<

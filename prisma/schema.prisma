@@ -18,6 +18,7 @@ model User {
   hashedPassword String          @map("hashed_password")
   phoneNumber    String?         @map("phone_number")
   status         UserStatus
+  adminNote      String?
   absences       Absence[]       @relation("AbsencesToUsers")
   profileFields  ProfileField[]  @relation("ProfileFieldToUsers")
   resetPassword  ResetPassword[] @relation("ResetPasswordToUsers")

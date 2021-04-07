@@ -2,11 +2,11 @@
 import {
   Absence,
   AbsenceCreateWithoutUsersInput,
-  PrismaClient,
   ProfileFieldCreateWithoutUserInput,
   ProfileFieldKey,
   User,
   UserCreateArgs,
+  PrismaClient,
 } from "@prisma/client";
 import Faker from "faker";
 import Ora from "ora";
@@ -19,6 +19,7 @@ import {
 import hashPassword from "../utils/hashPassword";
 
 const NUMBER_USERS = 10;
+const prisma = new PrismaClient();
 
 function generateFieldsAcrossTimestamps(
   key: ProfileFieldKey,
@@ -48,7 +49,6 @@ function generateFieldsAcrossTimestamps(
 }
 
 export default async function seedDatabase(): Promise<void> {
-  const prisma = new PrismaClient();
   const clearAllMessage = Ora(
     "Cleaning up previous seeded information"
   ).start();
