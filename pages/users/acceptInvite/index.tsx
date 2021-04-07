@@ -10,6 +10,7 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import updateActionAcceptInvite from "utils/updateActionAcceptInvite";
 import SignUpLayout from "components/SignUpLayout";
+import Icon from "components/Icon";
 
 export type UserAcceptInviteFormValues = {
   firstName: string;
@@ -175,10 +176,11 @@ const UserAcceptInvitePageOne: React.FC = () => {
                 <div className="flex mt-24 mb-32 justify-end align-middle">
                   <div className="mb-2 flex ">
                     <Button
-                      className="button-primary text-base px-10 py-2 "
+                      className="bg-blue text-sm px-5 py-2 text-white tracking-wide rounded-md"
                       type="submit"
                     >
-                      Next step &#x2192;
+                      Next Step
+                      <Icon className="ml-6 w-8 stroke-current" type="next" />
                     </Button>
                   </div>
                   {error && <p className="text-red-600 text-sm">{error}</p>}

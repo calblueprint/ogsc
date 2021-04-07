@@ -1,11 +1,13 @@
 import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
+import Icon from "components/Icon";
 import SignUpLayout from "components/SignUpLayout";
 import UserSignUpFormField from "components/UserSignUpFormField";
 import { UserRoleType } from "interfaces";
 import Joi from "lib/validate";
 import { StateMachineProvider, useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
+import { UserDTO } from "pages/api/admin/users/readOneEmail";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import updateActionSignUp from "utils/updateActionSignUp";
@@ -36,7 +38,7 @@ const UserSignUpForm1Schema = Joi.object<UserSignUpForm1Values>({
     .phoneNumber({ defaultCountry: "US", format: "national", strict: true })
     .empty("")
     .allow(null),
-  password: Joi.forbidden().required(),
+  password: Joi.string().min(8).required(),
 });
 
 const UserSignUpPageOne: React.FC = () => {
@@ -60,6 +62,17 @@ const UserSignUpPageOne: React.FC = () => {
       return;
     }
     try {
+      const player = await fetch("/api/admin/users/readOneEmail", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: values.email,
+        } as UserDTO),
+      });
+      if (player.ok) {
+        throw new Error("Email already exists");
+      }
       action(values);
       router.push("/users/signUp/signUp2");
     } catch (err) {
@@ -170,10 +183,11 @@ const UserSignUpPageOne: React.FC = () => {
                 </p>
                 <div className="mb-2 flex ">
                   <Button
-                    className="button-primary text-base px-10 py-2"
+                    className="bg-blue text-sm px-5 py-2 text-white tracking-wide rounded-md"
                     type="submit"
                   >
-                    Next step &#x2192;
+                    Next Step
+                    <Icon className="ml-6 w-8 stroke-current" type="next" />
                   </Button>
                 </div>
                 {error && <p className="text-red-600 text-sm">{error}</p>}
