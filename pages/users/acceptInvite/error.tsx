@@ -15,14 +15,6 @@ enum Text {
 const Error: React.FC = () => {
   const router = useRouter();
 
-  // let title = "Oops! You don’t have access.";
-  // let text =
-  //   "It seems like you don’t have access to this page. Please contact ______________ if you believe that this is an error.";
-  // if (router.query.type === "expired") {
-  //   title = "Oops! This link is no longer valid.";
-  //   text =
-  //     "This invitation link has expired or has already been accepted. Please contact ______________ if you believe that this is an error.";
-  // }
   return (
     <SignUpLayout>
       <div className="flex justify-center flex-col space-y-7 h-screen">
