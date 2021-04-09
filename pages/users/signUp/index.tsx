@@ -1,7 +1,7 @@
 import { joiResolver } from "@hookform/resolvers/joi";
+import { UserRoleType } from "@prisma/client";
 import Button from "components/Button";
 import UserSignUpFormField from "components/UserSignUpFormField";
-import { UserRoleType } from "interfaces";
 import Joi from "lib/validate";
 import { StateMachineProvider, useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
