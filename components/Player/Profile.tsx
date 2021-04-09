@@ -94,7 +94,6 @@ const ProfileContents = <T extends ProfileCategory>({
                     key={type}
                     absenceType={type}
                     absences={player.absences}
-                    userId={player.id}
                   />
                 )
             )}

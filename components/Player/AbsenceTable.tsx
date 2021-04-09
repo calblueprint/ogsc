@@ -1,17 +1,13 @@
 import React, { useState } from "react";
 import { Absence, AbsenceReason, AbsenceType } from "@prisma/client";
-import EditMoreAbsence from "components/Player/EditMoreAbsence";
 import Button from "components/Button";
 import Modal from "components/Modal";
-import { UserRoleLabel } from "interfaces/user";
-import useSessionInfo from "utils/useSessionInfo";
-import SuccessfulChange from "./successChange";
-import AddAbsence from "./AddAbsence";
+import EditMore from "./EditMore";
+import EditField from "./EditField";
 
 type Props = {
   absenceType: AbsenceType;
   absences: Absence[];
-  userId: number;
 };
 
 const AbsencePillColors: Record<AbsenceReason, string> = {
@@ -19,30 +15,14 @@ const AbsencePillColors: Record<AbsenceReason, string> = {
   [AbsenceReason.Unexcused]: "danger",
 };
 
-const AbsenceTable: React.FC<Props> = ({
-  absenceType,
-  absences,
-  userId,
-}: Props) => {
-  const [success, setSuccess] = useState(false);
-  const [editType, setEditType] = useState<"updated" | "added" | "deleted">();
-  const [editDate, setEditDate] = useState<string>("");
+const AbsenceTable: React.FC<Props> = ({ absenceType, absences }: Props) => {
   const [addAbsence, setAddAbsence] = useState(false);
-  const [absenceCategory, setAbsenceCategory] = useState("");
   const filteredAbsences = absences
     .filter((absence: Absence) => absence.type === absenceType)
     .sort((a: Absence, b: Absence) => Number(a.date) - Number(b.date));
 
-  const session = useSessionInfo();
-
   return (
     <div className="mb-16 text-sm">
-      {success && (
-        <SuccessfulChange
-          text={`${absenceType} Absence for ${editDate} has been ${editType}!`}
-          setSuccess={setSuccess}
-        />
-      )}
       <h2 className="text-xl font-semibold my-4">{absenceType} Absences</h2>
       <table className="w-full mb-4">
         <thead>
@@ -76,12 +56,7 @@ const AbsenceTable: React.FC<Props> = ({
               </td>
               <td>{absence.description}</td>
               <td className="w-1/12">
-                <EditMoreAbsence
-                  absence={absence}
-                  setType={setEditType}
-                  setDate={setEditDate}
-                  setSuccess={setSuccess}
-                />
+                <EditMore absenceId={absence.id} />
               </td>
             </tr>
           ))}
@@ -91,26 +66,23 @@ const AbsenceTable: React.FC<Props> = ({
         <p>Total {absenceType} Absences</p>
         <p className="font-semibold">{filteredAbsences.length}</p>
       </div>
-      {UserRoleLabel[session.sessionType] === "Admin" ? (
-        <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
-          <Button
-            iconType="plus"
-            onClick={() => {
-              setAddAbsence(true);
-              setAbsenceCategory(absenceType);
-            }}
-          >
-            Add Absence
-          </Button>
-        </div>
-      ) : (
-        []
-      )}
+      <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
+        <Button
+          iconType="plus"
+          onClick={() => {
+            setAddAbsence(true);
+          }}
+        >
+          Add Absence
+        </Button>
+      </div>
       <Modal open={addAbsence} className="w-2/3">
-        <AddAbsence
-          category={absenceCategory}
-          setHidden={setAddAbsence}
-          userId={userId}
+        <EditField
+          fieldKey="absence"
+          onComplete={() => {
+            setAddAbsence(false);
+            // TODO: Dispatch notification
+          }}
         />
       </Modal>
     </div>

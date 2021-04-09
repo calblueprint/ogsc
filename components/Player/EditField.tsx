@@ -80,7 +80,9 @@ const EditField: React.FC<Props> = ({ onComplete, ...props }: Props) => {
           <hr className="pb-4" />
           {"field" in props ? (
             <ProfileFieldEditor profileField={props.field} updateExisting />
-          ) : null}
+          ) : (
+            <ProfileFieldEditor profileField={props.fieldKey} />
+          )}
         </div>
         <div className="flex flex-row gap-6 mt-10">
           <Button

@@ -20,20 +20,29 @@ import isAbsence from "utils/isAbsence";
 import labelProfileField from "utils/labelProfileField";
 import ProfileContext from "./ProfileContext";
 
+type CreateProfileFieldProps = {
+  profileField: IProfileFieldBuilt<ProfileFieldKey> | ProfileFieldKey;
+};
+
+type CreateAbsenceProps = {
+  profileField: "absence";
+};
+
+type UpdateProfileFieldOrAbsenceProps = {
+  /**
+   * If profileField is specified as an IProfileField or Absence, the ProfileFieldEditor will
+   * assume that you want to update a specific profile field's value rather than create a new
+   * ProfileField in the database, which is why `updateExisting` must be specified as true to
+   * disambiguate its meaning.
+   */
+  profileField: IProfileField | Absence;
+  updateExisting: true;
+};
+
 type Props =
-  | {
-      profileField: IProfileFieldBuilt<ProfileFieldKey>;
-    }
-  | {
-      /**
-       * If profileField is specified as an IProfileField or Absence, the ProfileFieldEditor will
-       * assume that you want to update a specific profile field's value rather than create a new
-       * ProfileField in the database, which is why `updateExisting` must be specified as true to
-       * disambiguate its meaning.
-       */
-      profileField: IProfileField | Absence;
-      updateExisting: true;
-    };
+  | CreateProfileFieldProps
+  | CreateAbsenceProps
+  | UpdateProfileFieldOrAbsenceProps;
 
 type InputProps = React.ComponentPropsWithRef<"input"> & { unit?: string };
 const NumberEditor: React.FC<InputProps> = ({ unit, ...props }: InputProps) => {
@@ -181,34 +190,37 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
 
   let profileKey: ProfileFieldKey;
   let profileField: ProfileField | undefined;
-  if ("updateExisting" in props) {
-    if (isAbsence(props.profileField)) {
-      const absence = props.profileField;
-      return (
-        <div>
-          <p className="text-sm font-semibold mb-2">Score Category</p>
-          <select value={absence.type} className="select">
-            {Object.values(AbsenceType).map((type: AbsenceType) => (
-              <option value={type}>{type}</option>
-            ))}
-          </select>
-          <p className="text-sm font-semibold mb-2 mt-8">Month/Year</p>
-          <DateTimeEditor hideDay />
-          <p className="text-sm font-semibold mb-2 mt-8">Excused/Unexcused</p>
-          <select value={absence.reason} className="select">
-            {Object.values(AbsenceReason).map((reason: AbsenceReason) => (
-              <option value={reason}>{reason}</option>
-            ))}
-          </select>
-          <p className="text-sm font-semibold mb-2 mt-8">Description</p>
-          <input
-            type="text"
-            className="input text-sm w-full font-light"
-            placeholder={absence.description}
-          />
-        </div>
-      );
-    }
+  if (props.profileField === "absence" || isAbsence(props.profileField)) {
+    const existingAbsence =
+      props.profileField !== "absence" ? props.profileField : undefined;
+    return (
+      <div>
+        <p className="text-sm font-semibold mb-2">Absence Type</p>
+        <select value={existingAbsence?.type} className="select">
+          {Object.values(AbsenceType).map((type: AbsenceType) => (
+            <option value={type}>{type}</option>
+          ))}
+        </select>
+        <p className="text-sm font-semibold mb-2 mt-8">Month/Year</p>
+        <DateTimeEditor hideDay />
+        <p className="text-sm font-semibold mb-2 mt-8">Excused/Unexcused</p>
+        <select value={existingAbsence?.reason} className="select">
+          {Object.values(AbsenceReason).map((reason: AbsenceReason) => (
+            <option value={reason}>{reason}</option>
+          ))}
+        </select>
+        <p className="text-sm font-semibold mb-2 mt-8">Description</p>
+        <input
+          type="text"
+          className="input text-sm w-full font-light"
+          placeholder={existingAbsence?.description}
+        />
+      </div>
+    );
+  }
+  if (typeof props.profileField === "string") {
+    profileKey = props.profileField;
+  } else if ("id" in props.profileField) {
     profileKey = props.profileField.key;
     profileField = props.profileField;
   } else {
@@ -220,25 +232,32 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
 
   switch (valueType) {
     case ProfileFieldValue.IntegerWithComment:
-    case ProfileFieldValue.FloatWithComment:
+    case ProfileFieldValue.FloatWithComment: {
+      const value = deserializedValue as
+        | ProfileFieldValueDeserializedTypes[typeof valueType]
+        | null;
       return (
         <div>
           <p className="text-sm font-semibold mb-3 mt-10">
-            {profileField ? labelProfileField(profileField) : ""} Value
+            {labelProfileField(profileKey)} Value
           </p>
-          <input type="text" className="input text-sm w-1/12 font-light" />
+          <input
+            type="text"
+            className="input text-sm w-1/12 font-light"
+            value={value?.value}
+          />
           <p className="text-sm font-semibold mb-3 mt-10">Month/Year</p>
-          <div className="grid grid-cols-5 mb-10">
-            <DateTimeEditor hideDay />
-          </div>
+          <DateTimeEditor hideDay />
           <p className="text-sm font-semibold mb-3 mt-10">Comments</p>
           <input
             type="text"
             className="input text-sm w-full font-light"
             name="comments"
+            value={value?.comment}
           />
         </div>
       );
+    }
     case ProfileFieldValue.TimeElapsed: {
       const value = deserializedValue as
         | ProfileFieldValueDeserializedTypes[typeof valueType]
