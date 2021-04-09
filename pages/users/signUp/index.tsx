@@ -1,10 +1,14 @@
 import { joiResolver } from "@hookform/resolvers/joi";
 import { UserRoleType } from "@prisma/client";
 import Button from "components/Button";
+import Icon from "components/Icon";
+import SignUpLayout from "components/SignUpLayout";
 import UserSignUpFormField from "components/UserSignUpFormField";
 import Joi from "lib/validate";
 import { StateMachineProvider, useStateMachine } from "little-state-machine";
+import Link from "next/link";
 import { useRouter } from "next/router";
+import { UserDTO } from "pages/api/admin/users/readOneEmail";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import updateActionSignUp from "utils/updateActionSignUp";
@@ -35,7 +39,7 @@ const UserSignUpForm1Schema = Joi.object<UserSignUpForm1Values>({
     .phoneNumber({ defaultCountry: "US", format: "national", strict: true })
     .empty("")
     .allow(null),
-  password: Joi.forbidden().required(),
+  password: Joi.string().min(8).required(),
 });
 
 const UserSignUpPageOne: React.FC = () => {
@@ -59,6 +63,17 @@ const UserSignUpPageOne: React.FC = () => {
       return;
     }
     try {
+      const player = await fetch("/api/admin/users/readOneEmail", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: values.email,
+        } as UserDTO),
+      });
+      if (player.ok) {
+        throw new Error("Email already exists");
+      }
       action(values);
       router.push("/users/signUp/signUp2");
     } catch (err) {
@@ -74,111 +89,121 @@ const UserSignUpPageOne: React.FC = () => {
 
   return (
     <StateMachineProvider>
-      <div className="form flex ml-20 mt-10 mr-32 flex-col">
-        <p className="pt-6 text-2xl h-16">Create your account</p>
-        <form className="mt-10" onSubmit={handleSubmit(onSubmit)}>
-          <fieldset>
-            <div className="flex mr-32">
-              <UserSignUpFormField
-                label="First Name"
-                name="firstName"
-                error={errors.firstName?.message}
-              >
-                <input
-                  type="text"
-                  className="input "
+      <SignUpLayout>
+        <div className="form flex mt-10 mr-32 flex-col">
+          <p className="text-6xl font-semibold mb-4">Join the Team</p>
+          <p className="pt-6 text-2xl h-16">Create your account</p>
+          <form className="mt-10" onSubmit={handleSubmit(onSubmit)}>
+            <fieldset>
+              <div className="flex mr-32">
+                <UserSignUpFormField
+                  label="First Name"
                   name="firstName"
-                  placeholder="e.g., Cristiano"
-                  ref={register}
-                  defaultValue={state.userData.firstName}
-                />
-              </UserSignUpFormField>
-              <UserSignUpFormField
-                label="Last Name"
-                name="lastName"
-                error={errors.lastName?.message}
-              >
-                <input
-                  type="text"
-                  className="input "
-                  name="lastName"
-                  placeholder="e.g., Ronaldo"
-                  ref={register}
-                  defaultValue={state.userData.lastName}
-                />
-              </UserSignUpFormField>
-            </div>
-            <div className="flex mr-32">
-              <UserSignUpFormField
-                label="Email Address"
-                name="email"
-                error={errors.email?.message}
-              >
-                <input
-                  type="text"
-                  className="input "
-                  name="email"
-                  placeholder="e.g., soccer@fifa.com"
-                  ref={register}
-                  defaultValue={state.userData.email}
-                />
-              </UserSignUpFormField>
-              <UserSignUpFormField
-                label="Phone Number"
-                name="phoneNumber"
-                error={errors.phoneNumber?.message}
-              >
-                <input
-                  type="text"
-                  className="input"
-                  name="phoneNumber"
-                  placeholder="e.g., 123-456-7890"
-                  ref={register}
-                  defaultValue={state.userData.phoneNumber}
-                />
-              </UserSignUpFormField>
-            </div>
-            <UserSignUpFormField
-              label="Password"
-              name="password"
-              error={errors.password?.message}
-            >
-              <input
-                type={revealPassword ? "text" : "password"}
-                className="input input-full"
-                name="password"
-                placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;"
-                ref={register}
-                defaultValue={state.userData.password}
-              />
-              <button
-                className="text-sm text-gray-500"
-                type="button"
-                onClick={togglePassword}
-              >
-                {revealPassword ? "Hide password" : "Show password"}
-              </button>
-            </UserSignUpFormField>
-            <div className="flex mt-24 mb-32 justify-between align-middle">
-              {/* TODO: link user login page */}
-              <p className="text-base">
-                Already have an account?{" "}
-                <b className="text-blue">Login here.</b>
-              </p>
-              <div className="mb-2 flex ">
-                <Button
-                  className="button-primary text-base px-10 py-2"
-                  type="submit"
+                  error={errors.firstName?.message}
                 >
-                  Next step &#x2192;
-                </Button>
+                  <input
+                    type="text"
+                    className="input"
+                    name="firstName"
+                    placeholder="e.g., Cristiano"
+                    ref={register}
+                    defaultValue={state.userData.firstName}
+                  />
+                </UserSignUpFormField>
+                <UserSignUpFormField
+                  label="Last Name"
+                  name="lastName"
+                  error={errors.lastName?.message}
+                >
+                  <input
+                    type="text"
+                    className="input"
+                    name="lastName"
+                    placeholder="e.g., Ronaldo"
+                    ref={register}
+                    defaultValue={state.userData.lastName}
+                  />
+                </UserSignUpFormField>
               </div>
-              {error && <p className="text-red-600 text-sm">{error}</p>}
-            </div>
-            <hr />
-          </fieldset>
-        </form>
-      </div>
+              <div className="flex mr-32">
+                <UserSignUpFormField
+                  label="Email Address"
+                  name="email"
+                  error={errors.email?.message}
+                >
+                  <input
+                    type="text"
+                    className="input"
+                    name="email"
+                    placeholder="e.g., soccer@fifa.com"
+                    ref={register}
+                    defaultValue={state.userData.email}
+                  />
+                </UserSignUpFormField>
+                <UserSignUpFormField
+                  label="Phone Number"
+                  name="phoneNumber"
+                  error={errors.phoneNumber?.message}
+                >
+                  <input
+                    type="text"
+                    className="input"
+                    name="phoneNumber"
+                    placeholder="e.g., 123-456-7890"
+                    ref={register}
+                    defaultValue={state.userData.phoneNumber}
+                  />
+                </UserSignUpFormField>
+              </div>
+              <UserSignUpFormField
+                label="Password"
+                name="password"
+                error={errors.password?.message}
+              >
+                <div className="flex flex-row space-x-4">
+                  <input
+                    type={revealPassword ? "text" : "password"}
+                    className="input input-full"
+                    name="password"
+                    placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;"
+                    ref={register}
+                    defaultValue={state.userData.password}
+                  />
+                  <button
+                    className="text-sm text-gray-500"
+                    type="button"
+                    onClick={togglePassword}
+                  >
+                    {revealPassword ? "Hide password" : "Show password"}
+                  </button>
+                </div>
+              </UserSignUpFormField>
+              <div className="flex mt-24 mb-32 justify-between align-middle">
+                <div className="flex flex-row">
+                  <p className="text-gray-600">Already have an account? </p>{" "}
+                  <Link href="/api/auth/signin">
+                    <a className="ml-1 text-blue font-semibold hover:underline">
+                      Login here.
+                    </a>
+                  </Link>
+                </div>
+
+                <div className="mb-2 flex ">
+                  <Button
+                    className="bg-blue text-sm px-5 py-2 text-white tracking-wide rounded-md"
+                    type="submit"
+                  >
+                    Next Step
+                    <Icon className="ml-6 w-8 stroke-current" type="next" />
+                  </Button>
+                </div>
+                {error && <p className="text-red-600 text-sm">{error}</p>}
+              </div>
+              <hr />
+            </fieldset>
+          </form>
+        </div>
+      </SignUpLayout>
     </StateMachineProvider>
   );
 };
