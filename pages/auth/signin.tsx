@@ -7,7 +7,6 @@ import Button from "components/Button";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import FormField from "components/FormField";
-// import useSessionInfo from "utils/useSessionInfo";
 
 type UserSignInFormValues = {
   email: string;
