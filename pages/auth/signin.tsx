@@ -18,7 +18,7 @@ const UserSignInFormSchema = Joi.object<UserSignInFormValues>({
   email: Joi.string()
     .trim()
     .email({ tlds: { allow: false } }),
-  password: Joi.forbidden().required(),
+  password: Joi.string().required(),
 });
 
 const SignIn: React.FC = () => {
