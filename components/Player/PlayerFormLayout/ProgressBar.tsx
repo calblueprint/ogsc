@@ -11,7 +11,7 @@ const BarTab: React.FunctionComponent<BarProps> = ({
   content,
   title,
 }: BarProps) => {
-  const link = `/admin/players/playerForm/${title}`;
+  const link = `/admin/players/create/${title}`;
   return (
     <Link href={link}>
       <div role="button">

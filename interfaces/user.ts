@@ -77,6 +77,7 @@ export const ProfileFieldLabels = {
   [ProfileFieldKey.GPA]: "Grade Point Average",
   [ProfileFieldKey.DisciplinaryActions]: "Disciplinary Actions",
   [ProfileFieldKey.HealthAndWellness]: "Comments",
+  [ProfileFieldKey.YearOfBirth]: "Birth Year",
 } as const;
 
 export enum ProfileCategory {
@@ -137,6 +138,13 @@ export const ProfileFieldsByCategory: Record<
   ],
   [ProfileCategory.Highlights]: [ProfileFieldKey.Highlights],
 };
+
+export const UncategorizedProfileFields: ProfileFieldKey[] = Object.values(
+  ProfileFieldKey
+).filter((key: ProfileFieldKey) => {
+  const categorizedKeys = Object.values(ProfileFieldsByCategory).flat();
+  return !categorizedKeys.includes(key);
+});
 
 type WithComment = {
   /**

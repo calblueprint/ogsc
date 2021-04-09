@@ -14,11 +14,12 @@ import PlayerFormLayout from "components/Player/PlayerFormLayout";
 import ComboBox from "components/Player/PlayerForm/PlayerComboBox";
 import NewPlayerInvitePage from "components/Player/PlayerForm/newPlayer";
 import Icon from "components/Icon";
+import { ProfileCategory, UncategorizedProfileFields } from "interfaces";
+import ProfileFieldEditor from "components/Player/ProfileFieldEditor";
 
 const ExistingUser = ["Yes", "No"];
 
 export type PlayerProfileFormValues = {
-  [ProfileFieldKey.PlayerNumber]: string;
   age: string;
   [ProfileFieldKey.BioAboutMe]: string;
   [ProfileFieldKey.BioHobbies]: string;
@@ -31,7 +32,6 @@ export type PlayerProfileFormValues = {
   [ProfileFieldKey.AthleticScore]: string[];
   [ProfileFieldKey.GPA]: string[];
   [ProfileFieldKey.DisciplinaryActions]: string[];
-  [ProfileFieldKey.BMI]: string;
   [ProfileFieldKey.PacerTest]: string;
   [ProfileFieldKey.MileTime]: string;
   [ProfileFieldKey.Situps]: string;
@@ -49,7 +49,6 @@ export type ExistingUserType = {
 const PlayerProfileFormSchema = Joi.object<
   PlayerProfileFormValues & ExistingUserType
 >({
-  PlayerNumber: Joi.string(),
   age: Joi.string(),
   BioAboutMe: Joi.string().empty("").default(null),
   BioHobbies: Joi.string().empty("").default(null),
@@ -115,7 +114,7 @@ const UserSignUpPageOne: React.FC = () => {
         choice: existingUser,
         player: selectedPlayer,
       });
-      router.push("/admin/players/playerForm/overview");
+      router.push(`/admin/players/create/${Object.values(ProfileCategory)[0]}`);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -130,7 +129,7 @@ const UserSignUpPageOne: React.FC = () => {
           Create a new player profile
         </p>
         <p className="font-light mt-2">Description Here</p>
-        <PlayerFormLayout tabNum={1}>
+        <PlayerFormLayout>
           <p className="pt-10 text-xl tracking-wider font-medium">
             Let&apos;s get started!
           </p>
@@ -197,34 +196,12 @@ const UserSignUpPageOne: React.FC = () => {
                 </PlayerFormField>
               </div>
               <div className="grid grid-rows-2 mr-32">
-                <PlayerFormField
-                  label="Player Number"
-                  name="PlayerNumber"
-                  error={errors.PlayerNumber?.message}
-                >
-                  <input
-                    type="text"
-                    className="input text-sm"
-                    name="PlayerNumber"
-                    placeholder="e.g., 21"
-                    ref={register}
-                    defaultValue={state.playerData.PlayerNumber}
-                  />
-                </PlayerFormField>
-                <PlayerFormField
-                  label="Age"
-                  name="age"
-                  error={errors.age?.message}
-                >
-                  <input
-                    type="text"
-                    className="input text-sm"
-                    name="age"
-                    placeholder="e.g., 15"
-                    ref={register}
-                    defaultValue={state.playerData.age}
-                  />
-                </PlayerFormField>
+                {UncategorizedProfileFields.map((key: ProfileFieldKey) => (
+                  <>
+                    {key}
+                    <ProfileFieldEditor profileField={key} />
+                  </>
+                ))}
               </div>
               {error && <p className="text-red-600 text-sm">{error}</p>}
               <hr className="border-unselected border-opacity-50 my-16" />

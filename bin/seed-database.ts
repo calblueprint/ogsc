@@ -10,9 +10,9 @@ import {
   UserRoleType,
   UserStatus,
 } from "@prisma/client";
-import dayjs from "lib/day";
 import Faker from "faker";
 import Ora from "ora";
+import dayjs from "../lib/day";
 import hashPassword from "../utils/hashPassword";
 
 const NUMBER_USERS = 10;
