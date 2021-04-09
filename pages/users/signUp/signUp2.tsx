@@ -3,7 +3,7 @@ import { UserRoleType } from "@prisma/client";
 import Button from "components/Button";
 import FormField from "components/FormField";
 import SignUpLayout from "components/SignUpLayout";
-import { UserRoleLabel, UserRoleType } from "interfaces";
+import { UserRoleLabel } from "interfaces";
 import Joi from "lib/validate";
 import { StateMachineProvider, useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
