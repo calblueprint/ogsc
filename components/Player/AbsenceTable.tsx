@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { AbsenceReason, AbsenceType } from "interfaces";
-import { Absence } from "@prisma/client";
+import { Absence, AbsenceReason, AbsenceType } from "@prisma/client";
 import EditMoreAbsence from "components/Player/EditMoreAbsence";
 import Button from "components/Button";
 import Modal from "components/Modal";
+import { UserRoleLabel } from "interfaces/user";
+import useSessionInfo from "utils/useSessionInfo";
 import SuccessfulChange from "./successChange";
 import AddAbsence from "./AddAbsence";
 
@@ -31,6 +32,8 @@ const AbsenceTable: React.FC<Props> = ({
   const filteredAbsences = absences
     .filter((absence: Absence) => absence.type === absenceType)
     .sort((a: Absence, b: Absence) => Number(a.date) - Number(b.date));
+
+  const session = useSessionInfo();
 
   return (
     <div className="mb-16 text-sm">
@@ -88,17 +91,21 @@ const AbsenceTable: React.FC<Props> = ({
         <p>Total {absenceType} Absences</p>
         <p className="font-semibold">{filteredAbsences.length}</p>
       </div>
-      <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
-        <Button
-          iconType="plus"
-          onClick={() => {
-            setAddAbsence(true);
-            setAbsenceCategory(absenceType);
-          }}
-        >
-          Add Engagement Score
-        </Button>
-      </div>
+      {UserRoleLabel[session.sessionType] === "Admin" ? (
+        <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
+          <Button
+            iconType="plus"
+            onClick={() => {
+              setAddAbsence(true);
+              setAbsenceCategory(absenceType);
+            }}
+          >
+            Add Absence
+          </Button>
+        </div>
+      ) : (
+        []
+      )}
       <Modal open={addAbsence} className="w-2/3">
         <AddAbsence
           category={absenceCategory}

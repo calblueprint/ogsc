@@ -1,8 +1,7 @@
-import { Absence, ProfileField } from "@prisma/client";
+import { Absence, ProfileField, ProfileFieldKey } from "@prisma/client";
 import {
   IProfileField,
   PlayerProfile,
-  ProfileFieldKey,
   ProfileFieldValue,
   ProfileFieldValueDeserializedTypes,
   ProfileFieldValues,

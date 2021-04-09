@@ -1,4 +1,5 @@
 import { joiResolver } from "@hookform/resolvers/joi";
+import { UserRoleType } from "@prisma/client";
 import Button from "components/Button";
 import FormField from "components/FormField";
 import SignUpLayout from "components/SignUpLayout";

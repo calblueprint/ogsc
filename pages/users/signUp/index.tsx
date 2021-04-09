@@ -1,9 +1,9 @@
 import { joiResolver } from "@hookform/resolvers/joi";
+import { UserRoleType } from "@prisma/client";
 import Button from "components/Button";
 import Icon from "components/Icon";
 import SignUpLayout from "components/SignUpLayout";
 import UserSignUpFormField from "components/UserSignUpFormField";
-import { UserRoleType } from "interfaces";
 import Joi from "lib/validate";
 import { StateMachineProvider, useStateMachine } from "little-state-machine";
 import Link from "next/link";

@@ -1,4 +1,4 @@
-import { FindManyUserArgs, User } from "@prisma/client";
+import { Prisma, User } from "@prisma/client";
 import prisma from "utils/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import sanitizeUser from "utils/sanitizeUser";
@@ -17,7 +17,7 @@ export default async (
     | undefined;
   // const search = req.query.search as string | undefined;
   try {
-    const filterVerifiedEmail: FindManyUserArgs = {
+    const filterVerifiedEmail: Prisma.FindManyUserArgs = {
       where: {
         ...(user1
           ? {
