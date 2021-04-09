@@ -1,21 +1,17 @@
 /* eslint-disable no-console */
 import {
   Absence,
-  AbsenceCreateWithoutUsersInput,
-  ProfileFieldCreateWithoutUserInput,
+  AbsenceReason,
+  AbsenceType,
+  Prisma,
+  PrismaClient,
   ProfileFieldKey,
   User,
-  UserCreateArgs,
-  PrismaClient,
+  UserRoleType,
+  UserStatus,
 } from "@prisma/client";
 import Faker from "faker";
 import Ora from "ora";
-import {
-  AbsenceReason,
-  AbsenceType,
-  UserRoleType,
-  UserStatus,
-} from "../interfaces";
 import hashPassword from "../utils/hashPassword";
 
 const NUMBER_USERS = 10;
@@ -24,7 +20,7 @@ const prisma = new PrismaClient();
 function generateFieldsAcrossTimestamps(
   key: ProfileFieldKey,
   generateValue: () => unknown
-): ProfileFieldCreateWithoutUserInput[] {
+): Prisma.ProfileFieldCreateWithoutUserInput[] {
   return Array(11)
     .fill(null)
     .map(
@@ -40,7 +36,7 @@ function generateFieldsAcrossTimestamps(
     )
     .map(
       (date: Date) =>
-        <ProfileFieldCreateWithoutUserInput>{
+        <Prisma.ProfileFieldCreateWithoutUserInput>{
           key,
           value: String(generateValue()),
           createdAt: date,
@@ -127,10 +123,10 @@ export default async function seedDatabase(): Promise<void> {
   }
 
   const usersCreateMessage = Ora(`Creating ${NUMBER_USERS} players`).start();
-  const mockPlayers: UserCreateArgs[] = Array(NUMBER_USERS)
+  const mockPlayers: Prisma.UserCreateArgs[] = Array(NUMBER_USERS)
     .fill(null)
     .map(
-      (_value: null, index: number): UserCreateArgs => {
+      (_value: null, index: number): Prisma.UserCreateArgs => {
         return {
           data: {
             email: `player${index}@ogsc.dev`,
@@ -149,7 +145,7 @@ export default async function seedDatabase(): Promise<void> {
                   .fill(null)
                   .map(
                     () =>
-                      <AbsenceCreateWithoutUsersInput>{
+                      <Prisma.AbsenceCreateWithoutUsersInput>{
                         type,
                         date: Faker.date.recent(90),
                         reason: Faker.random.arrayElement(
@@ -279,10 +275,10 @@ export default async function seedDatabase(): Promise<void> {
   }
 
   const mentorsCreateMessage = Ora(`Creating ${NUMBER_USERS} mentors`).start();
-  const mockMentors: UserCreateArgs[] = Array(NUMBER_USERS)
+  const mockMentors: Prisma.UserCreateArgs[] = Array(NUMBER_USERS)
     .fill(null)
     .map(
-      (_value: null, index: number): UserCreateArgs => {
+      (_value: null, index: number): Prisma.UserCreateArgs => {
         return {
           data: {
             email: `mentor${index}@ogsc.dev`,
@@ -313,10 +309,10 @@ export default async function seedDatabase(): Promise<void> {
   }
 
   const parentsCreateMessage = Ora(`Creating ${NUMBER_USERS} parents`).start();
-  const mockParents: UserCreateArgs[] = Array(NUMBER_USERS)
+  const mockParents: Prisma.UserCreateArgs[] = Array(NUMBER_USERS)
     .fill(null)
     .map(
-      (_value: null, index: number): UserCreateArgs => {
+      (_value: null, index: number): Prisma.UserCreateArgs => {
         return {
           data: {
             email: `parent${index}@ogsc.dev`,
@@ -347,10 +343,10 @@ export default async function seedDatabase(): Promise<void> {
   }
 
   const donorsCreateMessage = Ora(`Creating ${NUMBER_USERS} mentors`).start();
-  const mockDonors: UserCreateArgs[] = Array(NUMBER_USERS)
+  const mockDonors: Prisma.UserCreateArgs[] = Array(NUMBER_USERS)
     .fill(null)
     .map(
-      (_value: null, index: number): UserCreateArgs => {
+      (_value: null, index: number): Prisma.UserCreateArgs => {
         return {
           data: {
             email: `donor${index}@ogsc.dev`,

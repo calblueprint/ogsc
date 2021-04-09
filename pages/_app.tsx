@@ -1,8 +1,5 @@
-import {
-  AuthenticatedSessionInfo,
-  SessionInfo,
-  UserRoleType,
-} from "interfaces";
+import { UserRoleType } from "@prisma/client";
+import { AuthenticatedSessionInfo, SessionInfo } from "interfaces";
 import { createStore, StateMachineProvider } from "little-state-machine";
 import { useSession } from "next-auth/client";
 import type { AppProps } from "next/app";
