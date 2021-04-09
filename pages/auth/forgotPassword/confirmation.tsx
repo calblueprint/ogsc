@@ -11,7 +11,9 @@ const Confirmation: React.FC = () => {
             you haven’t recieved it, check your spam box or{" "}
           </p>{" "}
           <Link href="/auth/forgotPassword">
-            <a className="ml-1 text-blue hover:font-semibold">resend email.</a>
+            <a className="ml-1 text-blue hover:underline hover:font-semibold">
+              resend email.
+            </a>
           </Link>
         </div>
       </div>
