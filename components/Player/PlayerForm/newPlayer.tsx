@@ -6,9 +6,9 @@ import { UserDTO } from "pages/api/admin/users/readOneEmail";
 import { AdminCreateUserDTO } from "pages/api/admin/users/create";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { UserStatus } from "interfaces";
 import updateActionSignUp from "utils/updateActionSignUp";
 import { useStateMachine } from "little-state-machine";
+import { UserStatus } from "@prisma/client";
 import type { UserSignUpFormValues } from "../../../pages/users/signUp";
 
 const AdminInviteFormSchema = Joi.object<UserSignUpFormValues>({

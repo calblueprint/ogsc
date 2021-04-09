@@ -1,11 +1,12 @@
-import prisma from "utils/prisma";
+import { UserRoleType } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 
-import { IPlayer, IUser, UserRoleType } from "interfaces";
+import { IPlayer, IUser } from "interfaces";
 import buildUserProfile from "utils/buildUserProfile";
 import filterPlayerProfileRead from "utils/filterPlayerProfileRead";
 import flattenUserRoles from "utils/flattenUserRoles";
 import getAuthenticatedUser from "utils/getAuthenticatedUser";
+import prisma from "utils/prisma";
 import sanitizeUser from "utils/sanitizeUser";
 import { USER_PAGE_SIZE } from "../../../constants";
 

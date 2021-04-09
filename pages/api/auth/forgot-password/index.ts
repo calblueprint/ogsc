@@ -21,7 +21,7 @@ export type ForgotPasswordUserDTO = {
 export const forgotPassword = async (
   user: ForgotPasswordUserDTO
 ): Promise<ResetPassword | null> => {
-  const resetUser = await prisma.user.findOne({
+  const resetUser = await prisma.user.findUnique({
     where: { email: user.email },
   });
   if (!resetUser || resetUser.status !== UserStatus.Active) {

@@ -1,5 +1,5 @@
-import { IPlayer, IUser, ProfileFieldKey } from "interfaces";
-import { AbsenceType } from "interfaces/user";
+import { AbsenceType, ProfileFieldKey } from "@prisma/client";
+import { IPlayer, IUser } from "interfaces";
 
 type AccessValueBase = boolean | ((player: IPlayer, user: IUser) => boolean);
 export type AccessValue =

@@ -1,11 +1,7 @@
+import { UserRoleType, UserStatus } from "@prisma/client";
 import Link from "next/link";
 import PageNav from "components/PageNav";
-import {
-  IUser,
-  UserRoleLabel,
-  UserRoleType,
-  UserStatus,
-} from "interfaces/user";
+import { IUser, UserRoleLabel } from "interfaces/user";
 import { ReadManyUsersDTO } from "pages/api/admin/users/readMany";
 import useSessionInfo from "utils/useSessionInfo";
 import usePagination from "./pagination";

@@ -1,15 +1,13 @@
-import { Absence } from "@prisma/client";
 import {
+  Absence,
   AbsenceType,
-  IPlayer,
-  IUser,
-  PlayerProfile,
   ProfileFieldKey,
   UserRoleType,
-} from "interfaces";
+} from "@prisma/client";
+import { IPlayer, IUser, PlayerProfile } from "interfaces";
 import {
-  ProfileAccessDefinitionsByRole,
   AttendanceAccessDefinitionsByRole,
+  ProfileAccessDefinitionsByRole,
 } from "lib/access/definitions";
 import resolveAccessValue from "lib/access/resolve";
 

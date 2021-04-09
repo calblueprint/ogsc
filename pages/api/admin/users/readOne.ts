@@ -20,7 +20,7 @@ const handler = async (
   res: NextApiResponse
 ): Promise<void> => {
   try {
-    const user = await prisma.user.findOne({
+    const user = await prisma.user.findUnique({
       where: { id: req.body.id || Number(req.query.id) },
       include: { roles: true },
     });

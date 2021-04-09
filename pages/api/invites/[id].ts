@@ -15,7 +15,7 @@ export const getInviteById = async (
   if (Joi.string().uuid({ version: "uuidv4" }).validate(id).error) {
     return null;
   }
-  const invite = await prisma.userInvite.findOne({
+  const invite = await prisma.userInvite.findUnique({
     where: { id },
     include: { user: true },
   });

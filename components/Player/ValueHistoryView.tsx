@@ -12,12 +12,11 @@ import {
   VictoryTooltip,
   VictoryVoronoiContainer,
 } from "victory";
-import { ProfileField } from "@prisma/client";
+import { ProfileField, ProfileFieldKey } from "@prisma/client";
 import Button from "components/Button";
 import Icon, { IconType } from "components/Icon";
 import {
   IProfileField,
-  ProfileFieldKey,
   ProfileFieldValue,
   ProfileFieldValues,
 } from "interfaces";

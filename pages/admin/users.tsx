@@ -1,6 +1,7 @@
+import { UserRoleType, UserStatus } from "@prisma/client";
 import DashboardLayout from "components/DashboardLayout";
 import UserDashboard from "components/UserDashboard";
-import { UserRoleType, UserStatus, UserRoleLabel } from "interfaces";
+import { UserRoleLabel } from "interfaces/user";
 import { useState } from "react";
 import useSessionInfo from "utils/useSessionInfo";
 
