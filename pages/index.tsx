@@ -1,6 +1,6 @@
 import { useSession } from "next-auth/client";
 import { useEffect } from "react";
-import { UserRoleType } from "interfaces";
+import { UserRoleType } from "@prisma/client";
 import { UserDTO } from "./api/admin/users/readOneEmail";
 
 const Home: React.FC = () => {
