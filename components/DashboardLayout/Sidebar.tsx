@@ -123,7 +123,9 @@ const Sidebar: React.FC = () => {
                   <button
                     className="h-14 pt-3 pb-3 hover:bg-hover hover:font-semibold cursor-pointer w-full text-left"
                     type="button"
-                    onClick={() => signOut()}
+                    onClick={() =>
+                      signOut({ callbackUrl: `window.location.origin` })
+                    }
                   >
                     <Icon type="logoutToggle" className="inline ml-4" />
                     <p className="inline ml-2 text-sm">Log Out</p>

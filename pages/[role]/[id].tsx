@@ -655,7 +655,7 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
             <button
               className="absolute top-24 right-0 mr-20"
               type="button"
-              onClick={() => signOut()}
+              onClick={() => signOut({ callbackUrl: `window.location.origin` })}
             >
               <Icon type="logoutButton" />
             </button>
