@@ -53,7 +53,7 @@ const EditMore: React.FunctionComponent<EditProps> = (props: EditProps) => {
           </button>
         }
       >
-        <div className="border border-unselected bg-white rounded-lg h-24 w-1/12 grid grid-rows-2">
+        <div className="border border-unselected bg-white rounded-lg h-24 grid grid-rows-2">
           <button
             type="button"
             className=" text-dark grid grid-cols-3 place-items-center hover:bg-button rounded-b-none rounded-lg"

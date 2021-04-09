@@ -67,7 +67,7 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
         <ValueHistoryView
           icon="school"
           primaryColor="pink"
-          fieldLabel={ProfileFieldLabels.AcademicEngagementScore}
+          fieldKey={ProfileFieldKey.AcademicEngagementScore}
           shortFieldLabel="Engagement"
           values={profileField.history}
           valueLabel="point"
@@ -78,7 +78,7 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
         <ValueHistoryView
           icon="academics"
           primaryColor="gold"
-          fieldLabel={ProfileFieldLabels.AdvisingScore}
+          fieldKey={ProfileFieldKey.AdvisingScore}
           shortFieldLabel="Engagement"
           values={profileField.history}
           valueLabel="point"
@@ -89,7 +89,7 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
         <ValueHistoryView
           icon="athletics"
           primaryColor="purple"
-          fieldLabel={ProfileFieldLabels.AthleticScore}
+          fieldKey={ProfileFieldKey.AthleticScore}
           shortFieldLabel="Engagement"
           values={profileField.history}
           valueLabel="point"
@@ -100,7 +100,7 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
         <ValueHistoryView
           icon="book"
           primaryColor="blue"
-          fieldLabel={ProfileFieldLabels.GPA}
+          fieldKey={ProfileFieldKey.GPA}
           shortFieldLabel="GPA"
           values={profileField.history}
           valueRange={[2, 4]}
