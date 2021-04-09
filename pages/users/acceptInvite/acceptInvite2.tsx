@@ -113,42 +113,48 @@ const UserAcceptInvitePageTwo: React.FC = () => {
               name="password"
               error={errors.password?.message}
             >
-              <input
-                type={revealPassword ? "text" : "password"}
-                className="input input-full"
-                name="password"
-                placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;"
-                ref={register}
-                defaultValue={state.acceptUserData.password}
-              />
-              <button
-                className="text-sm text-gray-500"
-                type="button"
-                onClick={() => setRevealPassword(!revealPassword)}
-              >
-                {revealPassword ? "Hide password" : "Show password"}
-              </button>
+              <div className="flex flex-row space-x-4">
+                <input
+                  type={revealPassword ? "text" : "password"}
+                  className="input input-full"
+                  name="password"
+                  placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;"
+                  ref={register}
+                  defaultValue={state.acceptUserData.password}
+                />
+                <button
+                  className="text-sm text-gray-500"
+                  type="button"
+                  onClick={() => setRevealPassword(!revealPassword)}
+                >
+                  {revealPassword ? "Hide password" : "Show password"}
+                </button>
+              </div>
             </FormField>
             <FormField
               label="Confirm Password"
               name="confirmPassword"
               error={errors.confirmPassword?.message}
             >
-              <input
-                type={revealConfirmPassword ? "text" : "password"}
-                className="input input-full"
-                name="confirmPassword"
-                placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;"
-                ref={register}
-                defaultValue={state.acceptUserData.confirmPassword}
-              />
-              <button
-                className="text-sm text-gray-500"
-                type="button"
-                onClick={() => setRevealConfirmPassword(!revealConfirmPassword)}
-              >
-                {revealConfirmPassword ? "Hide password" : "Show password"}
-              </button>
+              <div className="flex flex-row space-x-4">
+                <input
+                  type={revealConfirmPassword ? "text" : "password"}
+                  className="input input-full"
+                  name="confirmPassword"
+                  placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;"
+                  ref={register}
+                  defaultValue={state.acceptUserData.confirmPassword}
+                />
+                <button
+                  className="text-sm text-gray-500"
+                  type="button"
+                  onClick={() =>
+                    setRevealConfirmPassword(!revealConfirmPassword)
+                  }
+                >
+                  {revealConfirmPassword ? "Hide password" : "Show password"}
+                </button>
+              </div>
             </FormField>
           </fieldset>
           <div className="flex mt-24 mb-32 justify-between align-middle">
