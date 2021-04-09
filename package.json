@@ -31,7 +31,7 @@
   "dependencies": {
     "@headlessui/react": "^0.2.0",
     "@hookform/resolvers": "^1.0.1",
-    "@prisma/client": "2.13.1",
+    "@prisma/client": "2.20.1",
     "@sendgrid/mail": "^7.4.0",
     "autoprefixer": "9.8.6",
     "babel-plugin-superjson-next": "^0.1.8",
