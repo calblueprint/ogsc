@@ -166,13 +166,13 @@ export default async function seedDatabase(): Promise<void> {
                   )
               ),
             },
-            notes: {
+            Notes: {
               create: Object.values(NoteType).flatMap((type: NoteType) =>
                 Array<Notes | null>(Faker.random.number(4))
                   .fill(null)
                   .map(
                     () =>
-                      <Prisma.CreateNotes>{
+                      <Prisma.NotesCreateInput>{
                         created_at: Faker.date.recent(90),
                         type,
                         content: Faker.lorem.lines(1),
