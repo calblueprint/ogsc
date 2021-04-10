@@ -18,6 +18,13 @@ export const UserRoleLabel: Record<UserRoleType, string> = {
   [UserRoleType.Donor]: "Donor",
 };
 
+export enum NoteType {
+  General = "general",
+  Soccer = "soccer",
+  Academics = "academics",
+  Mentorship = "mentorship",
+}
+
 export enum ProfileFieldValue {
   Text = "text",
   URL = "url",

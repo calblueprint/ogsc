@@ -8,7 +8,7 @@ export async function up(
   const runSql = promisify(db.runSql.bind(db));
   try {
     await runSql(
-      `CREATE TYPE note_type AS ENUM (
+      `CREATE TYPE NoteType AS ENUM (
         'general',
         'soccer',
         'academics',
@@ -17,7 +17,7 @@ export async function up(
       []
     );
     db.createTable(
-      "notes",
+      "Notes",
       {
         id: {
           type: "uuid",
@@ -51,7 +51,7 @@ export async function up(
           notNull: true,
         },
         type: {
-          type: "note_type",
+          type: "NoteType",
           defaultValue: "general",
           notNull: true,
         },
@@ -72,8 +72,8 @@ export async function down(
 ): Promise<void> {
   const runSql = promisify(db.runSql.bind(db));
   try {
-    db.dropTable("notes", callback);
-    await runSql("DROP TYPE IF EXISTS note_type", []);
+    db.dropTable("Notes", callback);
+    await runSql("DROP TYPE IF EXISTS NoteType", []);
   } catch (err) {
     callback(err, null);
   }
