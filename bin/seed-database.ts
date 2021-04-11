@@ -161,7 +161,6 @@ export default async function seedDatabase(): Promise<void> {
                           Object.values(AbsenceReason)
                         ),
                         description: Faker.lorem.lines(1),
-                        users: mockPlayers[Faker.random.number(NUMBER_USERS)],
                       }
                   )
               ),
@@ -172,7 +171,7 @@ export default async function seedDatabase(): Promise<void> {
                   .fill(null)
                   .map(
                     () =>
-                      <Prisma.NotesCreateInput>{
+                      <Prisma.NotesCreateWithoutUsersInput>{
                         created_at: Faker.date.recent(90),
                         type,
                         content: Faker.lorem.lines(1),
