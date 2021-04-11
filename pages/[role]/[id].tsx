@@ -53,6 +53,7 @@ export async function getServerSideProps(
   }
 
   console.log("TESTING");
+  console.log("test 2!!!!");
 
   const relatedPlayerIds = user.roles
     .filter(
