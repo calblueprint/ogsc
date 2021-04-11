@@ -1,5 +1,7 @@
 # Oakland Genesis Soccer Club
 
+This is a web application that helps the OGSC's participants (players/students, their mentors, their parents, and the donors that support them) find information about the program and see its impact over time on players in the program.
+
 ## Technologies
 
 - [Next.js](https://nextjs.org/)
@@ -24,6 +26,32 @@ yarn dev
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 The page auto-updates as you edit the file.
+
+## Available Scripts
+
+In the project directory you can run:
+
+`yarn`
+
+Installs all dependencies.<br />
+
+`yarn dev`
+
+Runs the app in the development mode.<br />
+
+`yarn db: seed`
+
+Generates seed data for use in the local environment.<br />
+
+`yarn db:migrate up`
+
+Safely run all migrations and perform the database changes.<br />
+
+`yarn db:migrate down`
+
+Safely reverts all database changes you made.<br />
+
+**You will need to run `yarn prisma introspect ` and `yarn prisma genereate` after running a migration**
 
 ## Learn More
 

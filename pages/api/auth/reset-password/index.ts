@@ -27,7 +27,7 @@ export const resetPassword = async (
     throw new Error("Invalid resetCodeId");
   }
 
-  const resetPasswordRecord = await prisma.resetPassword.findOne({
+  const resetPasswordRecord = await prisma.resetPassword.findUnique({
     where: { id: user.resetCodeId },
   });
   if (!resetPasswordRecord) {

@@ -1,6 +1,6 @@
-import { User } from "@prisma/client";
+import { User, UserRoleType } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
-import { IPlayer, IUser, UserRoleType } from "./user";
+import { IPlayer, IUser } from "./user";
 
 export * from "./user";
 

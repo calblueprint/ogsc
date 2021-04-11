@@ -22,7 +22,7 @@ export async function getServerSideProps(
   context: NextPageContext
 ): Promise<{ props: Props }> {
   const id = context.query.id as string;
-  const user = await prisma.user.findOne({
+  const user = await prisma.user.findUnique({
     where: { id: Number(id) },
     include: {
       absences: true,
@@ -40,19 +40,7 @@ export async function getServerSideProps(
     // TODO: Set statusCode to 401
     return { props: {} };
   }
-
-  const sessionUser = await prisma.user.findOne({
-    where: { email: session.user.email },
-    include: {
-      roles: true,
-    },
-  });
-  if (!sessionUser) {
-    // TODO: Set statusCode to 401
-    return { props: {} };
-  }
-
-  const authenticatedUser = await prisma.user.findOne({
+  const authenticatedUser = await prisma.user.findUnique({
     where: { email: session.user.email },
     include: { roles: true },
   });

@@ -1,4 +1,5 @@
-import { AuthenticatedNextApiHandler, UserRoleType } from "interfaces";
+import { UserRoleType } from "@prisma/client";
+import { AuthenticatedNextApiHandler } from "interfaces";
 import { NextApiRequest, NextApiResponse } from "next";
 
 import flattenUserRoles from "utils/flattenUserRoles";

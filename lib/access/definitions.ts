@@ -1,14 +1,9 @@
-import {
-  AbsenceType,
-  IPlayer,
-  IUser,
-  ProfileFieldKey,
-  UserRoleType,
-} from "interfaces";
+import { AbsenceType, ProfileFieldKey, UserRoleType } from "@prisma/client";
+import { IPlayer, IUser } from "interfaces";
 import {
   AccessValue,
-  ProfileAccessDefinition,
   AttendanceAccessDefinition,
+  ProfileAccessDefinition,
 } from "./types";
 
 const isSharedPlayerProfile: AccessValue = (

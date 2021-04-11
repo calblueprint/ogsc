@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { AbsenceReason, AbsenceType, UserRoleLabel } from "interfaces";
-import { Absence } from "@prisma/client";
+import { Absence, AbsenceReason, AbsenceType } from "@prisma/client";
 import EditMoreAbsence from "components/Player/EditMoreAbsence";
 import Button from "components/Button";
 import Modal from "components/Modal";
+import { UserRoleLabel } from "interfaces/user";
 import useSessionInfo from "utils/useSessionInfo";
 import SuccessfulChange from "./successChange";
 import AddAbsence from "./AddAbsence";

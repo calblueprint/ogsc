@@ -1,8 +1,8 @@
+import { User, UserRoleType } from "@prisma/client";
 import React, { useEffect, useRef, useState } from "react";
 import { useCombobox } from "downshift";
 import debounce from "lodash.debounce";
-import { UserRoleLabel, UserRoleType } from "interfaces";
-import { User } from "@prisma/client";
+import { UserRoleLabel } from "interfaces";
 import Button from "./Button";
 import Card from "./Card";
 
