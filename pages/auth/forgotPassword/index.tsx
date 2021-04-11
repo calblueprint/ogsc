@@ -67,6 +67,11 @@ const ForgotPassword: React.FC = () => {
               name="email"
               error={errors.email?.message}
             >
+              <p className="text-xs mb-3 font-normal">
+                Enter the email associated with your account and we’ll send you
+                an account recovery link. Follow the instructions provided to
+                reset your password.
+              </p>
               <input
                 type="text"
                 className="input input-full"
@@ -75,13 +80,6 @@ const ForgotPassword: React.FC = () => {
                 ref={register}
               />
             </FormField>
-            <div className="text-sm">
-              <p>
-                Enter the email associated with your account and we’ll send you
-                an account recovery link. Follow the instructions provided to
-                reset your password.
-              </p>
-            </div>
             <div className="flex mt-24 mb-32 justify-end">
               <div className="mb-2 flex ">
                 <Button

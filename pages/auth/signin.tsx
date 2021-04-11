@@ -109,7 +109,7 @@ const SignIn: React.FC = () => {
               <div className="flex flex-row">
                 <p className="text-gray-600">New to Oakland Genesis Club? </p>{" "}
                 <Link href="/users/signUp">
-                  <a className="ml-1 text-blue hover:underline hover:font-semibold">
+                  <a className="ml-1 text-blue hover:underline font-semibold">
                     Create an account here.
                   </a>
                 </Link>

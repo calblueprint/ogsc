@@ -19,7 +19,7 @@ const Confirmation: React.FC = () => {
             <div className="flex flex-row mt-10">
               <p className="text-gray-600">Please request a </p>{" "}
               <Link href="/auth/forgotPassword">
-                <a className="ml-1 text-blue hover:underline hover:font-semibold">
+                <a className="ml-1 text-blue hover:underline font-semibold">
                   new password reset.
                 </a>
               </Link>
