@@ -52,9 +52,6 @@ export async function getServerSideProps(
     return { props: {} };
   }
 
-  console.log("TESTING");
-  console.log("test 2!!!!");
-
   const relatedPlayerIds = user.roles
     .filter(
       (role) =>
