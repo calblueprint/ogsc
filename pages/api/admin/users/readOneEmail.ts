@@ -4,7 +4,6 @@ import Joi from "lib/validate";
 import { ValidatedNextApiRequest } from "interfaces";
 import sanitizeUser from "utils/sanitizeUser";
 import { validateBody } from "pages/api/helpers";
-import { adminOnlyHandler } from "../helpers";
 
 export type UserDTO = {
   email: string;
@@ -21,6 +20,7 @@ const handler = async (
   try {
     const user = await prisma.user.findUnique({
       where: { email: req.body.email || String(req.query.email) },
+      include: { roles: true },
     });
     if (!user) {
       res
@@ -35,4 +35,4 @@ const handler = async (
   }
 };
 
-export default validateBody(adminOnlyHandler(handler), expectedBody);
+export default validateBody(handler, expectedBody);

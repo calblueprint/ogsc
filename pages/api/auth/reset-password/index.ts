@@ -8,7 +8,7 @@ import Joi from "lib/validate";
 /**
  * User DTO with new password
  */
-type NewPasswordUserDTO = {
+export type NewPasswordUserDTO = {
   newPassword: string;
   resetCodeId: string;
 };
