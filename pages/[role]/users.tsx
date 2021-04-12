@@ -1,9 +1,9 @@
 import { UserRoleType, UserStatus } from "@prisma/client";
 import DashboardLayout from "components/DashboardLayout";
 import UserDashboard from "components/UserDashboard";
-import { UserRoleLabel } from "interfaces/user";
+// import { UserRoleLabel } from "interfaces/user";
 import { useState } from "react";
-import useSessionInfo from "utils/useSessionInfo";
+// import useSessionInfo from "utils/useSessionInfo";
 
 interface adminNavBarProps {
   title: string | null;
@@ -27,10 +27,10 @@ const AdminNavbar: React.FunctionComponent<adminNavBarProps> = ({
   title,
   setTitle,
 }) => {
-  const session = useSessionInfo();
-  if (UserRoleLabel[session.sessionType] === "Admin") {
-    FilterLabels[UserStatus.Inactive] = "Inactive";
-  }
+  // const session = useSessionInfo();
+  // if (UserRoleLabel[session.sessionType] === "Admin") {
+  FilterLabels[UserStatus.Inactive] = "Inactive";
+  // }
   return (
     <div>
       <div className="flex flex-row justify-between text-sm text-center mt-8 mb-5">
