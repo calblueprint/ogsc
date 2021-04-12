@@ -1,9 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { Absence, AbsenceReason, AbsenceType } from "@prisma/client";
-import Button from "components/Button";
-import Modal from "components/Modal";
 import EditMore from "./EditMore";
-import EditField from "./EditField";
+import ProfileFieldEditorModal from "./ProfileFieldEditorModal";
 
 type Props = {
   absenceType: AbsenceType;
@@ -16,7 +14,6 @@ const AbsencePillColors: Record<AbsenceReason, string> = {
 };
 
 const AbsenceTable: React.FC<Props> = ({ absenceType, absences }: Props) => {
-  const [addAbsence, setAddAbsence] = useState(false);
   const filteredAbsences = absences
     .filter((absence: Absence) => absence.type === absenceType)
     .sort((a: Absence, b: Absence) => Number(a.date) - Number(b.date));
@@ -67,24 +64,13 @@ const AbsenceTable: React.FC<Props> = ({ absenceType, absences }: Props) => {
         <p className="font-semibold">{filteredAbsences.length}</p>
       </div>
       <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
-        <Button
-          iconType="plus"
-          onClick={() => {
-            setAddAbsence(true);
-          }}
-        >
-          Add Absence
-        </Button>
-      </div>
-      <Modal open={addAbsence} className="w-2/3">
-        <EditField
+        <ProfileFieldEditorModal
           fieldKey="absence"
           onComplete={() => {
-            setAddAbsence(false);
             // TODO: Dispatch notification
           }}
         />
-      </Modal>
+      </div>
     </div>
   );
 };

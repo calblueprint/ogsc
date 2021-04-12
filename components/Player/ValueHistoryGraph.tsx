@@ -1,3 +1,4 @@
+import { Dayjs } from "dayjs";
 import dayjs from "lib/day";
 import {
   VictoryArea,
@@ -20,7 +21,7 @@ export type ValueHistoryGraphProps = Pick<
 > & {
   startDate: Date | null;
   endDate: Date | null;
-  values: { value?: number; createdAt: Date }[];
+  values: { value?: number; date: Dayjs }[];
 };
 
 const ValueHistoryGraph: React.FC<ValueHistoryGraphProps> = ({
@@ -135,10 +136,10 @@ const ValueHistoryGraph: React.FC<ValueHistoryGraphProps> = ({
         />
         <VictoryGroup
           data={values.map((datum) => ({
-            x: datum.createdAt,
+            x: datum.date.toDate(),
             y: datum.value,
             label: [
-              datum.createdAt.toLocaleDateString("default", {
+              datum.date.toDate().toLocaleDateString("default", {
                 month: "short",
                 year: "numeric",
               }),
@@ -229,8 +230,8 @@ const ValueHistoryGraph: React.FC<ValueHistoryGraphProps> = ({
               },
             }}
             data={[
-              { x: datum.createdAt, y: 0 },
-              { x: datum.createdAt, y: datum.value },
+              { x: datum.date.toDate(), y: 0 },
+              { x: datum.date.toDate(), y: datum.value },
             ]}
           />
         ))}

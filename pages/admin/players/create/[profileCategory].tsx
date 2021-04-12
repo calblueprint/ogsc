@@ -1,17 +1,67 @@
-import { ProfileFieldKey } from "@prisma/client";
 import Button from "components/Button";
 import DashboardLayout from "components/DashboardLayout";
 import Icon from "components/Icon";
 import PlayerFormLayout from "components/Player/PlayerFormLayout";
-import ProfileFieldEditor from "components/Player/ProfileFieldEditor";
-import { ProfileCategory, ProfileFieldsByCategory } from "interfaces";
+import { ProfileContents } from "components/Player/Profile";
+import ProfileContext, {
+  DeserializeProfileFieldDrafts,
+  ProfileAction,
+  ProfileContextReducer,
+  ProfileState,
+  SerializeProfileFieldDrafts,
+} from "components/Player/ProfileContext";
+import { Props as ProfileSectionProps } from "components/Player/ProfileSection";
+import { ProfileCategory } from "interfaces";
+import { useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
-import labelProfileField from "utils/labelProfileField";
+import React, { useMemo, useState } from "react";
+import composeReducers from "utils/composeReducers";
+
+const Section = ({
+  sectionName,
+  children,
+}: ProfileSectionProps): JSX.Element => (
+  <div>
+    <h1 className="mb-10 text-lg font-semibold">{sectionName}</h1>
+    {children}
+  </div>
+);
+
+export const useCreateProfileContext = (): {
+  state: ProfileState;
+  actions: ReturnType<typeof useStateMachine>["actions"];
+  context: {
+    state: ProfileState;
+    dispatch: React.Dispatch<ProfileAction>;
+    refreshProfile: () => void;
+  };
+} => {
+  const { state, actions } = useStateMachine<ProfileState>({
+    ProfileContextReducer: composeReducers(
+      SerializeProfileFieldDrafts,
+      ProfileContextReducer
+    ),
+  });
+  const context = useMemo(
+    () => ({
+      dispatch: actions.ProfileContextReducer,
+      state: DeserializeProfileFieldDrafts({
+        editingState: { allEditingOverride: true, sections: {} },
+        player: state.player,
+      }),
+      // refreshProfile has no role in this context.
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      refreshProfile: () => {},
+    }),
+    [actions.ProfileContextReducer, state.player]
+  );
+  return { context, actions, state };
+};
 
 const CreatePlayerProfilePage: React.FC = () => {
   const [error] = useState(null);
   const router = useRouter();
+  const { context } = useCreateProfileContext();
   const category = router.query.profileCategory as ProfileCategory;
 
   return (
@@ -22,19 +72,16 @@ const CreatePlayerProfilePage: React.FC = () => {
         </p>
         <p className="font-light mt-2">Description Here</p>
         <PlayerFormLayout>
-          <p className="pt-10 text-xl tracking-wider font-medium">
-            Student Bio
-          </p>
-          <form className="mt-10" onSubmit={undefined}>
+          <form
+            className="mt-10"
+            onSubmit={(ev) => {
+              ev.preventDefault();
+            }}
+          >
             <fieldset>
-              {ProfileFieldsByCategory[category].map(
-                (field: ProfileFieldKey) => (
-                  <>
-                    <p>{labelProfileField(field)}</p>
-                    <ProfileFieldEditor profileField={field} />
-                  </>
-                )
-              )}
+              <ProfileContext.Provider value={context}>
+                <ProfileContents category={category} renderSection={Section} />
+              </ProfileContext.Provider>
               {error && <p className="text-red-600 text-sm">{error}</p>}
               <hr className="border-unselected border-opacity-50 my-16" />
               <div className="flex mb-32">

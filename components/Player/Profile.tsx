@@ -11,26 +11,30 @@ import { useRouter } from "next/router";
 import AbsenceTable from "./AbsenceTable";
 import ProfileFieldCell from "./ProfileFieldCell";
 import ProfileContext, { useProfileContext } from "./ProfileContext";
-import ProfileSection from "./ProfileSection";
+import ProfileSection, { Props as ProfileSectionProps } from "./ProfileSection";
 
 type ProfileContentsProps<T extends ProfileCategory> = {
   category: T;
+  // How do we do this with a FC that has a generic?
+  // eslint-disable-next-line react/require-default-props
+  renderSection?: (props: ProfileSectionProps) => JSX.Element;
 };
 
-const ProfileContents = <T extends ProfileCategory>({
+export const ProfileContents = <T extends ProfileCategory>({
   category,
+  renderSection,
 }: ProfileContentsProps<T>): JSX.Element => {
   const {
     state: { player },
   } = useContext(ProfileContext);
 
+  const Section = renderSection ?? ProfileSection;
+
   switch (category) {
     case ProfileCategory.Overview:
       return (
         <div>
-          <h1 className="mb-10 text-2xl font-semibold">Student Overview</h1>
-          <hr />
-          <ProfileSection sectionName="Student Bio">
+          <Section sectionName="Student Bio">
             <ProfileFieldCell fieldKey={ProfileFieldKey.BioAboutMe} />
             <ProfileFieldCell fieldKey={ProfileFieldKey.BioHobbies} />
             <ProfileFieldCell fieldKey={ProfileFieldKey.BioFavoriteSubject} />
@@ -39,14 +43,15 @@ const ProfileContents = <T extends ProfileCategory>({
             />
             <ProfileFieldCell fieldKey={ProfileFieldKey.BioSiblings} />
             <ProfileFieldCell fieldKey={ProfileFieldKey.BioParents} />
+          </Section>
+          <Section sectionName="Intro Video">
             <ProfileFieldCell fieldKey={ProfileFieldKey.IntroVideo} />
-          </ProfileSection>
+          </Section>
         </div>
       );
     case ProfileCategory.Engagement:
       return (
         <div>
-          <h1 className="mb-10 text-2xl font-semibold">Engagement</h1>
           <ProfileFieldCell
             fieldKey={ProfileFieldKey.AcademicEngagementScore}
           />
@@ -57,7 +62,6 @@ const ProfileContents = <T extends ProfileCategory>({
     case ProfileCategory.AcademicPerformance:
       return (
         <div>
-          <h1 className="mb-10 text-2xl font-semibold">Academic Performance</h1>
           <ProfileFieldCell fieldKey={ProfileFieldKey.GPA} />
           <ProfileFieldCell fieldKey={ProfileFieldKey.DisciplinaryActions} />
         </div>
@@ -65,46 +69,40 @@ const ProfileContents = <T extends ProfileCategory>({
     case ProfileCategory.PhysicalWellness:
       return (
         <div>
-          <h1 className="mb-10 text-2xl font-semibold">Physical Wellness</h1>
-          <hr className="mb-10" />
-          <ProfileSection sectionName="Height">
+          <Section sectionName="Height">
             <ProfileFieldCell fieldKey={ProfileFieldKey.Height} />
-          </ProfileSection>
+          </Section>
           <hr className="mt-4" />
-          <ProfileSection sectionName="Fitness Testing">
+          <Section sectionName="Fitness Testing">
             <ProfileFieldCell fieldKey={ProfileFieldKey.PacerTest} />
             <ProfileFieldCell fieldKey={ProfileFieldKey.MileTime} />
             <ProfileFieldCell fieldKey={ProfileFieldKey.Situps} />
             <ProfileFieldCell fieldKey={ProfileFieldKey.Pushups} />
-          </ProfileSection>
-          <ProfileSection sectionName="Health & Wellness">
+          </Section>
+          <hr className="mt-4" />
+          <Section sectionName="Health & Wellness">
             <ProfileFieldCell fieldKey={ProfileFieldKey.HealthAndWellness} />
-          </ProfileSection>
+          </Section>
         </div>
       );
     case ProfileCategory.Attendance:
       return (
         <div>
-          <h1 className="mb-10 text-2xl font-semibold">Attendance</h1>
-          {player?.absences &&
-            Object.values(AbsenceType).map(
-              (type: AbsenceType) =>
-                player.absences && (
-                  <AbsenceTable
-                    key={type}
-                    absenceType={type}
-                    absences={player.absences}
-                  />
-                )
-            )}
+          {Object.values(AbsenceType).map((type: AbsenceType) => (
+            <AbsenceTable
+              key={type}
+              absenceType={type}
+              absences={player?.absences || []}
+            />
+          ))}
         </div>
       );
     case ProfileCategory.Highlights:
       return (
         <div>
-          <ProfileSection sectionName="Highlights">
+          <Section sectionName="Highlights">
             <ProfileFieldCell fieldKey={ProfileFieldKey.Highlights} />
-          </ProfileSection>
+          </Section>
         </div>
       );
     default:
@@ -167,6 +165,8 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
       </div>
       <hr className="my-10" />
       <ProfileContext.Provider value={{ state, dispatch, refreshProfile }}>
+        <h1 className="mb-10 text-2xl font-semibold">{selectedCategory}</h1>
+        <hr />
         <ProfileContents category={selectedCategory} />
       </ProfileContext.Provider>
     </div>

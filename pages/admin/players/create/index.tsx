@@ -1,76 +1,32 @@
-import type { ProfileFieldKey, User } from "@prisma/client";
+import type { ProfileFieldKey } from "@prisma/client";
 import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
 import PlayerFormField from "components/PlayerFormField";
 import Joi from "lib/validate";
-import { useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import updateActionPlayer from "utils/updateActionPlayer";
-import updateActionForm from "utils/updateActionForm";
 import DashboardLayout from "components/DashboardLayout";
 import PlayerFormLayout from "components/Player/PlayerFormLayout";
-import ComboBox from "components/Player/PlayerForm/PlayerComboBox";
 import NewPlayerInvitePage from "components/Player/PlayerForm/newPlayer";
 import Icon from "components/Icon";
-import { ProfileCategory, UncategorizedProfileFields } from "interfaces";
-import ProfileFieldEditor from "components/Player/ProfileFieldEditor";
+import { IUser, ProfileCategory, UncategorizedProfileFields } from "interfaces";
+
+import Combobox from "components/Combobox";
+import ProfileContext, {
+  emptyProfile,
+  ProfileAction,
+} from "components/Player/ProfileContext";
+import ProfileFieldCell from "components/Player/ProfileFieldCell";
+import { useCreateProfileContext } from "./[profileCategory]";
 
 const ExistingUser = ["Yes", "No"];
 
-export type PlayerProfileFormValues = {
-  age: string;
-  [ProfileFieldKey.BioAboutMe]: string;
-  [ProfileFieldKey.BioHobbies]: string;
-  [ProfileFieldKey.BioFavoriteSubject]: string;
-  [ProfileFieldKey.BioMostDifficultSubject]: string;
-  [ProfileFieldKey.BioSiblings]: string;
-  [ProfileFieldKey.BioParents]: string;
-  [ProfileFieldKey.AcademicEngagementScore]: string[];
-  [ProfileFieldKey.AdvisingScore]: string[];
-  [ProfileFieldKey.AthleticScore]: string[];
-  [ProfileFieldKey.GPA]: string[];
-  [ProfileFieldKey.DisciplinaryActions]: string[];
-  [ProfileFieldKey.PacerTest]: string;
-  [ProfileFieldKey.MileTime]: string;
-  [ProfileFieldKey.Situps]: string;
-  [ProfileFieldKey.Pushups]: string;
-  [ProfileFieldKey.HealthAndWellness]: string;
-  [ProfileFieldKey.Highlights]: string;
-  [ProfileFieldKey.IntroVideo]: string;
+type InitialProfileFormValues = {
+  choice: typeof ExistingUser[number];
 };
 
-export type ExistingUserType = {
-  choice: string;
-  player: User;
-};
-
-const PlayerProfileFormSchema = Joi.object<
-  PlayerProfileFormValues & ExistingUserType
->({
-  age: Joi.string(),
-  BioAboutMe: Joi.string().empty("").default(null),
-  BioHobbies: Joi.string().empty("").default(null),
-  BioFavoriteSubject: Joi.string().empty("").default(null),
-  BioMostDifficultSubject: Joi.string().empty("").default(null),
-  BioSiblings: Joi.string().empty("").default(null),
-  BioParents: Joi.string().empty("").default(null),
-  AcademicEngagementScore: Joi.array()
-    .items(Joi.string().required())
-    .optional(),
-  AdvisingScore: Joi.array().items(Joi.string().required()).optional(),
-  AthleticScore: Joi.array().items(Joi.string().required()).optional(),
-  GPA: Joi.array().items(Joi.string().required()).optional(),
-  DisciplinaryActions: Joi.array().items(Joi.string().required()).optional(),
-  BMI: Joi.string().empty("").default(null),
-  PacerTest: Joi.string().empty("").default(null),
-  MileTime: Joi.string().empty("").default(null),
-  Situps: Joi.string().empty("").default(null),
-  Pushups: Joi.string().empty("").default(null),
-  HealthAndWellness: Joi.string().empty("").default(null),
-  Highlights: Joi.string().empty("").default(null),
-  IntroVideo: Joi.string().empty("").default(null),
+const PlayerProfileFormSchema = Joi.object({
   choice: Joi.string()
     .valid(...ExistingUser)
     .required(),
@@ -78,26 +34,22 @@ const PlayerProfileFormSchema = Joi.object<
 
 const UserSignUpPageOne: React.FC = () => {
   const router = useRouter();
-  const { state } = useStateMachine();
-  const { actions } = useStateMachine({
-    updateActionPlayer,
-    updateActionForm,
-  });
-  const [selectedPlayer, setSelectedPlayer] = useState<User | null>(
-    state.playerForm.player
+  const { actions, state, context } = useCreateProfileContext();
+  const dispatchAction = actions.ProfileContextReducer as React.Dispatch<ProfileAction>;
+  const [selectedPlayer, setSelectedPlayer] = useState<IUser[]>(
+    state.player ? [state.player] : []
   );
-  const [existingUser, setExistingUser] = useState(state.playerForm.choice);
-  const [playerID, setPlayerID] = useState<number>(0);
+  const [existingUser, setExistingUser] = useState(
+    state.player != null ? "Yes" : undefined
+  );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const { errors, register, handleSubmit } = useForm<
-    PlayerProfileFormValues & ExistingUserType
-  >({
+  const { errors, register, handleSubmit } = useForm({
     resolver: joiResolver(PlayerProfileFormSchema),
   });
 
   async function onSubmit(
-    values: PlayerProfileFormValues,
+    _values: InitialProfileFormValues,
     event?: React.BaseSyntheticEvent
   ): Promise<void> {
     event?.preventDefault();
@@ -105,14 +57,15 @@ const UserSignUpPageOne: React.FC = () => {
       return;
     }
     try {
-      if (selectedPlayer === null && existingUser === "Yes") {
+      if (selectedPlayer.length === 0 || selectedPlayer[0] == null) {
         throw new Error("You must select or create a player to continue");
       }
-      actions.updateActionPlayer(values);
-      actions.updateActionPlayer({ id: playerID });
-      actions.updateActionForm({
-        choice: existingUser,
-        player: selectedPlayer,
+      dispatchAction({
+        type: "SET_PLAYER",
+        player: {
+          ...selectedPlayer[0],
+          profile: { ...emptyProfile, ...state.player?.profile },
+        },
       });
       router.push(`/admin/players/create/${Object.values(ProfileCategory)[0]}`);
     } catch (err) {
@@ -160,8 +113,8 @@ const UserSignUpPageOne: React.FC = () => {
                       id="Yes"
                       value="Yes"
                       ref={register}
-                      defaultChecked={state.playerForm.choice === "Yes"}
                       onChange={(event) => setExistingUser(event.target.value)}
+                      checked={existingUser === "Yes"}
                     />
                     <p className="text-sm ml-3 font-medium">Yes</p>
                   </label>
@@ -176,32 +129,34 @@ const UserSignUpPageOne: React.FC = () => {
                       id="No"
                       value="No"
                       ref={register}
-                      defaultChecked={state.playerForm.choice === "No"}
                       onChange={(event) => setExistingUser(event.target.value)}
+                      checked={existingUser === "No"}
                     />
                     <p className="text-sm ml-3 font-medium">No</p>
                   </label>
                   {existingUser === "Yes" ? (
-                    <div>
-                      <ComboBox
-                        selectedPlayer={selectedPlayer}
-                        setSelectedPlayer={setSelectedPlayer}
-                        setPlayerID={setPlayerID}
+                    <div className="w-64">
+                      <Combobox
+                        selectedPlayers={selectedPlayer}
+                        setSelectedPlayers={setSelectedPlayer}
+                        singleSelect
+                        promptOff
                       />
                     </div>
                   ) : null}
                   {existingUser === "No" ? (
-                    <NewPlayerInvitePage setPlayerID={setPlayerID} />
+                    <NewPlayerInvitePage
+                      onCreate={(user: IUser) => setSelectedPlayer([user])}
+                    />
                   ) : null}
                 </PlayerFormField>
               </div>
               <div className="grid grid-rows-2 mr-32">
-                {UncategorizedProfileFields.map((key: ProfileFieldKey) => (
-                  <>
-                    {key}
-                    <ProfileFieldEditor profileField={key} />
-                  </>
-                ))}
+                <ProfileContext.Provider value={context}>
+                  {UncategorizedProfileFields.map((key: ProfileFieldKey) => (
+                    <ProfileFieldCell fieldKey={key} />
+                  ))}
+                </ProfileContext.Provider>
               </div>
               {error && <p className="text-red-600 text-sm">{error}</p>}
               <hr className="border-unselected border-opacity-50 my-16" />

@@ -4,14 +4,19 @@ import dayjs from "lib/day";
 import { ProfileField } from "@prisma/client";
 import Button from "components/Button";
 import Icon, { IconType } from "components/Icon";
-import { IProfileField, NumericProfileFields } from "interfaces";
+import {
+  IProfileField,
+  NumericProfileFields,
+  ProfileFieldValueDeserializedTypes,
+  ProfileFieldValues,
+  UncreatedProfileField,
+} from "interfaces";
 import { deserializeProfileFieldValue } from "utils/buildUserProfile";
-import Modal from "components/Modal";
-import EditMore from "components/Player/EditMore";
 import labelProfileField from "utils/labelProfileField";
 import colors from "../../constants/colors";
-import EditField from "./EditField";
+import ProfileFieldEditorModal from "./ProfileFieldEditorModal";
 import ValueHistoryGraph from "./ValueHistoryGraph";
+import ValueHistoryTable from "./ValueHistoryTable";
 
 export type Props = {
   fieldKey: NumericProfileFields;
@@ -26,7 +31,10 @@ export type Props = {
 
   primaryColor: keyof typeof colors.palette;
 
-  values: IProfileField<NumericProfileFields>[];
+  values: (
+    | IProfileField<NumericProfileFields>
+    | UncreatedProfileField<NumericProfileFields>
+  )[];
 
   /**
    * Specify the range of possible valules as [minimum, maximum].
@@ -87,41 +95,39 @@ const ValueHistoryView: React.FC<Props> = ({
   const [intervalWindow, setIntervalWindow] = useState<IntervalWindow>(
     IntervalWindow.LastSixMonths
   );
-  const [newValueFormOpen, setNewValueFormOpen] = useState(false);
   const [startDate, endDate] = IntervalWindowBoundaries[intervalWindow];
 
-  const deserializedValues = values.map(
-    (field: IProfileField<NumericProfileFields>) => {
+  const deserializedValues = values
+
+    .map((field: IProfileField<NumericProfileFields>) => {
       const deserialized = deserializeProfileFieldValue<
         ProfileField,
         NumericProfileFields
       >(field);
-      return {
-        ...field,
-        ...(typeof deserialized === "number"
-          ? {}
-          : { comment: deserialized?.comment }),
-        value:
-          typeof deserialized === "number" ? deserialized : deserialized?.value,
-        createdAt: new Date(field.createdAt),
-      };
-    }
-  );
-  const filteredValues = deserializedValues.filter(({ createdAt }) =>
-    startDate && endDate
-      ? dayjs(createdAt).isBefore(endDate) &&
-        dayjs(createdAt).isAfter(startDate)
+      return deserialized;
+    })
+    .filter(
+      (
+        value
+      ): value is ProfileFieldValueDeserializedTypes[ProfileFieldValues[NumericProfileFields]] =>
+        value != null
+    );
+
+  const filteredValues = deserializedValues.filter((value) =>
+    value != null && startDate && endDate
+      ? dayjs(value.date).isBefore(endDate) &&
+        dayjs(value.date).isAfter(startDate)
       : true
   );
 
   const averageValue =
     filteredValues.reduce(
       (total: number, field: typeof filteredValues[number]) =>
-        total + (field.value ?? 0),
+        total + (field?.value ?? 0),
       0
     ) /
     filteredValues.filter(
-      (field: typeof filteredValues[number]) => field.value !== null
+      (field: typeof filteredValues[number]) => field?.value !== null
     ).length;
 
   return (
@@ -189,33 +195,11 @@ const ValueHistoryView: React.FC<Props> = ({
         </div>
       </div>
       {historyView === "table" && (
-        <table className="w-full mt-4">
-          <thead>
-            <tr className="h-10 text-left text-unselected tr-border">
-              <th className="w-3/12 pl-5 font-semibold">Date</th>
-              <th className="w-2/12 font-semibold">Score</th>
-              <th className="w-5/12 font-semibold">Description</th>
-              <th className="w-1/12 font-semibold">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredValues.map((field) => (
-              <tr key={field.id} className="h-16 tr-border">
-                <td className="w-3/12 px-5">
-                  {new Date(field.createdAt).toLocaleString("default", {
-                    month: "short",
-                    year: "numeric",
-                  })}
-                </td>
-                <td className="w-2/12">{field.value}</td>
-                <td>{field.comment}</td>
-                <td className="w-1/12">
-                  <EditMore fieldKey={field.key} />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <ValueHistoryTable
+          values={values}
+          startDate={startDate}
+          endDate={endDate}
+        />
       )}
       {historyView === "graph" && (
         <ValueHistoryGraph
@@ -227,20 +211,15 @@ const ValueHistoryView: React.FC<Props> = ({
           endDate={endDate}
         />
       )}
+
       <div className="mb-16 mt-8 grid grid-rows-2 w-full justify-end">
-        <Button iconType="plus" onClick={() => setNewValueFormOpen(true)}>
-          Add Engagement Score
-        </Button>
-      </div>
-      <Modal open={newValueFormOpen} className="w-2/3">
-        <EditField
+        <ProfileFieldEditorModal
           fieldKey={fieldKey}
           onComplete={() => {
-            setNewValueFormOpen(false);
             // TODO: Dispatch notification
           }}
         />
-      </Modal>
+      </div>
     </div>
   );
 };

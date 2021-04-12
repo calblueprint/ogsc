@@ -1,6 +1,7 @@
 import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
 import FormField from "components/FormField";
+import { IUser } from "interfaces/user";
 import Joi from "lib/validate";
 import { UserDTO } from "pages/api/admin/users/readOneEmail";
 import { AdminCreateUserDTO } from "pages/api/admin/users/create";
@@ -24,11 +25,11 @@ const AdminInviteFormSchema = Joi.object<UserSignUpFormValues>({
     .optional(),
 });
 
-type Props = React.PropsWithChildren<{
-  setPlayerID: React.Dispatch<React.SetStateAction<number>>;
-}>;
+type Props = {
+  onCreate: (newUser: IUser) => void;
+};
 
-const NewPlayerInvitePage: React.FC<Props> = ({ setPlayerID }: Props) => {
+const NewPlayerInvitePage: React.FC<Props> = ({ onCreate }: Props) => {
   const { action, state } = useStateMachine(updateActionSignUp);
   const [checkSubmit, setCheckSubmit] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -91,7 +92,7 @@ const NewPlayerInvitePage: React.FC<Props> = ({ setPlayerID }: Props) => {
           throw await player.json();
         }
         const newPlayer = await player.json();
-        setPlayerID(newPlayer.user.id);
+        onCreate(newPlayer);
         setConfirm(
           "You have sent an invite to this player and may continue on with the form!"
         );

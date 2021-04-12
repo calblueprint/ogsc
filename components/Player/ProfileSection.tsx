@@ -12,7 +12,7 @@ import React, { useContext } from "react";
 import ProfileContext, { ProfileSectionContext } from "./ProfileContext";
 import ProfileFieldCell, { ProfileFieldCellProps } from "./ProfileFieldCell";
 
-type Props = React.PropsWithChildren<{
+export type Props = React.PropsWithChildren<{
   sectionName: string;
 }>;
 

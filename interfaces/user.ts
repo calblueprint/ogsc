@@ -7,6 +7,7 @@ import {
   UserRoleType,
 } from "@prisma/client";
 import { IconType } from "components/Icon";
+import { Dayjs } from "dayjs";
 import { Duration } from "dayjs/plugin/duration";
 
 export type PrivateUserFields = "hashedPassword";
@@ -157,9 +158,15 @@ export type ProfileFieldValueDeserializedTypes = {
   [ProfileFieldValue.Text]: string;
   [ProfileFieldValue.URL]: string;
   [ProfileFieldValue.Integer]: number;
-  [ProfileFieldValue.IntegerWithComment]: WithComment & { value: number };
+  [ProfileFieldValue.IntegerWithComment]: WithComment & {
+    value: number;
+    date: Dayjs;
+  };
   [ProfileFieldValue.Float]: number;
-  [ProfileFieldValue.FloatWithComment]: WithComment & { value: number };
+  [ProfileFieldValue.FloatWithComment]: WithComment & {
+    value: number;
+    date: Dayjs;
+  };
   [ProfileFieldValue.TimeElapsed]: Duration;
   [ProfileFieldValue.DistanceMeasured]: { feet: number; inches: number };
 };
@@ -169,17 +176,29 @@ export type IProfileField<K extends ProfileFieldKey = ProfileFieldKey> = Omit<
   "key"
 > & {
   key: K;
+  /**
+   * In an editing context, `draft` will refer to the temporary new value for this particular
+   * field that already exists.
+   */
+  draft?: ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]];
+};
+
+export type UncreatedProfileField<
+  K extends ProfileFieldKey = ProfileFieldKey
+> = IProfileField<K> & {
+  uncreated: true;
 };
 
 export type IProfileFieldBuilt<K extends ProfileFieldKey> = {
   key: K;
   current?: IProfileField<K>;
+  lastUpdated: Date | null;
+  history: (IProfileField<K> | UncreatedProfileField<K>)[];
   /**
-   * In an editing context, `draft` will refer to the temporary value that the user has entered.
+   * In an editing context, `draft` will refer to the temporary value that the user has entered
+   * for the new field to be created.
    */
   draft?: ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]];
-  lastUpdated: Date | null;
-  history: IProfileField<K>[];
 };
 
 export type PlayerProfile = {
@@ -196,15 +215,19 @@ export type ProfileFieldKeysOfProfileValueType<
 >;
 
 export type NumericProfileFields = ProfileFieldKeysOfProfileValueType<
-  | ProfileFieldValue.Integer
-  | ProfileFieldValue.Float
-  | ProfileFieldValue.IntegerWithComment
-  | ProfileFieldValue.FloatWithComment
+  ProfileFieldValue.IntegerWithComment | ProfileFieldValue.FloatWithComment
 >;
 
 export type DefaultRole = {
   type: UserRoleType;
   relatedPlayerIds: number[];
+};
+
+export type IAbsence = Absence & {
+  draft?: Partial<Absence>;
+};
+export type UncreatedAbsence = IAbsence & {
+  uncreated: true;
 };
 
 export type IUser = SanitizedUser & {
@@ -214,5 +237,6 @@ export type IUser = SanitizedUser & {
 
 export type IPlayer = IUser & {
   profile: Partial<PlayerProfile> | null;
-  absences?: Absence[];
+  absences?: (IAbsence | UncreatedAbsence)[];
+  absenceDraft?: Partial<Absence>;
 };
