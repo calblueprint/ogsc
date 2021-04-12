@@ -9,7 +9,7 @@ import {
   User,
   UserRoleType,
   UserStatus,
-  NoteType,
+  notetype,
   Notes,
 } from "@prisma/client";
 import Faker from "faker";
@@ -166,7 +166,7 @@ export default async function seedDatabase(): Promise<void> {
               ),
             },
             Notes: {
-              create: Object.values(NoteType).flatMap((type: NoteType) =>
+              create: Object.values(notetype).flatMap((type: notetype) =>
                 Array<Notes | null>(Faker.random.number(4))
                   .fill(null)
                   .map(
