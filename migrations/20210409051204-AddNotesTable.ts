@@ -6,9 +6,10 @@ export async function up(
   callback: Base.CallbackFunction
 ): Promise<void> {
   const runSql = promisify(db.runSql.bind(db));
+  const createTable = promisify(db.createTable.bind(db));
   try {
     await runSql(
-      `CREATE TYPE notetype AS ENUM (
+      `CREATE TYPE note_type AS ENUM (
         'general',
         'soccer',
         'academics',
@@ -16,48 +17,44 @@ export async function up(
       );`,
       []
     );
-    db.createTable(
-      "Notes",
-      {
-        id: {
-          type: "uuid",
-          notNull: true,
-          primaryKey: true,
-          // eslint-disable-next-line no-new-wrappers
-          defaultValue: new String("uuid_generate_v4()"),
-        },
-        author: {
-          type: "int",
-          unsigned: true,
-          notNull: true,
-          foreignKey: {
-            name: "fk_user_notes_user_id",
-            table: "users",
-            mapping: "id",
-            rules: {
-              onDelete: "RESTRICT",
-              onUpdate: "CASCADE",
-            },
+    await createTable("Notes", {
+      id: {
+        type: "int",
+        primaryKey: true,
+        autoIncrement: true,
+        notNull: true,
+        unsigned: true,
+      },
+      author: {
+        type: "int",
+        unsigned: true,
+        notNull: true,
+        foreignKey: {
+          name: "fk_user_notes_user_id",
+          table: "users",
+          mapping: "id",
+          rules: {
+            onDelete: "RESTRICT",
+            onUpdate: "CASCADE",
           },
         },
-        created_at: {
-          type: "datetime",
-          notNull: true,
-          // eslint-disable-next-line no-new-wrappers
-          defaultValue: new String("NOW()"),
-        },
-        content: {
-          type: "string",
-          notNull: true,
-        },
-        type: {
-          type: "notetype",
-          defaultValue: "general",
-          notNull: true,
-        },
       },
-      callback
-    );
+      created_at: {
+        type: "datetime",
+        notNull: true,
+        // eslint-disable-next-line no-new-wrappers
+        defaultValue: new String("NOW()"),
+      },
+      content: {
+        type: "string",
+        notNull: true,
+      },
+      type: {
+        type: "note_type",
+        defaultValue: "general",
+        notNull: true,
+      },
+    });
   } catch (err) {
     callback(err, null);
   }
@@ -73,7 +70,7 @@ export async function down(
   const runSql = promisify(db.runSql.bind(db));
   try {
     db.dropTable("Notes", callback);
-    await runSql("DROP TYPE IF EXISTS notetype", []);
+    await runSql("DROP TYPE IF EXISTS note_type", []);
   } catch (err) {
     callback(err, null);
   }
