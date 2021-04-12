@@ -53,21 +53,24 @@ const SidebarsByRole: Record<UserRoleType, React.ReactNode> = {
   Mentor: (
     <>
       <SidebarLink href="/mentor/players">Players</SidebarLink>
-      <SidebarLink href="/admin/users">Members</SidebarLink>
+      <SidebarLink href="/mentor/users">Members</SidebarLink>
       {/* <SidebarLink href="/mentor/calendar">Calendar</SidebarLink> */}
       {/* <SidebarLink href="/mentor/notes">Notes</SidebarLink> */}
     </>
   ),
   Parent: (
     <>
-      <SidebarLink href="/mentor/players">Players</SidebarLink>
-      <SidebarLink href="/admin/users">Members</SidebarLink>
+      <SidebarLink href="/parent/players">Players</SidebarLink>
+      <SidebarLink href="/parent/users">Members</SidebarLink>
     </>
   ),
   Player: (
     <>
-      <SidebarLink href="/donor/players">Players</SidebarLink>
+      <SidebarLink href="/player/players">Players</SidebarLink>
       <SidebarLink href="/player/profile">Profile</SidebarLink>
+      {
+        // TODOOOOOOOOOOOOOO
+      }
       {/* <SidebarLink href="/player/calendar">Calendar</SidebarLink> */}
       {/* <SidebarLink href="/player/notes">Notes</SidebarLink> */}
     </>
@@ -75,7 +78,7 @@ const SidebarsByRole: Record<UserRoleType, React.ReactNode> = {
   Donor: (
     <>
       <SidebarLink href="/donor/players">Players</SidebarLink>
-      <SidebarLink href="/admin/users">Members</SidebarLink>
+      <SidebarLink href="/donor/users">Members</SidebarLink>
       {/* <SidebarLink href="/donor/calendar">Calendar</SidebarLink> */}
       {/* <SidebarLink href="/donor/notes">Notes</SidebarLink> */}
     </>
