@@ -30,16 +30,17 @@ const Error: React.FC = () => {
           <div className="flex flex-row">
             <p className="text-gray-600">New to Oakland Genesis Club? </p>{" "}
             <Link href="/users/signUp">
-              <a className="ml-1 text-blue hover:font-semibold">
+              <a className="ml-1 text-blue hover:underline hover:font-semibold">
                 Create an account here.
               </a>
             </Link>
           </div>
           <div className="flex flex-row mt-5">
             <p className="text-gray-600">Already have an account? </p>{" "}
-            {/* TODO: Update signin form */}
             <Link href="/api/auth/signin">
-              <a className="ml-1 text-blue hover:font-semibold">Login here.</a>
+              <a className="ml-1 text-blue hover:underline hover:font-semibold">
+                Login here.
+              </a>
             </Link>
           </div>
         </div>

@@ -20,7 +20,7 @@ const Button: React.FC<Props> = ({
 }: Props) => {
   return (
     <button
-      className={`button button-normal ${
+      className={`button button-normal hover:opacity-75 ${
         pill ? "rounded-full" : "rounded"
       } ${className}`}
       onClick={onClick}

@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { ResetPassword } from "@prisma/client";
+import { ResetPassword, UserStatus } from "@prisma/client";
 import prisma from "utils/prisma";
 import Joi from "lib/validate";
 import Notifier from "lib/notify";
@@ -8,13 +8,13 @@ import { NotificationType } from "lib/notify/types";
 /**
  * Users who forgot their password
  */
-type ForgotPasswordUserDTO = {
+export type ForgotPasswordUserDTO = {
   email: string;
 };
 
 /**
  * Start forgot password flow
- * @param user - contains name, email
+ * @param user - contains email
  */
 
 export const forgotPassword = async (
@@ -23,7 +23,7 @@ export const forgotPassword = async (
   const resetUser = await prisma.user.findUnique({
     where: { email: user.email },
   });
-  if (!resetUser) {
+  if (!resetUser || resetUser.status !== UserStatus.Active) {
     throw new Error("No account under that email exists");
   }
 
