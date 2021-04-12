@@ -1,4 +1,4 @@
-import { User, UserRoleType, UserStatus } from "@prisma/client";
+import { UserRoleType, UserStatus } from "@prisma/client";
 import { useRouter } from "next/router";
 import DashboardLayout from "components/DashboardLayout";
 import React, { useState, useEffect } from "react";
@@ -13,6 +13,8 @@ import { NextPageContext } from "next";
 import prisma from "utils/prisma";
 import Combobox from "components/Combobox";
 import { ViewingPermissionDTO } from "pages/api/admin/roles/create";
+import flattenUserRoles from "utils/flattenUserRoles";
+import sanitizeUser from "utils/sanitizeUser";
 
 interface AdminEditUserInviteFormValues {
   firstName: string;
@@ -23,8 +25,8 @@ interface AdminEditUserInviteFormValues {
 }
 
 type gsspProps = {
-  user?: User;
-  relatedPlayers?: User[];
+  user?: IUser;
+  relatedPlayers?: IUser[];
 };
 
 export async function getServerSideProps(
@@ -60,12 +62,15 @@ export async function getServerSideProps(
         in: relatedPlayerIds,
       },
     },
+    include: {
+      roles: true,
+    },
   });
 
   return {
     props: {
-      user,
-      relatedPlayers: users,
+      user: flattenUserRoles(sanitizeUser(user)),
+      relatedPlayers: users.map(sanitizeUser).map(flattenUserRoles),
     },
   };
 }
@@ -112,7 +117,7 @@ const UserInvitation: React.FunctionComponent<gsspProps> = ({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [currRole, setCurrRole] = useState<UserRoleType>();
-  const [selectedPlayers, setSelectedPlayers] = useState<User[]>([]);
+  const [selectedPlayers, setSelectedPlayers] = useState<IUser[]>([]);
   const {
     errors,
     register,

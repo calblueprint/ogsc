@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { DeleteUserDTO } from "pages/api/admin/users/delete";
 import Combobox from "components/Combobox";
-import { User, UserRoleType, UserStatus } from "@prisma/client";
+import { UserRoleType, UserStatus } from "@prisma/client";
 import Button from "components/Button";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { IUser } from "interfaces";
@@ -12,7 +12,7 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = ({
   onAccept,
 }) => {
   const router = useRouter();
-  const [selectedPlayers, setSelectedPlayers] = useState<User[]>([]);
+  const [selectedPlayers, setSelectedPlayers] = useState<IUser[]>([]);
   const [user, setUser] = useState<IUser>();
   const id = Number(router.query.id);
   useEffect(() => {
