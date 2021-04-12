@@ -179,8 +179,13 @@ const AbsenceEditor: React.FC<AbsenceEditorProps> = ({
           onChange({ type: value as AbsenceType })
         }
       >
+        <option disabled selected value={undefined}>
+          {" "}
+        </option>
         {Object.values(AbsenceType).map((type: AbsenceType) => (
-          <option value={type}>{type}</option>
+          <option key={type} value={type}>
+            {type}
+          </option>
         ))}
       </select>
       <p className="text-sm font-semibold mb-2 mt-8">Month/Year</p>
@@ -197,15 +202,20 @@ const AbsenceEditor: React.FC<AbsenceEditorProps> = ({
           onChange({ reason: value as AbsenceReason })
         }
       >
+        <option disabled selected value={undefined}>
+          {" "}
+        </option>
         {Object.values(AbsenceReason).map((reason: AbsenceReason) => (
-          <option value={reason}>{reason}</option>
+          <option key={reason} value={reason}>
+            {reason}
+          </option>
         ))}
       </select>
       <p className="text-sm font-semibold mb-2 mt-8">Description</p>
       <input
         type="text"
         className="input text-sm w-full font-light"
-        placeholder={absence?.description}
+        value={absence?.description}
         onChange={({ target: { value } }) => onChange({ description: value })}
       />
     </div>
@@ -245,14 +255,15 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
 
   if (props.profileField === "absence" || isAbsence(props.profileField)) {
     const existingAbsence =
-      props.profileField !== "absence" ? props.profileField : undefined;
+      props.profileField !== "absence"
+        ? props.profileField
+        : state.player?.absenceDraft;
     return (
       <AbsenceEditor
         absence={existingAbsence}
         onChange={(change: Partial<Absence>) => {
           dispatch({
             type: "EDIT_ABSENCE",
-            key: "absence",
             id: existingAbsence?.id,
             value: change,
           });
@@ -312,15 +323,7 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
                   ).toFixed(2)}
                 </span>
               </p>
-              <ProfileFieldEditorModal
-                fieldKey={field.key}
-                onSave={() => {
-                  dispatch({
-                    type: "SAVE_DRAFT_FIELD",
-                    key: field.key,
-                  });
-                }}
-              />
+              <ProfileFieldEditorModal fieldKey={field.key} />
             </div>
             <ValueHistoryTable values={field.history} />
           </div>
@@ -336,7 +339,7 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
           </p>
           <input
             type="text"
-            className="input text-sm w-1/12 font-light"
+            className="input text-sm w-16 font-light"
             value={value?.value}
             onChange={(event) => {
               dispatch({

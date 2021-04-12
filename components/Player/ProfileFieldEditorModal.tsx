@@ -2,12 +2,12 @@
 import { Absence, ProfileFieldKey } from "@prisma/client";
 import Button from "components/Button";
 import Modal from "components/Modal";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import { IProfileField } from "interfaces/user";
 import PropTypes from "prop-types";
-import isAbsence from "utils/isAbsence";
 import labelProfileField from "utils/labelProfileField";
 import ProfileFieldEditor from "./ProfileFieldEditor";
+import ProfileContext from "./ProfileContext";
 
 type CreateProps = {
   fieldKey: ProfileFieldKey | "absence";
@@ -20,19 +20,15 @@ type UpdateProps = {
 };
 
 type Props = (CreateProps | UpdateProps) & {
-  /**
-   * Overrides the network request this component saves. Passing this makes `onComplete` a no-op.
-   */
-  onSave?: () => void;
   trigger?: React.ReactElement;
 };
 
 const ProfileFieldEditorModal: React.FC<Props> = ({
   onComplete,
-  onSave,
   trigger,
   ...props
 }: Props) => {
+  const { createField, updateField, state } = useContext(ProfileContext);
   const [modalOpen, setModalOpen] = useState(false);
   const [error, setError] = useState("");
 
@@ -44,56 +40,33 @@ const ProfileFieldEditorModal: React.FC<Props> = ({
     [onComplete]
   );
 
-  const createOrUpdateField = useMemo(() => {
-    if (onSave) {
-      return function customCreateOrUpdate() {
-        onSave();
-        setModalOpen(false);
-      };
-    }
+  const createOrUpdateField = useCallback(async () => {
     if ("field" in props) {
-      return async function updateField(): Promise<void> {
-        try {
-          const response = await fetch(
-            isAbsence(props.field)
-              ? `/api/absences/${props.field.id}`
-              : `/api/profileFields/${props.field.id}`,
-            {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              credentials: "include",
-              body: JSON.stringify({}),
-            }
-          );
-          if (!response.ok) {
-            throw await response.json();
-          }
-          wrappedOnComplete(props.field);
-        } catch (err) {
-          setError(err.message);
-        }
-      };
-    }
-    return async function createField(): Promise<void> {
       try {
-        const response = await fetch(
-          props.fieldKey === "absence" ? "/api/absences" : "/api/profileFields",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({}),
-          }
-        );
-        if (!response.ok) {
-          throw await response.json();
-        }
-        wrappedOnComplete(await response.json());
+        await updateField(props.field);
+        wrappedOnComplete();
       } catch (err) {
         setError(err.message);
       }
-    };
-  }, [wrappedOnComplete, onSave, props]);
+    } else {
+      try {
+        if (state.player == null || state.player.profile == null) {
+          throw new Error("No player loaded in context");
+        }
+        const draft =
+          props.fieldKey === "absence"
+            ? state.player.absenceDraft
+            : state.player.profile[props.fieldKey]?.draft;
+        if (!draft) {
+          return;
+        }
+        await createField(props.fieldKey, draft, state.player.id);
+        wrappedOnComplete();
+      } catch (err) {
+        setError(err.message);
+      }
+    }
+  }, [wrappedOnComplete, createField, updateField, state.player, props]);
 
   const intentLabel =
     "field" in props
@@ -155,7 +128,6 @@ ProfileFieldEditorModal.propTypes = {
 
 ProfileFieldEditorModal.defaultProps = {
   onComplete: undefined,
-  onSave: undefined,
   trigger: undefined,
 };
 

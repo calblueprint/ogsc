@@ -10,30 +10,60 @@ import {
   SanitizedUser,
 } from "interfaces";
 
-export const serializeProfileFieldValue = (
+export function serializeProfileFieldValue(
   field: IProfileFieldBuilt<ProfileFieldKey> | null | undefined
-): string | null => {
-  if (field?.draft == null) {
+): string | null;
+export function serializeProfileFieldValue(
+  value: ProfileFieldValueDeserializedTypes[ProfileFieldValues[ProfileFieldKey]],
+  fieldKey: ProfileFieldKey
+): string | null;
+export function serializeProfileFieldValue(
+  fieldOrValue:
+    | IProfileFieldBuilt<ProfileFieldKey>
+    | ProfileFieldValueDeserializedTypes[ProfileFieldValues[ProfileFieldKey]]
+    | null
+    | undefined,
+  fieldKey?: ProfileFieldKey
+): string | null {
+  if (fieldOrValue == null) {
     return null;
   }
-  if (typeof field.draft === "string") {
-    return field.draft;
+  let draftValue;
+  let key: ProfileFieldKey;
+  if (typeof fieldOrValue === "object" && "history" in fieldOrValue) {
+    if (!fieldOrValue) {
+      return null;
+    }
+    draftValue = fieldOrValue.draft;
+    key = fieldOrValue.key;
+  } else if (fieldKey) {
+    draftValue = fieldOrValue;
+    key = fieldKey;
+  } else {
+    return null;
   }
 
-  const originValueType = ProfileFieldValues[field.key];
+  if (typeof draftValue === "string") {
+    return draftValue;
+  }
+  if (draftValue === undefined) {
+    return null;
+  }
+
+  const originValueType = ProfileFieldValues[key];
   try {
     switch (originValueType) {
       case ProfileFieldValue.FloatWithComment:
       case ProfileFieldValue.IntegerWithComment: {
-        const draft = field.draft as ProfileFieldValueDeserializedTypes[typeof originValueType];
+        const draft = draftValue as ProfileFieldValueDeserializedTypes[typeof originValueType];
         return JSON.stringify({ ...draft, date: draft.date.toISOString() });
       }
       case ProfileFieldValue.TimeElapsed: {
-        const draft = field.draft as ProfileFieldValueDeserializedTypes[typeof originValueType];
+        const draft = draftValue as ProfileFieldValueDeserializedTypes[typeof originValueType];
         return draft.toISOString();
       }
       case ProfileFieldValue.DistanceMeasured: {
-        const draft = field.draft as ProfileFieldValueDeserializedTypes[typeof originValueType];
+        const draft = draftValue as ProfileFieldValueDeserializedTypes[typeof originValueType];
         return String(
           (Number.isNaN(draft.feet) ? 0 : draft.feet * 12) +
             (Number.isNaN(draft.inches) ? 0 : draft.inches)
@@ -43,12 +73,12 @@ export const serializeProfileFieldValue = (
       case ProfileFieldValue.Integer:
       case ProfileFieldValue.URL:
       default:
-        return String(field.draft);
+        return String(draftValue);
     }
   } catch (err) {
     return null;
   }
-};
+}
 
 export function deserializeProfileFieldValue<
   T extends ProfileField,

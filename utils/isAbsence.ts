@@ -1,4 +1,5 @@
-import { Absence } from "@prisma/client";
+import { Absence, AbsenceReason, AbsenceType } from "@prisma/client";
+import Joi from "lib/validate";
 
 /**
  * A type guard for checking whether or not a field is an Absence object.
@@ -6,10 +7,18 @@ import { Absence } from "@prisma/client";
  */
 function isAbsence(item: unknown): item is Absence {
   return (
-    typeof item === "object" &&
-    item != null &&
-    "reason" in item &&
-    "type" in item
+    Joi.object<Absence>({
+      date: Joi.date().required(),
+      description: Joi.string().required(),
+      reason: Joi.string()
+        .valid(...Object.values(AbsenceReason))
+        .required(),
+      type: Joi.string()
+        .valid(...Object.values(AbsenceType))
+        .required(),
+    })
+      .unknown(true)
+      .validate(item).error === undefined
   );
 }
 

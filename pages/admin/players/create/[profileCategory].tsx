@@ -7,6 +7,7 @@ import ProfileContext, {
   DeserializeProfileFieldDrafts,
   ProfileAction,
   ProfileContextReducer,
+  ProfileContextType,
   ProfileState,
   SerializeProfileFieldDrafts,
 } from "components/Player/ProfileContext";
@@ -16,6 +17,7 @@ import { useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
 import React, { useMemo, useState } from "react";
 import composeReducers from "utils/composeReducers";
+import isAbsence from "utils/isAbsence";
 
 const Section = ({
   sectionName,
@@ -30,11 +32,7 @@ const Section = ({
 export const useCreateProfileContext = (): {
   state: ProfileState;
   actions: ReturnType<typeof useStateMachine>["actions"];
-  context: {
-    state: ProfileState;
-    dispatch: React.Dispatch<ProfileAction>;
-    refreshProfile: () => void;
-  };
+  context: ProfileContextType;
 } => {
   const { state, actions } = useStateMachine<ProfileState>({
     ProfileContextReducer: composeReducers(
@@ -42,18 +40,48 @@ export const useCreateProfileContext = (): {
       ProfileContextReducer
     ),
   });
-  const context = useMemo(
+  const context = useMemo<ProfileContextType>(
     () => ({
       dispatch: actions.ProfileContextReducer,
       state: DeserializeProfileFieldDrafts({
         editingState: { allEditingOverride: true, sections: {} },
         player: state.player,
       }),
-      // refreshProfile has no role in this context.
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      refreshProfile: () => {},
+      createField: async (fieldKey) => {
+        if (fieldKey === "absence") {
+          actions.ProfileContextReducer({
+            type: "SAVE_DRAFT_ABSENCE",
+          } as ProfileAction);
+        } else {
+          actions.ProfileContextReducer({
+            type: "SAVE_DRAFT_FIELD",
+            key: fieldKey,
+          } as ProfileAction);
+        }
+      },
+      updateField: async (field) => {
+        if (isAbsence(field)) {
+          actions.ProfileContextReducer({
+            type: "SAVE_DRAFT_ABSENCE",
+            id: field.id,
+          } as ProfileAction);
+        } else {
+          actions.ProfileContextReducer({
+            type: "SAVE_DRAFT_FIELD",
+            key: field.key,
+            id: field.id,
+          } as ProfileAction);
+        }
+      },
+      deleteField: async (fieldKey, id) => {
+        actions.ProfileContextReducer({
+          type: "DELETE_FIELD",
+          key: fieldKey,
+          id,
+        } as ProfileAction);
+      },
     }),
-    [actions.ProfileContextReducer, state.player]
+    [actions, state.player]
   );
   return { context, actions, state };
 };

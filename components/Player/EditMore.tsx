@@ -24,7 +24,6 @@ const EditMore: React.FunctionComponent<EditProps> = (props: EditProps) => {
   >(null);
   const {
     state: { player },
-    refreshProfile,
   } = useContext(ProfileContext);
 
   const profileFields: IProfileField<NumericProfileFields>[] | undefined =
@@ -57,11 +56,8 @@ const EditMore: React.FunctionComponent<EditProps> = (props: EditProps) => {
         <div className="border border-unselected bg-white rounded-lg h-24 grid grid-rows-2">
           <ProfileFieldEditorModal
             field={field}
-            onComplete={(updated?: IProfileField | Absence) => {
+            onComplete={() => {
               setSelectedOption(null);
-              if (updated) {
-                refreshProfile();
-              }
               // TODO: Dispatch notification
             }}
             trigger={
@@ -91,11 +87,8 @@ const EditMore: React.FunctionComponent<EditProps> = (props: EditProps) => {
         <Modal open={selectedOption === "delete"} className="w-2/3">
           <DeleteField
             field={field}
-            onComplete={(deleted?: IProfileField | Absence) => {
+            onComplete={() => {
               setSelectedOption(null);
-              if (deleted) {
-                refreshProfile();
-              }
               // TODO: Dispatch notification
             }}
           />

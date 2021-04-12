@@ -1,5 +1,6 @@
 import React from "react";
 import { Absence, AbsenceReason, AbsenceType } from "@prisma/client";
+import dayjs from "lib/day";
 import EditMore from "./EditMore";
 import ProfileFieldEditorModal from "./ProfileFieldEditorModal";
 
@@ -34,11 +35,7 @@ const AbsenceTable: React.FC<Props> = ({ absenceType, absences }: Props) => {
           {filteredAbsences.map((absence: Absence) => (
             <tr key={absence.id} className="h-16 tr-border">
               <td className="w-3/12 pl-5">
-                {absence.date.toLocaleString("default", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}
+                {dayjs(absence.date).format("MMM YYYY")}
               </td>
               <td className="w-3/12">
                 <span

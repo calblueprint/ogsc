@@ -7,9 +7,15 @@ import {
   PlayerProfile,
   ProfileFieldValue,
   ProfileFieldValueDeserializedTypes,
+  ProfileFieldValues,
   UncreatedProfileField,
 } from "interfaces/user";
-import { Absence, ProfileFieldKey } from "@prisma/client";
+import {
+  Absence,
+  AbsenceReason,
+  AbsenceType,
+  ProfileFieldKey,
+} from "@prisma/client";
 import {
   deserializeProfileFieldValue,
   serializeProfileFieldValue,
@@ -51,7 +57,6 @@ export type ProfileAction =
     }
   | {
       type: "EDIT_ABSENCE";
-      key: "absence";
       value: Partial<Absence>;
       id?: number;
     }
@@ -59,6 +64,15 @@ export type ProfileAction =
       type: "SAVE_DRAFT_FIELD";
       key: ProfileFieldKey;
       id?: number;
+    }
+  | {
+      type: "SAVE_DRAFT_ABSENCE";
+      id?: number;
+    }
+  | {
+      type: "DELETE_FIELD";
+      key: ProfileFieldKey | "absence";
+      id: number;
     }
   | { type: "OPEN_EDIT_SECTION"; section: string }
   | { type: "CLOSE_EDIT_SECTION"; section: string }
@@ -69,25 +83,40 @@ const initialProfileState: ProfileState = {
   editingState: { sections: {} },
 };
 
-const ProfileContext = React.createContext<{
+const warningEmptyFunction = <T extends unknown = void>(
+  methodName: string,
+  returnValue?: T
+): (() => T) => (...args: unknown[]) => {
+  // eslint-disable-next-line no-console
+  console.warn(
+    `ProfileContext#${methodName} was called before the reducer was initialized. This action was ignored.`,
+    args
+  );
+  return returnValue as T;
+};
+
+export type ProfileContextType = {
   state: ProfileState;
   dispatch: React.Dispatch<ProfileAction>;
-  refreshProfile: () => void;
-}>({
+  createField: <K extends ProfileFieldKey>(
+    fieldKey: K | "absence",
+    draft:
+      | ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]]
+      | Partial<Absence>,
+    userId: number
+  ) => Promise<void>;
+  updateField: (field: IProfileField | IAbsence) => Promise<void>;
+  deleteField: (
+    fieldKey: ProfileFieldKey | "absence",
+    id: number
+  ) => Promise<void>;
+};
+const ProfileContext = React.createContext<ProfileContextType>({
   state: initialProfileState,
-  dispatch: (action: ProfileAction) => {
-    // eslint-disable-next-line no-console
-    console.warn(
-      "ProfileContext#dispatch was called before the reducer was initialized. This action was ignored.",
-      action
-    );
-  },
-  refreshProfile: () => {
-    // eslint-disable-next-line no-console
-    console.warn(
-      "ProfileContext#refreshProfile was called before the reducer was initialized. This action was ignored."
-    );
-  },
+  dispatch: warningEmptyFunction("dispatch"),
+  createField: warningEmptyFunction("createField"),
+  updateField: warningEmptyFunction("updateField"),
+  deleteField: warningEmptyFunction("deleteField"),
 });
 
 export const createEmptyProfileField = (
@@ -197,9 +226,7 @@ export const ProfileContextReducer = (
       return state;
 
     case "SAVE_DRAFT_FIELD": {
-      const currentDraft = state.player?.profile?.[action.key];
       if (
-        !currentDraft ||
         !state.player ||
         !state.player.profile ||
         !state.player.profile[action.key]
@@ -208,6 +235,12 @@ export const ProfileContextReducer = (
       }
 
       if (action.id) {
+        const currentDraft = (state.player?.profile?.[action.key]?.history as
+          | IProfileField<ProfileFieldKey>[]
+          | undefined)?.find?.((field) => field.id === action.id)?.draft;
+        if (!currentDraft) {
+          return state;
+        }
         return {
           ...state,
           player: {
@@ -224,7 +257,10 @@ export const ProfileContextReducer = (
                   field.id === action.id
                     ? {
                         ...field,
-                        value: serializeProfileFieldValue(currentDraft),
+                        value: serializeProfileFieldValue(
+                          currentDraft,
+                          field.key
+                        ),
                         draft: undefined,
                       }
                     : field
@@ -235,6 +271,10 @@ export const ProfileContextReducer = (
         };
       }
 
+      const currentDraft = state.player?.profile?.[action.key];
+      if (!currentDraft) {
+        return state;
+      }
       return {
         ...state,
         player: {
@@ -263,6 +303,81 @@ export const ProfileContextReducer = (
         },
       };
     }
+
+    case "SAVE_DRAFT_ABSENCE": {
+      if (!state.player) {
+        return state;
+      }
+      if (action.id) {
+        return {
+          ...state,
+          player: {
+            ...state.player,
+            absences: (state.player?.absences ?? []).map(
+              (absence: IAbsence) => {
+                if (absence.id === action.id) {
+                  return { ...absence, ...absence.draft, draft: undefined };
+                }
+                return absence;
+              }
+            ),
+          },
+        };
+      }
+      if (!state.player.absenceDraft) {
+        return state;
+      }
+      return {
+        ...state,
+        player: {
+          ...state.player,
+          absences: (state.player?.absences ?? []).concat({
+            id: generateTemporaryID(),
+            date: new Date(),
+            description: "",
+            reason: AbsenceReason.Excused,
+            type: AbsenceType.School,
+            userId: state.player.id,
+            uncreated: true,
+            ...state.player.absenceDraft,
+          }),
+          absenceDraft: undefined,
+        },
+      };
+    }
+
+    case "DELETE_FIELD":
+      if (!state.player) {
+        return state;
+      }
+      if (action.key === "absence") {
+        return {
+          ...state,
+          player: {
+            ...state.player,
+            absences: (state.player?.absences ?? []).filter(
+              (value) => value.id !== action.id
+            ),
+          },
+        };
+      }
+      return {
+        ...state,
+        player: {
+          ...state.player,
+          profile: {
+            ...state.player.profile,
+            [action.key]: {
+              ...createEmptyProfileField(action.key),
+              ...state.player.profile?.[action.key],
+              history: ((state.player.profile?.[action.key]?.history ??
+                []) as IProfileField[]).filter(
+                (value) => value.id !== action.id
+              ),
+            },
+          },
+        },
+      };
 
     case "OPEN_EDIT_SECTION":
       return {
