@@ -7,12 +7,17 @@ type Props = {
   children: React.ReactNode;
 };
 
-const PlayerFormLayout: React.FC<Props> = ({ children }: Props) => {
-  const categories = Object.values(ProfileCategory);
+const categories = Object.values(ProfileCategory);
+export const usePlayerFormCategoryIndex = (): number => {
   const router = useRouter();
   const currentTabIndex = categories.findIndex(
     (category: ProfileCategory) => router.query.profileCategory === category
   );
+  return currentTabIndex;
+};
+
+const PlayerFormLayout: React.FC<Props> = ({ children }: Props) => {
+  const currentTabIndex = usePlayerFormCategoryIndex();
 
   return (
     <div className="text-dark">

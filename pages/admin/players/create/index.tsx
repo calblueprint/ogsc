@@ -4,7 +4,7 @@ import Button from "components/Button";
 import PlayerFormField from "components/PlayerFormField";
 import Joi from "lib/validate";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import DashboardLayout from "components/DashboardLayout";
 import PlayerFormLayout from "components/Player/PlayerFormLayout";
@@ -47,6 +47,14 @@ const UserSignUpPageOne: React.FC = () => {
   const { errors, register, handleSubmit } = useForm({
     resolver: joiResolver(PlayerProfileFormSchema),
   });
+  useEffect(() => {
+    if (selectedPlayer[0]) {
+      dispatchAction({
+        type: "SET_PLAYER",
+        player: { profile: emptyProfile, ...selectedPlayer[0] },
+      });
+    }
+  }, [selectedPlayer, dispatchAction]);
 
   async function onSubmit(
     _values: InitialProfileFormValues,
@@ -60,13 +68,7 @@ const UserSignUpPageOne: React.FC = () => {
       if (selectedPlayer.length === 0 || selectedPlayer[0] == null) {
         throw new Error("You must select or create a player to continue");
       }
-      dispatchAction({
-        type: "SET_PLAYER",
-        player: {
-          ...selectedPlayer[0],
-          profile: { ...emptyProfile, ...state.player?.profile },
-        },
-      });
+
       router.push(`/admin/players/create/${Object.values(ProfileCategory)[0]}`);
     } catch (err) {
       setError(err.message);
@@ -78,14 +80,11 @@ const UserSignUpPageOne: React.FC = () => {
   return (
     <DashboardLayout>
       <div className="form flex mx-20 mt-24 flex-col">
-        <p className="py-6 text-2xl h-16 tracking-wide font-medium">
+        <p className="py-6 text-2xl h-16 font-medium">
           Create a new player profile
         </p>
-        <p className="font-light mt-2">Description Here</p>
         <PlayerFormLayout>
-          <p className="pt-10 text-xl tracking-wider font-medium">
-            Let&apos;s get started!
-          </p>
+          <p className="pt-10 text-xl font-medium">Let&apos;s get started!</p>
           <form className="mt-10" onSubmit={handleSubmit(onSubmit)}>
             <fieldset>
               <div className="mb-16">

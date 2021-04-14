@@ -155,7 +155,15 @@ export const ProfileContextReducer = (
     case "SET_PLAYER":
       return {
         ...state,
-        player: action.player,
+        player: {
+          ...state.player,
+          ...action.player,
+          profile: {
+            ...emptyProfile,
+            ...state.player?.profile,
+            ...action.player.profile,
+          },
+        },
       };
 
     case "EDIT_ABSENCE":

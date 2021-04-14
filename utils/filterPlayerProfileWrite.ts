@@ -1,6 +1,9 @@
 import { Prisma, UserRoleType } from "@prisma/client";
 import { IPlayer, IUser } from "interfaces";
-import { AttendanceAccessDefinitionsByRole } from "lib/access/definitions";
+import {
+  AttendanceAccessDefinitionsByRole,
+  ProfileAccessDefinitionsByRole,
+} from "lib/access/definitions";
 import resolveAccessValue from "lib/access/resolve";
 
 export const filterPlayerProfileAbsenceWrite = <

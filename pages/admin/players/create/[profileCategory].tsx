@@ -1,7 +1,9 @@
 import Button from "components/Button";
 import DashboardLayout from "components/DashboardLayout";
 import Icon from "components/Icon";
-import PlayerFormLayout from "components/Player/PlayerFormLayout";
+import PlayerFormLayout, {
+  usePlayerFormCategoryIndex,
+} from "components/Player/PlayerFormLayout";
 import { ProfileContents } from "components/Player/Profile";
 import ProfileContext, {
   DeserializeProfileFieldDrafts,
@@ -90,6 +92,7 @@ const CreatePlayerProfilePage: React.FC = () => {
   const [error] = useState(null);
   const router = useRouter();
   const { context } = useCreateProfileContext();
+  const currentTabIndex = usePlayerFormCategoryIndex();
   const category = router.query.profileCategory as ProfileCategory;
 
   return (
@@ -98,7 +101,6 @@ const CreatePlayerProfilePage: React.FC = () => {
         <p className="py-6 text-2xl h-16 tracking-wide font-medium">
           Create a new player profile
         </p>
-        <p className="font-light mt-2">Description Here</p>
         <PlayerFormLayout>
           <form
             className="mt-10"
@@ -116,18 +118,38 @@ const CreatePlayerProfilePage: React.FC = () => {
                 <div className="mb-2 flex justify-between w-full">
                   <Button
                     className="text-blue bg-white text-sm py-2 rounded-md tracking-wide"
-                    onClick={() => router.push("/admin/players/create")}
+                    onClick={() =>
+                      router.push(
+                        `/admin/players/create/${
+                          Object.values(ProfileCategory)[currentTabIndex - 1] ??
+                          ""
+                        }`
+                      )
+                    }
                   >
                     <Icon className="mr-6 w-8 stroke-current" type="back" />
                     Back
                   </Button>
-                  <Button
-                    className="bg-blue text-sm px-5 py-2 text-white tracking-wide rounded-md"
-                    type="submit"
-                  >
-                    Next Step
-                    <Icon className="ml-6 w-8 stroke-current" type="next" />
-                  </Button>
+                  {currentTabIndex <
+                  Object.values(ProfileCategory).length - 1 ? (
+                    <Button
+                      className="bg-blue text-sm px-5 py-2 text-white tracking-wide rounded-md"
+                      onClick={() =>
+                        router.push(
+                          `/admin/players/create/${
+                            Object.values(ProfileCategory)[currentTabIndex + 1]
+                          }`
+                        )
+                      }
+                    >
+                      Next Step
+                      <Icon className="ml-6 w-8 stroke-current" type="next" />
+                    </Button>
+                  ) : (
+                    <Button className="bg-blue text-sm px-8 py-2 text-white tracking-wide rounded-md">
+                      Submit
+                    </Button>
+                  )}
                 </div>
               </div>
               <hr />
