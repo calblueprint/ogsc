@@ -2,7 +2,7 @@ import { UserRoleType } from "@prisma/client";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import React, { useState } from "react";
-import { UserRoleLabel } from "interfaces";
+import { AuthenticatedSessionInfo, UserRoleLabel } from "interfaces";
 import useSessionInfo from "utils/useSessionInfo";
 import Icon from "components/Icon";
 import { signOut } from "next-auth/client";
@@ -40,38 +40,61 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({
   );
 };
 
-const SidebarsByRole: Record<UserRoleType, React.ReactNode> = {
-  Admin: (
-    <>
-      <SidebarLink href="/admin/players">Players</SidebarLink>
-      <SidebarLink href="/admin/users">Members</SidebarLink>
-      <SidebarLink href="/admin/invite">Invites</SidebarLink>
-      {/* <SidebarLink href="/admin/calendar">Calendar</SidebarLink> */}
-      {/* <SidebarLink href="/admin/notes">Notes</SidebarLink> */}
-    </>
-  ),
-  Mentor: (
-    <>
-      <SidebarLink href="/mentor/players">Players</SidebarLink>
-      {/* <SidebarLink href="/mentor/calendar">Calendar</SidebarLink> */}
-      {/* <SidebarLink href="/mentor/notes">Notes</SidebarLink> */}
-    </>
-  ),
-  Parent: <></>,
-  Player: (
-    <>
-      <SidebarLink href="/player/profile">Profile</SidebarLink>
-      {/* <SidebarLink href="/player/calendar">Calendar</SidebarLink> */}
-      {/* <SidebarLink href="/player/notes">Notes</SidebarLink> */}
-    </>
-  ),
-  Donor: (
-    <>
-      <SidebarLink href="/donor/players">Players</SidebarLink>
-      {/* <SidebarLink href="/donor/calendar">Calendar</SidebarLink> */}
-      {/* <SidebarLink href="/donor/notes">Notes</SidebarLink> */}
-    </>
-  ),
+const SidebarByRole = (
+  role: UserRoleType,
+  session: AuthenticatedSessionInfo
+): React.ReactNode => {
+  switch (role) {
+    case "Admin":
+      return (
+        <>
+          <SidebarLink href="/admin/players">Players</SidebarLink>
+          <SidebarLink href="/admin/users">Members</SidebarLink>
+          <SidebarLink href="/admin/invite">Invites</SidebarLink>
+          {/* <SidebarLink href="/admin/calendar">Calendar</SidebarLink> */}
+          {/* <SidebarLink href="/admin/notes">Notes</SidebarLink> */}
+        </>
+      );
+    case "Mentor":
+      return (
+        <>
+          <SidebarLink href="/mentor/players">Players</SidebarLink>
+          <SidebarLink href="/mentor/users">Members</SidebarLink>
+          {/* <SidebarLink href="/mentor/calendar">Calendar</SidebarLink> */}
+          {/* <SidebarLink href="/mentor/notes">Notes</SidebarLink> */}
+        </>
+      );
+    case "Parent":
+      return (
+        <>
+          <SidebarLink href="/parent/players">Players</SidebarLink>
+          <SidebarLink href="/parent/users">Members</SidebarLink>
+        </>
+      );
+    case "Player":
+      return (
+        <>
+          <SidebarLink href="/player/players">Players</SidebarLink>
+          <SidebarLink href={`/player/players/${session.user.id}`}>
+            Profile
+          </SidebarLink>
+
+          {/* <SidebarLink href="/player/calendar">Calendar</SidebarLink> */}
+          {/* <SidebarLink href="/player/notes">Notes</SidebarLink> */}
+        </>
+      );
+    case "Donor":
+      return (
+        <>
+          <SidebarLink href="/donor/players">Players</SidebarLink>
+          <SidebarLink href="/donor/users">Members</SidebarLink>
+          {/* <SidebarLink href="/donor/calendar">Calendar</SidebarLink> */}
+          {/* <SidebarLink href="/donor/notes">Notes</SidebarLink> */}
+        </>
+      );
+    default:
+      return null;
+  }
 };
 
 const Sidebar: React.FC = () => {
@@ -84,7 +107,7 @@ const Sidebar: React.FC = () => {
         <div className="w-full flex justify-center mb-16">
           <img src="/logo.png" alt="Oakland Genesis Soccer Club logo" />
         </div>
-        {SidebarsByRole[session.sessionType]}
+        {SidebarByRole(session.sessionType, session)}
       </div>
       <div className="mb-12 px-6">
         <div>

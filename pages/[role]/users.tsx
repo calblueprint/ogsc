@@ -96,4 +96,8 @@ const AdminView: React.FunctionComponent = () => {
   );
 };
 
+export function getServerSideProps(): Record<string, unknown> {
+  return {};
+}
+
 export default AdminView;
