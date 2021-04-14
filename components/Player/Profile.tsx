@@ -12,6 +12,7 @@ import {
   ProfileFieldValues,
 } from "interfaces";
 import { useRouter } from "next/router";
+import { UpdateOneAbsenceDTO } from "pages/api/absences/update";
 import { serializeProfileFieldValue } from "utils/buildUserProfile";
 import isAbsence from "utils/isAbsence";
 import AbsenceTable from "./AbsenceTable";
@@ -138,13 +139,22 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
 
   const createField: ProfileContextType["createField"] = useCallback(
     async function createField(fieldKey, draft, userId): Promise<void> {
-      const serializedValue =
+      const serializedValue = JSON.stringify(
         fieldKey === "absence"
-          ? JSON.stringify({ ...(draft as Partial<Absence>), userId })
-          : serializeProfileFieldValue(
-              draft as ProfileFieldValueDeserializedTypes[ProfileFieldValues[ProfileFieldKey]],
-              fieldKey
-            );
+          ? {
+              absences: [draft as Partial<Absence>],
+              playerId: userId,
+            }
+          : {
+              playerId: userId,
+              fields: [
+                serializeProfileFieldValue(
+                  draft as ProfileFieldValueDeserializedTypes[ProfileFieldValues[ProfileFieldKey]],
+                  fieldKey
+                ),
+              ],
+            }
+      );
 
       const response = await fetch(
         fieldKey === "absence" ? "/api/absences" : "/api/profileFields",
@@ -152,18 +162,7 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body:
-            fieldKey === "absence"
-              ? serializedValue
-              : JSON.stringify({
-                  playerId: userId,
-                  fields: [
-                    {
-                      key: fieldKey,
-                      value: serializedValue,
-                    },
-                  ],
-                }),
+          body: serializedValue,
         }
       );
       if (!response.ok) {
@@ -180,8 +179,16 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
         return;
       }
       const serializedValue = isAbsence(field)
-        ? JSON.stringify(field.draft)
-        : serializeProfileFieldValue(field.draft, field.key);
+        ? JSON.stringify({
+            date: field.draft?.date,
+            description: field.draft?.description,
+            reason: field.draft?.reason,
+            type: field.draft?.type,
+            userId: field.draft?.userId,
+          } as UpdateOneAbsenceDTO)
+        : JSON.stringify({
+            value: serializeProfileFieldValue(field.draft, field.key),
+          });
       const response = await fetch(
         isAbsence(field)
           ? `/api/absences/${field.id}`
@@ -190,9 +197,7 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: isAbsence(field)
-            ? serializedValue
-            : JSON.stringify({ value: serializedValue }),
+          body: serializedValue,
         }
       );
       if (!response.ok) {
