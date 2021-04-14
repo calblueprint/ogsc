@@ -129,6 +129,17 @@ export const createEmptyProfileField = (
   };
 };
 
+export const createEmptyAbsence = (userId: number): IAbsence => {
+  return {
+    id: generateTemporaryID(),
+    date: new Date(),
+    description: "",
+    reason: AbsenceReason.Excused,
+    type: AbsenceType.School,
+    userId,
+  };
+};
+
 export const emptyProfile = Object.fromEntries(
   Object.entries(ProfileFieldKey).map(([, key]: [string, ProfileFieldKey]) => [
     key,
@@ -158,7 +169,15 @@ export const ProfileContextReducer = (
                 if ("id" in absence && absence.id === action.id) {
                   return {
                     ...absence,
-                    draft: { ...absence, ...absence.draft, ...action.value },
+                    draft: {
+                      ...Object.fromEntries(
+                        Object.entries(absence).filter(
+                          ([key]) => key !== "draft"
+                        )
+                      ),
+                      ...absence.draft,
+                      ...action.value,
+                    },
                   };
                 }
                 return absence;
@@ -170,7 +189,12 @@ export const ProfileContextReducer = (
           ...state,
           player: {
             ...state.player,
-            absenceDraft: { ...state.player.absenceDraft, ...action.value },
+            absenceDraft: {
+              // date has a default value in ProfileFieldEditor:
+              date: createEmptyAbsence(state.player.id).date,
+              ...state.player.absenceDraft,
+              ...action.value,
+            },
           },
         };
       }
@@ -332,12 +356,7 @@ export const ProfileContextReducer = (
         player: {
           ...state.player,
           absences: (state.player?.absences ?? []).concat({
-            id: generateTemporaryID(),
-            date: new Date(),
-            description: "",
-            reason: AbsenceReason.Excused,
-            type: AbsenceType.School,
-            userId: state.player.id,
+            ...createEmptyAbsence(state.player.id),
             uncreated: true,
             ...state.player.absenceDraft,
           }),

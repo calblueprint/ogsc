@@ -162,13 +162,14 @@ DateTimeEditor.defaultProps = {
 };
 
 type AbsenceEditorProps = {
-  absence: Partial<Absence> | undefined;
+  absence: Partial<IAbsence> | undefined;
   onChange: (change: Partial<Absence>) => void;
 };
 const AbsenceEditor: React.FC<AbsenceEditorProps> = ({
-  absence,
+  absence: _absence,
   onChange,
 }: AbsenceEditorProps) => {
+  const absence = _absence?.draft ?? _absence;
   return (
     <div>
       <p className="text-sm font-semibold mb-2">Absence Type</p>
