@@ -156,9 +156,13 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
             fieldKey === "absence"
               ? serializedValue
               : JSON.stringify({
-                  key: fieldKey,
-                  value: serializedValue,
-                  userId,
+                  playerId: userId,
+                  fields: [
+                    {
+                      key: fieldKey,
+                      value: serializedValue,
+                    },
+                  ],
                 }),
         }
       );

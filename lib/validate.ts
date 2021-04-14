@@ -27,11 +27,13 @@ export const ProfileFieldValueValidators: Record<
   [ProfileFieldValue.IntegerWithComment]: Joi.object({
     comment: Joi.string(),
     value: Joi.number().integer().required(),
+    date: Joi.string().isoDate().required(),
   }).required(),
   [ProfileFieldValue.Float]: Joi.number().required(),
   [ProfileFieldValue.FloatWithComment]: Joi.object({
     comment: Joi.string(),
     value: Joi.number().required(),
+    date: Joi.string().isoDate().required(),
   }).required(),
   [ProfileFieldValue.TimeElapsed]: Joi.string().isoDuration().required(),
   [ProfileFieldValue.DistanceMeasured]: Joi.number().required(),

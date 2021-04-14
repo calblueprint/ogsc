@@ -1,4 +1,4 @@
-import { PrismaClient, ProfileFieldKey, UserRoleType } from "@prisma/client";
+import { ProfileFieldKey, UserRoleType } from "@prisma/client";
 import {
   IPlayer,
   IUser,
@@ -14,6 +14,7 @@ import filterPlayerProfileRead from "utils/filterPlayerProfileRead";
 import filterPlayerProfileWrite from "utils/filterPlayerProfileWrite";
 import flattenUserRoles from "utils/flattenUserRoles";
 import getAuthenticatedUser from "utils/getAuthenticatedUser";
+import prisma from "utils/prisma";
 import sanitizeUser from "utils/sanitizeUser";
 import { validateBody } from "../helpers";
 
@@ -24,8 +25,6 @@ type CreateManyProfileFieldsDTO = {
   }[];
   playerId: number;
 };
-
-const prisma = new PrismaClient();
 
 const expectedBody = Joi.object<CreateManyProfileFieldsDTO>({
   fields: Joi.array()
