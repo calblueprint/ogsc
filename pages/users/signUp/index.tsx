@@ -48,6 +48,7 @@ const UserSignUpPageOne: React.FC = () => {
   // TODO: Add loading state to form submission
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [revealPassword, setRevealPassword] = useState(false);
   const { errors, register, handleSubmit } = useForm<UserSignUpForm1Values>({
     resolver: joiResolver(UserSignUpForm1Schema),
@@ -72,10 +73,11 @@ const UserSignUpPageOne: React.FC = () => {
         } as UserDTO),
       });
       if (player.ok) {
-        throw new Error("Email already exists");
+        setEmailError("Email already exists.");
+      } else {
+        action(values);
+        router.push("/users/signUp/signUp2");
       }
-      action(values);
-      router.push("/users/signUp/signUp2");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -129,7 +131,7 @@ const UserSignUpPageOne: React.FC = () => {
                 <UserSignUpFormField
                   label="Email Address"
                   name="email"
-                  error={errors.email?.message}
+                  error={errors.email?.message || emailError}
                 >
                   <input
                     type="text"
@@ -138,6 +140,7 @@ const UserSignUpPageOne: React.FC = () => {
                     placeholder="e.g., soccer@fifa.com"
                     ref={register}
                     defaultValue={state.userData.email}
+                    onChange={() => setEmailError("")}
                   />
                 </UserSignUpFormField>
                 <UserSignUpFormField
