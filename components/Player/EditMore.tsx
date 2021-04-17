@@ -1,114 +1,133 @@
-import React, { useState } from "react";
+/* eslint-disable react/destructuring-assignment */
+import { Menu, Transition } from "@headlessui/react";
+import { Absence } from "@prisma/client";
+import React, { useContext, useState } from "react";
 import Icon from "components/Icon";
 import Modal from "components/Modal";
-import EditScore from "components/Player/EditScore";
+import { StandaloneProfileFieldEditor } from "components/Player/ProfileFieldEditorModal";
+import { IProfileField, NumericProfileFields } from "interfaces/user";
 import DeleteField from "./DeleteField";
+import ProfileContext from "./ProfileContext";
 
-export function getCategory(key: string): string {
-  if (key === "AcademicEngagementScore") {
-    return "School";
+type EditProps =
+  | {
+      fieldKey: NumericProfileFields;
+      fieldId: number;
+    }
+  | {
+      absenceId: number;
+    };
+
+const EditMore: React.FunctionComponent<EditProps> = (props: EditProps) => {
+  const [selectedOption, setSelectedOption] = useState<
+    "edit" | "delete" | null
+  >(null);
+  const {
+    state: { player },
+  } = useContext(ProfileContext);
+
+  const profileFields: IProfileField<NumericProfileFields>[] | undefined =
+    "fieldKey" in props
+      ? player?.profile?.[props.fieldKey]?.history
+      : undefined;
+  const field =
+    "fieldKey" in props
+      ? profileFields?.find(
+          (profileField: IProfileField<NumericProfileFields>) =>
+            profileField.id === props.fieldId
+        )
+      : player?.absences?.find(
+          (absence: Absence) => props.absenceId === absence.id
+        );
+
+  if (!field) {
+    return null;
   }
-  if (key === "AdvisingScore") {
-    return "Advising";
-  }
-  if (key === "AthleticScore") {
-    return "Athletic";
-  }
-  return "GPA";
-}
 
-export type field = {
-  value: number | undefined;
-  createdAt: Date;
-  comment?: string | undefined;
-  id: number;
-  userId: number;
-  key:
-    | "AcademicEngagementScore"
-    | "AdvisingScore"
-    | "AthleticScore"
-    | "BMI"
-    | "GPA"
-    | "PacerTest"
-    | "Pushups"
-    | "Situps";
-};
-
-type EditProps = React.PropsWithChildren<{
-  field: field;
-  setSuccess: React.Dispatch<React.SetStateAction<boolean>>;
-  setType: React.Dispatch<
-    React.SetStateAction<"updated" | "added" | "deleted" | undefined>
-  >;
-  setDate: React.Dispatch<React.SetStateAction<string>>;
-}>;
-
-const EditMore: React.FunctionComponent<EditProps> = ({
-  field,
-  setSuccess,
-  setType,
-  setDate,
-}: EditProps) => {
-  const [editMode, setEditMode] = useState(false);
-  const [selectedOption, setSelectedOption] = useState("");
   return (
-    <div>
-      <button type="button" onClick={() => setEditMode(!editMode)}>
-        <Icon type="more" className="h-5 ml-4 fill-current" />
-        {editMode ? (
-          <div className="absolute border border-unselected bg-white rounded-lg h-24 w-1/12 grid grid-rows-2">
-            <button
-              type="button"
-              className=" text-dark grid grid-cols-3 place-items-center hover:bg-button rounded-b-none rounded-lg"
-              onClick={() => {
-                setSelectedOption("edit");
-                setEditMode(false);
-              }}
+    <>
+      <Menu>
+        {({ open }) => (
+          <>
+            <Menu.Button className="focus:outline-none">
+              <button
+                type="button"
+                className="relative focus:outline-none flex align-center justify-center"
+              >
+                <Icon type="more" className="h-5 ml-4 fill-current" />
+              </button>
+            </Menu.Button>
+            <Transition
+              show={open}
+              enter="transition duration-100 ease-out"
+              enterFrom="transform scale-95 opacity-0"
+              enterTo="transform scale-100 opacity-100"
+              leave="transition duration-75 ease-out"
+              leaveFrom="transform scale-100 opacity-100"
+              leaveTo="transform scale-95 opacity-0"
             >
-              <Icon type="edit" className="h-3" />
-              <p className="justify-self-start">Edit</p>
-            </button>
-            <button
-              type="button"
-              className="text-dark grid grid-cols-3 place-items-center hover:bg-button rounded-t-none rounded-lg"
-              onClick={() => {
-                setSelectedOption("delete");
-                setEditMode(false);
-              }}
-            >
-              <Icon type="delete" />
-              <p className="justify-self-start">Delete</p>
-            </button>
-          </div>
-        ) : null}
-      </button>
+              <Menu.Items
+                className="absolute z-10 border-medium-gray shadow-lg bg-white rounded-md pt-12 focus:outline-none flex flex-col text-unselected font-semibold text-sm w-32"
+                style={{ borderWidth: 1, transform: "translateY(-32px)" }}
+                static
+              >
+                <Icon type="more" className="h-5 ml-4 -mt-10 fill-current" />
+                <Menu.Item>
+                  {({ active }) => (
+                    <button
+                      type="button"
+                      className={`flex items-center w-full px-4 py-2 font-medium ${
+                        active ? "bg-button text-dark" : ""
+                      }`}
+                      onClick={() => {
+                        setSelectedOption("edit");
+                      }}
+                    >
+                      <Icon type="edit" className="h-4 mr-3 fill-current" />
+                      <p className="justify-self-start">Edit</p>
+                    </button>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <button
+                      type="button"
+                      className={`flex items-center w-full px-4 py-2 rounded-b-md font-medium ${
+                        active ? "bg-button text-dark" : ""
+                      }`}
+                      onClick={() => {
+                        setSelectedOption("delete");
+                      }}
+                    >
+                      <Icon type="delete" className="h-4 mr-3 stroke-current" />
+                      <p className="justify-self-start">Delete</p>
+                    </button>
+                  )}
+                </Menu.Item>
+              </Menu.Items>
+            </Transition>
+          </>
+        )}
+      </Menu>
       <Modal open={selectedOption === "edit"} className="w-2/3">
-        <EditScore
-          setSuccess={setSuccess}
-          setType={setType}
-          setDate={setDate}
-          currentScore={field}
-          setOption={setSelectedOption}
-          scoreCategory={getCategory(field.key)}
+        <StandaloneProfileFieldEditor
+          field={field}
+          onComplete={() => {
+            setSelectedOption(null);
+            // TODO: Dispatch notification
+          }}
         />
       </Modal>
       <Modal open={selectedOption === "delete"} className="w-2/3">
         <DeleteField
-          setSuccess={setSuccess}
-          setType={setType}
-          setDate={setDate}
-          setOption={setSelectedOption}
-          fieldType={getCategory(field.key) === "GPA" ? "gpa" : "Score"}
-          id={field.id}
-          userId={field.userId}
-          date={`
-          ${new Date(field.createdAt).toLocaleString("default", {
-            month: "long",
-          })}${" "}
-          ${field.createdAt.getFullYear().toString()}`}
+          field={field}
+          onComplete={() => {
+            setSelectedOption(null);
+            // TODO: Dispatch notification
+          }}
         />
       </Modal>
-    </div>
+    </>
   );
 };
 

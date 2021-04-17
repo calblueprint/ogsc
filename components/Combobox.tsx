@@ -1,21 +1,24 @@
-import { User, UserRoleType } from "@prisma/client";
+import { UserRoleType } from "@prisma/client";
 import React, { useEffect, useRef, useState } from "react";
 import { useCombobox } from "downshift";
 import debounce from "lodash.debounce";
-import { UserRoleLabel } from "interfaces";
+import { IUser, UserRoleLabel } from "interfaces";
 import Button from "./Button";
 import Card from "./Card";
 
 const getInputPlayers = async (
   inputValue: string | undefined,
-  selectedPlayers: User[]
-): Promise<User[]> => {
+  selectedPlayers: IUser[],
+  onlyWithoutProfiles = false
+): Promise<IUser[]> => {
   try {
-    const apiLink = `/api/players/search?phrase=${inputValue}&relatedPlayerIds=${null}`;
+    const apiLink = `/api/players/search?phrase=${inputValue}&relatedPlayerIds=${null}${
+      onlyWithoutProfiles ? "&onlyWithoutProfiles=1" : ""
+    }`;
     const response = await fetch(apiLink);
     const data = await response.json();
     return data.users.filter(
-      (player: User) => !selectedPlayers.some(({ id }) => id === player.id)
+      (player: IUser) => !selectedPlayers.some(({ id }) => id === player.id)
     );
   } catch (err) {
     throw new Error(err.message);
@@ -23,10 +26,12 @@ const getInputPlayers = async (
 };
 
 type Props = React.PropsWithChildren<{
-  selectedPlayers: User[];
-  setSelectedPlayers: React.Dispatch<React.SetStateAction<User[]>>;
-  role: string | undefined;
+  selectedPlayers: IUser[];
+  role?: string;
+  setSelectedPlayers: React.Dispatch<React.SetStateAction<IUser[]>>;
   promptOff?: boolean;
+  singleSelect?: boolean;
+  onlyWithoutProfiles?: boolean;
   callback?: () => void;
 }>;
 
@@ -35,9 +40,11 @@ const Combobox: React.FC<Props> = ({
   setSelectedPlayers,
   role,
   promptOff,
+  singleSelect,
+  onlyWithoutProfiles,
   callback,
 }: Props) => {
-  const [inputPlayers, setInputPlayers] = useState<User[]>([]);
+  const [inputPlayers, setInputPlayers] = useState<IUser[]>([]);
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
   const input = useRef<HTMLInputElement | null>(null);
@@ -55,7 +62,9 @@ const Combobox: React.FC<Props> = ({
     items: inputPlayers,
     onInputValueChange: debounce(async ({ inputValue }) => {
       if (callback) callback();
-      setInputPlayers(await getInputPlayers(inputValue, selectedPlayers));
+      setInputPlayers(
+        await getInputPlayers(inputValue, selectedPlayers, onlyWithoutProfiles)
+      );
     }, 300),
   });
 
@@ -63,14 +72,16 @@ const Combobox: React.FC<Props> = ({
     async function fetchData(): Promise<void> {
       if (focused) {
         input.current?.focus();
-        setInputPlayers(await getInputPlayers(" ", selectedPlayers));
+        setInputPlayers(
+          await getInputPlayers(" ", selectedPlayers, onlyWithoutProfiles)
+        );
       } else {
         input.current?.blur();
         setQuery("");
       }
     }
     fetchData();
-  }, [focused, selectedPlayers]);
+  }, [focused, onlyWithoutProfiles, selectedPlayers]);
 
   useEffect(() => {
     if (selectedItem) {
@@ -81,151 +92,98 @@ const Combobox: React.FC<Props> = ({
     }
   }, [reset, selectedItem, selectedPlayers, setSelectedPlayers]);
 
-  const onDelete = (user: User): void => {
+  const onDelete = (user: IUser): void => {
     if (callback) callback();
     setSelectedPlayers(
-      selectedPlayers.filter((selectedPlayer: User) => selectedPlayer !== user)
+      selectedPlayers.filter(
+        (selectedPlayer: IUser) => selectedPlayer.id !== user.id
+      )
     );
   };
 
   return (
     <div>
-      {promptOff ? (
-        <div className="container  w-full mt-3">
-          <div className="relative">
-            {selectedPlayers.map((user) => (
-              <Card
-                text={user.name}
-                onDelete={() => onDelete(user)}
-                maxSize={promptOff}
-              />
-            ))}
+      <div className="container w-full mt-3">
+        <div className="relative">
+          {!promptOff && (
+            <p className={`text-xs font-normal mt-3 mb-3 `}>
+              {(() => {
+                switch (role) {
+                  case UserRoleLabel[UserRoleType.Mentor]:
+                    return "Mentors will have access to the full profile of players they are mentoring, including Engagement Scores, Academics, Attendance, and Physical Health information.";
+                  case UserRoleLabel[UserRoleType.Parent]:
+                    return "Parents will have access to the full profile of their children, including Engagement Scores, Academics, Attendance, and Physical Health information.";
+                  case UserRoleLabel[UserRoleType.Donor]:
+                    return "Donors will have access to extended profiles of players they’re sponsoring, including Engagement Scores, Academics, and Physical Health information.";
+                  default:
+                    return "error";
+                }
+              })()}
+            </p>
+          )}
+          {selectedPlayers.map((user) => (
+            <Card
+              text={user.name}
+              onDelete={() => onDelete(user)}
+              maxSize={promptOff}
+            />
+          ))}
 
-            <div>
-              <div {...getComboboxProps()}>
-                <Button
-                  iconType="plus"
-                  className={` ${focused ? "hidden" : ""}`}
-                  onClick={() => setFocused(true)}
-                >
-                  Add players
-                </Button>
-                <input
-                  placeholder="Search for a player member"
-                  {...getInputProps({
-                    ref: input,
-                    value: query,
-                    onBlur: () => setFocused(false),
-                    onFocus: () => setFocused(true),
-                    onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
-                      setQuery(event.target.value),
-                  })}
-                  className={`w-full text-base form-input leading-10 ${
-                    !focused ? "hidden" : ""
-                  }`}
-                />
-              </div>
-              <ul
-                {...getMenuProps()}
-                className={`absolute w-full bg-white border border-b-0 rounded-sm mt-2 ${
-                  !isOpen ? "hidden" : ""
-                }`}
-              >
-                {isOpen &&
-                  inputPlayers.map((item: User, index: number) => (
-                    <li
-                      className={`${
-                        highlightedIndex === index ? "bg-lightBlue" : ""
-                      } px-3 py-2 border-b`}
-                      key={`${item.name}`}
-                      {...getItemProps({
-                        item,
-                        index,
-                        onMouseDown: (event: React.MouseEvent) =>
-                          event.preventDefault(),
-                      })}
-                    >
-                      {item.name}
-                    </li>
-                  ))}
-              </ul>
+          <div>
+            <div {...getComboboxProps()}>
+              {(!singleSelect || selectedPlayers.length === 0) && (
+                <>
+                  <Button
+                    iconType="plus"
+                    className={` ${focused ? "hidden" : ""}`}
+                    onClick={() => setFocused(true)}
+                  >
+                    Add player{!singleSelect ? "s" : ""}
+                  </Button>
+                  <input
+                    placeholder="Search for a player member"
+                    {...getInputProps({
+                      ref: input,
+                      value: query,
+                      onBlur: () => setFocused(false),
+                      onFocus: () => setFocused(true),
+                      onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
+                        setQuery(event.target.value),
+                    })}
+                    className={`w-full text-base form-input leading-10 border border-border rounded-lg ${
+                      !focused ? "hidden" : ""
+                    }`}
+                  />
+                </>
+              )}
             </div>
+            <ul
+              {...getMenuProps()}
+              className={`absolute w-full bg-white border border-b-0 rounded-sm mt-2 ${
+                !isOpen ? "hidden" : ""
+              }`}
+            >
+              {isOpen &&
+                inputPlayers.map((item: IUser, index: number) => (
+                  <li
+                    className={`${
+                      highlightedIndex === index ? "bg-lightBlue" : ""
+                    } px-3 py-2 border-b`}
+                    key={`${item.name}`}
+                    {...getItemProps({
+                      item,
+                      index,
+                      onMouseDown: (event: React.MouseEvent) =>
+                        event.preventDefault(),
+                    })}
+                  >
+                    {item.name}
+                  </li>
+                ))}
+            </ul>
           </div>
         </div>
-      ) : (
-        <div className="container  w-4/5 mt-3">
-          <p className={`text-xs font-normal mt-3 mb-3 `}>
-            {(() => {
-              switch (role) {
-                case UserRoleLabel[UserRoleType.Mentor]:
-                  return "Mentors will have access to the full profile of players they are mentoring, including Engagement Scores, Academics, Attendance, and Physical Health information.";
-                case UserRoleLabel[UserRoleType.Parent]:
-                  return "Parents will have access to the full profile of their children, including Engagement Scores, Academics, Attendance, and Physical Health information.";
-                case UserRoleLabel[UserRoleType.Donor]:
-                  return "Donors will have access to extended profiles of players they’re sponsoring, including Engagement Scores, Academics, and Physical Health information.";
-                default:
-                  return "error";
-              }
-            })()}
-          </p>
-
-          <div className="relative">
-            {selectedPlayers.map((user) => (
-              <Card text={user.name} onDelete={() => onDelete(user)} />
-            ))}
-
-            <div>
-              <div {...getComboboxProps()}>
-                <Button
-                  iconType="plus"
-                  className={` ${focused ? "hidden" : ""}`}
-                  onClick={() => setFocused(true)}
-                >
-                  Add players
-                </Button>
-                <input
-                  placeholder="Search for a player member"
-                  {...getInputProps({
-                    ref: input,
-                    value: query,
-                    onBlur: () => setFocused(false),
-                    onFocus: () => setFocused(true),
-                    onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
-                      setQuery(event.target.value),
-                  })}
-                  className={`w-1/3 text-base form-input leading-10 ${
-                    !focused ? "hidden" : ""
-                  }`}
-                />
-              </div>
-              <ul
-                {...getMenuProps()}
-                className={`absolute w-1/3 bg-white border border-b-0 rounded-sm mt-2 ${
-                  !isOpen ? "hidden" : ""
-                }`}
-              >
-                {isOpen &&
-                  inputPlayers.map((item: User, index: number) => (
-                    <li
-                      className={`${
-                        highlightedIndex === index ? "bg-lightBlue" : ""
-                      } px-3 py-2 border-b`}
-                      key={`${item.name}`}
-                      {...getItemProps({
-                        item,
-                        index,
-                        onMouseDown: (event: React.MouseEvent) =>
-                          event.preventDefault(),
-                      })}
-                    >
-                      {item.name}
-                    </li>
-                  ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 };

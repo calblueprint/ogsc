@@ -1,44 +1,50 @@
-import { AbsenceType, ProfileFieldKey } from "@prisma/client";
-import React, { useContext, useEffect, useState } from "react";
+import { Absence, AbsenceType, ProfileFieldKey } from "@prisma/client";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import Icon from "components/Icon";
 import {
+  IAbsence,
   IPlayer,
+  IProfileField,
   ProfileCategory,
   ProfileCategoryIcons,
   ProfileFieldsByCategory,
-  UserRoleLabel,
+  ProfileFieldValueDeserializedTypes,
+  ProfileFieldValues,
 } from "interfaces";
-import useSessionInfo from "utils/useSessionInfo";
-import Button from "components/Button";
-import Modal from "components/Modal";
+import { useRouter } from "next/router";
+import { UpdateOneAbsenceDTO } from "pages/api/absences/update";
+import { serializeProfileFieldValue } from "utils/buildUserProfile";
+import isAbsence from "utils/isAbsence";
 import AbsenceTable from "./AbsenceTable";
-import AddScore from "./AddScore";
-import AddGPA from "./AddGPA";
 import ProfileFieldCell from "./ProfileFieldCell";
-import ProfileContext, { useProfileContext } from "./ProfileContext";
-import ProfileSection from "./ProfileSection";
+import ProfileContext, {
+  ProfileContextType,
+  useProfileContext,
+} from "./ProfileContext";
+import ProfileSection, { Props as ProfileSectionProps } from "./ProfileSection";
 
 type ProfileContentsProps<T extends ProfileCategory> = {
   category: T;
+  // How do we do this with a FC that has a generic?
+  // eslint-disable-next-line react/require-default-props
+  renderSection?: (props: ProfileSectionProps) => JSX.Element;
 };
 
-const ProfileContents = <T extends ProfileCategory>({
+export const ProfileContents = <T extends ProfileCategory>({
   category,
+  renderSection,
 }: ProfileContentsProps<T>): JSX.Element => {
   const {
     state: { player },
   } = useContext(ProfileContext);
-  const [addScoreState, setAddScoreState] = useState(false);
-  const [scoreCategory, setScoreCategory] = useState("");
-  const session = useSessionInfo();
+
+  const Section = renderSection ?? ProfileSection;
 
   switch (category) {
     case ProfileCategory.Overview:
       return (
         <div>
-          <h1 className="mb-10 text-2xl font-semibold">Student Overview</h1>
-          <hr />
-          <ProfileSection sectionName="Student Bio">
+          <Section sectionName="Student Bio">
             <ProfileFieldCell fieldKey={ProfileFieldKey.BioAboutMe} />
             <ProfileFieldCell fieldKey={ProfileFieldKey.BioHobbies} />
             <ProfileFieldCell fieldKey={ProfileFieldKey.BioFavoriteSubject} />
@@ -47,143 +53,66 @@ const ProfileContents = <T extends ProfileCategory>({
             />
             <ProfileFieldCell fieldKey={ProfileFieldKey.BioSiblings} />
             <ProfileFieldCell fieldKey={ProfileFieldKey.BioParents} />
+          </Section>
+          <Section sectionName="Intro Video">
             <ProfileFieldCell fieldKey={ProfileFieldKey.IntroVideo} />
-          </ProfileSection>
+          </Section>
         </div>
       );
     case ProfileCategory.Engagement:
       return (
         <div>
-          <h1 className="mb-10 text-2xl font-semibold">Engagement</h1>
-          <div>
-            <ProfileFieldCell
-              fieldKey={ProfileFieldKey.AcademicEngagementScore}
-            />
-            {UserRoleLabel[session.sessionType] === "Admin" ? (
-              <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
-                <Button
-                  iconType="plus"
-                  onClick={() => {
-                    setAddScoreState(true);
-                    setScoreCategory("School");
-                  }}
-                >
-                  Add Engagement Score
-                </Button>
-              </div>
-            ) : (
-              []
-            )}
-          </div>
-          <div className="mb-16">
-            <ProfileFieldCell fieldKey={ProfileFieldKey.AdvisingScore} />
-            {UserRoleLabel[session.sessionType] === "Admin" ? (
-              <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
-                <Button
-                  iconType="plus"
-                  onClick={() => {
-                    setAddScoreState(true);
-                    setScoreCategory("Advising");
-                  }}
-                >
-                  Add Engagement Score
-                </Button>
-              </div>
-            ) : (
-              []
-            )}
-          </div>
-          <div className="mb-16">
-            <ProfileFieldCell fieldKey={ProfileFieldKey.AthleticScore} />
-            {UserRoleLabel[session.sessionType] === "Admin" ? (
-              <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
-                <Button
-                  iconType="plus"
-                  onClick={() => {
-                    setAddScoreState(true);
-                    setScoreCategory("Athletic");
-                  }}
-                >
-                  Add Engagement Score
-                </Button>
-              </div>
-            ) : (
-              []
-            )}
-          </div>
-          <Modal open={addScoreState} className="w-2/3">
-            <AddScore
-              setHidden={setAddScoreState}
-              userId={player?.id}
-              category={scoreCategory}
-            />
-          </Modal>
+          <ProfileFieldCell
+            fieldKey={ProfileFieldKey.AcademicEngagementScore}
+          />
+          <ProfileFieldCell fieldKey={ProfileFieldKey.AdvisingScore} />
+          <ProfileFieldCell fieldKey={ProfileFieldKey.AthleticScore} />
         </div>
       );
     case ProfileCategory.AcademicPerformance:
       return (
         <div>
-          <h1 className="mb-10 text-2xl font-semibold">Academic Performance</h1>
           <ProfileFieldCell fieldKey={ProfileFieldKey.GPA} />
-          {UserRoleLabel[session.sessionType] === "Admin" ? (
-            <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
-              <Button iconType="plus" onClick={() => setAddScoreState(true)}>
-                Add Grade Point Average
-              </Button>
-            </div>
-          ) : (
-            []
-          )}
           <ProfileFieldCell fieldKey={ProfileFieldKey.DisciplinaryActions} />
-          <Modal open={addScoreState} className="w-2/3">
-            <AddGPA setHidden={setAddScoreState} userId={player?.id} />
-          </Modal>
         </div>
       );
     case ProfileCategory.PhysicalWellness:
       return (
         <div>
-          <h1 className="mb-10 text-2xl font-semibold">Physical Wellness</h1>
-          <hr className="mb-10" />
-          <ProfileSection sectionName="Height">
+          <Section sectionName="Height">
             <ProfileFieldCell fieldKey={ProfileFieldKey.Height} />
-          </ProfileSection>
+          </Section>
           <hr className="mt-4" />
-          <ProfileSection sectionName="Fitness Testing">
+          <Section sectionName="Fitness Testing">
             <ProfileFieldCell fieldKey={ProfileFieldKey.PacerTest} />
             <ProfileFieldCell fieldKey={ProfileFieldKey.MileTime} />
             <ProfileFieldCell fieldKey={ProfileFieldKey.Situps} />
             <ProfileFieldCell fieldKey={ProfileFieldKey.Pushups} />
-          </ProfileSection>
-          <ProfileSection sectionName="Health & Wellness">
+          </Section>
+          <hr className="mt-4" />
+          <Section sectionName="Health & Wellness">
             <ProfileFieldCell fieldKey={ProfileFieldKey.HealthAndWellness} />
-          </ProfileSection>
+          </Section>
         </div>
       );
     case ProfileCategory.Attendance:
       return (
         <div>
-          <h1 className="mb-10 text-2xl font-semibold">Attendance</h1>
-          {player?.absences &&
-            Object.values(AbsenceType).map(
-              (type: AbsenceType) =>
-                player.absences && (
-                  <AbsenceTable
-                    key={type}
-                    absenceType={type}
-                    absences={player.absences}
-                    userId={player.id}
-                  />
-                )
-            )}
+          {Object.values(AbsenceType).map((type: AbsenceType) => (
+            <AbsenceTable
+              key={type}
+              absenceType={type}
+              absences={player?.absences || []}
+            />
+          ))}
         </div>
       );
     case ProfileCategory.Highlights:
       return (
         <div>
-          <ProfileSection sectionName="Highlights">
+          <Section sectionName="Highlights">
             <ProfileFieldCell fieldKey={ProfileFieldKey.Highlights} />
-          </ProfileSection>
+          </Section>
         </div>
       );
     default:
@@ -202,6 +131,108 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
     ProfileCategory.Overview
   );
   const [state, dispatch] = useProfileContext();
+  const router = useRouter();
+
+  const refreshProfile = useCallback(() => {
+    router.replace(router.asPath);
+  }, [router]);
+
+  const createField: ProfileContextType["createField"] = useCallback(
+    async function createField(fieldKey, draft, userId): Promise<void> {
+      const serializedValue = JSON.stringify(
+        fieldKey === "absence"
+          ? {
+              absences: [draft as Partial<Absence>],
+              playerId: userId,
+            }
+          : {
+              playerId: userId,
+              fields: [
+                {
+                  key: fieldKey,
+                  value: serializeProfileFieldValue(
+                    draft as ProfileFieldValueDeserializedTypes[ProfileFieldValues[ProfileFieldKey]],
+                    fieldKey
+                  ),
+                },
+              ],
+            }
+      );
+
+      const response = await fetch(
+        fieldKey === "absence" ? "/api/absences" : "/api/profileFields",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: serializedValue,
+        }
+      );
+      if (!response.ok) {
+        throw await response.json();
+      }
+      refreshProfile();
+    },
+    [refreshProfile]
+  );
+
+  const updateField: ProfileContextType["updateField"] = useCallback(
+    async function updateField(field: IProfileField | IAbsence): Promise<void> {
+      if (!field.draft) {
+        return;
+      }
+      const serializedValue = isAbsence(field)
+        ? JSON.stringify({
+            date: field.draft?.date,
+            description: field.draft?.description,
+            reason: field.draft?.reason,
+            type: field.draft?.type,
+            userId: field.draft?.userId,
+          } as UpdateOneAbsenceDTO)
+        : JSON.stringify({
+            value: serializeProfileFieldValue(field.draft, field.key),
+          });
+      const response = await fetch(
+        isAbsence(field)
+          ? `/api/absences/${field.id}`
+          : `/api/profileFields/${field.id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: serializedValue,
+        }
+      );
+      if (!response.ok) {
+        throw await response.json();
+      }
+      refreshProfile();
+    },
+    [refreshProfile]
+  );
+
+  const deleteField: ProfileContextType["deleteField"] = useCallback(
+    async function deleteField(
+      fieldKey: ProfileFieldKey | "absence",
+      id: number
+    ): Promise<void> {
+      const response = await fetch(
+        fieldKey === "absence"
+          ? `/api/absences/${id}`
+          : `/api/profileFields/${id}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
+      if (!response.ok) {
+        throw await response.json();
+      }
+      refreshProfile();
+    },
+    [refreshProfile]
+  );
+
   useEffect(() => {
     dispatch({ type: "SET_PLAYER", player });
   }, [player, dispatch]);
@@ -239,7 +270,11 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
           ))}
       </div>
       <hr className="my-10" />
-      <ProfileContext.Provider value={{ state, dispatch }}>
+      <ProfileContext.Provider
+        value={{ state, dispatch, createField, updateField, deleteField }}
+      >
+        <h1 className="mb-10 text-2xl font-semibold">{selectedCategory}</h1>
+        <hr />
         <ProfileContents category={selectedCategory} />
       </ProfileContext.Provider>
     </div>

@@ -10,59 +10,124 @@ import {
   SanitizedUser,
 } from "interfaces";
 
-export const serializeProfileFieldValue = (
+export function serializeProfileFieldValue(
   field: IProfileFieldBuilt<ProfileFieldKey> | null | undefined
-): string | null => {
-  if (field?.draft == null) {
+): string | null;
+export function serializeProfileFieldValue(
+  value: ProfileFieldValueDeserializedTypes[ProfileFieldValues[ProfileFieldKey]],
+  fieldKey: ProfileFieldKey
+): string | null;
+export function serializeProfileFieldValue(
+  fieldOrValue:
+    | IProfileFieldBuilt<ProfileFieldKey>
+    | ProfileFieldValueDeserializedTypes[ProfileFieldValues[ProfileFieldKey]]
+    | null
+    | undefined,
+  fieldKey?: ProfileFieldKey
+): string | null {
+  if (fieldOrValue == null) {
     return null;
   }
-  const originValueType = ProfileFieldValues[field.key];
+  let draftValue;
+  let key: ProfileFieldKey;
+  if (typeof fieldOrValue === "object" && "history" in fieldOrValue) {
+    if (!fieldOrValue) {
+      return null;
+    }
+    draftValue = fieldOrValue.draft;
+    key = fieldOrValue.key;
+  } else if (fieldKey) {
+    draftValue = fieldOrValue;
+    key = fieldKey;
+  } else {
+    return null;
+  }
+
+  if (typeof draftValue === "string") {
+    return draftValue;
+  }
+  if (draftValue === undefined) {
+    return null;
+  }
+
+  const originValueType = ProfileFieldValues[key];
   try {
     switch (originValueType) {
       case ProfileFieldValue.FloatWithComment:
-      case ProfileFieldValue.IntegerWithComment:
-        return JSON.stringify(field.draft);
+      case ProfileFieldValue.IntegerWithComment: {
+        const draft = draftValue as ProfileFieldValueDeserializedTypes[typeof originValueType];
+        return JSON.stringify({ ...draft, date: draft.date.toISOString() });
+      }
       case ProfileFieldValue.TimeElapsed: {
-        const draft = field.draft as ProfileFieldValueDeserializedTypes[typeof originValueType];
+        const draft = draftValue as ProfileFieldValueDeserializedTypes[typeof originValueType];
         return draft.toISOString();
       }
       case ProfileFieldValue.DistanceMeasured: {
-        const draft = field.draft as ProfileFieldValueDeserializedTypes[typeof originValueType];
-        return String(draft.feet * 12 + draft.inches);
+        const draft = draftValue as ProfileFieldValueDeserializedTypes[typeof originValueType];
+        return String(
+          (Number.isNaN(draft.feet) ? 0 : draft.feet * 12) +
+            (Number.isNaN(draft.inches) ? 0 : draft.inches)
+        );
       }
       case ProfileFieldValue.Text:
       case ProfileFieldValue.Integer:
       case ProfileFieldValue.URL:
       default:
-        return String(field.draft);
+        return String(draftValue);
     }
   } catch (err) {
     return null;
   }
-};
+}
 
-export const deserializeProfileFieldValue = <
+export function deserializeProfileFieldValue<
   T extends ProfileField,
   K extends ProfileFieldKey = T["key"]
 >(
   field: T | undefined
-): ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]] | null => {
-  if (field === undefined) {
+): ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]] | null;
+export function deserializeProfileFieldValue<
+  T extends ProfileField,
+  K extends ProfileFieldKey = T["key"]
+>(
+  value: string,
+  fieldKey: K
+): ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]] | null;
+export function deserializeProfileFieldValue<
+  T extends ProfileField,
+  K extends ProfileFieldKey = T["key"]
+>(
+  fieldOrValue: T | string | undefined,
+  fieldKey?: K
+): ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]] | null {
+  if (fieldOrValue === undefined) {
     return null;
   }
   type Deserialized = ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]];
-  const targetValueType = ProfileFieldValues[field.key];
+  let key: ProfileFieldKey;
+  let value: string | null;
+  if (typeof fieldOrValue === "string" && fieldKey) {
+    key = fieldKey;
+    value = fieldOrValue;
+  } else if (typeof fieldOrValue !== "string") {
+    key = fieldOrValue.key;
+    value = fieldOrValue.value;
+  } else {
+    return null;
+  }
+
+  const targetValueType = ProfileFieldValues[key];
 
   try {
     switch (targetValueType) {
       case ProfileFieldValue.Integer:
-        return Math.floor(Number(field.value)) as Deserialized;
+        return Math.floor(Number(value)) as Deserialized;
       case ProfileFieldValue.FloatWithComment:
       case ProfileFieldValue.IntegerWithComment: {
-        if (!field.value) {
+        if (!value) {
           return null;
         }
-        const parsed = JSON.parse(field.value);
+        const parsed = JSON.parse(value);
         if (typeof parsed !== "object" || !("value" in parsed)) {
           return null;
         }
@@ -72,31 +137,32 @@ export const deserializeProfileFieldValue = <
             targetValueType === ProfileFieldValue.IntegerWithComment
               ? Math.floor(Number(parsed.value))
               : Number(parsed.value),
+          date: dayjs(parsed.date),
         } as Deserialized;
       }
       case ProfileFieldValue.TimeElapsed:
-        if (field.value === null) {
+        if (value === null) {
           return null;
         }
-        return dayjs.duration(field.value) as Deserialized;
+        return dayjs.duration(value) as Deserialized;
       case ProfileFieldValue.DistanceMeasured:
-        if (field.value === null) {
+        if (value === null) {
           return null;
         }
         return {
-          feet: Math.floor(Number(field.value) / 12),
-          inches: Number((Number(field.value) % 12).toFixed(1)),
+          feet: Math.floor(Number(value) / 12),
+          inches: Number((Number(value) % 12).toFixed(1)),
         } as Deserialized;
       case ProfileFieldValue.Text:
       case ProfileFieldValue.URL:
       default:
-        return field.value as Deserialized;
+        return value as Deserialized;
     }
   } catch (err) {
     // TODO: Log out this error
     return null;
   }
-};
+}
 
 export default function buildUserProfile<
   T extends SanitizedUser & {

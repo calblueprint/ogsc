@@ -14,6 +14,25 @@ declare module "joi" {
   }
 }
 
+const CouldBeJSON = Joi.extend(
+  (joi): Joi.Extension => {
+    return {
+      type: "object",
+      base: joi.object(),
+      coerce: (value): Joi.CoerceResult => {
+        if (value[0] !== "{" && !/^\s*\{/.test(value)) {
+          return {};
+        }
+        try {
+          return { value: JSON.parse(value) };
+        } catch (err) {
+          return { errors: [err] };
+        }
+      },
+    };
+  }
+) as typeof Joi;
+
 /**
  * Contains a map of ProfileFieldValues to runtime validators for _serialized_ values.
  */
@@ -24,14 +43,16 @@ export const ProfileFieldValueValidators: Record<
   [ProfileFieldValue.Text]: Joi.string().required(),
   [ProfileFieldValue.URL]: Joi.string().uri().required(),
   [ProfileFieldValue.Integer]: Joi.number().integer().required(),
-  [ProfileFieldValue.IntegerWithComment]: Joi.object({
+  [ProfileFieldValue.IntegerWithComment]: CouldBeJSON.object({
     comment: Joi.string(),
     value: Joi.number().integer().required(),
+    date: Joi.string().isoDate().required(),
   }).required(),
   [ProfileFieldValue.Float]: Joi.number().required(),
-  [ProfileFieldValue.FloatWithComment]: Joi.object({
+  [ProfileFieldValue.FloatWithComment]: CouldBeJSON.object({
     comment: Joi.string(),
     value: Joi.number().required(),
+    date: Joi.string().isoDate().required(),
   }).required(),
   [ProfileFieldValue.TimeElapsed]: Joi.string().isoDuration().required(),
   [ProfileFieldValue.DistanceMeasured]: Joi.number().required(),

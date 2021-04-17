@@ -41,10 +41,6 @@ const PlayerDashboardItem: React.FunctionComponent<
             {deserializeProfileFieldValue(profile?.YearOfBirth?.current)}
           </p>
           <div className="flex flex-row relative">
-            <p className="self-center font-normal mr-56">
-              {/* TODO: Replace with TeamName once added to profile */}
-              {profile?.YearOfBirth?.current}
-            </p>
             {(UserRoleLabel[session.sessionType] === "Donor" ||
               UserRoleLabel[session.sessionType] === "Mentor" ||
               UserRoleLabel[session.sessionType] === "Parent") &&
@@ -130,7 +126,11 @@ const PlayerDashboard: React.FunctionComponent<PlayerDashboardProps> = ({
       </div>
       <hr className="border-unselected border-opacity-0" />
       {visibleData.map((player) => (
-        <PlayerDashboardItem {...player} relatedPlayerIds={relatedPlayerIds} />
+        <PlayerDashboardItem
+          {...player}
+          key={player.id}
+          relatedPlayerIds={relatedPlayerIds}
+        />
       ))}
       <PageNav
         currentPage={currUIPage + 1}

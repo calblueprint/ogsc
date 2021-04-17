@@ -1,6 +1,7 @@
 import { joiResolver } from "@hookform/resolvers/joi";
 import Button from "components/Button";
 import FormField from "components/FormField";
+import { IUser } from "interfaces/user";
 import Joi from "lib/validate";
 import { UserDTO } from "pages/api/admin/users/readOneEmail";
 import { AdminCreateUserDTO } from "pages/api/admin/users/create";
@@ -8,7 +9,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import updateActionSignUp from "utils/updateActionSignUp";
 import { useStateMachine } from "little-state-machine";
-import { UserStatus } from "@prisma/client";
+import { UserRoleType, UserStatus } from "@prisma/client";
 import type { UserSignUpFormValues } from "../../../pages/users/signUp";
 
 const AdminInviteFormSchema = Joi.object<UserSignUpFormValues>({
@@ -24,11 +25,11 @@ const AdminInviteFormSchema = Joi.object<UserSignUpFormValues>({
     .optional(),
 });
 
-type Props = React.PropsWithChildren<{
-  setPlayerID: React.Dispatch<React.SetStateAction<number>>;
-}>;
+type Props = {
+  onCreate: (newUser: IUser) => void;
+};
 
-const NewPlayerInvitePage: React.FC<Props> = ({ setPlayerID }: Props) => {
+const NewPlayerInvitePage: React.FC<Props> = ({ onCreate }: Props) => {
   const { action, state } = useStateMachine(updateActionSignUp);
   const [checkSubmit, setCheckSubmit] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -68,6 +69,7 @@ const NewPlayerInvitePage: React.FC<Props> = ({ setPlayerID }: Props) => {
             name: `${firstName} ${lastName}`,
             status: UserStatus.PendingUserAcceptance,
             phoneNumber,
+            role: UserRoleType.Player,
           } as AdminCreateUserDTO),
         });
         if (!response.ok) {
@@ -90,8 +92,8 @@ const NewPlayerInvitePage: React.FC<Props> = ({ setPlayerID }: Props) => {
         if (!player.ok) {
           throw await player.json();
         }
-        const newPlayer = await player.json();
-        setPlayerID(newPlayer.user.id);
+        const newPlayer = (await player.json()).user;
+        onCreate(newPlayer);
         setConfirm(
           "You have sent an invite to this player and may continue on with the form!"
         );

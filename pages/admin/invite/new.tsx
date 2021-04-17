@@ -1,9 +1,9 @@
 import { joiResolver } from "@hookform/resolvers/joi";
-import { UserRoleType, User, UserStatus } from "@prisma/client";
+import { UserRoleType, UserStatus } from "@prisma/client";
 import Button from "components/Button";
 import DashboardLayout from "components/DashboardLayout";
 import FormField from "components/FormField";
-import { UserRoleLabel } from "interfaces";
+import { IUser, UserRoleLabel } from "interfaces";
 import Joi from "lib/validate";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -44,7 +44,7 @@ const AdminNewInvitePage: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [roleChosen, setRoleChosen] = useState("");
-  const [selectedPlayers, setSelectedPlayers] = useState<User[]>([]);
+  const [selectedPlayers, setSelectedPlayers] = useState<IUser[]>([]);
 
   const { errors, register, handleSubmit } = useForm<AdminInviteFormValues>({
     resolver: joiResolver(AdminInviteFormSchema),
