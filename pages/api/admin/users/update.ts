@@ -1,9 +1,10 @@
-import prisma from "utils/prisma";
-import { ValidatedNextApiRequest, UserRoleType, UserStatus } from "interfaces";
+import { UserRoleType, UserStatus } from "@prisma/client";
+import { ValidatedNextApiRequest } from "interfaces";
 import Joi from "lib/validate";
 import { NextApiResponse } from "next";
 import { validateBody } from "pages/api/helpers";
 import flattenUserRoles from "utils/flattenUserRoles";
+import prisma from "utils/prisma";
 import sanitizeUser from "utils/sanitizeUser";
 import { NotificationType } from "lib/notify/types";
 import Notifier from "lib/notify";

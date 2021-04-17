@@ -16,7 +16,7 @@ async function getAuthenticatedUser(
   if (!session) {
     throw new Error("You are not logged in.");
   }
-  const user = await prisma.user.findOne({
+  const user = await prisma.user.findUnique({
     where: { email: session.user.email },
     include: {
       absences: true,

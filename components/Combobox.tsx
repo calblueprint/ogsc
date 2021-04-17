@@ -1,8 +1,8 @@
+import { User, UserRoleType } from "@prisma/client";
 import React, { useEffect, useRef, useState } from "react";
 import { useCombobox } from "downshift";
 import debounce from "lodash.debounce";
-import { UserRoleLabel, UserRoleType } from "interfaces";
-import { User } from "@prisma/client";
+import { UserRoleLabel } from "interfaces";
 import Button from "./Button";
 import Card from "./Card";
 
@@ -11,7 +11,7 @@ const getInputPlayers = async (
   selectedPlayers: User[]
 ): Promise<User[]> => {
   try {
-    const apiLink = `/api/players/search?phrase=${inputValue}`;
+    const apiLink = `/api/players/search?phrase=${inputValue}&relatedPlayerIds=${null}`;
     const response = await fetch(apiLink);
     const data = await response.json();
     return data.users.filter(
@@ -27,6 +27,7 @@ type Props = React.PropsWithChildren<{
   setSelectedPlayers: React.Dispatch<React.SetStateAction<User[]>>;
   role: string | undefined;
   promptOff?: boolean;
+  callback?: () => void;
 }>;
 
 const Combobox: React.FC<Props> = ({
@@ -34,6 +35,7 @@ const Combobox: React.FC<Props> = ({
   setSelectedPlayers,
   role,
   promptOff,
+  callback,
 }: Props) => {
   const [inputPlayers, setInputPlayers] = useState<User[]>([]);
   const [query, setQuery] = useState("");
@@ -52,6 +54,7 @@ const Combobox: React.FC<Props> = ({
     isOpen: focused,
     items: inputPlayers,
     onInputValueChange: debounce(async ({ inputValue }) => {
+      if (callback) callback();
       setInputPlayers(await getInputPlayers(inputValue, selectedPlayers));
     }, 300),
   });
@@ -79,6 +82,7 @@ const Combobox: React.FC<Props> = ({
   }, [reset, selectedItem, selectedPlayers, setSelectedPlayers]);
 
   const onDelete = (user: User): void => {
+    if (callback) callback();
     setSelectedPlayers(
       selectedPlayers.filter((selectedPlayer: User) => selectedPlayer !== user)
     );

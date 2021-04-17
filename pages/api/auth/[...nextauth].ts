@@ -5,7 +5,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import hashPassword from "utils/hashPassword";
 import sanitizeUser from "utils/sanitizeUser";
 
-type AuthorizeDTO = {
+export type AuthorizeDTO = {
   email: string;
   password: string;
   inviteCode?: string;
@@ -21,21 +21,29 @@ const options = {
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials: AuthorizeDTO) => {
-        const user = await prisma.user.findOne({
+        const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
         if (!user) {
-          throw new Error("No account exists");
+          return Promise.reject(new Error("No account exists"));
         }
         // Verify that their password matches
         if (user.hashedPassword === hashPassword(credentials.password)) {
-          return sanitizeUser(user);
+          return Promise.resolve(sanitizeUser(user));
         }
         // Password mismatch
-        throw new Error("Invalid password");
+        return Promise.reject(
+          new Error(`${"Invalid password&email="}${credentials.email}`)
+        );
       },
     }),
   ],
+
+  pages: {
+    signIn: "/auth/signin",
+    signOut: "/auth/signout",
+    error: "/auth/signin", // Error code passed in query string as ?error=
+  },
 
   database: process.env.DATABASE_URL,
   session: {

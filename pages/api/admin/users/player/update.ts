@@ -1,8 +1,4 @@
-import {
-  ProfileFieldKey,
-  ProfileFieldCreateWithoutUserInput,
-} from "@prisma/client";
-import prisma from "utils/prisma";
+import { ProfileFieldKey, Prisma } from "@prisma/client";
 import Joi from "lib/validate";
 import { NextApiResponse } from "next";
 
@@ -14,6 +10,7 @@ import filterPlayerProfileWrite from "utils/filterPlayerProfileWrite";
 import buildUserProfile from "utils/buildUserProfile";
 import flattenUserRoles from "utils/flattenUserRoles";
 import getAuthenticatedUser from "utils/getAuthenticatedUser";
+import prisma from "utils/prisma";
 
 export type PlayerUserDTO = {
   id: number;
@@ -73,7 +70,7 @@ const handler = async (
       }
       return null;
     });
-    const newProfileFields: ProfileFieldCreateWithoutUserInput[] = [];
+    const newProfileFields: Prisma.ProfileFieldCreateWithoutUserInput[] = [];
 
     profileFields.forEach((value, key) => {
       if (
@@ -113,7 +110,7 @@ const handler = async (
       }
     });
     const playerId = userInfo.id || Number(req.query.id);
-    const updatingUser = await prisma.user.findOne({
+    const updatingUser = await prisma.user.findUnique({
       where: { id: playerId },
       include: {
         absences: true,

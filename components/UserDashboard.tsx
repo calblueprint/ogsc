@@ -1,11 +1,7 @@
+import { UserRoleType, UserStatus } from "@prisma/client";
 import Link from "next/link";
 import PageNav from "components/PageNav";
-import {
-  IUser,
-  UserRoleLabel,
-  UserRoleType,
-  UserStatus,
-} from "interfaces/user";
+import { IUser, UserRoleLabel } from "interfaces/user";
 import { ReadManyUsersDTO } from "pages/api/admin/users/readMany";
 import useSessionInfo from "utils/useSessionInfo";
 import usePagination from "./pagination";
@@ -33,7 +29,7 @@ const UserDashboardItem: React.FunctionComponent<{ user: IUser }> = ({
               {name}
               {status === UserStatus.Inactive && (
                 <text className="px-3 ml-5 rounded-full font-semibold text-unselected bg-button">
-                  INACTIVE
+                  {UserStatus.Inactive.toUpperCase()}
                 </text>
               )}
             </p>

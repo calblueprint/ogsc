@@ -8,7 +8,7 @@ import Joi from "lib/validate";
 /**
  * User DTO with new password
  */
-type NewPasswordUserDTO = {
+export type NewPasswordUserDTO = {
   newPassword: string;
   resetCodeId: string;
 };
@@ -27,7 +27,7 @@ export const resetPassword = async (
     throw new Error("Invalid resetCodeId");
   }
 
-  const resetPasswordRecord = await prisma.resetPassword.findOne({
+  const resetPasswordRecord = await prisma.resetPassword.findUnique({
     where: { id: user.resetCodeId },
   });
   if (!resetPasswordRecord) {

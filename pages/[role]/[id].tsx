@@ -1,34 +1,24 @@
-import { NextRouter, useRouter } from "next/router";
+import { useRouter } from "next/router";
 import DashboardLayout from "components/DashboardLayout";
 import React, { useState, useEffect } from "react";
 import Icon from "components/Icon";
 import Button from "components/Button";
 import FormField from "components/FormField";
-import { IUser, UserRoleLabel, UserRoleType, UserStatus } from "interfaces";
+import { IUser, UserRoleLabel } from "interfaces";
 import Joi from "lib/validate";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { useForm } from "react-hook-form";
-import { DeleteUserDTO } from "pages/api/admin/users/delete";
 import Link from "next/link";
 import { NextPageContext } from "next";
-import { User } from "@prisma/client";
+import { User, UserRoleType, UserStatus } from "@prisma/client";
 import prisma from "utils/prisma";
 import Combobox from "components/Combobox";
 import { ViewingPermissionDTO } from "pages/api/admin/roles/create";
 import useSessionInfo from "utils/useSessionInfo";
+import toast, { Toaster } from "react-hot-toast";
 import { signOut } from "next-auth/client";
-
-interface DeleteConfirmationProps {
-  user?: IUser;
-  isDeleting: boolean;
-  setIsDeleting: React.Dispatch<React.SetStateAction<boolean>>;
-  router: NextRouter;
-}
-
-type ModalProps = React.PropsWithChildren<{
-  open?: boolean;
-}>;
+import colors from "../../constants/colors";
 
 type gsspProps = {
   user?: User;
@@ -40,7 +30,7 @@ export async function getServerSideProps(
 ): Promise<{ props: gsspProps }> {
   const id = context.query.id as string;
 
-  const user = await prisma.user.findOne({
+  const user = await prisma.user.findUnique({
     where: { id: Number(id) },
     include: { roles: true },
   });
@@ -77,61 +67,6 @@ export async function getServerSideProps(
     },
   };
 }
-
-// TODO: Make some styling changes
-const Modal: React.FC<ModalProps> = ({ children, open }: ModalProps) => {
-  return open ? (
-    <div className="absolute top-0 left-0 w-screen h-screen bg-dark bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white rounded w-3/4 px-10 pt-12 pb-8">{children}</div>
-    </div>
-  ) : null;
-};
-
-const DeleteConfirmation: React.FunctionComponent<DeleteConfirmationProps> = ({
-  user,
-  isDeleting,
-  setIsDeleting,
-  router,
-}) => {
-  async function onDelete(): Promise<void> {
-    const response = await fetch(`/api/admin/users/${user?.id}`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        id: user?.id,
-      } as DeleteUserDTO),
-    });
-    if (!response.ok) {
-      throw await response.json();
-    }
-    setIsDeleting(false);
-    router.push("/admin/users");
-  }
-  return (
-    <Modal open={Boolean(isDeleting)}>
-      <p>Are you sure you want to delete this user?</p>
-      <div className="mb-2 flex">
-        <Button
-          className="button-primary px-10 py-2 mr-5"
-          onClick={() => {
-            onDelete();
-          }}
-        >
-          Delete
-        </Button>
-        <Button
-          className="button-hollow px-10 py-2"
-          onClick={() => {
-            setIsDeleting(false);
-          }}
-        >
-          Cancel
-        </Button>
-      </div>
-    </Modal>
-  );
-};
 
 interface BasicInfoFormValues {
   email: string;
@@ -544,7 +479,6 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
   relatedPlayers,
 }) => {
   const [user, setUser] = useState<IUser>();
-  const [isDeleting, setIsDeleting] = useState(false);
   const [newStatus, setNewStatus] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
@@ -577,6 +511,21 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
       } else {
         setUser((await response.json()).user);
         refreshData();
+        let toastMessage;
+        if (user?.status === UserStatus.Inactive) {
+          toastMessage = "User account activated";
+        } else {
+          toastMessage = "User account deactivated";
+        }
+        toast.success(toastMessage, {
+          duration: 2000,
+          iconTheme: { primary: colors.dark, secondary: colors.button },
+          style: {
+            background: colors.dark,
+            color: colors.button,
+            margin: "50px",
+          },
+        });
       }
     } catch (err) {
       setError(err.message);
@@ -612,8 +561,14 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
             className="w-24 h-24 mr-12 bg-placeholder rounded-full"
           />
           <div>
-            <p className="text-2xl font-semibold">{user?.name}</p>
-
+            <div className="flex flex-row items-center">
+              <p className="text-2xl font-semibold">{user?.name}</p>
+              {user?.status === UserStatus.Inactive && (
+                <text className="px-3 ml-5 rounded-full font-semibold text-unselected bg-button">
+                  {UserStatus.Inactive.toUpperCase()}
+                </text>
+              )}
+            </div>
             <div className="flex flex-row items-center">
               <p className="text-sm font-medium mr-4">
                 {user && UserRoleLabel[user.defaultRole.type]}
@@ -632,7 +587,7 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
             <button
               className="absolute top-24 right-0 mr-20"
               type="button"
-              onClick={() => signOut()}
+              onClick={() => signOut({ callbackUrl: `window.location.origin` })}
             >
               <Icon type="logoutButton" />
             </button>
@@ -678,10 +633,13 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
 
                 <div>
                   <p className="font-semibold text-sm pb-2">User Access</p>
-                  <div className="text-sm pb-3">
-                    {user?.status === UserStatus.Active &&
-                      "Inactive users will no longer be able to access their account but their data will remain intact. This action can be undone at any point."}
-                  </div>
+                  {user?.status === UserStatus.Active && (
+                    <div className="text-sm pb-3">
+                      Inactive users will no longer be able to access their
+                      account but their data will remain intact. This action can
+                      be undone at any point.
+                    </div>
+                  )}
                   <Button
                     className="button-primary mt-7 mb-52 mr-5"
                     onClick={() => {
@@ -690,13 +648,14 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
                   >
                     {statusButtonText}
                   </Button>
-                  <div className="pt-3">
+                  <div className="text-sm pt-3">
                     {user?.name} is currently{" "}
                     <span className="text-blue font-semibold">
-                      {user?.status}
+                      {user?.status.toLowerCase()}
                     </span>
                     .
                   </div>
+                  <Toaster position="bottom-left" />
                   {error && <p className="text-red-600 text-sm">{error}</p>}
                 </div>
               </div>
@@ -705,12 +664,6 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
             []
           )}
         </div>
-        {DeleteConfirmation({
-          user,
-          isDeleting,
-          setIsDeleting,
-          router,
-        })}
       </div>
     </DashboardLayout>
   );
