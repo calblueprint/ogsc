@@ -115,8 +115,8 @@ const ValueHistoryView: React.FC<Props> = ({
 
   const filteredValues = deserializedValues.filter((value) =>
     value != null && startDate && endDate
-      ? dayjs(value.date).isBefore(endDate) &&
-        dayjs(value.date).isAfter(startDate)
+      ? dayjs(value.date).isBefore(endDate, "day") &&
+        dayjs(value.date).isAfter(startDate, "day")
       : true
   );
 

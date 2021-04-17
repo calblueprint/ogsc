@@ -42,8 +42,8 @@ const ValueHistoryTable: React.FC<Props> = ({
           const value = deserializeProfileFieldValue(field);
           if (startDate && endDate && value) {
             if (
-              dayjs(value.date).isAfter(endDate) ||
-              dayjs(value.date).isBefore(startDate)
+              value.date.isAfter(endDate, "day") ||
+              value.date.isBefore(startDate, "day")
             ) {
               return null;
             }

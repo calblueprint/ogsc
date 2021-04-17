@@ -148,10 +148,13 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
           : {
               playerId: userId,
               fields: [
-                serializeProfileFieldValue(
-                  draft as ProfileFieldValueDeserializedTypes[ProfileFieldValues[ProfileFieldKey]],
-                  fieldKey
-                ),
+                {
+                  key: fieldKey,
+                  value: serializeProfileFieldValue(
+                    draft as ProfileFieldValueDeserializedTypes[ProfileFieldValues[ProfileFieldKey]],
+                    fieldKey
+                  ),
+                },
               ],
             }
       );
