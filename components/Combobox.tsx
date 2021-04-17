@@ -8,10 +8,13 @@ import Card from "./Card";
 
 const getInputPlayers = async (
   inputValue: string | undefined,
-  selectedPlayers: IUser[]
+  selectedPlayers: IUser[],
+  onlyWithoutProfiles = false
 ): Promise<IUser[]> => {
   try {
-    const apiLink = `/api/players/search?phrase=${inputValue}&relatedPlayerIds=${null}`;
+    const apiLink = `/api/players/search?phrase=${inputValue}&relatedPlayerIds=${null}${
+      onlyWithoutProfiles ? "&onlyWithoutProfiles=1" : ""
+    }`;
     const response = await fetch(apiLink);
     const data = await response.json();
     return data.users.filter(
@@ -28,6 +31,7 @@ type Props = React.PropsWithChildren<{
   setSelectedPlayers: React.Dispatch<React.SetStateAction<IUser[]>>;
   promptOff?: boolean;
   singleSelect?: boolean;
+  onlyWithoutProfiles?: boolean;
 }>;
 
 const Combobox: React.FC<Props> = ({
@@ -36,6 +40,7 @@ const Combobox: React.FC<Props> = ({
   role,
   promptOff,
   singleSelect,
+  onlyWithoutProfiles,
 }: Props) => {
   const [inputPlayers, setInputPlayers] = useState<IUser[]>([]);
   const [query, setQuery] = useState("");
@@ -54,7 +59,9 @@ const Combobox: React.FC<Props> = ({
     isOpen: focused,
     items: inputPlayers,
     onInputValueChange: debounce(async ({ inputValue }) => {
-      setInputPlayers(await getInputPlayers(inputValue, selectedPlayers));
+      setInputPlayers(
+        await getInputPlayers(inputValue, selectedPlayers, onlyWithoutProfiles)
+      );
     }, 300),
   });
 
@@ -62,14 +69,16 @@ const Combobox: React.FC<Props> = ({
     async function fetchData(): Promise<void> {
       if (focused) {
         input.current?.focus();
-        setInputPlayers(await getInputPlayers(" ", selectedPlayers));
+        setInputPlayers(
+          await getInputPlayers(" ", selectedPlayers, onlyWithoutProfiles)
+        );
       } else {
         input.current?.blur();
         setQuery("");
       }
     }
     fetchData();
-  }, [focused, selectedPlayers]);
+  }, [focused, onlyWithoutProfiles, selectedPlayers]);
 
   useEffect(() => {
     if (selectedItem) {
@@ -118,33 +127,31 @@ const Combobox: React.FC<Props> = ({
 
           <div>
             <div {...getComboboxProps()}>
-              {!singleSelect ||
-                (selectedPlayers.length === 0 && (
-                  <>
-                    <Button
-                      iconType="plus"
-                      className={` ${focused ? "hidden" : ""}`}
-                      onClick={() => setFocused(true)}
-                    >
-                      Add player{!singleSelect ? "s" : ""}
-                    </Button>
-                    <input
-                      placeholder="Search for a player member"
-                      {...getInputProps({
-                        ref: input,
-                        value: query,
-                        onBlur: () => setFocused(false),
-                        onFocus: () => setFocused(true),
-                        onChange: (
-                          event: React.ChangeEvent<HTMLInputElement>
-                        ) => setQuery(event.target.value),
-                      })}
-                      className={`w-full text-base form-input leading-10 border border-border rounded-lg ${
-                        !focused ? "hidden" : ""
-                      }`}
-                    />
-                  </>
-                ))}
+              {(!singleSelect || selectedPlayers.length === 0) && (
+                <>
+                  <Button
+                    iconType="plus"
+                    className={` ${focused ? "hidden" : ""}`}
+                    onClick={() => setFocused(true)}
+                  >
+                    Add player{!singleSelect ? "s" : ""}
+                  </Button>
+                  <input
+                    placeholder="Search for a player member"
+                    {...getInputProps({
+                      ref: input,
+                      value: query,
+                      onBlur: () => setFocused(false),
+                      onFocus: () => setFocused(true),
+                      onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
+                        setQuery(event.target.value),
+                    })}
+                    className={`w-full text-base form-input leading-10 border border-border rounded-lg ${
+                      !focused ? "hidden" : ""
+                    }`}
+                  />
+                </>
+              )}
             </div>
             <ul
               {...getMenuProps()}

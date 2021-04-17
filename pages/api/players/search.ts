@@ -1,4 +1,4 @@
-import { UserRoleType } from "@prisma/client";
+import { Prisma, UserRoleType } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 
 import { IPlayer, IUser } from "interfaces";
@@ -23,8 +23,9 @@ export default async (
     req.query.relatedPlayerIds === "null"
       ? null
       : (req.query.relatedPlayerIds as string).split(",").map(Number);
-  let authenticatedUser: IUser;
+  const onlyWithoutProfiles = req.query.onlyWithoutProfiles !== undefined;
 
+  let authenticatedUser: IUser;
   try {
     authenticatedUser = flattenUserRoles(await getAuthenticatedUser(req));
   } catch (err) {
@@ -32,31 +33,39 @@ export default async (
   }
 
   try {
+    const queryConditions: Prisma.UserWhereInput = {
+      ...(phrase
+        ? {
+            name: {
+              contains: phrase,
+              mode: "insensitive",
+            },
+          }
+        : undefined),
+      ...(relatedPlayers !== null
+        ? {
+            id: {
+              in: relatedPlayers,
+            },
+          }
+        : {}),
+      ...(onlyWithoutProfiles
+        ? {
+            profileFields: {
+              none: {},
+            },
+          }
+        : {}),
+      roles: {
+        some: {
+          type: UserRoleType.Player,
+        },
+      },
+    };
     const user = await prisma.user.findMany({
       skip: USER_PAGE_SIZE * pageNumber,
       take: USER_PAGE_SIZE,
-      where: {
-        ...(phrase
-          ? {
-              name: {
-                contains: phrase,
-                mode: "insensitive",
-              },
-            }
-          : undefined),
-        ...(relatedPlayers !== null
-          ? {
-              id: {
-                in: relatedPlayers,
-              },
-            }
-          : {}),
-        roles: {
-          some: {
-            type: UserRoleType.Player,
-          },
-        },
-      },
+      where: queryConditions,
       include: {
         profileFields: true,
         roles: true,
@@ -64,28 +73,7 @@ export default async (
     });
 
     const userCount = await prisma.user.count({
-      where: {
-        ...(phrase
-          ? {
-              name: {
-                contains: phrase,
-                mode: "insensitive",
-              },
-            }
-          : undefined),
-        ...(relatedPlayers !== null
-          ? {
-              id: {
-                in: relatedPlayers,
-              },
-            }
-          : {}),
-        roles: {
-          some: {
-            type: UserRoleType.Player,
-          },
-        },
-      },
+      where: queryConditions,
     });
 
     if (!user) {

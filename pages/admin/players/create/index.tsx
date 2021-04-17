@@ -140,6 +140,7 @@ const UserSignUpPageOne: React.FC = () => {
                         setSelectedPlayers={setSelectedPlayer}
                         singleSelect
                         promptOff
+                        onlyWithoutProfiles
                       />
                     </div>
                   ) : null}
