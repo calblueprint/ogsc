@@ -1,5 +1,6 @@
 module.exports = {
   dark: "#2C2C2C",
+  "dark-gray": "#798393",
   unselected: "#798393",
   button: "#F5F7FA",
   placeholder: "#E0E4E9",
