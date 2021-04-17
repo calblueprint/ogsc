@@ -32,6 +32,7 @@ type Props = React.PropsWithChildren<{
   promptOff?: boolean;
   singleSelect?: boolean;
   onlyWithoutProfiles?: boolean;
+  callback?: () => void;
 }>;
 
 const Combobox: React.FC<Props> = ({
@@ -41,6 +42,7 @@ const Combobox: React.FC<Props> = ({
   promptOff,
   singleSelect,
   onlyWithoutProfiles,
+  callback,
 }: Props) => {
   const [inputPlayers, setInputPlayers] = useState<IUser[]>([]);
   const [query, setQuery] = useState("");
@@ -59,6 +61,7 @@ const Combobox: React.FC<Props> = ({
     isOpen: focused,
     items: inputPlayers,
     onInputValueChange: debounce(async ({ inputValue }) => {
+      if (callback) callback();
       setInputPlayers(
         await getInputPlayers(inputValue, selectedPlayers, onlyWithoutProfiles)
       );
@@ -90,6 +93,7 @@ const Combobox: React.FC<Props> = ({
   }, [reset, selectedItem, selectedPlayers, setSelectedPlayers]);
 
   const onDelete = (user: IUser): void => {
+    if (callback) callback();
     setSelectedPlayers(
       selectedPlayers.filter(
         (selectedPlayer: IUser) => selectedPlayer.id !== user.id

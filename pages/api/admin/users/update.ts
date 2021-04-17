@@ -47,15 +47,13 @@ const handler = async (
     const userInfo = req.body;
 
     let user;
-
     const roles =
       (userInfo.roles &&
         userInfo.roles.map((role) =>
           JSON.parse((role as unknown) as string)
         )) ||
       undefined;
-
-    if (roles && roles[0].type === "Admin") {
+    if (roles && roles[0]?.type === "Admin") {
       user = await prisma.user.update({
         where: { id: userInfo.id || Number(req.query.id) },
         data: {

@@ -1,9 +1,13 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "components/Button";
 import { DeleteUserDTO } from "pages/api/admin/users/delete";
 import Link from "next/link";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { DefaultRole } from "interfaces/user";
+import { UserStatus } from "@prisma/client";
+import toast, { Toaster } from "react-hot-toast";
+import colors from "constants/colors";
+import Modal from "./Modal";
 
 const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
   name,
@@ -15,6 +19,18 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
   onDelete,
   onAccept,
 }) => {
+  const [isDeleting, setIsDeleting] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  const toasty = () =>
+    toast.success("Account request accepted!", {
+      duration: 2000,
+      iconTheme: { primary: colors.dark, secondary: colors.button },
+      style: {
+        background: colors.dark,
+        color: colors.button,
+        margin: "50px",
+      },
+    });
   const deleteUser = async (): Promise<void> => {
     try {
       const response = await fetch("/api/admin/users/delete", {
@@ -29,6 +45,7 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
         throw await response.json();
       }
       onDelete();
+      setIsDeleting(false);
     } catch (err) {
       throw new Error(err.message);
     }
@@ -39,7 +56,7 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({} as UpdateUserDTO),
+        body: JSON.stringify({ status: UserStatus.Active } as UpdateUserDTO),
       });
       if (!response.ok) {
         throw await response.json();
@@ -52,6 +69,30 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
 
   return (
     <div>
+      <Modal className="mb-2" open={Boolean(isDeleting)}>
+        <h1 className="font-semibold">Decline account request?</h1>
+        <p className="mb-6">
+          Are you sure you want to decline {name}&apos;s account request?
+        </p>
+        <div className="mb-2 flex">
+          <Button
+            className="button-primary px-10 py-2 mr-5"
+            onClick={() => {
+              deleteUser();
+            }}
+          >
+            Delete
+          </Button>
+          <Button
+            className="button-hollow px-10 py-2"
+            onClick={() => {
+              setIsDeleting(false);
+            }}
+          >
+            Cancel
+          </Button>
+        </div>
+      </Modal>
       <hr className="border-unselected border-opacity-50" />
       <div className="hover:bg-placeholder grid grid-cols-3">
         <div className="col-span-2">
@@ -78,8 +119,9 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
         <div className="flex space-x-8 self-center ml-12">
           <div>
             <Button
-              className="bg-danger-muted hover:bg-danger-muted text-danger font-bold py-2 px-8 rounded-md"
-              onClick={deleteUser}
+              className="bg-danger-muted hover:bg-danger-muted text-danger font-bold py-2 px-8 rounded"
+              data-toggle="modal"
+              onClick={() => setIsDeleting(true)}
             >
               Decline
             </Button>
@@ -87,10 +129,14 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
           <div className="ml-6">
             <Button
               className="bg-success-muted hover:bg-success-muted text-success font-bold py-2 px-8 rounded-md"
-              onClick={acceptUser}
+              onClick={() => {
+                acceptUser();
+                toasty();
+              }}
             >
               Accept
             </Button>
+            <Toaster position="bottom-left" reverseOrder={false} />
           </div>
         </div>
       </div>
@@ -104,6 +150,7 @@ interface UserRequest {
   defaultRole: DefaultRole;
   image: string | null;
   id: number;
+  isDeleting: boolean;
   onDelete: () => void;
   onAccept: () => void;
 }
@@ -143,6 +190,7 @@ const UserDashboard: React.FunctionComponent = () => {
           image={user.image}
           defaultRole={user.defaultRole}
           id={user.id}
+          isDeleting={user.isDeleting}
           onDelete={getUsers}
           onAccept={getUsers}
         />

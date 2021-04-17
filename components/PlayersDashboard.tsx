@@ -40,14 +40,14 @@ const PlayerDashboardItem: React.FunctionComponent<
           <p className="self-center font-normal">
             {deserializeProfileFieldValue(profile?.YearOfBirth?.current)}
           </p>
-          <div className="flex flex-row">
+          <div className="flex flex-row relative">
             {(UserRoleLabel[session.sessionType] === "Donor" ||
               UserRoleLabel[session.sessionType] === "Mentor" ||
               UserRoleLabel[session.sessionType] === "Parent") &&
             relatedPlayerIds.includes(id) ? (
               <div className="h-12 w-12 self-center">
                 <div
-                  className="h-12 w-12 absolute"
+                  className="h-12 w-12 absolute right-0 top-0 pr-32"
                   onMouseEnter={() => {
                     setShowHoverPlayer(true);
                   }}
@@ -56,10 +56,16 @@ const PlayerDashboardItem: React.FunctionComponent<
                   }}
                 >
                   {showHoverPlayer && (
-                    <Icon type="yourPlayer" className="absolute -ml-6 -mt-10" />
+                    <Icon
+                      type="yourPlayer"
+                      className="absolute right-0 top-0 mr-16 -mt-10"
+                    />
                   )}
                 </div>
-                <Icon type="goldStar" className="ml-5 mt-4 w-4 h-4" />
+                <Icon
+                  type="goldStar"
+                  className="absolute right-0 top-0 mr-24 mt-4 w-4 h-4"
+                />
               </div>
             ) : (
               []

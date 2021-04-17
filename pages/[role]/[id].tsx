@@ -1,4 +1,4 @@
-import { NextRouter, useRouter } from "next/router";
+import { useRouter } from "next/router";
 import DashboardLayout from "components/DashboardLayout";
 import React, { useState, useEffect } from "react";
 import Icon from "components/Icon";
@@ -9,7 +9,6 @@ import Joi from "lib/validate";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { useForm } from "react-hook-form";
-import { DeleteUserDTO } from "pages/api/admin/users/delete";
 import Link from "next/link";
 import { NextPageContext } from "next";
 import { User, UserRoleType, UserStatus } from "@prisma/client";
@@ -22,17 +21,6 @@ import { signOut } from "next-auth/client";
 import sanitizeUser from "utils/sanitizeUser";
 import flattenUserRoles from "utils/flattenUserRoles";
 import colors from "../../constants/colors";
-
-interface DeleteConfirmationProps {
-  user?: IUser;
-  isDeleting: boolean;
-  setIsDeleting: React.Dispatch<React.SetStateAction<boolean>>;
-  router: NextRouter;
-}
-
-type ModalProps = React.PropsWithChildren<{
-  open?: boolean;
-}>;
 
 type gsspProps = {
   user?: IUser;
@@ -84,61 +72,6 @@ export async function getServerSideProps(
     },
   };
 }
-
-// TODO: Make some styling changes
-const Modal: React.FC<ModalProps> = ({ children, open }: ModalProps) => {
-  return open ? (
-    <div className="absolute top-0 left-0 w-screen h-screen bg-dark bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white rounded w-3/4 px-10 pt-12 pb-8">{children}</div>
-    </div>
-  ) : null;
-};
-
-const DeleteConfirmation: React.FunctionComponent<DeleteConfirmationProps> = ({
-  user,
-  isDeleting,
-  setIsDeleting,
-  router,
-}) => {
-  async function onDelete(): Promise<void> {
-    const response = await fetch(`/api/admin/users/${user?.id}`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        id: user?.id,
-      } as DeleteUserDTO),
-    });
-    if (!response.ok) {
-      throw await response.json();
-    }
-    setIsDeleting(false);
-    router.push("/admin/users");
-  }
-  return (
-    <Modal open={Boolean(isDeleting)}>
-      <p>Are you sure you want to delete this user?</p>
-      <div className="mb-2 flex">
-        <Button
-          className="button-primary px-10 py-2 mr-5"
-          onClick={() => {
-            onDelete();
-          }}
-        >
-          Delete
-        </Button>
-        <Button
-          className="button-hollow px-10 py-2"
-          onClick={() => {
-            setIsDeleting(false);
-          }}
-        >
-          Cancel
-        </Button>
-      </div>
-    </Modal>
-  );
-};
 
 interface BasicInfoFormValues {
   email: string;
@@ -551,7 +484,6 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
   relatedPlayers,
 }) => {
   const [user, setUser] = useState<IUser>();
-  const [isDeleting, setIsDeleting] = useState(false);
   const [newStatus, setNewStatus] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
@@ -660,7 +592,7 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
             <button
               className="absolute top-24 right-0 mr-20"
               type="button"
-              onClick={() => signOut()}
+              onClick={() => signOut({ callbackUrl: `window.location.origin` })}
             >
               <Icon type="logoutButton" />
             </button>
@@ -737,12 +669,6 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
             []
           )}
         </div>
-        {DeleteConfirmation({
-          user,
-          isDeleting,
-          setIsDeleting,
-          router,
-        })}
       </div>
     </DashboardLayout>
   );
