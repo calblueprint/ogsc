@@ -45,19 +45,15 @@ const handler = async (
 ): Promise<void> => {
   try {
     const userInfo = req.body;
-    console.log(userInfo);
 
     let user;
-    console.log("got here");
     const roles =
       (userInfo.roles &&
         userInfo.roles.map((role) =>
           JSON.parse((role as unknown) as string)
         )) ||
       undefined;
-    console.log("reached here");
     if (roles && roles[0]?.type === "Admin") {
-      console.log("admin");
       user = await prisma.user.update({
         where: { id: userInfo.id || Number(req.query.id) },
         data: {
@@ -85,7 +81,6 @@ const handler = async (
         },
       });
     } else if (roles && roles[0].type === "Player") {
-      console.log("player");
       user = await prisma.user.update({
         where: { id: userInfo.id || Number(req.query.id) },
         data: {
@@ -113,7 +108,6 @@ const handler = async (
         },
       });
     } else {
-      console.log("else");
       user = await prisma.user.update({
         where: { id: userInfo.id || Number(req.query.id) },
         data: {

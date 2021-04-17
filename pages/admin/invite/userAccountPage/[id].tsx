@@ -13,6 +13,7 @@ import { joiResolver } from "@hookform/resolvers/joi";
 import { useForm } from "react-hook-form";
 import Icon from "components/Icon";
 import toast, { Toaster } from "react-hot-toast";
+import Modal from "components/Modal";
 
 interface AdminEditUserFormValues {
   firstName: string;
@@ -29,17 +30,6 @@ interface EditUserProps {
   setUser: (user: IUser) => void;
 }
 
-type ModalProps = React.PropsWithChildren<{
-  open?: boolean;
-}>;
-
-const Modal: React.FC<ModalProps> = ({ children, open }: ModalProps) => {
-  return open ? (
-    <div className="absolute top-0 left-0 w-screen h-screen bg-dark bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white rounded w-3/4 px-10 pt-12 pb-8">{children}</div>
-    </div>
-  ) : null;
-};
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const toasty = () => toast.success("Account request accepted!");
 
@@ -113,7 +103,10 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
   }
 
   return (
-    <Modal open={Boolean(isEditing)}>
+    <Modal
+      className=" bg-white rounded w-3/4 px-10 pt-12 pb-8"
+      open={Boolean(isEditing)}
+    >
       <div className="mx-16 mt-24">
         <h1 className="text-3xl font-display font-medium mb-2">
           Basic Information
@@ -265,6 +258,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
 const UserAccountPage: React.FunctionComponent<UserRequest> = () => {
   const router = useRouter();
   const [selectedPlayers, setSelectedPlayers] = useState<User[]>([]);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [user, setUser] = useState<IUser>();
   const id = Number(router.query.id);
@@ -330,6 +324,31 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = () => {
   return (
     <DashboardLayout>
       <div className="flex-col mx-16 mt-14">
+        <Modal className="mb-2" open={Boolean(isDeleting)}>
+          <h1 className="font-semibold">Decline account request?</h1>
+          <p className="mb-6">
+            Are you sure you want to decline {user?.name}&apos;s account
+            request?
+          </p>
+          <div className="mb-2 flex">
+            <Button
+              className="button-primary px-10 py-2 mr-5"
+              onClick={() => {
+                deleteUser();
+              }}
+            >
+              Delete
+            </Button>
+            <Button
+              className="button-hollow px-10 py-2"
+              onClick={() => {
+                setIsDeleting(false);
+              }}
+            >
+              Cancel
+            </Button>
+          </div>
+        </Modal>
         <div className="mt-5 mb-10">
           <Button
             iconType="back"
@@ -388,7 +407,7 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = () => {
           <div>
             <Button
               className="bg-danger-muted hover:bg-danger-muted text-danger font-bold py-2 px-8 rounded"
-              onClick={deleteUser}
+              onClick={() => setIsDeleting(true)}
             >
               Decline
             </Button>

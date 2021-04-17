@@ -4,10 +4,7 @@ import { DeleteUserDTO } from "pages/api/admin/users/delete";
 import Link from "next/link";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { DefaultRole } from "interfaces/user";
-// import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
-// import Modal from "components/Modal";
-// import { useRouter } from "next/router";
-import { UserStatus } from "interfaces";
+import { UserStatus } from "@prisma/client";
 import toast, { Toaster } from "react-hot-toast";
 import Modal from "./Modal";
 
@@ -59,27 +56,13 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
       throw new Error(err.message);
     }
   };
-  // type Props = React.PropsWithChildren<{
-  //   open?: boolean;
-  //   className: string;
-  // }>;
-  // const declineModal = async (): Promise<Modal> => {
-  //   return (
-  //     <div className="fixed pin top-0 left-0 w-full h-full overscroll-auto bg-dark bg-opacity-50 flex justify-center items-center">
-  //       <div>
-  //         {/* {children} */}
-  //         this is a modal
-  //       </div>
-  //     </div>
-  //   );
-  // };
 
   return (
     <div>
       <Modal className="mb-2" open={Boolean(isDeleting)}>
         <h1 className="font-semibold">Decline account request?</h1>
         <p className="mb-6">
-          Are you sure you want to decline {name}s account request?
+          Are you sure you want to decline {name}&apos;s account request?
         </p>
         <div className="mb-2 flex">
           <Button
@@ -110,10 +93,7 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
                   <img src={image || "/placeholder-profile.png"} alt="" />
                 </div>
                 <div className="w-40">
-                  <p className="font-semibold">
-                    {name}
-                    {id}
-                  </p>
+                  <p className="font-semibold">{name}</p>
                   <p>{defaultRole.type}</p>
                 </div>
               </div>
@@ -192,20 +172,19 @@ const UserDashboard: React.FunctionComponent = () => {
         <p>Phone</p>
       </div>
       <img src="" alt="" />
-      {users !== [] &&
-        users?.map((user) => (
-          <UserRequestDashboardItem
-            name={user.name}
-            email={user.email}
-            phoneNumber={user.phoneNumber}
-            image={user.image}
-            defaultRole={user.defaultRole}
-            id={user.id}
-            isDeleting={user.isDeleting}
-            onDelete={getUsers}
-            onAccept={getUsers}
-          />
-        ))}
+      {users?.map((user) => (
+        <UserRequestDashboardItem
+          name={user.name}
+          email={user.email}
+          phoneNumber={user.phoneNumber}
+          image={user.image}
+          defaultRole={user.defaultRole}
+          id={user.id}
+          isDeleting={user.isDeleting}
+          onDelete={getUsers}
+          onAccept={getUsers}
+        />
+      ))}
     </div>
   );
 };
