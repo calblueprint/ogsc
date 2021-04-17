@@ -17,7 +17,7 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({
   children,
 }: SidebarLinkProps) => {
   const router = useRouter();
-  const highlighted = router.asPath.startsWith(href);
+  const highlighted = router.asPath === href;
 
   return (
     <>
@@ -59,7 +59,6 @@ const SidebarByRole = (
       return (
         <>
           <SidebarLink href="/mentor/players">Players</SidebarLink>
-          <SidebarLink href="/mentor/users">Members</SidebarLink>
           {/* <SidebarLink href="/mentor/calendar">Calendar</SidebarLink> */}
           {/* <SidebarLink href="/mentor/notes">Notes</SidebarLink> */}
         </>
@@ -68,7 +67,6 @@ const SidebarByRole = (
       return (
         <>
           <SidebarLink href="/parent/players">Players</SidebarLink>
-          <SidebarLink href="/parent/users">Members</SidebarLink>
         </>
       );
     case "Player":
@@ -87,7 +85,6 @@ const SidebarByRole = (
       return (
         <>
           <SidebarLink href="/donor/players">Players</SidebarLink>
-          <SidebarLink href="/donor/users">Members</SidebarLink>
           {/* <SidebarLink href="/donor/calendar">Calendar</SidebarLink> */}
           {/* <SidebarLink href="/donor/notes">Notes</SidebarLink> */}
         </>

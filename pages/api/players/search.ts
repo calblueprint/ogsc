@@ -1,4 +1,4 @@
-import { UserRoleType } from "@prisma/client";
+import { UserRoleType, UserStatus } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 
 import { IPlayer, IUser } from "interfaces";
@@ -51,6 +51,7 @@ export default async (
               },
             }
           : {}),
+        status: UserStatus.Active,
         roles: {
           some: {
             type: UserRoleType.Player,
@@ -80,6 +81,7 @@ export default async (
               },
             }
           : {}),
+        status: UserStatus.Active,
         roles: {
           some: {
             type: UserRoleType.Player,

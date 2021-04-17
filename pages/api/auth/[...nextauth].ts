@@ -27,6 +27,9 @@ const options = {
         if (!user) {
           return Promise.reject(new Error("No account exists"));
         }
+        if (user.status === "PendingAdminApproval") {
+          throw new Error("Your account must be approved by an Admin first");
+        }
         // Verify that their password matches
         if (user.hashedPassword === hashPassword(credentials.password)) {
           return Promise.resolve(sanitizeUser(user));
