@@ -32,28 +32,30 @@ const AbsenceTable: React.FC<Props> = ({ absenceType, absences }: Props) => {
           </tr>
         </thead>
         <tbody>
-          {filteredAbsences.map((absence: Absence) => (
-            <tr key={absence.id} className="h-16 tr-border">
-              <td className="w-3/12 pl-5">
-                {dayjs(absence.date).format("MMM YYYY")}
-              </td>
-              <td className="w-3/12">
-                <span
-                  className={`font-medium bg-${
-                    AbsencePillColors[absence.reason]
-                  }-muted text-${
-                    AbsencePillColors[absence.reason]
-                  } px-5 py-3 rounded-full`}
-                >
-                  {absence.reason}
-                </span>
-              </td>
-              <td>{absence.description}</td>
-              <td className="w-1/12">
-                <EditMore absenceId={absence.id} />
-              </td>
-            </tr>
-          ))}
+          {filteredAbsences
+            .sort((a, b) => +b.date - +a.date)
+            .map((absence: Absence) => (
+              <tr key={absence.id} className="h-16 tr-border">
+                <td className="w-3/12 pl-5">
+                  {dayjs(absence.date).format("MMM DD, YYYY")}
+                </td>
+                <td className="w-3/12">
+                  <span
+                    className={`font-medium bg-${
+                      AbsencePillColors[absence.reason]
+                    }-muted text-${
+                      AbsencePillColors[absence.reason]
+                    } px-5 py-3 rounded-full`}
+                  >
+                    {absence.reason}
+                  </span>
+                </td>
+                <td>{absence.description}</td>
+                <td className="w-1/12">
+                  <EditMore absenceId={absence.id} />
+                </td>
+              </tr>
+            ))}
         </tbody>
       </table>
       <div className="flex items-center justify-between w-64 pl-5">

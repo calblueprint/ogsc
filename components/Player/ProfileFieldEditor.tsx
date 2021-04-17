@@ -191,7 +191,6 @@ const AbsenceEditor: React.FC<AbsenceEditorProps> = ({
       </select>
       <p className="text-sm font-semibold mb-2 mt-8">Month/Year</p>
       <DateTimeEditor
-        hideDay
         onChange={(date: Dayjs) => onChange({ date: date.toDate() })}
         value={absence?.date}
       />
@@ -338,10 +337,7 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
           <p className="text-sm font-semibold mb-3 mt-10">
             {labelProfileField(profileKey)} Value
           </p>
-          <input
-            type="text"
-            className="input text-sm w-16 font-light"
-            value={value?.value}
+          <NumberEditor
             onChange={(event) => {
               dispatch({
                 type: "EDIT_FIELD",
@@ -354,6 +350,10 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
                 id: profileFieldId,
               });
             }}
+            // Floats can't be controlled, because intermediate states will not have decimal point
+            {...(valueType === ProfileFieldValue.IntegerWithComment
+              ? { value: value?.value }
+              : { defaultValue: value?.value })}
           />
           <p className="text-sm font-semibold mb-3 mt-10">Month/Year</p>
           <DateTimeEditor

@@ -42,7 +42,7 @@ const DeleteField: React.FC<Props> = ({ field, onComplete }: Props) => {
     <div>
       <p>
         Are you sure you want to delete this {labelProfileField(field)} entry
-        for {dayjs(date).format("MM/DD/YYYY")} ?
+        for {dayjs(date).format("MMMM YYYY")}?
       </p>
       <div className="flex flex-row gap-6 mt-10">
         <Button className="py-2 px-16 text-sm" onClick={onDelete}>

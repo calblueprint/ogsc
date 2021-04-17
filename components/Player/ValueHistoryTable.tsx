@@ -32,30 +32,36 @@ const ValueHistoryTable: React.FC<Props> = ({
       </tr>
     </thead>
     <tbody>
-      {values.map((field) => {
-        const value = deserializeProfileFieldValue(field);
-        if (startDate && endDate && value) {
-          if (
-            dayjs(value.date).isAfter(endDate) ||
-            dayjs(value.date).isBefore(startDate)
-          ) {
-            return null;
+      {values
+        .sort((a, b) => {
+          const aValue = deserializeProfileFieldValue(a);
+          const bValue = deserializeProfileFieldValue(b);
+          return (bValue?.date.unix() ?? 0) - (aValue?.date.unix() ?? 0);
+        })
+        .map((field) => {
+          const value = deserializeProfileFieldValue(field);
+          if (startDate && endDate && value) {
+            if (
+              dayjs(value.date).isAfter(endDate) ||
+              dayjs(value.date).isBefore(startDate)
+            ) {
+              return null;
+            }
           }
-        }
 
-        return (
-          <tr key={field.id} className="h-16 tr-border">
-            <td className="w-3/12 px-5">
-              {dayjs(value?.date).format("MMM YYYY")}
-            </td>
-            <td className="w-2/12">{value?.value}</td>
-            <td>{value?.comment}</td>
-            <td className="w-1/12">
-              <EditMore fieldKey={field.key} fieldId={field.id} />
-            </td>
-          </tr>
-        );
-      })}
+          return (
+            <tr key={field.id} className="h-16 tr-border">
+              <td className="w-3/12 px-5">
+                {dayjs(value?.date).format("MMM YYYY")}
+              </td>
+              <td className="w-2/12">{value?.value}</td>
+              <td>{value?.comment}</td>
+              <td className="w-1/12">
+                <EditMore fieldKey={field.key} fieldId={field.id} />
+              </td>
+            </tr>
+          );
+        })}
     </tbody>
   </table>
 );
