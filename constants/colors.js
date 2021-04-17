@@ -1,11 +1,13 @@
 module.exports = {
   dark: "#2C2C2C",
   "dark-gray": "#798393",
+  "medium-gray": "#B5BDCA",
   unselected: "#798393",
   button: "#F5F7FA",
   placeholder: "#E0E4E9",
   border: "#A9AFB8",
   hover: "#F7F9FB",
+  shadow: "#061640",
 
   // All colors in palette are required to have a matching -muted counterpart in mutedPalette.
   palette: {

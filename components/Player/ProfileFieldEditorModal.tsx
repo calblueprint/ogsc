@@ -23,28 +23,16 @@ type Props = (CreateProps | UpdateProps) & {
   trigger?: React.ReactElement;
 };
 
-const ProfileFieldEditorModal: React.FC<Props> = ({
-  onComplete,
-  trigger,
-  ...props
-}: Props) => {
+export const StandaloneProfileFieldEditor: React.FC<
+  CreateProps | UpdateProps
+> = ({ onComplete, ...props }: CreateProps | UpdateProps) => {
   const { createField, updateField, state } = useContext(ProfileContext);
-  const [modalOpen, setModalOpen] = useState(false);
   const [error, setError] = useState("");
-
-  const wrappedOnComplete = useCallback(
-    (updated?: IProfileField | Absence): void => {
-      onComplete?.(updated);
-      setModalOpen(false);
-    },
-    [onComplete]
-  );
-
   const createOrUpdateField = useCallback(async () => {
     if ("field" in props) {
       try {
         await updateField(props.field);
-        wrappedOnComplete();
+        onComplete?.();
       } catch (err) {
         setError(err.message);
       }
@@ -61,13 +49,64 @@ const ProfileFieldEditorModal: React.FC<Props> = ({
           return;
         }
         await createField(props.fieldKey, draft, state.player.id);
-        wrappedOnComplete();
+        onComplete?.();
       } catch (err) {
         setError(err.message);
       }
     }
-  }, [wrappedOnComplete, createField, updateField, state.player, props]);
+  }, [onComplete, createField, updateField, state.player, props]);
 
+  const intentLabel =
+    "field" in props
+      ? `Edit ${labelProfileField(props.field)}`
+      : `Add ${labelProfileField(props.fieldKey)}`;
+
+  return (
+    <fieldset>
+      <div className="rounded-lg">
+        <div>
+          <p className="text-2xl font-semibold mb-3">{intentLabel}</p>
+          <hr className="pb-4" />
+          {"field" in props ? (
+            <ProfileFieldEditor profileField={props.field} updateExisting />
+          ) : (
+            <ProfileFieldEditor profileField={props.fieldKey} />
+          )}
+        </div>
+        <div className="flex flex-row gap-6 mt-10">
+          <Button
+            iconType="plus"
+            className="py-2 px-5 text-sm"
+            onClick={createOrUpdateField}
+          >
+            Save
+          </Button>
+          <Button
+            className="border border-blue bg-white py-2 px-12 text-sm border-opacity-100"
+            onClick={() => onComplete?.()}
+          >
+            Cancel
+          </Button>
+        </div>
+        {error && <p className="text-red-600 text-sm">{error}</p>}
+      </div>
+    </fieldset>
+  );
+};
+
+const ProfileFieldEditorModal: React.FC<Props> = ({
+  onComplete,
+  trigger,
+  ...props
+}: Props) => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const wrappedOnComplete = useCallback(
+    (updated?: IProfileField | Absence): void => {
+      onComplete?.(updated);
+      setModalOpen(false);
+    },
+    [onComplete]
+  );
   const intentLabel =
     "field" in props
       ? `Edit ${labelProfileField(props.field)}`
@@ -77,8 +116,9 @@ const ProfileFieldEditorModal: React.FC<Props> = ({
     <>
       {trigger ? (
         React.cloneElement(trigger, {
-          onClick: () => {
-            trigger.props?.onClick?.();
+          ...props,
+          onClick: (...args: unknown[]) => {
+            trigger.props?.onClick?.(...args);
             setModalOpen(true);
           },
         })
@@ -87,36 +127,11 @@ const ProfileFieldEditorModal: React.FC<Props> = ({
           {intentLabel}
         </Button>
       )}
-      <Modal open={modalOpen}>
-        <fieldset>
-          <div className="rounded-lg">
-            <div>
-              <p className="text-2xl font-semibold mb-3">{intentLabel}</p>
-              <hr className="pb-4" />
-              {"field" in props ? (
-                <ProfileFieldEditor profileField={props.field} updateExisting />
-              ) : (
-                <ProfileFieldEditor profileField={props.fieldKey} />
-              )}
-            </div>
-            <div className="flex flex-row gap-6 mt-10">
-              <Button
-                iconType="plus"
-                className="py-2 px-5 text-sm"
-                onClick={createOrUpdateField}
-              >
-                Save
-              </Button>
-              <Button
-                className="border border-blue bg-white py-2 px-12 text-sm border-opacity-100"
-                onClick={() => wrappedOnComplete()}
-              >
-                Cancel
-              </Button>
-            </div>
-            {error && <p className="text-red-600 text-sm">{error}</p>}
-          </div>
-        </fieldset>
+      <Modal open={modalOpen} className="w-1/2">
+        <StandaloneProfileFieldEditor
+          onComplete={wrappedOnComplete}
+          {...props}
+        />
       </Modal>
     </>
   );

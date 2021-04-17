@@ -1,22 +1,17 @@
-import React, { useState } from "react";
+import React from "react";
+import { Popover } from "@headlessui/react";
 
 type Props = React.PropsWithChildren<{
   trigger: React.ReactElement;
 }>;
 
-const Popover: React.FC<Props> = ({ children, trigger }: Props) => {
-  const [open, setOpen] = useState(false);
+const WrappedPopover: React.FC<Props> = ({ children, trigger }: Props) => {
   return (
-    <>
-      {React.cloneElement(trigger, {
-        onClick: () => {
-          trigger.props?.onClick?.();
-          setOpen((prevOpen) => !prevOpen);
-        },
-      })}
-      {open && <div className="absolute">{children}</div>}
-    </>
+    <Popover className="relative">
+      <Popover.Button className="focus:outline-none">{trigger}</Popover.Button>
+      <Popover.Panel className="absolute z-10">{children}</Popover.Panel>
+    </Popover>
   );
 };
 
-export default Popover;
+export default WrappedPopover;
