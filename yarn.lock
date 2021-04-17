@@ -4122,6 +4122,11 @@ globby@^11.0.1:
     merge2 "^1.3.0"
     slash "^3.0.0"
 
+goober@^2.0.15:
+  version "2.0.36"
+  resolved "https://registry.yarnpkg.com/goober/-/goober-2.0.36.tgz#460186364f81983e1f7ea6abc95c661fc0dbd37c"
+  integrity sha512-Hute+CvX7s1L4pSAaMOmRTwbBU7Rhv6q3RwkxwQcwhcA1o/EzaqLNhbBBXDNeOjtU8i75fUOQDnW46SjbSHaOg==
+
 google-libphonenumber@3.2.13:
   version "3.2.13"
   resolved "https://registry.yarnpkg.com/google-libphonenumber/-/google-libphonenumber-3.2.13.tgz#8f41f2ce1739d40e2b9ebccc75dca95474cdf0b5"
@@ -6406,6 +6411,13 @@ react-hook-form@^6.9.6:
   version "6.9.6"
   resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-6.9.6.tgz#bbcdfa34a660edcdd160cba2d501583b0e3d60a9"
   integrity sha512-TyLqWHgFS1WLELDuUBvMWLHEzmR7aS7xOY+eOxMtS1w4jFhqF1xmHnMhJsbiFPSgC+OeTJ1Pc0U4K0y6cA7ERA==
+
+react-hot-toast@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/react-hot-toast/-/react-hot-toast-1.0.2.tgz#162f020ba7c0b20f2f25bb7738458c435e84107c"
+  integrity sha512-wp89H0WA6EtiexAg5l3ys+WaZ3u0xM/FJWxl6YxR3hlquWhKvO9snBgTe4ATPEcgbS6pbc43RbuBINOkYOzA5A==
+  dependencies:
+    goober "^2.0.15"
 
 react-is@16.13.1, react-is@^16.13.1, react-is@^16.7.0, react-is@^16.8.1:
   version "16.13.1"

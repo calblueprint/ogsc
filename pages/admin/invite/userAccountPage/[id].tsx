@@ -12,6 +12,7 @@ import Joi from "joi";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { useForm } from "react-hook-form";
 import Icon from "components/Icon";
+import toast, { Toaster } from "react-hot-toast";
 
 interface AdminEditUserFormValues {
   firstName: string;
@@ -39,6 +40,8 @@ const Modal: React.FC<ModalProps> = ({ children, open }: ModalProps) => {
     </div>
   ) : null;
 };
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+const toasty = () => toast.success("Account request accepted!");
 
 const AdminEditUserFormSchema = Joi.object<AdminEditUserFormValues>({
   firstName: Joi.string().trim().required(),
@@ -62,6 +65,10 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [currRole, setCurrRole] = useState<UserRoleType>();
+  const router = useRouter();
+  const refreshData = (): void => {
+    router.replace(router.asPath);
+  };
   const { errors, register, handleSubmit } = useForm<AdminEditUserFormValues>({
     resolver: joiResolver(AdminEditUserFormSchema),
   });
@@ -84,12 +91,14 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(({
+          id: user?.id,
           email: values.email,
           name: `${values.firstName} ${values.lastName}`,
           phoneNumber: values.phoneNumber,
           roles: [values.role as UserRoleType],
         } as unknown) as UpdateUserDTO),
       });
+      // eslint-disable-next-line no-console
       if (!response.ok) {
         throw await response.json();
       } else {
@@ -239,6 +248,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
                 className="button-hollow px-10 py-2"
                 onClick={() => {
                   setIsEditing(false);
+                  refreshData();
                 }}
               >
                 Cancel
@@ -387,10 +397,14 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = () => {
             <div>
               <Button
                 className="bg-success-muted hover:bg-success-muted text-success font-bold py-2 px-8 rounded"
-                onClick={acceptUser}
+                onClick={() => {
+                  acceptUser();
+                  toasty();
+                }}
               >
                 Accept
               </Button>
+              <Toaster position="bottom-left" reverseOrder={false} />
             </div>
           </div>
         </div>

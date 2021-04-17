@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "components/Button";
 import { DeleteUserDTO } from "pages/api/admin/users/delete";
 import Link from "next/link";
@@ -8,6 +8,8 @@ import { DefaultRole } from "interfaces/user";
 // import Modal from "components/Modal";
 // import { useRouter } from "next/router";
 import { UserStatus } from "interfaces";
+import toast, { Toaster } from "react-hot-toast";
+import Modal from "./Modal";
 
 const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
   name,
@@ -18,9 +20,10 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
   defaultRole,
   onDelete,
   onAccept,
-  // isDeleting,
 }) => {
-  // const router = useRouter();
+  const [isDeleting, setIsDeleting] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  const toasty = () => toast.success("Account request accepted!");
   const deleteUser = async (): Promise<void> => {
     try {
       const response = await fetch("/api/admin/users/delete", {
@@ -35,6 +38,7 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
         throw await response.json();
       }
       onDelete();
+      setIsDeleting(false);
     } catch (err) {
       throw new Error(err.message);
     }
@@ -72,6 +76,30 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
 
   return (
     <div>
+      <Modal className="mb-2" open={Boolean(isDeleting)}>
+        <h1 className="font-semibold">Decline account request?</h1>
+        <p className="mb-6">
+          Are you sure you want to decline {name}s account request?
+        </p>
+        <div className="mb-2 flex">
+          <Button
+            className="button-primary px-10 py-2 mr-5"
+            onClick={() => {
+              deleteUser();
+            }}
+          >
+            Delete
+          </Button>
+          <Button
+            className="button-hollow px-10 py-2"
+            onClick={() => {
+              setIsDeleting(false);
+            }}
+          >
+            Cancel
+          </Button>
+        </div>
+      </Modal>
       <hr className="border-unselected border-opacity-50" />
       <div className="hover:bg-placeholder grid grid-cols-3">
         <div className="col-span-2">
@@ -101,8 +129,9 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
         <div className="flex space-x-8 self-center ml-12">
           <div>
             <Button
-              className="bg-danger-muted hover:bg-danger-muted text-danger font-bold py-2 px-8 rounded-md"
-              onClick={deleteUser}
+              className="bg-danger-muted hover:bg-danger-muted text-danger font-bold py-2 px-8 rounded"
+              data-toggle="modal"
+              onClick={() => setIsDeleting(true)}
             >
               Decline
             </Button>
@@ -110,10 +139,14 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
           <div className="ml-6">
             <Button
               className="bg-success-muted hover:bg-success-muted text-success font-bold py-2 px-8 rounded-md"
-              onClick={acceptUser}
+              onClick={() => {
+                acceptUser();
+                toasty();
+              }}
             >
               Accept
             </Button>
+            <Toaster position="bottom-left" reverseOrder={false} />
           </div>
         </div>
       </div>
