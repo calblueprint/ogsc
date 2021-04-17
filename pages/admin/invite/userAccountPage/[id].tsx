@@ -14,6 +14,8 @@ import { useForm } from "react-hook-form";
 import Icon from "components/Icon";
 import toast, { Toaster } from "react-hot-toast";
 import Modal from "components/Modal";
+import { ViewingPermissionDTO } from "pages/api/admin/roles/create";
+import colors from "../../../../constants/colors";
 
 interface AdminEditUserFormValues {
   firstName: string;
@@ -31,7 +33,16 @@ interface EditUserProps {
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-const toasty = () => toast.success("Account request accepted!");
+const toasty = () =>
+  toast.success("Account request accepted!", {
+    duration: 2000,
+    iconTheme: { primary: colors.dark, secondary: colors.button },
+    style: {
+      background: colors.dark,
+      color: colors.button,
+      margin: "50px",
+    },
+  });
 
 const AdminEditUserFormSchema = Joi.object<AdminEditUserFormValues>({
   firstName: Joi.string().trim().required(),
@@ -72,7 +83,7 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
     event?: React.BaseSyntheticEvent
   ): Promise<void> {
     event?.preventDefault();
-    if (submitting) {
+    if (values && submitting) {
       return;
     }
     try {
@@ -85,7 +96,12 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
           email: values.email,
           name: `${values.firstName} ${values.lastName}`,
           phoneNumber: values.phoneNumber,
-          roles: [values.role as UserRoleType],
+          roles: [
+            (JSON.stringify({
+              type: values.role,
+              userId: user?.id,
+            }) as unknown) as ViewingPermissionDTO,
+          ],
         } as unknown) as UpdateUserDTO),
       });
       // eslint-disable-next-line no-console
@@ -304,6 +320,22 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = () => {
   };
 
   const acceptUser = async (): Promise<void> => {
+    const linkedPlayers: ViewingPermissionDTO[] = [];
+    selectedPlayers.forEach((role) => {
+      const body = (JSON.stringify({
+        type: user?.defaultRole.type,
+        userId: user?.id,
+        relatedPlayerId: role.id,
+      }) as unknown) as ViewingPermissionDTO;
+      linkedPlayers.push(body);
+    });
+    if (linkedPlayers.length === 0) {
+      const body = (JSON.stringify({
+        type: user?.defaultRole.type,
+        userId: user?.id,
+      }) as unknown) as ViewingPermissionDTO;
+      linkedPlayers.push(body);
+    }
     try {
       const response = await fetch(`/api/admin/users/${id}`, {
         method: "PATCH",
@@ -311,6 +343,7 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = () => {
         credentials: "include",
         body: JSON.stringify({
           status: UserStatus.Active,
+          roles: linkedPlayers,
         } as UpdateUserDTO),
       });
       if (!response.ok) {

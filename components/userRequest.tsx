@@ -6,6 +6,7 @@ import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { DefaultRole } from "interfaces/user";
 import { UserStatus } from "@prisma/client";
 import toast, { Toaster } from "react-hot-toast";
+import colors from "constants/colors";
 import Modal from "./Modal";
 
 const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
@@ -20,7 +21,16 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
 }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  const toasty = () => toast.success("Account request accepted!");
+  const toasty = () =>
+    toast.success("Account request accepted!", {
+      duration: 2000,
+      iconTheme: { primary: colors.dark, secondary: colors.button },
+      style: {
+        background: colors.dark,
+        color: colors.button,
+        margin: "50px",
+      },
+    });
   const deleteUser = async (): Promise<void> => {
     try {
       const response = await fetch("/api/admin/users/delete", {
