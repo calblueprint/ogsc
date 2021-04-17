@@ -10,6 +10,7 @@ import {
   UserRoleType,
   UserStatus,
 } from "@prisma/client";
+import dayjs from "lib/day";
 import Faker from "faker";
 import Ora from "ora";
 import hashPassword from "../utils/hashPassword";
@@ -19,9 +20,10 @@ const prisma = new PrismaClient();
 
 function generateFieldsAcrossTimestamps(
   key: ProfileFieldKey,
-  generateValue: () => unknown
+  generateValue: () => unknown,
+  count = 11
 ): Prisma.ProfileFieldCreateWithoutUserInput[] {
-  return Array(11)
+  return Array(count)
     .fill(null)
     .map(
       (_, index: number) =>
@@ -191,34 +193,43 @@ export default async function seedDatabase(): Promise<void> {
                 ),
                 ...generateFieldsAcrossTimestamps(
                   ProfileFieldKey.BioAboutMe,
-                  () => Faker.lorem.lines(2)
+                  () => Faker.lorem.lines(2),
+                  1
                 ),
                 ...generateFieldsAcrossTimestamps(
                   ProfileFieldKey.BioFavoriteSubject,
-                  () => Faker.lorem.lines(2)
+                  () => Faker.lorem.lines(2),
+                  1
                 ),
                 ...generateFieldsAcrossTimestamps(
                   ProfileFieldKey.BioHobbies,
-                  () => Faker.lorem.lines(2)
+                  () => Faker.lorem.lines(2),
+                  1
                 ),
                 ...generateFieldsAcrossTimestamps(
                   ProfileFieldKey.BioMostDifficultSubject,
-                  () => Faker.lorem.lines(1)
+                  () => Faker.lorem.lines(1),
+                  1
                 ),
                 ...generateFieldsAcrossTimestamps(
                   ProfileFieldKey.BioParents,
-                  () => Faker.lorem.sentences(1)
+                  () => Faker.lorem.sentences(1),
+                  1
                 ),
                 ...generateFieldsAcrossTimestamps(
                   ProfileFieldKey.BioSiblings,
-                  () => Faker.lorem.sentences(1)
+                  () => Faker.lorem.sentences(1),
+                  1
                 ),
-                ...generateFieldsAcrossTimestamps(ProfileFieldKey.BMI, () =>
-                  Faker.random.float({ min: 18, max: 30, precision: 0.1 })
+                ...generateFieldsAcrossTimestamps(
+                  ProfileFieldKey.Height,
+                  () => Faker.random.float({ min: 45, max: 75 }),
+                  5
                 ),
                 ...generateFieldsAcrossTimestamps(
                   ProfileFieldKey.DisciplinaryActions,
-                  () => Faker.lorem.lines(2)
+                  () => Faker.lorem.lines(2),
+                  1
                 ),
                 ...generateFieldsAcrossTimestamps(ProfileFieldKey.GPA, () =>
                   JSON.stringify({
@@ -232,34 +243,44 @@ export default async function seedDatabase(): Promise<void> {
                 ),
                 ...generateFieldsAcrossTimestamps(
                   ProfileFieldKey.HealthAndWellness,
-                  () => Faker.lorem.lines(2)
+                  () => Faker.lorem.lines(2),
+                  1
                 ),
                 ...generateFieldsAcrossTimestamps(
                   ProfileFieldKey.Highlights,
-                  () => Faker.internet.url()
+                  () => Faker.internet.url(),
+                  1
                 ),
                 ...generateFieldsAcrossTimestamps(
                   ProfileFieldKey.IntroVideo,
-                  () => Faker.internet.url()
+                  () => Faker.internet.url(),
+                  1
                 ),
                 ...generateFieldsAcrossTimestamps(
                   ProfileFieldKey.MileTime,
                   () =>
-                    `${Faker.random.number({
-                      min: 4,
-                      max: 8,
-                    })}:${String(Faker.random.number({ max: 59 })).padStart(
-                      2,
-                      "0"
-                    )}`
+                    dayjs
+                      .duration({
+                        minutes: Faker.random.number({
+                          min: 4,
+                          max: 8,
+                        }),
+                        seconds: Faker.random.number({ max: 59 }),
+                      })
+                      .toISOString()
                 ),
                 ...generateFieldsAcrossTimestamps(
                   ProfileFieldKey.PacerTest,
                   () => Faker.random.number({ min: 40, max: 100 })
                 ),
                 ...generateFieldsAcrossTimestamps(
-                  ProfileFieldKey.PlayerNumber,
-                  () => Faker.random.number(100)
+                  ProfileFieldKey.YearOfBirth,
+                  () =>
+                    Faker.random.number({
+                      min: new Date().getFullYear() - 18,
+                      max: new Date().getFullYear() - 8,
+                    }),
+                  1
                 ),
                 ...generateFieldsAcrossTimestamps(ProfileFieldKey.Pushups, () =>
                   Faker.random.number(100)
