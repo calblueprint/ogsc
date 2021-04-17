@@ -35,12 +35,7 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
   const section = useContext(ProfileSectionContext);
 
   const profileField = player?.profile?.[fieldKey];
-  if (
-    !profileField ||
-    !profileField.current ||
-    !profileField.lastUpdated ||
-    !player
-  ) {
+  if (!profileField || !player) {
     return null;
   }
 
@@ -49,7 +44,10 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
     accessValue && resolveAccessValue(accessValue, "read", player, user);
   const canEdit =
     accessValue && resolveAccessValue(accessValue, "write", player, user);
-  const editing = editingState.sections[section]?.editing && canEdit;
+  const editing =
+    (editingState.sections[section]?.editing ||
+      editingState.allEditingOverride) &&
+    canEdit;
 
   const contentOrEditor = editing ? (
     <ProfileFieldEditor profileField={profileField} />
@@ -57,94 +55,96 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
     deserializedValue
   );
 
-  if (!canRead || deserializedValue === null) {
+  if (!editing && (!canRead || deserializedValue === null)) {
     return null;
   }
 
-  switch (profileField.key) {
-    case ProfileFieldKey.AcademicEngagementScore:
-      return (
-        <ValueHistoryView
-          icon="school"
-          primaryColor="pink"
-          fieldLabel={ProfileFieldLabels.AcademicEngagementScore}
-          shortFieldLabel="Engagement"
-          values={profileField.history}
-          valueLabel="point"
-        />
-      );
-    case ProfileFieldKey.AdvisingScore:
-      return (
-        <ValueHistoryView
-          icon="academics"
-          primaryColor="gold"
-          fieldLabel={ProfileFieldLabels.AdvisingScore}
-          shortFieldLabel="Engagement"
-          values={profileField.history}
-          valueLabel="point"
-        />
-      );
-    case ProfileFieldKey.AthleticScore:
-      return (
-        <ValueHistoryView
-          icon="athletics"
-          primaryColor="purple"
-          fieldLabel={ProfileFieldLabels.AthleticScore}
-          shortFieldLabel="Engagement"
-          values={profileField.history}
-          valueLabel="point"
-        />
-      );
-    case ProfileFieldKey.GPA:
-      return (
-        <ValueHistoryView
-          icon="book"
-          primaryColor="blue"
-          fieldLabel={ProfileFieldLabels.GPA}
-          shortFieldLabel="GPA"
-          values={profileField.history}
-          valueRange={[2, 4]}
-        />
-      );
-    default: {
-      const title =
-        fieldKey in ProfileFieldLabels
-          ? ProfileFieldLabels[fieldKey as keyof typeof ProfileFieldLabels]
-          : fieldKey;
-      const valueType = ProfileFieldValues[profileField.key];
-
-      switch (valueType) {
-        case ProfileFieldValue.TimeElapsed: {
-          const value = deserializedValue as ProfileFieldValueDeserializedTypes[typeof valueType];
-
-          return (
-            <TextLayout title={title}>
-              {editing ? (
-                <ProfileFieldEditor profileField={profileField} />
-              ) : (
-                `${value.minutes()} minutes ${value.seconds()} seconds`
-              )}
-            </TextLayout>
-          );
-        }
-        case ProfileFieldValue.DistanceMeasured: {
-          const value = deserializedValue as ProfileFieldValueDeserializedTypes[typeof valueType];
-
-          return (
-            <TextLayout title={title}>
-              {editing ? (
-                <ProfileFieldEditor profileField={profileField} />
-              ) : (
-                `${value.feet} ft. ${value.inches} in.`
-              )}
-            </TextLayout>
-          );
-        }
-        case ProfileFieldValue.Text:
-        default:
-          return <TextLayout title={title}>{contentOrEditor}</TextLayout>;
-      }
+  if (!editing) {
+    switch (profileField.key) {
+      case ProfileFieldKey.AcademicEngagementScore:
+        return (
+          <ValueHistoryView
+            icon="school"
+            primaryColor="pink"
+            fieldKey={ProfileFieldKey.AcademicEngagementScore}
+            shortFieldLabel="Engagement"
+            values={profileField.history}
+            valueLabel="point"
+          />
+        );
+      case ProfileFieldKey.AdvisingScore:
+        return (
+          <ValueHistoryView
+            icon="academics"
+            primaryColor="gold"
+            fieldKey={ProfileFieldKey.AdvisingScore}
+            shortFieldLabel="Engagement"
+            values={profileField.history}
+            valueLabel="point"
+          />
+        );
+      case ProfileFieldKey.AthleticScore:
+        return (
+          <ValueHistoryView
+            icon="athletics"
+            primaryColor="purple"
+            fieldKey={ProfileFieldKey.AthleticScore}
+            shortFieldLabel="Engagement"
+            values={profileField.history}
+            valueLabel="point"
+          />
+        );
+      case ProfileFieldKey.GPA:
+        return (
+          <ValueHistoryView
+            icon="book"
+            primaryColor="blue"
+            fieldKey={ProfileFieldKey.GPA}
+            shortFieldLabel="GPA"
+            values={profileField.history}
+            valueRange={[2, 4]}
+          />
+        );
+      default:
     }
+  }
+
+  const title =
+    fieldKey in ProfileFieldLabels
+      ? ProfileFieldLabels[fieldKey as keyof typeof ProfileFieldLabels]
+      : fieldKey;
+  const valueType = ProfileFieldValues[profileField.key];
+
+  switch (valueType) {
+    case ProfileFieldValue.TimeElapsed: {
+      const value = deserializedValue as ProfileFieldValueDeserializedTypes[typeof valueType];
+
+      return (
+        <TextLayout title={title}>
+          {editing ? (
+            <ProfileFieldEditor profileField={profileField} />
+          ) : (
+            `${value.minutes()} minutes ${value.seconds()} seconds`
+          )}
+        </TextLayout>
+      );
+    }
+    case ProfileFieldValue.DistanceMeasured: {
+      const value = deserializedValue as ProfileFieldValueDeserializedTypes[typeof valueType];
+
+      return (
+        <TextLayout title={title}>
+          {editing ? (
+            <ProfileFieldEditor profileField={profileField} />
+          ) : (
+            `${value.feet} ft. ${value.inches} in.`
+          )}
+        </TextLayout>
+      );
+    }
+    case ProfileFieldValue.Text:
+    default:
+      return <TextLayout title={title}>{contentOrEditor}</TextLayout>;
   }
 };
 export default ProfileFieldCell;

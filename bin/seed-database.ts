@@ -10,9 +10,9 @@ import {
   UserRoleType,
   UserStatus,
 } from "@prisma/client";
-import dayjs from "lib/day";
 import Faker from "faker";
 import Ora from "ora";
+import dayjs from "../lib/day";
 import hashPassword from "../utils/hashPassword";
 
 const NUMBER_USERS = 10;
@@ -166,6 +166,7 @@ export default async function seedDatabase(): Promise<void> {
                     JSON.stringify({
                       comment: Faker.lorem.lines(1),
                       value: Faker.random.number(10),
+                      date: Faker.date.past(1).toISOString(),
                     })
                 ),
                 ...generateFieldsAcrossTimestamps(
@@ -174,6 +175,7 @@ export default async function seedDatabase(): Promise<void> {
                     JSON.stringify({
                       comment: Faker.lorem.lines(1),
                       value: Faker.random.number(10),
+                      date: Faker.date.past(1).toISOString(),
                     })
                 ),
                 ...generateFieldsAcrossTimestamps(
@@ -182,6 +184,7 @@ export default async function seedDatabase(): Promise<void> {
                     JSON.stringify({
                       comment: Faker.lorem.lines(1),
                       value: Faker.random.number(10),
+                      date: Faker.date.past(1).toISOString(),
                     })
                 ),
                 ...generateFieldsAcrossTimestamps(
@@ -232,6 +235,7 @@ export default async function seedDatabase(): Promise<void> {
                       max: 4,
                       precision: 0.01,
                     }),
+                    date: Faker.date.past(1).toISOString(),
                   })
                 ),
                 ...generateFieldsAcrossTimestamps(

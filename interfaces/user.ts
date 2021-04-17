@@ -7,6 +7,7 @@ import {
   UserRoleType,
 } from "@prisma/client";
 import { IconType } from "components/Icon";
+import { Dayjs } from "dayjs";
 import { Duration } from "dayjs/plugin/duration";
 
 export type PrivateUserFields = "hashedPassword";
@@ -77,6 +78,7 @@ export const ProfileFieldLabels = {
   [ProfileFieldKey.GPA]: "Grade Point Average",
   [ProfileFieldKey.DisciplinaryActions]: "Disciplinary Actions",
   [ProfileFieldKey.HealthAndWellness]: "Comments",
+  [ProfileFieldKey.YearOfBirth]: "Birth Year",
 } as const;
 
 export enum ProfileCategory {
@@ -138,6 +140,13 @@ export const ProfileFieldsByCategory: Record<
   [ProfileCategory.Highlights]: [ProfileFieldKey.Highlights],
 };
 
+export const UncategorizedProfileFields: ProfileFieldKey[] = Object.values(
+  ProfileFieldKey
+).filter((key: ProfileFieldKey) => {
+  const categorizedKeys = Object.values(ProfileFieldsByCategory).flat();
+  return !categorizedKeys.includes(key);
+});
+
 type WithComment = {
   /**
    * An optional description to provide context about the value or to add commentary.
@@ -149,29 +158,49 @@ export type ProfileFieldValueDeserializedTypes = {
   [ProfileFieldValue.Text]: string;
   [ProfileFieldValue.URL]: string;
   [ProfileFieldValue.Integer]: number;
-  [ProfileFieldValue.IntegerWithComment]: WithComment & { value: number };
+  [ProfileFieldValue.IntegerWithComment]: WithComment & {
+    value: number;
+    date: Dayjs;
+  };
   [ProfileFieldValue.Float]: number;
-  [ProfileFieldValue.FloatWithComment]: WithComment & { value: number };
+  [ProfileFieldValue.FloatWithComment]: WithComment & {
+    value: number;
+    date: Dayjs;
+  };
   [ProfileFieldValue.TimeElapsed]: Duration;
   [ProfileFieldValue.DistanceMeasured]: { feet: number; inches: number };
 };
 
-export type IProfileField<K extends ProfileFieldKey> = Omit<
+export type IProfileField<K extends ProfileFieldKey = ProfileFieldKey> = Omit<
   ProfileField,
   "key"
 > & {
   key: K;
+  /**
+   * In an editing context, `draft` will refer to the temporary new value for this particular
+   * field that already exists.
+   */
+  draft?: ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]];
+
+  modified?: boolean;
+};
+
+export type UncreatedProfileField<
+  K extends ProfileFieldKey = ProfileFieldKey
+> = IProfileField<K> & {
+  uncreated: true;
 };
 
 export type IProfileFieldBuilt<K extends ProfileFieldKey> = {
   key: K;
   current?: IProfileField<K>;
+  lastUpdated: Date | null;
+  history: (IProfileField<K> | UncreatedProfileField<K>)[];
   /**
-   * In an editing context, `draft` will refer to the temporary value that the user has entered.
+   * In an editing context, `draft` will refer to the temporary value that the user has entered
+   * for the new field to be created.
    */
   draft?: ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]];
-  lastUpdated: Date | null;
-  history: IProfileField<K>[];
 };
 
 export type PlayerProfile = {
@@ -187,9 +216,21 @@ export type ProfileFieldKeysOfProfileValueType<
   never
 >;
 
+export type NumericProfileFields = ProfileFieldKeysOfProfileValueType<
+  ProfileFieldValue.IntegerWithComment | ProfileFieldValue.FloatWithComment
+>;
+
 export type DefaultRole = {
   type: UserRoleType;
   relatedPlayerIds: number[];
+};
+
+export type IAbsence = Absence & {
+  draft?: Partial<Absence>;
+  modified?: boolean;
+};
+export type UncreatedAbsence = IAbsence & {
+  uncreated: true;
 };
 
 export type IUser = SanitizedUser & {
@@ -199,5 +240,6 @@ export type IUser = SanitizedUser & {
 
 export type IPlayer = IUser & {
   profile: Partial<PlayerProfile> | null;
-  absences?: Absence[];
+  absences?: (IAbsence | UncreatedAbsence)[];
+  absenceDraft?: Partial<Absence>;
 };

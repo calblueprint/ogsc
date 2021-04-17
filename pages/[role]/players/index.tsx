@@ -62,8 +62,8 @@ const PlayersListPage: React.FunctionComponent = () => {
       <div className="flex mt-20 flex-wrap space-y-6 flex-col mx-16">
         <div className="header flex justify-between">
           <p className="pt-4 text-2xl font-display font-medium">All Players</p>
-          {UserRoleLabel[session.sessionType] === "Admin" ? (
-            <Link href="/admin/players/playerForm">
+          {UserRoleLabel[session.sessionType] === "Admin" && (
+            <Link href="/admin/players/create">
               <Button
                 className="font-display text-sm px-6 bg-blue-muted text-blue rounded-lg h-10"
                 iconType="plus"
@@ -71,8 +71,6 @@ const PlayersListPage: React.FunctionComponent = () => {
                 Create new profile
               </Button>
             </Link>
-          ) : (
-            []
           )}
         </div>
         <div className="grid grid-cols-4 gap-8">

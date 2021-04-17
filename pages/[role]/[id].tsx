@@ -19,6 +19,8 @@ import { ViewingPermissionDTO } from "pages/api/admin/roles/create";
 import useSessionInfo from "utils/useSessionInfo";
 import toast, { Toaster } from "react-hot-toast";
 import { signOut } from "next-auth/client";
+import sanitizeUser from "utils/sanitizeUser";
+import flattenUserRoles from "utils/flattenUserRoles";
 import colors from "../../constants/colors";
 
 interface DeleteConfirmationProps {
@@ -33,8 +35,8 @@ type ModalProps = React.PropsWithChildren<{
 }>;
 
 type gsspProps = {
-  user?: User;
-  relatedPlayers?: User[];
+  user?: IUser;
+  relatedPlayers?: IUser[];
 };
 
 export async function getServerSideProps(
@@ -70,12 +72,15 @@ export async function getServerSideProps(
         in: relatedPlayerIds,
       },
     },
+    include: {
+      roles: true,
+    },
   });
 
   return {
     props: {
-      user,
-      relatedPlayers: relatedUsers,
+      user: flattenUserRoles(sanitizeUser(user)),
+      relatedPlayers: relatedUsers.map(sanitizeUser).map(flattenUserRoles),
     },
   };
 }
@@ -156,7 +161,7 @@ const BasicInfoFormSchema = Joi.object<BasicInfoFormValues>({
 interface BasicInfoProps {
   user?: IUser;
   setUser: (user: IUser) => void;
-  relatedPlayers?: User[];
+  relatedPlayers?: IUser[];
   canEdit?: boolean;
 }
 
@@ -386,7 +391,7 @@ interface RoleInfoFormValues {
 interface RoleInfoProps {
   user?: IUser;
   setUser: (user: IUser) => void;
-  relatedPlayers?: User[];
+  relatedPlayers?: IUser[];
   canEdit?: boolean;
 }
 
@@ -401,10 +406,10 @@ const RoleInfo: React.FunctionComponent<RoleInfoProps> = ({
   const [error, setError] = useState("");
   const { handleSubmit } = useForm<RoleInfoFormValues>();
   const [currRole, setCurrRole] = useState<UserRoleType>();
-  const [selectedPlayers, setSelectedPlayers] = useState<User[]>(
+  const [selectedPlayers, setSelectedPlayers] = useState<IUser[]>(
     relatedPlayers || []
   );
-  const [originalPlayers, setOriginalPlayers] = useState<User[]>([]);
+  const [originalPlayers, setOriginalPlayers] = useState<IUser[]>([]);
 
   const router = useRouter();
   const refreshData = (): void => {
@@ -473,7 +478,7 @@ const RoleInfo: React.FunctionComponent<RoleInfoProps> = ({
             type="button"
             onClick={() => {
               setIsEditing(true);
-              setOriginalPlayers((relatedPlayers && [...relatedPlayers]) || []);
+              setOriginalPlayers(relatedPlayers ?? []);
             }}
           >
             <Icon type="editCircle" />
@@ -526,7 +531,7 @@ const RoleInfo: React.FunctionComponent<RoleInfoProps> = ({
         <div className="text-sm pb-6">
           <p className="text-dark mr-20 font-semibold">Linked Players</p>
           <div className="flex flex-col">
-            {relatedPlayers?.map((player: User) => {
+            {relatedPlayers?.map((player: IUser) => {
               return (
                 <Link href={`/admin/players/${player.id}`}>
                   <div className="underline cursor-pointer text-blue mb-2 font-normal">

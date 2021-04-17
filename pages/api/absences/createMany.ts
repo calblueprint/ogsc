@@ -1,58 +1,36 @@
-import { ProfileFieldKey } from "@prisma/client";
-import {
-  IPlayer,
-  IUser,
-  ProfileFieldValues,
-  ValidatedNextApiRequest,
-} from "interfaces";
+import { AbsenceReason, AbsenceType } from "@prisma/client";
+import { IPlayer, IUser, ValidatedNextApiRequest } from "interfaces";
 import Joi from "joi";
-import { ProfileFieldValueValidators } from "lib/validate";
 import { NextApiResponse } from "next";
 import superjson from "superjson";
 import buildUserProfile from "utils/buildUserProfile";
 import filterPlayerProfileRead from "utils/filterPlayerProfileRead";
-import filterPlayerProfileWrite from "utils/filterPlayerProfileWrite";
+import { filterPlayerProfileAbsenceWrite } from "utils/filterPlayerProfileWrite";
 import flattenUserRoles from "utils/flattenUserRoles";
 import getAuthenticatedUser from "utils/getAuthenticatedUser";
 import getPlayerById from "utils/getPlayerById";
+import { AbsenceValidator } from "utils/isAbsence";
 import prisma from "utils/prisma";
 import sanitizeUser from "utils/sanitizeUser";
 import { validateBody } from "../helpers";
 
-export type CreateManyProfileFieldsDTO = {
-  fields: {
-    key: ProfileFieldKey;
-    value: string;
+export type CreateManyAbsencesDTO = {
+  absences: {
+    date: string;
+    description?: string;
+    reason: AbsenceReason;
+    type: AbsenceType;
   }[];
   playerId: number;
 };
 
-export const expectedBody = Joi.object<CreateManyProfileFieldsDTO>({
-  fields: Joi.array()
-    .items(
-      Joi.object({
-        key: Joi.string()
-          .valid(...Object.keys(ProfileFieldKey))
-          .required(),
-        value: Joi.string().required(),
-      }).custom((value: { key: ProfileFieldKey; value: string }) => {
-        const checkFieldValue = Joi.object({
-          value: ProfileFieldValueValidators[ProfileFieldValues[value.key]],
-        })
-          .unknown(true)
-          .validate(value);
-        if (checkFieldValue.error) {
-          throw checkFieldValue.error;
-        }
-        return value;
-      })
-    )
-    .required(),
+export const expectedBody = Joi.object<CreateManyAbsencesDTO>({
+  absences: Joi.array().items(AbsenceValidator).required(),
   playerId: Joi.number().required(),
 });
 
-const createManyProfileFieldsHandler = async (
-  req: ValidatedNextApiRequest<CreateManyProfileFieldsDTO>,
+const createManyAbsencesHandler = async (
+  req: ValidatedNextApiRequest<CreateManyAbsencesDTO>,
   res: NextApiResponse
 ): Promise<void> => {
   let user: IUser;
@@ -63,7 +41,7 @@ const createManyProfileFieldsHandler = async (
   }
 
   let player: IPlayer;
-  const { fields, playerId } = req.body;
+  const { absences, playerId } = req.body;
 
   try {
     player = await getPlayerById(playerId);
@@ -73,17 +51,19 @@ const createManyProfileFieldsHandler = async (
 
   try {
     await prisma.$transaction(
-      filterPlayerProfileWrite(player, user, fields).map(
-        ({ key, value }: { key: ProfileFieldKey; value: string }) =>
-          prisma.profileField.create({
+      filterPlayerProfileAbsenceWrite(player, user, absences).map(
+        ({ date, description, reason, type }) =>
+          prisma.absence.create({
             data: {
-              key,
-              user: {
+              date,
+              description,
+              type,
+              reason,
+              users: {
                 connect: {
                   id: playerId,
                 },
               },
-              value,
             },
           })
       )
@@ -114,4 +94,4 @@ const createManyProfileFieldsHandler = async (
   }
 };
 
-export default validateBody(createManyProfileFieldsHandler, expectedBody);
+export default validateBody(createManyAbsencesHandler, expectedBody);
