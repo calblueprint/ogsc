@@ -9,7 +9,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import updateActionSignUp from "utils/updateActionSignUp";
 import { useStateMachine } from "little-state-machine";
-import { UserStatus } from "@prisma/client";
+import { UserRoleType, UserStatus } from "@prisma/client";
 import type { UserSignUpFormValues } from "../../../pages/users/signUp";
 
 const AdminInviteFormSchema = Joi.object<UserSignUpFormValues>({
@@ -69,6 +69,7 @@ const NewPlayerInvitePage: React.FC<Props> = ({ onCreate }: Props) => {
             name: `${firstName} ${lastName}`,
             status: UserStatus.PendingUserAcceptance,
             phoneNumber,
+            role: UserRoleType.Player,
           } as AdminCreateUserDTO),
         });
         if (!response.ok) {
@@ -91,7 +92,7 @@ const NewPlayerInvitePage: React.FC<Props> = ({ onCreate }: Props) => {
         if (!player.ok) {
           throw await player.json();
         }
-        const newPlayer = await player.json();
+        const newPlayer = (await player.json()).user;
         onCreate(newPlayer);
         setConfirm(
           "You have sent an invite to this player and may continue on with the form!"

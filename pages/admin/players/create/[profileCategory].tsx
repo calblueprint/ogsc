@@ -1,3 +1,4 @@
+import { ProfileFieldKey } from "@prisma/client";
 import Button from "components/Button";
 import DashboardLayout from "components/DashboardLayout";
 import Icon from "components/Icon";
@@ -14,10 +15,19 @@ import ProfileContext, {
   SerializeProfileFieldDrafts,
 } from "components/Player/ProfileContext";
 import { Props as ProfileSectionProps } from "components/Player/ProfileSection";
-import { ProfileCategory } from "interfaces";
+import {
+  IAbsence,
+  IProfileField,
+  ProfileCategory,
+  UncreatedAbsence,
+  UncreatedProfileField,
+} from "interfaces";
 import { useStateMachine } from "little-state-machine";
 import { useRouter } from "next/router";
+import { CreateManyAbsencesDTO } from "pages/api/absences/createMany";
+import { CreatePlayerProfileForUserDTO } from "pages/api/admin/users/[id]/createPlayer";
 import React, { useMemo, useState } from "react";
+import { serializeProfileFieldValue } from "utils/buildUserProfile";
 import composeReducers from "utils/composeReducers";
 import isAbsence from "utils/isAbsence";
 
@@ -36,19 +46,21 @@ export const useCreateProfileContext = (): {
   actions: ReturnType<typeof useStateMachine>["actions"];
   context: ProfileContextType;
 } => {
-  const { state, actions } = useStateMachine<ProfileState>({
+  const { state: _state, actions } = useStateMachine<ProfileState>({
     ProfileContextReducer: composeReducers(
       SerializeProfileFieldDrafts,
       ProfileContextReducer
     ),
   });
+  const state = DeserializeProfileFieldDrafts({
+    editingState: { allEditingOverride: true, sections: {} },
+    player: _state.player,
+  });
+
   const context = useMemo<ProfileContextType>(
     () => ({
       dispatch: actions.ProfileContextReducer,
-      state: DeserializeProfileFieldDrafts({
-        editingState: { allEditingOverride: true, sections: {} },
-        player: state.player,
-      }),
+      state,
       createField: async (fieldKey) => {
         if (fieldKey === "absence") {
           actions.ProfileContextReducer({
@@ -83,17 +95,108 @@ export const useCreateProfileContext = (): {
         } as ProfileAction);
       },
     }),
-    [actions, state.player]
+    [actions, state]
   );
   return { context, actions, state };
 };
 
 const CreatePlayerProfilePage: React.FC = () => {
-  const [error] = useState(null);
+  const [error, setError] = useState(null);
   const router = useRouter();
-  const { context } = useCreateProfileContext();
+  const { context, state } = useCreateProfileContext();
   const currentTabIndex = usePlayerFormCategoryIndex();
   const category = router.query.profileCategory as ProfileCategory;
+
+  function identifyDraftsAndBuildSubmission():
+    | CreatePlayerProfileForUserDTO
+    | undefined {
+    if (!state.player) {
+      return undefined;
+    }
+    const profileFields: {
+      key: ProfileFieldKey;
+      value: string;
+    }[] = [];
+    const absences: CreateManyAbsencesDTO["absences"] =
+      state.player.absences?.map((absence: IAbsence | UncreatedAbsence) => ({
+        date: absence.date.toISOString(),
+        reason: absence.reason,
+        type: absence.type,
+        description: absence.description,
+      })) ?? [];
+
+    Object.values(state.player.profile ?? {}).forEach((field) => {
+      field?.history.forEach(
+        (existingField: IProfileField | UncreatedProfileField) => {
+          if (existingField.value === null) {
+            return;
+          }
+          const value = serializeProfileFieldValue(
+            existingField.value,
+            field.key
+          );
+          if (value === null || value === "") {
+            return;
+          }
+          if ("uncreated" in existingField) {
+            profileFields.push({
+              key: field.key,
+              value,
+            });
+          } else if (existingField.modified) {
+            profileFields.push({
+              key: field.key,
+              value,
+            });
+          }
+        }
+      );
+      if (field?.draft !== undefined) {
+        const value = serializeProfileFieldValue(field.draft, field.key);
+        if (value) {
+          profileFields.push({
+            key: field.key,
+            value,
+          });
+        }
+      }
+    });
+
+    return {
+      profileFields: {
+        fields: profileFields,
+        playerId: state.player.id,
+      },
+      absences: {
+        absences,
+        playerId: state.player.id,
+      },
+    };
+  }
+
+  async function submit(dto: CreatePlayerProfileForUserDTO): Promise<void> {
+    if (!state.player) {
+      return;
+    }
+    const response = await fetch(
+      `/api/admin/users/${state.player.id}/createPlayer`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dto),
+      }
+    );
+    if (!response.ok) {
+      const body = await response.json();
+      setError(body.message);
+      return;
+    }
+    const { player } = await response.json();
+    context.dispatch({ type: "RESET_PLAYER" });
+    router.push(`/admin/players/${player.id}?success=true`);
+  }
 
   return (
     <DashboardLayout>
@@ -146,7 +249,15 @@ const CreatePlayerProfilePage: React.FC = () => {
                       <Icon className="ml-6 w-8 stroke-current" type="next" />
                     </Button>
                   ) : (
-                    <Button className="bg-blue text-sm px-8 py-2 text-white tracking-wide rounded-md">
+                    <Button
+                      className="bg-blue text-sm px-8 py-2 text-white tracking-wide rounded-md"
+                      onClick={() => {
+                        const dto = identifyDraftsAndBuildSubmission();
+                        if (dto) {
+                          submit(dto);
+                        }
+                      }}
+                    >
                       Submit
                     </Button>
                   )}

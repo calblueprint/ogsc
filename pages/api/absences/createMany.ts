@@ -1,4 +1,4 @@
-import { AbsenceReason, AbsenceType, UserRoleType } from "@prisma/client";
+import { AbsenceReason, AbsenceType } from "@prisma/client";
 import { IPlayer, IUser, ValidatedNextApiRequest } from "interfaces";
 import Joi from "joi";
 import { NextApiResponse } from "next";
@@ -8,12 +8,13 @@ import filterPlayerProfileRead from "utils/filterPlayerProfileRead";
 import { filterPlayerProfileAbsenceWrite } from "utils/filterPlayerProfileWrite";
 import flattenUserRoles from "utils/flattenUserRoles";
 import getAuthenticatedUser from "utils/getAuthenticatedUser";
+import getPlayerById from "utils/getPlayerById";
 import { AbsenceValidator } from "utils/isAbsence";
 import prisma from "utils/prisma";
 import sanitizeUser from "utils/sanitizeUser";
 import { validateBody } from "../helpers";
 
-type CreateManyAbsencesDTO = {
+export type CreateManyAbsencesDTO = {
   absences: {
     date: string;
     description?: string;
@@ -23,7 +24,7 @@ type CreateManyAbsencesDTO = {
   playerId: number;
 };
 
-const expectedBody = Joi.object<CreateManyAbsencesDTO>({
+export const expectedBody = Joi.object<CreateManyAbsencesDTO>({
   absences: Joi.array().items(AbsenceValidator).required(),
   playerId: Joi.number().required(),
 });
@@ -43,21 +44,7 @@ const createManyAbsencesHandler = async (
   const { absences, playerId } = req.body;
 
   try {
-    const playerUser = await prisma.user.findUnique({
-      where: { id: playerId },
-      include: {
-        absences: true,
-        profileFields: true,
-        roles: true,
-      },
-    });
-    if (!playerUser) {
-      throw new Error("Could not find player to add absences to.");
-    }
-    player = buildUserProfile(flattenUserRoles(playerUser));
-    if (player.defaultRole.type !== UserRoleType.Player) {
-      throw new Error("Could not add absences to non-player type user.");
-    }
+    player = await getPlayerById(playerId);
   } catch (err) {
     return res.status(400).json({ statusCode: 400, message: err.message });
   }

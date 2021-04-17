@@ -181,6 +181,8 @@ export type IProfileField<K extends ProfileFieldKey = ProfileFieldKey> = Omit<
    * field that already exists.
    */
   draft?: ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]];
+
+  modified?: boolean;
 };
 
 export type UncreatedProfileField<
@@ -225,6 +227,7 @@ export type DefaultRole = {
 
 export type IAbsence = Absence & {
   draft?: Partial<Absence>;
+  modified?: boolean;
 };
 export type UncreatedAbsence = IAbsence & {
   uncreated: true;

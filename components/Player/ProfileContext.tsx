@@ -8,6 +8,7 @@ import {
   ProfileFieldValue,
   ProfileFieldValueDeserializedTypes,
   ProfileFieldValues,
+  UncreatedAbsence,
   UncreatedProfileField,
 } from "interfaces/user";
 import {
@@ -45,6 +46,9 @@ export type ProfileState = {
 };
 
 export type ProfileAction =
+  | {
+      type: "RESET_PLAYER";
+    }
   | {
       type: "SET_PLAYER";
       player: IPlayer;
@@ -152,6 +156,12 @@ export const ProfileContextReducer = (
   action: ProfileAction
 ): ProfileState => {
   switch (action.type) {
+    case "RESET_PLAYER":
+      return {
+        ...state,
+        player: null,
+      };
+
     case "SET_PLAYER":
       return {
         ...state,
@@ -293,6 +303,7 @@ export const ProfileContextReducer = (
                           currentDraft,
                           field.key
                         ),
+                        modified: true,
                         draft: undefined,
                       }
                     : field
@@ -348,7 +359,12 @@ export const ProfileContextReducer = (
             absences: (state.player?.absences ?? []).map(
               (absence: IAbsence) => {
                 if (absence.id === action.id) {
-                  return { ...absence, ...absence.draft, draft: undefined };
+                  return {
+                    ...absence,
+                    ...absence.draft,
+                    draft: undefined,
+                    modified: true,
+                  };
                 }
                 return absence;
               }
@@ -486,6 +502,14 @@ export const DeserializeProfileFieldDrafts = (
       state.player != null
         ? {
             ...state.player,
+            absences: (state.player?.absences ?? []).map(
+              (
+                absence: IAbsence | UncreatedAbsence
+              ): IAbsence | UncreatedAbsence => ({
+                ...absence,
+                date: new Date(absence.date),
+              })
+            ),
             profile: {
               ...state.player?.profile,
               ...(Object.fromEntries(

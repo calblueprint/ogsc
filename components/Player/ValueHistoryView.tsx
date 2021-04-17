@@ -126,9 +126,9 @@ const ValueHistoryView: React.FC<Props> = ({
         total + (field?.value ?? 0),
       0
     ) /
-    filteredValues.filter(
+    (filteredValues.filter(
       (field: typeof filteredValues[number]) => field?.value !== null
-    ).length;
+    ).length || 1);
 
   return (
     <div className="mb-10">

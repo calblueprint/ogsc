@@ -3,7 +3,7 @@ import Joi from "lib/validate";
 
 export const AbsenceValidator = Joi.object<Absence>({
   date: Joi.alternatives(Joi.date(), Joi.string().isoDate()).required(),
-  description: Joi.string(),
+  description: Joi.string().allow(""),
   reason: Joi.string()
     .valid(...Object.values(AbsenceReason))
     .required(),

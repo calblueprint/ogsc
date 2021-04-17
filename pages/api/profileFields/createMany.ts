@@ -1,4 +1,4 @@
-import { ProfileFieldKey, UserRoleType } from "@prisma/client";
+import { ProfileFieldKey } from "@prisma/client";
 import {
   IPlayer,
   IUser,
@@ -14,11 +14,12 @@ import filterPlayerProfileRead from "utils/filterPlayerProfileRead";
 import filterPlayerProfileWrite from "utils/filterPlayerProfileWrite";
 import flattenUserRoles from "utils/flattenUserRoles";
 import getAuthenticatedUser from "utils/getAuthenticatedUser";
+import getPlayerById from "utils/getPlayerById";
 import prisma from "utils/prisma";
 import sanitizeUser from "utils/sanitizeUser";
 import { validateBody } from "../helpers";
 
-type CreateManyProfileFieldsDTO = {
+export type CreateManyProfileFieldsDTO = {
   fields: {
     key: ProfileFieldKey;
     value: string;
@@ -26,7 +27,7 @@ type CreateManyProfileFieldsDTO = {
   playerId: number;
 };
 
-const expectedBody = Joi.object<CreateManyProfileFieldsDTO>({
+export const expectedBody = Joi.object<CreateManyProfileFieldsDTO>({
   fields: Joi.array()
     .items(
       Joi.object({
@@ -34,6 +35,16 @@ const expectedBody = Joi.object<CreateManyProfileFieldsDTO>({
           .valid(...Object.keys(ProfileFieldKey))
           .required(),
         value: Joi.string().required(),
+      }).custom((value: { key: ProfileFieldKey; value: string }) => {
+        const checkFieldValue = Joi.object({
+          value: ProfileFieldValueValidators[ProfileFieldValues[value.key]],
+        })
+          .unknown(true)
+          .validate(value);
+        if (checkFieldValue.error) {
+          throw checkFieldValue.error;
+        }
+        return value;
       })
     )
     .required(),
@@ -55,40 +66,8 @@ const createManyProfileFieldsHandler = async (
   const { fields, playerId } = req.body;
 
   try {
-    const playerUser = await prisma.user.findUnique({
-      where: { id: playerId },
-      include: {
-        absences: true,
-        profileFields: true,
-        roles: true,
-      },
-    });
-    if (!playerUser) {
-      throw new Error("Could not find player to add new fields to.");
-    }
-    player = buildUserProfile(flattenUserRoles(playerUser));
-    if (player.defaultRole.type !== UserRoleType.Player) {
-      throw new Error("Could not add new fields to non-player type user.");
-    }
-    const expectedProfileFieldValues = Joi.object({
-      fields: Joi.array().items(
-        ...fields.map(({ key }: { key: ProfileFieldKey; value: string }) =>
-          Joi.object({
-            value: ProfileFieldValueValidators[ProfileFieldValues[key]],
-          })
-        )
-      ),
-    });
-    const values = expectedProfileFieldValues.validate(req.body, {
-      allowUnknown: true,
-    });
-    if (values.error) {
-      throw values.error;
-    }
+    player = await getPlayerById(playerId);
   } catch (err) {
-    if (err.name === "ValidationError") {
-      return res.status(400).json({ statusCode: 400, error: err });
-    }
     return res.status(400).json({ statusCode: 400, message: err.message });
   }
 
