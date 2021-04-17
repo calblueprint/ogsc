@@ -16,9 +16,7 @@ const TextLayout: React.FunctionComponent<TextProps> = ({
           <div className="flex flex-col font-semibold text-dark">
             <div>{title}:</div>
           </div>
-          <div className="flex flex-col font-normal">
-            <div>{children}</div>
-          </div>
+          <div className="flex flex-col font-normal">{children}</div>
         </div>
       </div>
     );

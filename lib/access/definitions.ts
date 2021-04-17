@@ -20,7 +20,6 @@ const isOwnPlayerProfile: AccessValue = (
  * The standard access that all users share, minimally.
  */
 const standardReadAccess = {
-  [ProfileFieldKey.PlayerNumber]: { read: true },
   [ProfileFieldKey.BioAboutMe]: { read: true },
   [ProfileFieldKey.BioFavoriteSubject]: { read: true },
   [ProfileFieldKey.BioMostDifficultSubject]: { read: true },
@@ -29,6 +28,7 @@ const standardReadAccess = {
   [ProfileFieldKey.BioSiblings]: { read: true },
   [ProfileFieldKey.IntroVideo]: { read: true },
   [ProfileFieldKey.Highlights]: { read: true },
+  [ProfileFieldKey.YearOfBirth]: { read: true },
 };
 
 /**
@@ -36,7 +36,6 @@ const standardReadAccess = {
  */
 const sharedReadAccess = {
   [ProfileFieldKey.GPA]: { read: isSharedPlayerProfile },
-  [ProfileFieldKey.BMI]: { read: isSharedPlayerProfile },
   [ProfileFieldKey.PacerTest]: { read: isSharedPlayerProfile },
   [ProfileFieldKey.MileTime]: { read: isSharedPlayerProfile },
   [ProfileFieldKey.Situps]: { read: isSharedPlayerProfile },
@@ -90,6 +89,7 @@ export const ProfileAccessDefinitionsByRole: Record<
   },
   [UserRoleType.Parent]: {
     ...standardReadAccess,
+    ...sharedReadAccess,
     [ProfileFieldKey.BioAboutMe]: { read: true, write: isSharedPlayerProfile },
     [ProfileFieldKey.BioFavoriteSubject]: {
       read: true,
@@ -102,7 +102,6 @@ export const ProfileAccessDefinitionsByRole: Record<
     [ProfileFieldKey.BioHobbies]: { read: true, write: isSharedPlayerProfile },
     [ProfileFieldKey.BioParents]: { read: true, write: isSharedPlayerProfile },
     [ProfileFieldKey.BioSiblings]: { read: true, write: isSharedPlayerProfile },
-    ...sharedReadAccess,
   },
   [UserRoleType.Player]: {
     ...standardReadAccess,
@@ -119,13 +118,11 @@ export const ProfileAccessDefinitionsByRole: Record<
     [ProfileFieldKey.BioParents]: { read: true, write: isOwnPlayerProfile },
     [ProfileFieldKey.BioSiblings]: { read: true, write: isOwnPlayerProfile },
     [ProfileFieldKey.GPA]: { read: isOwnPlayerProfile },
-    [ProfileFieldKey.BMI]: { read: isOwnPlayerProfile },
     [ProfileFieldKey.PacerTest]: { read: isOwnPlayerProfile },
     [ProfileFieldKey.MileTime]: { read: isOwnPlayerProfile },
     [ProfileFieldKey.Situps]: { read: isOwnPlayerProfile },
     [ProfileFieldKey.Pushups]: { read: isOwnPlayerProfile },
     [ProfileFieldKey.HealthAndWellness]: { read: isOwnPlayerProfile },
-    [ProfileFieldKey.BMI]: { read: isOwnPlayerProfile },
     [ProfileFieldKey.DisciplinaryActions]: { read: isOwnPlayerProfile },
   },
 };

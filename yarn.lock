@@ -7532,6 +7532,11 @@ rc@^1.2.8:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
+react-children-utilities@^2.4.1:
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/react-children-utilities/-/react-children-utilities-2.4.1.tgz#d77cdb67b102a2d8bbebaf307ecb5be6a63f356c"
+  integrity sha512-zfLSIE7ZrFrOXEA2pEuBvRek2w12xkuR92k/FIPycHb/oWFOpj1rpWJUoII+cGdT0uYiZHpyndXoBzbeDUhj/Q==
+
 react-dom@16.13.1:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.13.1.tgz#c1bd37331a0486c078ee54c4740720993b2e0e7f"
