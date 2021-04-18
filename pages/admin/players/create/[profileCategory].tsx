@@ -201,7 +201,7 @@ const CreatePlayerProfilePage: React.FC = () => {
   return (
     <DashboardLayout>
       <div className="form flex mx-20 mt-24 flex-col">
-        <p className="py-6 text-2xl h-16 tracking-wide font-medium">
+        <p className="py-6 text-2xl h-16 font-medium">
           Create a new player profile
         </p>
         <PlayerFormLayout>

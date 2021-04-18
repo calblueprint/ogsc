@@ -1,5 +1,6 @@
 import { ProfileCategory } from "interfaces";
 import { useRouter } from "next/router";
+import { useCreateProfileContext } from "pages/admin/players/create/[profileCategory]";
 import React from "react";
 import BarTab from "./ProgressBar";
 
@@ -18,6 +19,7 @@ export const usePlayerFormCategoryIndex = (): number => {
 
 const PlayerFormLayout: React.FC<Props> = ({ children }: Props) => {
   const currentTabIndex = usePlayerFormCategoryIndex();
+  const { state } = useCreateProfileContext();
 
   return (
     <div className="text-dark">
@@ -30,6 +32,7 @@ const PlayerFormLayout: React.FC<Props> = ({ children }: Props) => {
               fill={currentTabIndex >= index}
               content={`${displayIndex}. ${category}`}
               title={category}
+              disabled={state.player === null}
             />
           );
         })}
