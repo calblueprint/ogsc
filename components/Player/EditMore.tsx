@@ -49,13 +49,8 @@ const EditMore: React.FunctionComponent<EditProps> = (props: EditProps) => {
       <Menu>
         {({ open }) => (
           <>
-            <Menu.Button className="focus:outline-none">
-              <button
-                type="button"
-                className="relative focus:outline-none flex align-center justify-center"
-              >
-                <Icon type="more" className="h-5 ml-4 fill-current" />
-              </button>
+            <Menu.Button className="relative focus:outline-none flex align-center justify-center">
+              <Icon type="more" className="h-5 ml-4 fill-current" />
             </Menu.Button>
             <Transition
               show={open}
