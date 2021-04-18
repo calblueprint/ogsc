@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import dayjs from "lib/day";
 
-import { ProfileField } from "@prisma/client";
+import { Absence, ProfileField } from "@prisma/client";
 import Button from "components/Button";
 import Icon, { IconType } from "components/Icon";
 import {
@@ -11,7 +11,9 @@ import {
   ProfileFieldValues,
   UncreatedProfileField,
 } from "interfaces";
+import toast from "lib/toast";
 import { deserializeProfileFieldValue } from "utils/buildUserProfile";
+import isAbsence from "utils/isAbsence";
 import labelProfileField from "utils/labelProfileField";
 import colors from "../../constants/colors";
 import ProfileFieldEditorModal from "./ProfileFieldEditorModal";
@@ -218,8 +220,18 @@ const ValueHistoryView: React.FC<Props> = ({
       <div className="mb-16 mt-8 grid grid-rows-2 w-full justify-end">
         <ProfileFieldEditorModal
           fieldKey={fieldKey}
-          onComplete={() => {
-            // TODO: Dispatch notification
+          onComplete={(updated?: Absence | IProfileField) => {
+            if (updated) {
+              toast.success(
+                `${labelProfileField(updated)} for ${dayjs(
+                  isAbsence(updated)
+                    ? updated.date
+                    : deserializeProfileFieldValue(
+                        updated as IProfileField<NumericProfileFields>
+                      )?.date
+                ).format("MMMM YYYY")} has been created!`
+              );
+            }
           }}
         />
       </div>

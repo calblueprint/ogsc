@@ -8,6 +8,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import "../styles/globals.css";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
+import { Toaster } from "react-hot-toast";
 
 export const AuthContext = React.createContext<AuthenticatedSessionInfo | null>(
   null
@@ -83,6 +84,7 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
     return (
       <StateMachineProvider>
         <Component {...pageProps} />
+        <Toaster position="bottom-left" reverseOrder={false} />
       </StateMachineProvider>
     );
   }
@@ -99,6 +101,7 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
         }
       >
         <Component {...pageProps} />
+        <Toaster position="bottom-left" reverseOrder={false} />
       </AuthContext.Provider>
     </StateMachineProvider>
   );

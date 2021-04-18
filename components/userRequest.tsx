@@ -1,12 +1,12 @@
+import { Dialog } from "@headlessui/react";
+import { UserStatus } from "@prisma/client";
 import React, { useEffect, useState } from "react";
 import Button from "components/Button";
 import { DeleteUserDTO } from "pages/api/admin/users/delete";
 import Link from "next/link";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { DefaultRole } from "interfaces/user";
-import { UserStatus } from "@prisma/client";
-import toast, { Toaster } from "react-hot-toast";
-import colors from "constants/colors";
+import toast from "lib/toast";
 import Modal from "./Modal";
 
 const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
@@ -21,16 +21,7 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
 }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  const toasty = () =>
-    toast.success("Account request accepted!", {
-      duration: 2000,
-      iconTheme: { primary: colors.dark, secondary: colors.button },
-      style: {
-        background: colors.dark,
-        color: colors.button,
-        margin: "50px",
-      },
-    });
+  const toasty = () => toast.success("Account request accepted!");
   const deleteUser = async (): Promise<void> => {
     try {
       const response = await fetch("/api/admin/users/delete", {
@@ -69,8 +60,14 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
 
   return (
     <div>
-      <Modal className="mb-2" open={Boolean(isDeleting)}>
-        <h1 className="font-semibold">Decline account request?</h1>
+      <Modal
+        className="mb-2"
+        open={isDeleting}
+        onClose={() => setIsDeleting(false)}
+      >
+        <Dialog.Title className="font-semibold">
+          Decline account request?
+        </Dialog.Title>
         <p className="mb-6">
           Are you sure you want to decline {name}&apos;s account request?
         </p>
@@ -136,7 +133,6 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
             >
               Accept
             </Button>
-            <Toaster position="bottom-left" reverseOrder={false} />
           </div>
         </div>
       </div>

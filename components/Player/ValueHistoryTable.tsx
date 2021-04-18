@@ -27,7 +27,7 @@ const ValueHistoryTable: React.FC<Props> = ({
 }: Props) => {
   const canEdit = useCanEditField(fieldKey);
   return (
-    <table className="w-full mt-4">
+    <table className="w-full mt-4 text-sm">
       <thead>
         <tr className="h-10 text-left text-unselected tr-border">
           <th className="w-3/12 pl-5 font-semibold">Date</th>

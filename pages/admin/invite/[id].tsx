@@ -16,6 +16,7 @@ import { ViewingPermissionDTO } from "pages/api/admin/roles/create";
 import flattenUserRoles from "utils/flattenUserRoles";
 import sanitizeUser from "utils/sanitizeUser";
 import Modal from "components/Modal";
+import { Dialog } from "@headlessui/react";
 
 interface ResendConfirmationProps {
   isResending: boolean;
@@ -29,10 +30,14 @@ const ResendConfirmation: React.FunctionComponent<ResendConfirmationProps> = ({
   setSubmitter,
 }) => {
   return (
-    <Modal open={Boolean(isResending)} className="max-w-xl">
-      <p className="text-lg font-medium text-dark">
+    <Modal
+      open={isResending}
+      onClose={() => setIsResending(false)}
+      className="max-w-xl"
+    >
+      <Dialog.Title className="text-lg font-medium text-dark">
         Re-sending this invite will save invite changes
-      </p>
+      </Dialog.Title>
       <p className="text-sm font-normal text-dark pt-2 pb-10">
         By re-sending this invite, any changes you&apos;ve made will
         automatically be saved and updated.

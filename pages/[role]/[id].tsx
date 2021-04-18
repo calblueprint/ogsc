@@ -16,11 +16,10 @@ import prisma from "utils/prisma";
 import Combobox from "components/Combobox";
 import { ViewingPermissionDTO } from "pages/api/admin/roles/create";
 import useSessionInfo from "utils/useSessionInfo";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { signOut } from "next-auth/client";
 import sanitizeUser from "utils/sanitizeUser";
 import flattenUserRoles from "utils/flattenUserRoles";
-import colors from "../../constants/colors";
 
 type gsspProps = {
   user?: IUser;
@@ -522,15 +521,7 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
         } else {
           toastMessage = "User account deactivated";
         }
-        toast.success(toastMessage, {
-          duration: 2000,
-          iconTheme: { primary: colors.dark, secondary: colors.button },
-          style: {
-            background: colors.dark,
-            color: colors.button,
-            margin: "50px",
-          },
-        });
+        toast.success(toastMessage);
       }
     } catch (err) {
       setError(err.message);
@@ -660,7 +651,6 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
                     </span>
                     .
                   </div>
-                  <Toaster position="bottom-left" />
                   {error && <p className="text-red-600 text-sm">{error}</p>}
                 </div>
               </div>

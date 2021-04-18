@@ -34,7 +34,7 @@ export const StandaloneProfileFieldEditor: React.FC<
     if ("field" in props) {
       try {
         await updateField(props.field);
-        onComplete?.();
+        onComplete?.(props.field);
       } catch (err) {
         setError(err.message);
       }
@@ -146,7 +146,11 @@ const ProfileFieldEditorModal: React.FC<Props> = ({
           {intentLabel}
         </Button>
       )}
-      <Modal open={modalOpen} className="w-1/2">
+      <Modal
+        open={modalOpen}
+        className="w-1/2"
+        onClose={() => setModalOpen(false)}
+      >
         <StandaloneProfileFieldEditor
           onComplete={wrappedOnComplete}
           {...props}
