@@ -1,23 +1,13 @@
 /* eslint-disable react/destructuring-assignment */
-import {
-  Absence,
-  AbsenceType,
-  ProfileFieldKey,
-  UserRoleType,
-} from "@prisma/client";
+import { Absence, ProfileFieldKey } from "@prisma/client";
 import Button from "components/Button";
 import Modal from "components/Modal";
 import React, { useCallback, useContext, useState } from "react";
 import { IProfileField } from "interfaces/user";
 import PropTypes from "prop-types";
 import labelProfileField from "utils/labelProfileField";
-import useSessionInfo from "utils/useSessionInfo";
-import {
-  AttendanceAccessDefinitionsByRole,
-  ProfileAccessDefinitionsByRole,
-} from "lib/access/definitions";
-import resolveAccessValue from "lib/access/resolve";
 import isAbsence from "utils/isAbsence";
+import useCanEditField from "utils/useCanEditField";
 import ProfileFieldEditor from "./ProfileFieldEditor";
 import ProfileContext from "./ProfileContext";
 
@@ -111,7 +101,6 @@ const ProfileFieldEditorModal: React.FC<Props> = ({
   trigger,
   ...props
 }: Props) => {
-  const session = useSessionInfo();
   const { state } = useContext(ProfileContext);
   const [modalOpen, setModalOpen] = useState(false);
   const wrappedOnComplete = useCallback(
@@ -121,62 +110,27 @@ const ProfileFieldEditorModal: React.FC<Props> = ({
     },
     [onComplete]
   );
+  const canEdit = useCanEditField(
+    (() => {
+      if ("field" in props) {
+        if (isAbsence(props.field)) {
+          return "absence";
+        }
+        return props.field.key;
+      }
+      return props.fieldKey;
+    })(),
+    "field" in props && isAbsence(props.field) ? props.field.type : undefined
+  );
   const intentLabel =
     "field" in props
       ? `Edit ${labelProfileField(props.field)}`
       : `Add ${labelProfileField(props.fieldKey)}`;
 
-  if (!state.player) {
+  if (!state.player || !canEdit) {
     return null;
   }
 
-  let canEdit = false;
-  if (session.user.defaultRole.type === UserRoleType.Admin) {
-    canEdit = true;
-  } else if ("field" in props) {
-    if (isAbsence(props.field)) {
-      canEdit = resolveAccessValue(
-        AttendanceAccessDefinitionsByRole[session.user.defaultRole.type][
-          props.field.type
-        ] ?? false,
-        "write",
-        state.player,
-        session.user
-      );
-    } else {
-      canEdit = resolveAccessValue(
-        ProfileAccessDefinitionsByRole[session.user.defaultRole.type][
-          props.field.key
-        ] ?? false,
-        "write",
-        state.player,
-        session.user
-      );
-    }
-  } else if (props.fieldKey !== "absence") {
-    canEdit = resolveAccessValue(
-      ProfileAccessDefinitionsByRole[session.user.defaultRole.type][
-        props.fieldKey
-      ] ?? false,
-      "write",
-      state.player,
-      session.user
-    );
-  } else {
-    canEdit = resolveAccessValue(
-      AttendanceAccessDefinitionsByRole[session.user.defaultRole.type][
-        // We won't know the AbsenceType ahead of time:
-        AbsenceType.Academic
-      ] ?? false,
-      "write",
-      state.player,
-      session.user
-    );
-  }
-
-  if (!canEdit) {
-    return null;
-  }
   return (
     <>
       {trigger ? (

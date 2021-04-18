@@ -166,7 +166,9 @@ const ValueHistoryView: React.FC<Props> = ({
           >
             {Object.entries(IntervalWindowLabels).map(
               ([interval, label]: [string, string]) => (
-                <option value={interval}>{label}</option>
+                <option key={interval} value={interval}>
+                  {label}
+                </option>
               )
             )}
           </select>
@@ -196,6 +198,7 @@ const ValueHistoryView: React.FC<Props> = ({
       </div>
       {historyView === "table" && (
         <ValueHistoryTable
+          fieldKey={fieldKey}
           values={values}
           startDate={startDate}
           endDate={endDate}

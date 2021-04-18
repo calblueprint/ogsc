@@ -221,6 +221,7 @@ const ValueHistoryGraph: React.FC<ValueHistoryGraphProps> = ({
         </VictoryGroup>
         {values.map((datum) => (
           <VictoryLine
+            key={datum.date.unix()}
             style={{
               data: {
                 stroke: ({ active }) =>
