@@ -12,11 +12,13 @@ import resolveAccessValue from "lib/access/resolve";
 import React, { useContext } from "react";
 import { deserializeProfileFieldValue } from "utils/buildUserProfile";
 import labelProfileField from "utils/labelProfileField";
+import sortTimeSeriesFields from "utils/sortTimeSeriesFields";
 import useSessionInfo from "utils/useSessionInfo";
 import ProfileContext, { ProfileSectionContext } from "./ProfileContext";
 import ProfileFieldEditor from "./ProfileFieldEditor";
 import TestResultHistoryTable from "./TestResultHistoryTable";
 import TextLayout from "./TextLayout";
+import ValueHistorySummary from "./ValueHistorySummary";
 import ValueHistoryView from "./ValueHistoryView";
 
 export type ProfileFieldCellProps = {
@@ -164,11 +166,23 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
         return <ProfileFieldEditor profileField={field} />;
       }
 
+      const [mostRecentField] = field.history.sort(sortTimeSeriesFields);
+      const mostRecentValue = deserializeProfileFieldValue(mostRecentField);
+
       return (
         <div className="mb-10">
           <h2 className="text-dark text-lg font-semibold my-5">
             {labelProfileField(field.key)}
           </h2>
+          <ValueHistorySummary
+            icon="academics"
+            color="gold"
+            displayedValue={mostRecentValue?.value ?? 0}
+            maxValue={100}
+          >
+            Most recent test -{" "}
+            {mostRecentValue?.date.format("MMM DD, YYYY") ?? "N/A"}
+          </ValueHistorySummary>
           <TestResultHistoryTable fieldKey={field.key} values={field.history} />
         </div>
       );

@@ -3,7 +3,7 @@ import dayjs from "lib/day";
 
 import { Absence, ProfileField } from "@prisma/client";
 import Button from "components/Button";
-import Icon, { IconType } from "components/Icon";
+import { IconType } from "components/Icon";
 import {
   IProfileField,
   NumericProfileFields,
@@ -19,6 +19,7 @@ import colors from "../../constants/colors";
 import ProfileFieldEditorModal from "./ProfileFieldEditorModal";
 import ValueHistoryGraph from "./ValueHistoryGraph";
 import ValueHistoryTable from "./ValueHistoryTable";
+import ValueHistorySummary from "./ValueHistorySummary";
 
 export type Props = {
   fieldKey: NumericProfileFields;
@@ -135,27 +136,14 @@ const ValueHistoryView: React.FC<Props> = ({
   return (
     <div className="mb-10">
       <h2 className="text-dark text-lg font-semibold my-5">{fieldLabel}</h2>
-      <div className="flex items-center">
-        <div
-          className={`flex w-16 h-16 justify-center items-center bg-${primaryColor}-muted rounded-lg mr-6`}
-        >
-          <Icon
-            className={`text-${primaryColor} fill-current w-6 h-6`}
-            type={icon}
-          />
-        </div>
-        <div>
-          <p
-            className={`text-2xl text-${primaryColor} font-semibold leading-none mb-1`}
-          >
-            {averageValue.toFixed(1)}
-            <span className="text-dark text-base">/ {valueRange[1]}</span>
-          </p>
-          <p className="text-sm text-unselected">
-            Average {shortFieldLabel || fieldLabel}
-          </p>
-        </div>
-      </div>
+      <ValueHistorySummary
+        icon={icon}
+        color={primaryColor}
+        displayedValue={averageValue}
+        maxValue={valueRange[1]}
+      >
+        Average {shortFieldLabel || fieldLabel}
+      </ValueHistorySummary>
       <div className="mt-5 flex justify-between items-center text-sm">
         <div className="font-semibold">
           <label htmlFor="viewing-window">{fieldLabel} History for</label>

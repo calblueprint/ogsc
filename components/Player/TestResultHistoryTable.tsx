@@ -7,6 +7,7 @@ import {
 import dayjs from "lib/day";
 import React from "react";
 import { deserializeProfileFieldValue } from "utils/buildUserProfile";
+import sortTimeSeriesFields from "utils/sortTimeSeriesFields";
 import useCanEditField from "utils/useCanEditField";
 import EditMore from "./EditMore";
 
@@ -41,39 +42,33 @@ const TestResultHistoryTable: React.FC<Props> = ({
         </tr>
       </thead>
       <tbody>
-        {values
-          .sort((a, b) => {
-            const aValue = deserializeProfileFieldValue(a);
-            const bValue = deserializeProfileFieldValue(b);
-            return (bValue?.date.unix() ?? 0) - (aValue?.date.unix() ?? 0);
-          })
-          .map((field) => {
-            const value = deserializeProfileFieldValue(field);
-            if (startDate && endDate && value) {
-              if (
-                value.date.isAfter(endDate, "day") ||
-                value.date.isBefore(startDate, "day")
-              ) {
-                return null;
-              }
+        {values.sort(sortTimeSeriesFields).map((field) => {
+          const value = deserializeProfileFieldValue(field);
+          if (startDate && endDate && value) {
+            if (
+              value.date.isAfter(endDate, "day") ||
+              value.date.isBefore(startDate, "day")
+            ) {
+              return null;
             }
+          }
 
-            return (
-              <tr key={field.id} className="h-16 tr-border">
-                <td className="w-2/12 px-5">
-                  {dayjs(value?.date).format("MMM DD, YYYY")}
+          return (
+            <tr key={field.id} className="h-16 tr-border">
+              <td className="w-2/12 px-5">
+                {dayjs(value?.date).format("MMM DD, YYYY")}
+              </td>
+              <td className="w-2/12">{value?.value}</td>
+              <td className="w-2/12">{value?.percentile}</td>
+              <td className="w-5/12">{value?.comment}</td>
+              {canEdit && (
+                <td className="w-1/12">
+                  <EditMore fieldKey={field.key} fieldId={field.id} />
                 </td>
-                <td className="w-2/12">{value?.value}</td>
-                <td className="w-2/12">{value?.percentile}</td>
-                <td className="w-5/12">{value?.comment}</td>
-                {canEdit && (
-                  <td className="w-1/12">
-                    <EditMore fieldKey={field.key} fieldId={field.id} />
-                  </td>
-                )}
-              </tr>
-            );
-          })}
+              )}
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   );
