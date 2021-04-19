@@ -5,7 +5,11 @@ import React, { useContext, useState } from "react";
 import Icon from "components/Icon";
 import Modal from "components/Modal";
 import { StandaloneProfileFieldEditor } from "components/Player/ProfileFieldEditorModal";
-import { IProfileField, NumericProfileFields } from "interfaces/user";
+import {
+  IProfileField,
+  ProfileFieldKeysOfProfileValueType,
+  TimeSeriesProfileFieldValues,
+} from "interfaces/user";
 import dayjs from "lib/day";
 import toast from "lib/toast";
 import { deserializeProfileFieldValue } from "utils/buildUserProfile";
@@ -14,9 +18,11 @@ import isAbsence from "utils/isAbsence";
 import DeleteField from "./DeleteField";
 import ProfileContext from "./ProfileContext";
 
+type TimeSeriesProfileFieldKeys = ProfileFieldKeysOfProfileValueType<TimeSeriesProfileFieldValues>;
+
 type EditProps =
   | {
-      fieldKey: NumericProfileFields;
+      fieldKey: TimeSeriesProfileFieldKeys;
       fieldId: number;
     }
   | {
@@ -31,14 +37,14 @@ const EditMore: React.FunctionComponent<EditProps> = (props: EditProps) => {
     state: { player },
   } = useContext(ProfileContext);
 
-  const profileFields: IProfileField<NumericProfileFields>[] | undefined =
+  const profileFields: IProfileField<TimeSeriesProfileFieldKeys>[] | undefined =
     "fieldKey" in props
       ? player?.profile?.[props.fieldKey]?.history
       : undefined;
   const field =
     "fieldKey" in props
       ? profileFields?.find(
-          (profileField: IProfileField<NumericProfileFields>) =>
+          (profileField: IProfileField<TimeSeriesProfileFieldKeys>) =>
             profileField.id === props.fieldId
         )
       : player?.absences?.find(
@@ -124,7 +130,7 @@ const EditMore: React.FunctionComponent<EditProps> = (props: EditProps) => {
                   isAbsence(updated)
                     ? updated.date
                     : deserializeProfileFieldValue(
-                        updated as IProfileField<NumericProfileFields>
+                        updated as IProfileField<TimeSeriesProfileFieldKeys>
                       )?.date
                 ).format("MMMM YYYY")} has been updated!`
               );
@@ -146,7 +152,7 @@ const EditMore: React.FunctionComponent<EditProps> = (props: EditProps) => {
                   isAbsence(deleted)
                     ? deleted.date
                     : deserializeProfileFieldValue(
-                        deleted as IProfileField<NumericProfileFields>
+                        deleted as IProfileField<TimeSeriesProfileFieldKeys>
                       )?.date
                 ).format("MMMM YYYY")} has been deleted.`
               );

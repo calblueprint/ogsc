@@ -34,6 +34,7 @@ export enum ProfileFieldValue {
    * DistanceMeasured values are recorded in inches.
    */
   DistanceMeasured = "distance_measured",
+  StandardizedTestResult = "standardized_test",
 }
 
 export const ProfileFieldValues = <const>{
@@ -41,6 +42,9 @@ export const ProfileFieldValues = <const>{
     ProfileFieldValue.IntegerWithComment,
   [ProfileFieldKey.AdvisingScore]: ProfileFieldValue.IntegerWithComment,
   [ProfileFieldKey.AthleticScore]: ProfileFieldValue.IntegerWithComment,
+  [ProfileFieldKey.InternalAssessments]: ProfileFieldValue.IntegerWithComment,
+  [ProfileFieldKey.StandardizedTesting]:
+    ProfileFieldValue.StandardizedTestResult,
   [ProfileFieldKey.BioAboutMe]: ProfileFieldValue.Text,
   [ProfileFieldKey.BioFavoriteSubject]: ProfileFieldValue.Text,
   [ProfileFieldKey.BioHobbies]: ProfileFieldValue.Text,
@@ -80,6 +84,8 @@ export const ProfileFieldLabels = {
   [ProfileFieldKey.DisciplinaryActions]: "Disciplinary Actions",
   [ProfileFieldKey.HealthAndWellness]: "Comments",
   [ProfileFieldKey.YearOfBirth]: "Birth Year",
+  [ProfileFieldKey.InternalAssessments]: "Internal Assessments",
+  [ProfileFieldKey.StandardizedTesting]: "Standardized Testing",
 } as const;
 
 export enum ProfileCategory {
@@ -130,6 +136,8 @@ export const ProfileFieldsByCategory: Record<
   ],
   [ProfileCategory.AcademicPerformance]: [
     ProfileFieldKey.GPA,
+    ProfileFieldKey.InternalAssessments,
+    ProfileFieldKey.StandardizedTesting,
     ProfileFieldKey.DisciplinaryActions,
   ],
   [ProfileCategory.Attendance]: [],
@@ -159,22 +167,40 @@ type WithComment = {
   comment?: string;
 };
 
+type TrackedOverTime = {
+  /**
+   * A field that represents what date this value is recorded for.
+   */
+  date: Dayjs;
+};
+
 export type ProfileFieldValueDeserializedTypes = {
   [ProfileFieldValue.Text]: string;
   [ProfileFieldValue.URL]: string;
   [ProfileFieldValue.Integer]: number;
-  [ProfileFieldValue.IntegerWithComment]: WithComment & {
-    value: number;
-    date: Dayjs;
-  };
+  [ProfileFieldValue.IntegerWithComment]: TrackedOverTime &
+    WithComment & {
+      value: number;
+    };
   [ProfileFieldValue.Float]: number;
-  [ProfileFieldValue.FloatWithComment]: WithComment & {
-    value: number;
-    date: Dayjs;
-  };
+  [ProfileFieldValue.FloatWithComment]: TrackedOverTime &
+    WithComment & {
+      value: number;
+    };
   [ProfileFieldValue.TimeElapsed]: Duration;
   [ProfileFieldValue.DistanceMeasured]: { feet: number; inches: number };
+  [ProfileFieldValue.StandardizedTestResult]: TrackedOverTime &
+    WithComment & {
+      value: number;
+      percentile: number;
+    };
 };
+
+export type TimeSeriesProfileFieldValues = {
+  [V in ProfileFieldValue]: ProfileFieldValueDeserializedTypes[V] extends TrackedOverTime
+    ? V
+    : never;
+}[ProfileFieldValue];
 
 export type IProfileField<K extends ProfileFieldKey = ProfileFieldKey> = Omit<
   ProfileField,
@@ -222,7 +248,9 @@ export type ProfileFieldKeysOfProfileValueType<
 >;
 
 export type NumericProfileFields = ProfileFieldKeysOfProfileValueType<
-  ProfileFieldValue.IntegerWithComment | ProfileFieldValue.FloatWithComment
+  | ProfileFieldValue.IntegerWithComment
+  | ProfileFieldValue.FloatWithComment
+  | ProfileFieldValue.StandardizedTestResult
 >;
 
 export type DefaultRole = {

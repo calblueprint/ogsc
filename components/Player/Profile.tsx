@@ -75,6 +75,8 @@ export const ProfileContents = <T extends ProfileCategory>({
         <div>
           <ProfileFieldCell fieldKey={ProfileFieldKey.GPA} />
           <ProfileFieldCell fieldKey={ProfileFieldKey.DisciplinaryActions} />
+          <ProfileFieldCell fieldKey={ProfileFieldKey.InternalAssessments} />
+          <ProfileFieldCell fieldKey={ProfileFieldKey.StandardizedTesting} />
         </div>
       );
     case ProfileCategory.PhysicalWellness:
