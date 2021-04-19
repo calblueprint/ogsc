@@ -1,4 +1,4 @@
-import { Absence, ProfileField, ProfileFieldKey } from "@prisma/client";
+import { Absence, ProfileField, ProfileFieldKey, Notes } from "@prisma/client";
 import dayjs from "lib/day";
 import {
   IProfileField,
@@ -168,6 +168,7 @@ export default function buildUserProfile<
   T extends SanitizedUser & {
     absences?: Absence[];
     profileFields: ProfileField[];
+    notes?: Notes[];
   }
 >(user: T): T & { profile: PlayerProfile | null } {
   if (user.profileFields.length === 0) {
@@ -178,6 +179,10 @@ export default function buildUserProfile<
     absences: user.absences?.map((absence: Absence) => ({
       ...absence,
       date: new Date(absence.date),
+    })),
+    notes: user.notes?.map((notes: Notes) => ({
+      ...notes,
+      date: new Date(notes.created_at),
     })),
     profile: <PlayerProfile>(
       Object.fromEntries<PlayerProfile[ProfileFieldKey]>(

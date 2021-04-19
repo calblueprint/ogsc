@@ -5,6 +5,7 @@ import {
   Role,
   User,
   UserRoleType,
+  Notes,
 } from "@prisma/client";
 import { IconType } from "components/Icon";
 import { Dayjs } from "dayjs";
@@ -88,6 +89,8 @@ export enum ProfileCategory {
   Attendance = "Attendance",
   PhysicalWellness = "Physical Wellness",
   Highlights = "Highlights",
+  // eslint-disable-next-line @typescript-eslint/no-shadow
+  Notes = "Notes",
 }
 
 export const ProfileCategoryIcons: Record<ProfileCategory, IconType> = {
@@ -97,6 +100,7 @@ export const ProfileCategoryIcons: Record<ProfileCategory, IconType> = {
   [ProfileCategory.Attendance]: "calendar",
   [ProfileCategory.PhysicalWellness]: "shoe",
   [ProfileCategory.Highlights]: "star",
+  [ProfileCategory.Notes]: "note",
 };
 
 /**
@@ -138,6 +142,7 @@ export const ProfileFieldsByCategory: Record<
     ProfileFieldKey.HealthAndWellness,
   ],
   [ProfileCategory.Highlights]: [ProfileFieldKey.Highlights],
+  [ProfileCategory.Notes]: [],
 };
 
 export const UncategorizedProfileFields: ProfileFieldKey[] = Object.values(
@@ -242,4 +247,5 @@ export type IPlayer = IUser & {
   profile: Partial<PlayerProfile> | null;
   absences?: (IAbsence | UncreatedAbsence)[];
   absenceDraft?: Partial<Absence>;
+  notes?: Notes[];
 };

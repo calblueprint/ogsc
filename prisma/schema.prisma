@@ -17,8 +17,9 @@ model User {
   updatedAt      DateTime        @default(now()) @map("updated_at")
   hashedPassword String          @map("hashed_password")
   phoneNumber    String?         @map("phone_number")
-  status         UserStatus
   adminNote      String?
+  status         UserStatus
+  notes          Notes[]         @relation("NotesTousers")
   absences       Absence[]       @relation("AbsencesToUsers")
   profileFields  ProfileField[]  @relation("ProfileFieldToUsers")
   resetPassword  ResetPassword[] @relation("ResetPasswordToUsers")
@@ -132,6 +133,15 @@ model Role {
   @@map("roles")
 }
 
+model Notes {
+  id         Int      @id @default(autoincrement())
+  author     Int
+  created_at DateTime @default(now())
+  content    String
+  type       NoteType @default(general)
+  users      User     @relation("NotesTousers", fields: [author], references: [id])
+}
+
 enum ProfileFieldKey {
   BioAboutMe @map("bio_about_me")
   BioHobbies @map("bio_hobbies")
@@ -189,4 +199,13 @@ enum UserStatus {
   PendingUserAcceptance @map("pending_user_acceptance")
 
    @@map("user_status")
+}
+
+enum NoteType {
+  general
+  soccer
+  academics
+  mentorship
+
+   @@map("note_type")
 }

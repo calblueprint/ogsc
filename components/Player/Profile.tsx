@@ -17,6 +17,7 @@ import { serializeProfileFieldValue } from "utils/buildUserProfile";
 import isAbsence from "utils/isAbsence";
 import AbsenceTable from "./AbsenceTable";
 import ProfileFieldCell from "./ProfileFieldCell";
+import NotesTable from "./NotesTable";
 import ProfileContext, {
   ProfileContextType,
   useProfileContext,
@@ -115,6 +116,15 @@ export const ProfileContents = <T extends ProfileCategory>({
           </Section>
         </div>
       );
+    case ProfileCategory.Notes:
+      return (
+        <div>
+          {player?.notes && (
+            <NotesTable userId={player.id} notes={player.notes} />
+          )}
+        </div>
+      );
+
     default:
       return (
         <div className="mt-12 mb-10 text-2xl font-semibold">No Information</div>
@@ -246,7 +256,8 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
               ProfileFieldsByCategory[category].some(
                 (key: ProfileFieldKey) => player.profile?.[key]
               ) ||
-              (category === ProfileCategory.Attendance && player.absences)
+              (category === ProfileCategory.Attendance && player.absences) ||
+              category === ProfileCategory.Notes
           )
           .map((category: ProfileCategory) => (
             <button

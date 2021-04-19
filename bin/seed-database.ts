@@ -9,6 +9,8 @@ import {
   User,
   UserRoleType,
   UserStatus,
+  NoteType,
+  Notes,
 } from "@prisma/client";
 import Faker from "faker";
 import Ora from "ora";
@@ -75,6 +77,13 @@ export default async function seedDatabase(): Promise<void> {
     await prisma.absence.deleteMany({
       where: {
         userId: {
+          in: users.map((user: User) => user.id),
+        },
+      },
+    });
+    await prisma.notes.deleteMany({
+      where: {
+        author: {
           in: users.map((user: User) => user.id),
         },
       },
@@ -161,6 +170,20 @@ export default async function seedDatabase(): Promise<void> {
                           Object.values(AbsenceReason)
                         ),
                         description: Faker.lorem.lines(1),
+                      }
+                  )
+              ),
+            },
+            notes: {
+              create: Object.values(NoteType).flatMap((type: NoteType) =>
+                Array<Notes | null>(Faker.random.number(4))
+                  .fill(null)
+                  .map(
+                    () =>
+                      <Prisma.NotesCreateWithoutUsersInput>{
+                        created_at: Faker.date.recent(90),
+                        type,
+                        content: Faker.lorem.lines(1),
                       }
                   )
               ),
