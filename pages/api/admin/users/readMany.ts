@@ -35,8 +35,9 @@ export default async (
                   type: userRole,
                 },
               },
+              status: UserStatus.Active,
             }
-          : undefined),
+          : { status: UserStatus.Active }),
         ...(search
           ? {
               name: {

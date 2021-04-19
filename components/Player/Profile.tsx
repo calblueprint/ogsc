@@ -1,498 +1,119 @@
-import { AbsenceType, ProfileFieldKey } from "@prisma/client";
-import React, { useContext, useState } from "react";
-import Icon, { IconType } from "components/Icon";
-import { IPlayer, UserRoleLabel } from "interfaces";
-import updateActionPlayer from "utils/updateActionPlayer";
-import { useStateMachine } from "little-state-machine";
-import Button from "components/Button";
-import Modal from "components/Modal";
-import useSessionInfo from "utils/useSessionInfo";
-import TextLayout from "./TextLayout";
-import AbsenceTable from "./AbsenceTable";
-import ValueHistoryView from "./ValueHistoryView";
-import EditLayout from "./EditLayout";
-import BioEdit from "./BioEdit";
-import AddScore from "./AddScore";
-import AddGPA from "./AddGPA";
-import NotesTable from "./NotesTable";
-
-enum ProfileCategory {
-  Overview = "Overview",
-  Engagement = "Engagement",
-  AcademicPerformance = "Academics",
-  Attendance = "Attendance",
-  PhysicalWellness = "Physical Wellness",
-  Highlights = "Highlights",
-  Notes = "Notes",
-}
-
-export const ProfileCategoryIcons: Record<ProfileCategory, IconType> = {
-  [ProfileCategory.Overview]: "profile",
-  [ProfileCategory.Engagement]: "lightning",
-  [ProfileCategory.AcademicPerformance]: "book",
-  [ProfileCategory.Attendance]: "calendar",
-  [ProfileCategory.PhysicalWellness]: "shoe",
-  [ProfileCategory.Highlights]: "star",
-  [ProfileCategory.Notes]: "note",
-};
-
-/**
- * Categorizes each profile field, for determining if a category should appear given a partial
- * profile.
- *
- * Modifying this object will not update the display behavior of the profile field, those changes
- * must be added to the `ProfileContents` component.
- */
-export const ProfileFieldsByCategory: Record<
+import { Absence, AbsenceType, ProfileFieldKey } from "@prisma/client";
+import React, { useCallback, useContext, useEffect, useState } from "react";
+import Icon from "components/Icon";
+import {
+  IAbsence,
+  IPlayer,
+  IProfileField,
   ProfileCategory,
-  ProfileFieldKey[]
-> = {
-  [ProfileCategory.Overview]: [
-    ProfileFieldKey.BioAboutMe,
-    ProfileFieldKey.BioHobbies,
-    ProfileFieldKey.BioFavoriteSubject,
-    ProfileFieldKey.BioMostDifficultSubject,
-    ProfileFieldKey.BioSiblings,
-    ProfileFieldKey.BioParents,
-    ProfileFieldKey.IntroVideo,
-  ],
-  [ProfileCategory.Engagement]: [
-    ProfileFieldKey.AcademicEngagementScore,
-    ProfileFieldKey.AdvisingScore,
-    ProfileFieldKey.AthleticScore,
-  ],
-  [ProfileCategory.AcademicPerformance]: [
-    ProfileFieldKey.GPA,
-    ProfileFieldKey.DisciplinaryActions,
-  ],
-  [ProfileCategory.Attendance]: [],
-  [ProfileCategory.PhysicalWellness]: [
-    ProfileFieldKey.BMI,
-    ProfileFieldKey.PacerTest,
-    ProfileFieldKey.MileTime,
-    ProfileFieldKey.Situps,
-    ProfileFieldKey.Pushups,
-    ProfileFieldKey.HealthAndWellness,
-  ],
-  [ProfileCategory.Highlights]: [ProfileFieldKey.Highlights],
-  [ProfileCategory.Notes]: [],
-};
-
-export const ProfileFieldLabels: Partial<Record<ProfileFieldKey, string>> = {
-  [ProfileFieldKey.BioAboutMe]: "About Me",
-  [ProfileFieldKey.BioHobbies]: "Hobbies",
-  [ProfileFieldKey.BioFavoriteSubject]: "Favorite Subject",
-  [ProfileFieldKey.BioMostDifficultSubject]: "Most Difficult Subject",
-  [ProfileFieldKey.BioSiblings]: "Siblings",
-  [ProfileFieldKey.BioParents]: "Parents",
-  [ProfileFieldKey.IntroVideo]: "Intro Video",
-  [ProfileFieldKey.PacerTest]: "Pacer Test",
-  [ProfileFieldKey.MileTime]: "1 Mile Time",
-  [ProfileFieldKey.Situps]: "Sit-Ups",
-  [ProfileFieldKey.Pushups]: "Push-Ups",
-  [ProfileFieldKey.AcademicEngagementScore]: "School Engagement",
-  [ProfileFieldKey.AdvisingScore]: "Academic Advising Engagement",
-  [ProfileFieldKey.AthleticScore]: "Athletics Engagement",
-  [ProfileFieldKey.GPA]: "Grade Point Average",
-};
-
-const PlayerContext = React.createContext<IPlayer | null>(null);
-
-type ProfileContentCellProps = {
-  fieldKey: ProfileFieldKey;
-};
-
-const ProfileContentCell: React.FC<ProfileContentCellProps> = ({
-  fieldKey,
-}: ProfileContentCellProps) => {
-  const player = useContext(PlayerContext);
-  const profileField = player?.profile?.[fieldKey];
-  if (!profileField || !profileField.current || !profileField.lastUpdated) {
-    return null;
-  }
-  switch (profileField.key) {
-    case ProfileFieldKey.AcademicEngagementScore:
-      return (
-        <ValueHistoryView
-          icon="school"
-          primaryColor="pink"
-          fieldLabel={
-            ProfileFieldLabels.AcademicEngagementScore || "Engagement"
-          }
-          shortFieldLabel="Engagement"
-          values={profileField.history}
-          valueLabel="point"
-        />
-      );
-    case ProfileFieldKey.AdvisingScore:
-      return (
-        <ValueHistoryView
-          icon="academics"
-          primaryColor="gold"
-          fieldLabel={ProfileFieldLabels.AdvisingScore || "Engagement"}
-          shortFieldLabel="Engagement"
-          values={profileField.history}
-          valueLabel="point"
-        />
-      );
-    case ProfileFieldKey.AthleticScore:
-      return (
-        <ValueHistoryView
-          icon="athletics"
-          primaryColor="purple"
-          fieldLabel={ProfileFieldLabels.AthleticScore || "Engagement"}
-          shortFieldLabel="Engagement"
-          values={profileField.history}
-          valueLabel="point"
-        />
-      );
-
-    case ProfileFieldKey.BMI:
-      return (
-        <>
-          <TextLayout title="BMI">{profileField.current}</TextLayout>
-        </>
-      );
-    case ProfileFieldKey.DisciplinaryActions:
-      return (
-        <>
-          <div className="mb-6 mt-16 text-lg font-semibold">
-            Disciplinary Actions
-          </div>
-          <TextLayout title={null}>{profileField.current}</TextLayout>
-        </>
-      );
-    case ProfileFieldKey.GPA:
-      return (
-        <ValueHistoryView
-          icon="book"
-          primaryColor="blue"
-          fieldLabel={ProfileFieldLabels.GPA || "GPA"}
-          shortFieldLabel="GPA"
-          values={profileField.history}
-          valueRange={[2, 4]}
-        />
-      );
-    case ProfileFieldKey.HealthAndWellness:
-      return (
-        <>
-          <div className="mb-6 mt-16 text-lg font-semibold">
-            Health and Wellness
-          </div>
-          <TextLayout title={null}>{profileField.current}</TextLayout>
-        </>
-      );
-    default:
-      return (
-        <TextLayout title={ProfileFieldLabels[fieldKey] || fieldKey}>
-          {profileField.current}
-        </TextLayout>
-      );
-  }
-};
+  ProfileCategoryIcons,
+  ProfileFieldsByCategory,
+  ProfileFieldValueDeserializedTypes,
+  ProfileFieldValues,
+} from "interfaces";
+import { useRouter } from "next/router";
+import { UpdateOneAbsenceDTO } from "pages/api/absences/update";
+import { serializeProfileFieldValue } from "utils/buildUserProfile";
+import isAbsence from "utils/isAbsence";
+import AbsenceTable from "./AbsenceTable";
+import ProfileFieldCell from "./ProfileFieldCell";
+import NotesTable from "./NotesTable";
+import ProfileContext, {
+  ProfileContextType,
+  useProfileContext,
+} from "./ProfileContext";
+import ProfileSection, { Props as ProfileSectionProps } from "./ProfileSection";
 
 type ProfileContentsProps<T extends ProfileCategory> = {
   category: T;
+  // How do we do this with a FC that has a generic?
+  // eslint-disable-next-line react/require-default-props
+  renderSection?: (props: ProfileSectionProps) => JSX.Element;
 };
 
-const ProfileContents = <T extends ProfileCategory>({
+export const ProfileContents = <T extends ProfileCategory>({
   category,
+  renderSection,
 }: ProfileContentsProps<T>): JSX.Element => {
-  const player = useContext(PlayerContext);
-  const [BioEditState, setBioEditState] = useState(false);
-  const [schoolScoreState, setSchoolScoreState] = useState(false);
-  const [bmiState, setBMIState] = useState(false);
-  const [addScoreState, setAddScoreState] = useState(false);
-  const [scoreCategory, setScoreCategory] = useState("");
-  const { action } = useStateMachine(updateActionPlayer);
-  const session = useSessionInfo();
+  const {
+    state: { player },
+  } = useContext(ProfileContext);
+
+  const Section = renderSection ?? ProfileSection;
 
   switch (category) {
     case ProfileCategory.Overview:
       return (
         <div>
-          <h1 className="mb-10 text-2xl font-semibold">Student Overview</h1>
-          <hr />
-          <div className="mt-10 grid grid-cols-3">
-            <div className="flex flex-row">
-              <div className="mb-6 text-lg font-semibold pr-6">Student Bio</div>
-              {UserRoleLabel[session.sessionType] === "Admin" ? (
-                <button
-                  type="button"
-                  onClick={() => setBioEditState(true)}
-                  className="h-6"
-                >
-                  <Icon type="edit" />
-                </button>
-              ) : (
-                []
-              )}
-            </div>
-            <div className="col-span-2">
-              {BioEditState ? (
-                <div>
-                  <BioEdit editState={setBioEditState} playerID={player?.id}>
-                    <EditLayout
-                      title={ProfileFieldLabels[ProfileFieldKey.BioAboutMe]}
-                      currentText={player?.profile?.BioAboutMe?.current}
-                      setState={(input) => action({ BioAboutMe: input })}
-                    />
-                    <EditLayout
-                      title={ProfileFieldLabels[ProfileFieldKey.BioHobbies]}
-                      currentText={player?.profile?.BioHobbies?.current}
-                      setState={(input) => action({ BioHobbies: input })}
-                    />
-                    <EditLayout
-                      title={
-                        ProfileFieldLabels[ProfileFieldKey.BioFavoriteSubject]
-                      }
-                      currentText={player?.profile?.BioFavoriteSubject?.current}
-                      setState={(input) =>
-                        action({ BioFavoriteSubject: input })
-                      }
-                    />
-                    <EditLayout
-                      title={
-                        ProfileFieldLabels[
-                          ProfileFieldKey.BioMostDifficultSubject
-                        ]
-                      }
-                      currentText={
-                        player?.profile?.BioMostDifficultSubject?.current
-                      }
-                      setState={(input) =>
-                        action({ BioMostDifficultSubject: input })
-                      }
-                    />
-                    <EditLayout
-                      title={ProfileFieldLabels[ProfileFieldKey.BioSiblings]}
-                      currentText={player?.profile?.BioSiblings?.current}
-                      setState={(input) => action({ BioSiblings: input })}
-                    />
-                    <EditLayout
-                      title={ProfileFieldLabels[ProfileFieldKey.BioParents]}
-                      currentText={player?.profile?.BioParents?.current}
-                      setState={(input) => action({ BioParents: input })}
-                    />
-                  </BioEdit>
-                </div>
-              ) : (
-                <div>
-                  <ProfileContentCell fieldKey={ProfileFieldKey.BioAboutMe} />
-                  <ProfileContentCell fieldKey={ProfileFieldKey.BioHobbies} />
-                  <ProfileContentCell
-                    fieldKey={ProfileFieldKey.BioFavoriteSubject}
-                  />
-                  <ProfileContentCell
-                    fieldKey={ProfileFieldKey.BioMostDifficultSubject}
-                  />
-                  <ProfileContentCell fieldKey={ProfileFieldKey.BioSiblings} />
-                  <ProfileContentCell fieldKey={ProfileFieldKey.BioParents} />
-                  <ProfileContentCell fieldKey={ProfileFieldKey.IntroVideo} />
-                </div>
-              )}
-            </div>
-          </div>
+          <Section sectionName="Student Bio">
+            <ProfileFieldCell fieldKey={ProfileFieldKey.BioAboutMe} />
+            <ProfileFieldCell fieldKey={ProfileFieldKey.BioHobbies} />
+            <ProfileFieldCell fieldKey={ProfileFieldKey.BioFavoriteSubject} />
+            <ProfileFieldCell
+              fieldKey={ProfileFieldKey.BioMostDifficultSubject}
+            />
+            <ProfileFieldCell fieldKey={ProfileFieldKey.BioSiblings} />
+            <ProfileFieldCell fieldKey={ProfileFieldKey.BioParents} />
+          </Section>
+          <Section sectionName="Intro Video">
+            <ProfileFieldCell fieldKey={ProfileFieldKey.IntroVideo} />
+          </Section>
         </div>
       );
     case ProfileCategory.Engagement:
       return (
         <div>
-          <h1 className="mb-10 text-2xl font-semibold">Engagement</h1>
-          <div>
-            <ProfileContentCell
-              fieldKey={ProfileFieldKey.AcademicEngagementScore}
-            />
-            {UserRoleLabel[session.sessionType] === "Admin" ? (
-              <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
-                <Button
-                  iconType="plus"
-                  onClick={() => {
-                    setAddScoreState(true);
-                    setScoreCategory("School");
-                  }}
-                >
-                  Add Engagement Score
-                </Button>
-              </div>
-            ) : (
-              []
-            )}
-          </div>
-          <div className="mb-16">
-            <ProfileContentCell fieldKey={ProfileFieldKey.AdvisingScore} />
-            {UserRoleLabel[session.sessionType] === "Admin" ? (
-              <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
-                <Button
-                  iconType="plus"
-                  onClick={() => {
-                    setAddScoreState(true);
-                    setScoreCategory("Advising");
-                  }}
-                >
-                  Add Engagement Score
-                </Button>
-              </div>
-            ) : (
-              []
-            )}
-          </div>
-          <div className="mb-16">
-            <ProfileContentCell fieldKey={ProfileFieldKey.AthleticScore} />
-            {UserRoleLabel[session.sessionType] === "Admin" ? (
-              <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
-                <Button
-                  iconType="plus"
-                  onClick={() => {
-                    setAddScoreState(true);
-                    setScoreCategory("Athletic");
-                  }}
-                >
-                  Add Engagement Score
-                </Button>
-              </div>
-            ) : (
-              []
-            )}
-          </div>
-          <Modal open={addScoreState} className="w-2/3">
-            <AddScore
-              setHidden={setAddScoreState}
-              userId={player?.id}
-              category={scoreCategory}
-            />
-          </Modal>
+          <ProfileFieldCell
+            fieldKey={ProfileFieldKey.AcademicEngagementScore}
+          />
+          <ProfileFieldCell fieldKey={ProfileFieldKey.AdvisingScore} />
+          <ProfileFieldCell fieldKey={ProfileFieldKey.AthleticScore} />
         </div>
       );
     case ProfileCategory.AcademicPerformance:
       return (
         <div>
-          <h1 className="mb-10 text-2xl font-semibold">Academic Performance</h1>
-          <ProfileContentCell fieldKey={ProfileFieldKey.GPA} />
-          {UserRoleLabel[session.sessionType] === "Admin" ? (
-            <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
-              <Button iconType="plus" onClick={() => setAddScoreState(true)}>
-                Add Grade Point Average
-              </Button>
-            </div>
-          ) : (
-            []
-          )}
-          <ProfileContentCell fieldKey={ProfileFieldKey.DisciplinaryActions} />
-          <Modal open={addScoreState} className="w-2/3">
-            <AddGPA setHidden={setAddScoreState} userId={player?.id} />
-          </Modal>
+          <ProfileFieldCell fieldKey={ProfileFieldKey.GPA} />
+          <ProfileFieldCell fieldKey={ProfileFieldKey.DisciplinaryActions} />
         </div>
       );
     case ProfileCategory.PhysicalWellness:
       return (
         <div>
-          <h1 className="mb-10 text-2xl font-semibold">Physical Wellness</h1>
-          <hr className="mb-10" />
-          <div className="grid grid-cols-3">
-            <div className="mb-6 text-lg font-semibold">
-              Body Mass Index
-              {UserRoleLabel[session.sessionType] === "Admin" ? (
-                <button
-                  type="button"
-                  onClick={() => setBMIState(true)}
-                  className="pl-4"
-                >
-                  <Icon type="edit" />
-                </button>
-              ) : (
-                []
-              )}
-            </div>
-            <div className="col-span-2">
-              {bmiState ? (
-                <BioEdit editState={setBMIState} playerID={player?.id}>
-                  <EditLayout
-                    title={ProfileFieldKey.BMI}
-                    currentText={player?.profile?.BMI?.current?.toString()}
-                    setState={(input) => action({ BMI: input })}
-                  />
-                </BioEdit>
-              ) : (
-                <ProfileContentCell fieldKey={ProfileFieldKey.BMI} />
-              )}
-            </div>
-          </div>
+          <Section sectionName="Height">
+            <ProfileFieldCell fieldKey={ProfileFieldKey.Height} />
+          </Section>
           <hr className="mt-4" />
-          <div className="mt-16 grid grid-cols-3">
-            <div className="mb-6 text-lg font-semibold">
-              Fitness Testing
-              {UserRoleLabel[session.sessionType] === "Admin" ? (
-                <button
-                  type="button"
-                  onClick={() => setSchoolScoreState(true)}
-                  className="pl-4"
-                >
-                  <Icon type="edit" />
-                </button>
-              ) : (
-                []
-              )}
-            </div>
-            <div className="col-span-2">
-              {schoolScoreState ? (
-                <BioEdit editState={setSchoolScoreState} playerID={player?.id}>
-                  <EditLayout
-                    title={ProfileFieldLabels[ProfileFieldKey.PacerTest]}
-                    currentText={player?.profile?.PacerTest?.current?.toString()}
-                    setState={(input) => action({ PacerTest: input })}
-                  />
-                  <EditLayout
-                    title={ProfileFieldLabels[ProfileFieldKey.MileTime]}
-                    currentText={player?.profile?.MileTime?.current}
-                    setState={(input) => action({ MileTime: input })}
-                  />
-                  <EditLayout
-                    title={ProfileFieldLabels[ProfileFieldKey.Situps]}
-                    currentText={player?.profile?.Situps?.current?.toString()}
-                    setState={(input) => action({ Situps: input })}
-                  />
-                  <EditLayout
-                    title={ProfileFieldLabels[ProfileFieldKey.Pushups]}
-                    currentText={player?.profile?.Pushups?.current?.toString()}
-                    setState={(input) => action({ Pushups: input })}
-                  />
-                </BioEdit>
-              ) : (
-                <div>
-                  <ProfileContentCell fieldKey={ProfileFieldKey.PacerTest} />
-                  <ProfileContentCell fieldKey={ProfileFieldKey.MileTime} />
-                  <ProfileContentCell fieldKey={ProfileFieldKey.Situps} />
-                  <ProfileContentCell fieldKey={ProfileFieldKey.Pushups} />
-                </div>
-              )}
-            </div>
-          </div>
+          <Section sectionName="Fitness Testing">
+            <ProfileFieldCell fieldKey={ProfileFieldKey.PacerTest} />
+            <ProfileFieldCell fieldKey={ProfileFieldKey.MileTime} />
+            <ProfileFieldCell fieldKey={ProfileFieldKey.Situps} />
+            <ProfileFieldCell fieldKey={ProfileFieldKey.Pushups} />
+          </Section>
+          <hr className="mt-4" />
+          <Section sectionName="Health & Wellness">
+            <ProfileFieldCell fieldKey={ProfileFieldKey.HealthAndWellness} />
+          </Section>
         </div>
       );
     case ProfileCategory.Attendance:
       return (
         <div>
-          <h1 className="mb-10 text-2xl font-semibold">Attendance</h1>
-          {player?.absences &&
-            Object.values(AbsenceType).map(
-              (type: AbsenceType) =>
-                player.absences && (
-                  <AbsenceTable
-                    key={type}
-                    absenceType={type}
-                    absences={player.absences}
-                    userId={player.id}
-                  />
-                )
-            )}
+          {Object.values(AbsenceType).map((type: AbsenceType) => (
+            <AbsenceTable
+              key={type}
+              absenceType={type}
+              absences={player?.absences || []}
+            />
+          ))}
         </div>
       );
     case ProfileCategory.Highlights:
       return (
         <div>
-          <h1 className="mb-10 text-2xl font-semibold">Highlights</h1>
-          <ProfileContentCell fieldKey={ProfileFieldKey.Highlights} />
+          <Section sectionName="Highlights">
+            <ProfileFieldCell fieldKey={ProfileFieldKey.Highlights} />
+          </Section>
         </div>
       );
     case ProfileCategory.Notes:
@@ -520,6 +141,113 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
   const [selectedCategory, setSelectedCategory] = useState(
     ProfileCategory.Overview
   );
+  const [state, dispatch] = useProfileContext();
+  const router = useRouter();
+
+  const refreshProfile = useCallback(() => {
+    router.replace(router.asPath);
+  }, [router]);
+
+  const createField: ProfileContextType["createField"] = useCallback(
+    async function createField(fieldKey, draft, userId): Promise<void> {
+      const serializedValue = JSON.stringify(
+        fieldKey === "absence"
+          ? {
+              absences: [draft as Partial<Absence>],
+              playerId: userId,
+            }
+          : {
+              playerId: userId,
+              fields: [
+                {
+                  key: fieldKey,
+                  value: serializeProfileFieldValue(
+                    draft as ProfileFieldValueDeserializedTypes[ProfileFieldValues[ProfileFieldKey]],
+                    fieldKey
+                  ),
+                },
+              ],
+            }
+      );
+
+      const response = await fetch(
+        fieldKey === "absence" ? "/api/absences" : "/api/profileFields",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: serializedValue,
+        }
+      );
+      if (!response.ok) {
+        throw await response.json();
+      }
+      refreshProfile();
+    },
+    [refreshProfile]
+  );
+
+  const updateField: ProfileContextType["updateField"] = useCallback(
+    async function updateField(field: IProfileField | IAbsence): Promise<void> {
+      if (!field.draft) {
+        return;
+      }
+      const serializedValue = isAbsence(field)
+        ? JSON.stringify({
+            date: field.draft?.date,
+            description: field.draft?.description,
+            reason: field.draft?.reason,
+            type: field.draft?.type,
+            userId: field.draft?.userId,
+          } as UpdateOneAbsenceDTO)
+        : JSON.stringify({
+            value: serializeProfileFieldValue(field.draft, field.key),
+          });
+      const response = await fetch(
+        isAbsence(field)
+          ? `/api/absences/${field.id}`
+          : `/api/profileFields/${field.id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: serializedValue,
+        }
+      );
+      if (!response.ok) {
+        throw await response.json();
+      }
+      refreshProfile();
+    },
+    [refreshProfile]
+  );
+
+  const deleteField: ProfileContextType["deleteField"] = useCallback(
+    async function deleteField(
+      fieldKey: ProfileFieldKey | "absence",
+      id: number
+    ): Promise<void> {
+      const response = await fetch(
+        fieldKey === "absence"
+          ? `/api/absences/${id}`
+          : `/api/profileFields/${id}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
+      if (!response.ok) {
+        throw await response.json();
+      }
+      refreshProfile();
+    },
+    [refreshProfile]
+  );
+
+  useEffect(() => {
+    dispatch({ type: "SET_PLAYER", player });
+  }, [player, dispatch]);
+
   return (
     <div>
       <div className="flex flex-row text-sm text-center">
@@ -554,9 +282,13 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
           ))}
       </div>
       <hr className="my-10" />
-      <PlayerContext.Provider value={player}>
+      <ProfileContext.Provider
+        value={{ state, dispatch, createField, updateField, deleteField }}
+      >
+        <h1 className="mb-10 text-2xl font-semibold">{selectedCategory}</h1>
+        <hr />
         <ProfileContents category={selectedCategory} />
-      </PlayerContext.Provider>
+      </ProfileContext.Provider>
     </div>
   );
 };

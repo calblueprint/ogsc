@@ -9,7 +9,9 @@ import PlayerProfile from "components/Player/Profile";
 import Modal from "components/Modal";
 import Button from "components/Button";
 import sanitizeUser from "utils/sanitizeUser";
-import buildUserProfile from "utils/buildUserProfile";
+import buildUserProfile, {
+  deserializeProfileFieldValue,
+} from "utils/buildUserProfile";
 import filterPlayerProfileRead from "utils/filterPlayerProfileRead";
 import flattenUserRoles from "utils/flattenUserRoles";
 import { IPlayer } from "interfaces";
@@ -85,8 +87,10 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
           <div className="player-info grid grid-rows-2">
             <p className="pt-6 text-2xl font-semibold">{player.name}</p>
             <p className="pt-2 text-sm font-medium">
-              {player.profile?.PlayerNumber?.current &&
-                `#${player.profile?.PlayerNumber.current}`}
+              Birth Year:{" "}
+              {deserializeProfileFieldValue(
+                player.profile?.YearOfBirth?.current
+              )}
             </p>
           </div>
         </div>

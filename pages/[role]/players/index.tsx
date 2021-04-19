@@ -2,6 +2,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { UserRoleLabel } from "interfaces/user";
 import useSessionInfo from "utils/useSessionInfo";
+import { UserRoleType } from "@prisma/client";
 import DashboardLayout from "../../../components/DashboardLayout";
 import PlayerDashboard from "../../../components/PlayersDashboard";
 import Button from "../../../components/Button";
@@ -10,12 +11,14 @@ type NavbarProps = {
   filter: boolean;
   setFilter: (tab: boolean) => void;
   numRelatedPlayers: number;
+  userType: string;
 };
 
 const Navbar: React.FunctionComponent<NavbarProps> = ({
   filter,
   setFilter,
   numRelatedPlayers,
+  userType,
 }) => {
   return (
     <div>
@@ -30,18 +33,22 @@ const Navbar: React.FunctionComponent<NavbarProps> = ({
           All Players
         </button>
 
-        <button
-          key="Your Players"
-          type="button"
-          className={`navigation-tab ${
-            filter === true ? "navigation-tab-highlighted" : ""
-          }`}
-          onClick={() => {
-            setFilter(true);
-          }}
-        >
-          Your Players ({numRelatedPlayers})
-        </button>
+        {userType === "Admin" || userType === "Player" ? (
+          []
+        ) : (
+          <button
+            key="Your Players"
+            type="button"
+            className={`navigation-tab ${
+              filter === true ? "navigation-tab-highlighted" : ""
+            }`}
+            onClick={() => {
+              setFilter(true);
+            }}
+          >
+            Your Players ({numRelatedPlayers})
+          </button>
+        )}
       </div>
     </div>
   );
@@ -62,8 +69,8 @@ const PlayersListPage: React.FunctionComponent = () => {
       <div className="flex mt-20 flex-wrap space-y-6 flex-col mx-16">
         <div className="header flex justify-between">
           <p className="pt-4 text-2xl font-display font-medium">All Players</p>
-          {UserRoleLabel[session.sessionType] === "Admin" ? (
-            <Link href="/admin/players/playerForm">
+          {UserRoleLabel[session.sessionType] === "Admin" && (
+            <Link href="/admin/players/create">
               <Button
                 className="font-display text-sm px-6 bg-blue-muted text-blue rounded-lg h-10"
                 iconType="plus"
@@ -71,8 +78,6 @@ const PlayersListPage: React.FunctionComponent = () => {
                 Create new profile
               </Button>
             </Link>
-          ) : (
-            []
           )}
         </div>
         <div className="grid grid-cols-4 gap-8">
@@ -81,6 +86,7 @@ const PlayersListPage: React.FunctionComponent = () => {
               filter={filter}
               setFilter={setFilter}
               numRelatedPlayers={relatedPlayerIds.length}
+              userType={UserRoleLabel[session.sessionType] as UserRoleType}
             />
             <hr className="border-unselected border-opacity-50" />
             <PlayerDashboard

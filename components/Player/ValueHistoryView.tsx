@@ -1,48 +1,25 @@
 import React, { useState } from "react";
-import dayjs from "dayjs";
-import {
-  VictoryArea,
-  VictoryAxis,
-  VictoryChart,
-  VictoryGroup,
-  VictoryLabel,
-  VictoryLine,
-  VictoryScatter,
-  VictoryTheme,
-  VictoryTooltip,
-  VictoryVoronoiContainer,
-} from "victory";
-import { ProfileField, ProfileFieldKey } from "@prisma/client";
+import dayjs from "lib/day";
+
+import { ProfileField } from "@prisma/client";
 import Button from "components/Button";
 import Icon, { IconType } from "components/Icon";
 import {
   IProfileField,
-  ProfileFieldValue,
+  NumericProfileFields,
+  ProfileFieldValueDeserializedTypes,
   ProfileFieldValues,
+  UncreatedProfileField,
 } from "interfaces";
 import { deserializeProfileFieldValue } from "utils/buildUserProfile";
-import EditMore from "components/Player/EditMore";
-import SuccessfulChange from "components/Player/successChange";
+import labelProfileField from "utils/labelProfileField";
 import colors from "../../constants/colors";
+import ProfileFieldEditorModal from "./ProfileFieldEditorModal";
+import ValueHistoryGraph from "./ValueHistoryGraph";
+import ValueHistoryTable from "./ValueHistoryTable";
 
-type NumericProfileFields = Exclude<
-  {
-    [K in ProfileFieldKey]: ProfileFieldValues[K] extends
-      | ProfileFieldValue.Integer
-      | ProfileFieldValue.Float
-      | ProfileFieldValue.IntegerWithComment
-      | ProfileFieldValue.FloatWithComment
-      ? K
-      : never;
-  }[ProfileFieldKey],
-  never
->;
-
-type Props = {
-  /**
-   * This label will be used as the header for the history view.
-   */
-  fieldLabel: string;
+export type Props = {
+  fieldKey: NumericProfileFields;
 
   /**
    * This label will be used as a short descriptor for the value type, i.e. Average "GPA" instead
@@ -54,7 +31,10 @@ type Props = {
 
   primaryColor: keyof typeof colors.palette;
 
-  values: IProfileField<NumericProfileFields>[];
+  values: (
+    | IProfileField<NumericProfileFields>
+    | UncreatedProfileField<NumericProfileFields>
+  )[];
 
   /**
    * Specify the range of possible valules as [minimum, maximum].
@@ -102,7 +82,7 @@ const IntervalWindowBoundaries: Record<
 };
 
 const ValueHistoryView: React.FC<Props> = ({
-  fieldLabel,
+  fieldKey,
   shortFieldLabel,
   icon,
   primaryColor,
@@ -110,58 +90,48 @@ const ValueHistoryView: React.FC<Props> = ({
   valueLabel = ["", ""],
   valueRange = [0, 10],
 }: Props) => {
+  const fieldLabel = labelProfileField(fieldKey);
   const [historyView, setHistoryView] = useState<"graph" | "table">("graph");
   const [intervalWindow, setIntervalWindow] = useState<IntervalWindow>(
     IntervalWindow.LastSixMonths
   );
-  const [success, setSuccess] = useState(false);
-  const [editType, setEditType] = useState<"updated" | "added" | "deleted">();
-  const [editDate, setEditDate] = useState<string>("");
   const [startDate, endDate] = IntervalWindowBoundaries[intervalWindow];
 
-  const deserializedValues = values.map(
-    (field: IProfileField<NumericProfileFields>) => {
+  const deserializedValues = values
+
+    .map((field: IProfileField<NumericProfileFields>) => {
       const deserialized = deserializeProfileFieldValue<
         ProfileField,
         NumericProfileFields
       >(field);
-      return {
-        ...field,
-        ...(typeof deserialized === "number"
-          ? {}
-          : { comment: deserialized?.comment }),
-        value:
-          typeof deserialized === "number" ? deserialized : deserialized?.value,
-        createdAt: new Date(field.createdAt),
-      };
-    }
-  );
-  const filteredValues = deserializedValues.filter(({ createdAt }) =>
-    startDate && endDate
-      ? dayjs(createdAt).isBefore(endDate) &&
-        dayjs(createdAt).isAfter(startDate)
+      return deserialized;
+    })
+    .filter(
+      (
+        value
+      ): value is ProfileFieldValueDeserializedTypes[ProfileFieldValues[NumericProfileFields]] =>
+        value != null
+    );
+
+  const filteredValues = deserializedValues.filter((value) =>
+    value != null && startDate && endDate
+      ? dayjs(value.date).isBefore(endDate, "day") &&
+        dayjs(value.date).isAfter(startDate, "day")
       : true
   );
 
   const averageValue =
     filteredValues.reduce(
       (total: number, field: typeof filteredValues[number]) =>
-        total + (field.value ?? 0),
+        total + (field?.value ?? 0),
       0
     ) /
-    filteredValues.filter(
-      (field: typeof filteredValues[number]) => field.value !== null
-    ).length;
-  const mutedPrimaryColor = `${primaryColor}-muted` as keyof typeof colors.mutedPalette;
+    (filteredValues.filter(
+      (field: typeof filteredValues[number]) => field?.value !== null
+    ).length || 1);
 
   return (
-    <div>
-      {success && (
-        <SuccessfulChange
-          text={`${fieldLabel} score for ${editDate} has been ${editType}!`}
-          setSuccess={setSuccess}
-        />
-      )}
+    <div className="mb-10">
       <h2 className="text-dark text-lg font-semibold my-5">{fieldLabel}</h2>
       <div className="flex items-center">
         <div
@@ -225,248 +195,31 @@ const ValueHistoryView: React.FC<Props> = ({
         </div>
       </div>
       {historyView === "table" && (
-        <table className="w-full mt-4">
-          <thead>
-            <tr className="h-10 text-left text-unselected tr-border">
-              <th className="w-3/12 pl-5 font-semibold">Date</th>
-              <th className="w-2/12 font-semibold">Score</th>
-              <th className="w-5/12 font-semibold">Description</th>
-              <th className="w-1/12 font-semibold">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredValues.map((field) => (
-              <tr key={field.id} className="h-16 tr-border">
-                <td className="w-3/12 px-5">
-                  {new Date(field.createdAt).toLocaleString("default", {
-                    month: "short",
-                    year: "numeric",
-                  })}
-                </td>
-                <td className="w-2/12">{field.value}</td>
-                <td>{field.comment}</td>
-                <td className="w-1/12">
-                  <EditMore
-                    field={field}
-                    setSuccess={setSuccess}
-                    setType={setEditType}
-                    setDate={setEditDate}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <ValueHistoryTable
+          values={values}
+          startDate={startDate}
+          endDate={endDate}
+        />
       )}
       {historyView === "graph" && (
-        <>
-          <svg style={{ height: 0 }}>
-            <defs>
-              <linearGradient
-                id={`${primaryColor}ChartFill`}
-                gradientTransform="rotate(90)"
-              >
-                <stop
-                  offset="0%"
-                  stopColor={colors.mutedPalette[mutedPrimaryColor]}
-                />
-                <stop
-                  offset="100%"
-                  stopColor={colors.mutedPalette[mutedPrimaryColor]}
-                  stopOpacity={0.05}
-                />
-              </linearGradient>
-            </defs>
-          </svg>
-          <VictoryChart
-            containerComponent={
-              <VictoryVoronoiContainer voronoiDimension="x" />
-            }
-            theme={{
-              ...VictoryTheme.grayscale,
-              axis: {
-                style: {
-                  grid: {
-                    fill: "none",
-                    stroke: "transparent",
-                  },
-                },
-              },
-            }}
-            width={800}
-            height={250}
-            domain={{
-              x: startDate && endDate ? [startDate, endDate] : undefined,
-              y: valueRange,
-            }}
-            scale={{
-              x: "time",
-            }}
-          >
-            <VictoryAxis
-              style={{
-                grid: {
-                  stroke: colors.border,
-                  pointerEvents: "painted",
-                  strokeWidth: 0.5,
-                  strokeDasharray: "3, 5",
-                },
-                axis: {
-                  stroke: colors.unselected,
-                  strokeWidth: 0.5,
-                },
-                tickLabels: {
-                  fill: colors.unselected,
-                  fontFamily: "Montserrat",
-                  fontWeight: "600",
-                  fontSize: "8px",
-                  padding: "12",
-                },
-              }}
-              tickCount={valueRange[1] - valueRange[0] + 1}
-              dependentAxis
-            />
-            <VictoryAxis
-              style={{
-                axis: {
-                  stroke: colors.unselected,
-                  strokeWidth: 0.5,
-                },
-                tickLabels: {
-                  fill: colors.unselected,
-                  fontFamily: "Montserrat",
-                  fontWeight: "600",
-                  fontSize: "8px",
-                  padding: "12",
-                },
-              }}
-              tickFormat={
-                startDate && endDate
-                  ? (x) =>
-                      new Date(x).toLocaleDateString("default", {
-                        month: "short",
-                      })
-                  : undefined
-              }
-              tickValues={
-                startDate && endDate
-                  ? Array(dayjs(endDate).diff(dayjs(startDate), "month") + 1)
-                      .fill(null)
-                      .map((_, index) =>
-                        dayjs(startDate)
-                          .startOf("month")
-                          .add(index, "month")
-                          .toDate()
-                      )
-                  : undefined
-              }
-            />
-            <VictoryGroup
-              data={deserializedValues.map((datum) => ({
-                x: datum.createdAt,
-                y: datum.value,
-                label: [
-                  datum.createdAt.toLocaleDateString("default", {
-                    month: "short",
-                    year: "numeric",
-                  }),
-                  datum.value === 1
-                    ? `${datum.value} ${valueLabel}`
-                    : `${datum.value} ${
-                        Array.isArray(valueLabel)
-                          ? valueLabel[1]
-                          : `${valueLabel}s`
-                      }`,
-                ],
-              }))}
-              labelComponent={
-                <VictoryTooltip
-                  labelComponent={
-                    <VictoryLabel
-                      lineHeight={[1.5, 1]}
-                      style={[
-                        {
-                          fill: "#FFFFFF",
-                          fontFamily: "Montserrat",
-                          fontSize: "6px",
-                          fontWeight: 500,
-                          opacity: 0.8,
-                        },
-                        {
-                          fill: "#FFFFFF",
-                          fontFamily: "Montserrat",
-                          fontSize: "8px",
-                          fontWeight: 600,
-                        },
-                      ]}
-                    />
-                  }
-                  flyoutStyle={{
-                    fill: colors.palette[primaryColor],
-                    strokeWidth: 0,
-                  }}
-                  cornerRadius={3}
-                  flyoutPadding={{
-                    top: -3,
-                    bottom: -3,
-                    left: 5,
-                    right: -10,
-                  }}
-                  pointerLength={5}
-                  pointerWidth={6}
-                  dy={-8}
-                  style={{ textAnchor: "start" }}
-                />
-              }
-            >
-              <VictoryArea
-                animate={{ duration: 500 }}
-                style={{
-                  data: {
-                    fill: `url(#${primaryColor}ChartFill)`,
-                    strokeWidth: 0,
-                  },
-                }}
-              />
-              <VictoryLine
-                animate={{ duration: 500 }}
-                style={{
-                  data: {
-                    stroke: colors.palette[primaryColor],
-                    strokeWidth: 1.5,
-                  },
-                }}
-              />
-              <VictoryScatter
-                size={({ active }) => (active ? 4 : 0)}
-                style={{
-                  data: {
-                    fill: colors.palette[primaryColor],
-                    stroke: "#FFFFFF",
-                    strokeWidth: 2,
-                  },
-                }}
-              />
-            </VictoryGroup>
-            {deserializedValues.map((datum) => (
-              <VictoryLine
-                style={{
-                  data: {
-                    stroke: ({ active }) =>
-                      active ? colors.palette[primaryColor] : "transparent",
-                    strokeDasharray: "6, 4",
-                    strokeWidth: 1.5,
-                  },
-                }}
-                data={[
-                  { x: datum.createdAt, y: 0 },
-                  { x: datum.createdAt, y: datum.value },
-                ]}
-              />
-            ))}
-          </VictoryChart>
-        </>
+        <ValueHistoryGraph
+          primaryColor={primaryColor}
+          values={deserializedValues}
+          valueLabel={valueLabel}
+          valueRange={valueRange}
+          startDate={startDate}
+          endDate={endDate}
+        />
       )}
+
+      <div className="mb-16 mt-8 grid grid-rows-2 w-full justify-end">
+        <ProfileFieldEditorModal
+          fieldKey={fieldKey}
+          onComplete={() => {
+            // TODO: Dispatch notification
+          }}
+        />
+      </div>
     </div>
   );
 };
