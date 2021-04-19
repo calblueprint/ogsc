@@ -496,7 +496,6 @@ const ProfileContents = <T extends ProfileCategory>({
         </div>
       );
     case ProfileCategory.Notes:
-      console.log(player);
       return (
         <div>
           <h1 className="mb-10 text-2xl font-semibold">Notes</h1>
