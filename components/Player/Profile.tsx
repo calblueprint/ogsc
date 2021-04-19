@@ -119,7 +119,6 @@ export const ProfileContents = <T extends ProfileCategory>({
     case ProfileCategory.Notes:
       return (
         <div>
-          <h1 className="mb-10 text-2xl font-semibold">Notes</h1>
           {player?.notes && (
             <NotesTable userId={player.id} notes={player.notes} />
           )}
