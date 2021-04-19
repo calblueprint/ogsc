@@ -7,7 +7,7 @@ const Note: React.FunctionComponent<{ note: Notes }> = ({
   note: { created_at, content },
 }) => {
   return (
-    <div className=" grid grid-rows-3 text-sm max-h-56 hover:bg-hover border-medium-gray border-opacity-50 border-b">
+    <div className=" grid grid-rows-3 text-sm max-h-56 border-opacity-50 border-b">
       <text className="row-span-3 w-16 h-4 text-xs text-center rounded-full font-semibold text-unselected bg-button mt-10">
         Tag
       </text>
