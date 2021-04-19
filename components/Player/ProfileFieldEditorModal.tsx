@@ -3,8 +3,13 @@ import { Absence, ProfileFieldKey } from "@prisma/client";
 import Button from "components/Button";
 import Modal from "components/Modal";
 import React, { useCallback, useContext, useState } from "react";
-import { IProfileField } from "interfaces/user";
+import {
+  IProfileField,
+  ProfileFieldValueDeserializedTypes,
+  ProfileFieldValues,
+} from "interfaces/user";
 import PropTypes from "prop-types";
+import { serializeProfileFieldValue } from "utils/buildUserProfile";
 import labelProfileField from "utils/labelProfileField";
 import isAbsence from "utils/isAbsence";
 import useCanEditField from "utils/useCanEditField";
@@ -51,7 +56,20 @@ export const StandaloneProfileFieldEditor: React.FC<
           return;
         }
         await createField(props.fieldKey, draft, state.player.id);
-        onComplete?.();
+        onComplete?.(
+          props.fieldKey === "absence"
+            ? (draft as Absence)
+            : {
+                createdAt: new Date(),
+                id: 0,
+                userId: state.player.id,
+                key: props.fieldKey,
+                value: serializeProfileFieldValue(
+                  draft as ProfileFieldValueDeserializedTypes[ProfileFieldValues[ProfileFieldKey]],
+                  props.fieldKey
+                ),
+              }
+        );
       } catch (err) {
         setError(err.message);
       }
