@@ -3,6 +3,7 @@ import Button from "components/Button";
 import React from "react";
 
 const Note: React.FunctionComponent<{ note: Notes }> = ({
+  // note: { id, author, created_at, content, type },   <- add this in later!
   // eslint-disable-next-line camelcase
   note: { created_at, content },
 }) => {
