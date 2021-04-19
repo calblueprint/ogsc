@@ -1,5 +1,7 @@
 import { ProfileFieldKey, UserRoleType } from "@prisma/client";
 import {
+  IProfileFieldBuilt,
+  ProfileFieldKeysOfProfileValueType,
   ProfileFieldLabels,
   ProfileFieldValue,
   ProfileFieldValueDeserializedTypes,
@@ -9,9 +11,11 @@ import { ProfileAccessDefinitionsByRole } from "lib/access/definitions";
 import resolveAccessValue from "lib/access/resolve";
 import React, { useContext } from "react";
 import { deserializeProfileFieldValue } from "utils/buildUserProfile";
+import labelProfileField from "utils/labelProfileField";
 import useSessionInfo from "utils/useSessionInfo";
 import ProfileContext, { ProfileSectionContext } from "./ProfileContext";
 import ProfileFieldEditor from "./ProfileFieldEditor";
+import TestResultHistoryTable from "./TestResultHistoryTable";
 import TextLayout from "./TextLayout";
 import ValueHistoryView from "./ValueHistoryView";
 
@@ -105,6 +109,17 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
             valueRange={[2, 4]}
           />
         );
+      case ProfileFieldKey.InternalAssessments:
+        return (
+          <ValueHistoryView
+            icon="book"
+            primaryColor="pink"
+            fieldKey={ProfileFieldKey.InternalAssessments}
+            shortFieldLabel="Internal Assessment"
+            values={profileField.history}
+            valueRange={[0, 5]}
+          />
+        );
       default:
     }
   }
@@ -140,6 +155,22 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
             `${value.feet} ft. ${value.inches} in.`
           )}
         </TextLayout>
+      );
+    }
+    case ProfileFieldValue.StandardizedTestResult: {
+      type StandardizedTestResultKeys = ProfileFieldKeysOfProfileValueType<ProfileFieldValue.StandardizedTestResult>;
+      const field = profileField as IProfileFieldBuilt<StandardizedTestResultKeys>;
+      if (editing) {
+        return <ProfileFieldEditor profileField={field} />;
+      }
+
+      return (
+        <div className="mb-10">
+          <h2 className="text-dark text-lg font-semibold my-5">
+            {labelProfileField(field.key)}
+          </h2>
+          <TestResultHistoryTable fieldKey={field.key} values={field.history} />
+        </div>
       );
     }
     case ProfileFieldValue.Text:

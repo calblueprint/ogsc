@@ -9,8 +9,8 @@ import {
   IAbsence,
   IProfileField,
   IProfileFieldBuilt,
+  NumericProfileFields,
   ProfileFieldKeysOfProfileValueType,
-  ProfileFieldLabels,
   ProfileFieldValue,
   ProfileFieldValueDeserializedTypes,
   ProfileFieldValues,
@@ -22,6 +22,7 @@ import isAbsence from "utils/isAbsence";
 import labelProfileField from "utils/labelProfileField";
 import ProfileContext from "./ProfileContext";
 import ProfileFieldEditorModal from "./ProfileFieldEditorModal";
+import TestResultHistoryTable from "./TestResultHistoryTable";
 import ValueHistoryTable from "./ValueHistoryTable";
 
 type InputProps = React.ComponentPropsWithRef<"input"> & { unit?: string };
@@ -222,6 +223,33 @@ const AbsenceEditor: React.FC<AbsenceEditorProps> = ({
   );
 };
 
+type CreateTableHeaderProps = {
+  field: IProfileFieldBuilt<NumericProfileFields>;
+};
+
+const CreateTableHeader: React.FC<CreateTableHeaderProps> = ({
+  field,
+}: CreateTableHeaderProps) => {
+  return (
+    <div className="flex justify-between items-center">
+      <p>
+        Overall {labelProfileField(field.key)}:{" "}
+        <span className="ml-2 text-blue font-semibold">
+          {(field.history.length > 0
+            ? field.history.reduce(
+                (sum: number, value: IProfileField<NumericProfileFields>) =>
+                  sum + (deserializeProfileFieldValue(value)?.value || 0),
+                0
+              ) / field.history.length
+            : 0
+          ).toFixed(2)}
+        </span>
+      </p>
+      <ProfileFieldEditorModal fieldKey={field.key} />
+    </div>
+  );
+};
+
 type CreateProfileFieldProps = {
   profileField: IProfileFieldBuilt<ProfileFieldKey> | ProfileFieldKey;
 };
@@ -303,28 +331,7 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
         >;
         return (
           <div className="mb-16">
-            <div className="flex justify-between items-center">
-              <p>
-                Overall {ProfileFieldLabels[field.key]}:{" "}
-                <span className="ml-2 text-blue font-semibold">
-                  {(field.history.length > 0
-                    ? field.history.reduce(
-                        (
-                          sum: number,
-                          value: IProfileField<
-                            ProfileFieldKeysOfProfileValueType<typeof valueType>
-                          >
-                        ) =>
-                          sum +
-                          (deserializeProfileFieldValue(value)?.value || 0),
-                        0
-                      ) / field.history.length
-                    : 0
-                  ).toFixed(2)}
-                </span>
-              </p>
-              <ProfileFieldEditorModal fieldKey={field.key} />
-            </div>
+            <CreateTableHeader field={field} />
             <ValueHistoryTable fieldKey={field.key} values={field.history} />
           </div>
         );
@@ -386,6 +393,112 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
                 value: {
                   value: 0,
                   date: dayjs(),
+                  ...value,
+                  comment: event.target.value,
+                },
+                id: profileFieldId,
+              });
+            }}
+          />
+        </div>
+      );
+    }
+    case ProfileFieldValue.StandardizedTestResult: {
+      if (
+        typeof props.profileField === "object" &&
+        "history" in props.profileField
+      ) {
+        const field = props.profileField as IProfileFieldBuilt<
+          ProfileFieldKeysOfProfileValueType<typeof valueType>
+        >;
+        return (
+          <div className="mb-16">
+            <CreateTableHeader field={field} />
+            <TestResultHistoryTable
+              fieldKey={field.key}
+              values={field.history}
+            />
+          </div>
+        );
+      }
+
+      const value = deserializedValue as
+        | ProfileFieldValueDeserializedTypes[typeof valueType]
+        | null;
+      const fieldKey = profileKey as ProfileFieldKeysOfProfileValueType<
+        typeof valueType
+      >;
+      return (
+        <div>
+          <p className="text-sm font-semibold mb-3 mt-10">
+            {labelProfileField(fieldKey)} Score
+          </p>
+          <NumberEditor
+            onChange={(event) => {
+              dispatch({
+                type: "EDIT_FIELD",
+                key: fieldKey,
+                value: {
+                  date: dayjs(),
+                  percentile: 0,
+                  ...value,
+                  value: Number(event.target.value),
+                },
+                id: profileFieldId,
+              });
+            }}
+            defaultValue={value?.value}
+          />
+          <p className="text-sm font-semibold mb-3 mt-10">
+            {labelProfileField(fieldKey)} Percentile
+          </p>
+          <NumberEditor
+            onChange={(event) => {
+              dispatch({
+                type: "EDIT_FIELD",
+                key: fieldKey,
+                value: {
+                  date: dayjs(),
+                  value: 0,
+                  ...value,
+                  percentile: Number(event.target.value),
+                },
+                id: profileFieldId,
+              });
+            }}
+            defaultValue={value?.percentile}
+          />
+          <p className="text-sm font-semibold mb-3 mt-10">Date</p>
+          <DateTimeEditor
+            value={value?.date}
+            onChange={(date) => {
+              dispatch({
+                type: "EDIT_FIELD",
+                key: fieldKey,
+                value: {
+                  value: 0,
+                  percentile: 0,
+                  ...value,
+                  date,
+                },
+                id: profileFieldId,
+              });
+            }}
+          />
+          <p className="text-sm font-semibold mb-3 mt-10">Comments</p>
+          <input
+            type="text"
+            className="input text-sm w-full font-light"
+            name="comments"
+            value={value?.comment}
+            onChange={(event) => {
+              dispatch({
+                type: "EDIT_FIELD",
+                key: fieldKey,
+                value: {
+                  value: 0,
+                  date: dayjs(),
+                  percentile: 0,
                   ...value,
                   comment: event.target.value,
                 },
