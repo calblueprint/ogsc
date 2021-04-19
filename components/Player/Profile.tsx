@@ -14,6 +14,7 @@ import EditLayout from "./EditLayout";
 import BioEdit from "./BioEdit";
 import AddScore from "./AddScore";
 import AddGPA from "./AddGPA";
+import NotesTable from "./NotesTable";
 
 enum ProfileCategory {
   Overview = "Overview",
@@ -22,6 +23,7 @@ enum ProfileCategory {
   Attendance = "Attendance",
   PhysicalWellness = "Physical Wellness",
   Highlights = "Highlights",
+  Notes = "Notes",
 }
 
 export const ProfileCategoryIcons: Record<ProfileCategory, IconType> = {
@@ -31,6 +33,7 @@ export const ProfileCategoryIcons: Record<ProfileCategory, IconType> = {
   [ProfileCategory.Attendance]: "calendar",
   [ProfileCategory.PhysicalWellness]: "shoe",
   [ProfileCategory.Highlights]: "star",
+  [ProfileCategory.Notes]: "note",
 };
 
 /**
@@ -72,6 +75,7 @@ export const ProfileFieldsByCategory: Record<
     ProfileFieldKey.HealthAndWellness,
   ],
   [ProfileCategory.Highlights]: [ProfileFieldKey.Highlights],
+  [ProfileCategory.Notes]: [],
 };
 
 export const ProfileFieldLabels: Partial<Record<ProfileFieldKey, string>> = {
@@ -491,6 +495,17 @@ const ProfileContents = <T extends ProfileCategory>({
           <ProfileContentCell fieldKey={ProfileFieldKey.Highlights} />
         </div>
       );
+    case ProfileCategory.Notes:
+      console.log(player);
+      return (
+        <div>
+          <h1 className="mb-10 text-2xl font-semibold">Notes</h1>
+          {player?.notes && (
+            <NotesTable userId={player.id} notes={player.notes} />
+          )}
+        </div>
+      );
+
     default:
       return (
         <div className="mt-12 mb-10 text-2xl font-semibold">No Information</div>
@@ -515,7 +530,8 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
               ProfileFieldsByCategory[category].some(
                 (key: ProfileFieldKey) => player.profile?.[key]
               ) ||
-              (category === ProfileCategory.Attendance && player.absences)
+              (category === ProfileCategory.Attendance && player.absences) ||
+              category === ProfileCategory.Notes
           )
           .map((category: ProfileCategory) => (
             <button

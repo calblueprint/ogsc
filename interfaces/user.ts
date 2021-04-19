@@ -5,6 +5,7 @@ import {
   Role,
   User,
   UserRoleType,
+  Notes,
 } from "@prisma/client";
 
 export type PrivateUserFields = "hashedPassword";
@@ -99,4 +100,5 @@ export type IUser = SanitizedUser & {
 export type IPlayer = IUser & {
   profile: Partial<PlayerProfile> | null;
   absences?: Absence[];
+  notes?: Notes[];
 };

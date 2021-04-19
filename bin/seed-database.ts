@@ -165,7 +165,7 @@ export default async function seedDatabase(): Promise<void> {
                   )
               ),
             },
-            Notes: {
+            notes: {
               create: Object.values(NoteType).flatMap((type: NoteType) =>
                 Array<Notes | null>(Faker.random.number(4))
                   .fill(null)
