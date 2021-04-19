@@ -17,8 +17,8 @@ model User {
   updatedAt      DateTime        @default(now()) @map("updated_at")
   hashedPassword String          @map("hashed_password")
   phoneNumber    String?         @map("phone_number")
-  adminNote      String?
   status         UserStatus
+  adminNote      String?
   notes          Notes[]         @relation("NotesTousers")
   absences       Absence[]       @relation("AbsencesToUsers")
   profileFields  ProfileField[]  @relation("ProfileFieldToUsers")
@@ -153,6 +153,8 @@ enum ProfileFieldKey {
   AcademicEngagementScore @map("academic_engagement_score")
   AdvisingScore @map("advising_score")
   AthleticScore @map("athletic_score")
+  InternalAssessments @map("internal_assessments")
+  StandardizedTesting @map("standardized_testing")
   GPA @map("gpa")
   DisciplinaryActions @map("disciplinary_actions")
   Height @map("height")
