@@ -1,6 +1,10 @@
 import React from "react";
 import { Absence, AbsenceReason, AbsenceType } from "@prisma/client";
+import { IProfileField } from "interfaces";
 import dayjs from "lib/day";
+import toast from "lib/toast";
+import isAbsence from "utils/isAbsence";
+import useCanEditField from "utils/useCanEditField";
 import EditMore from "./EditMore";
 import ProfileFieldEditorModal from "./ProfileFieldEditorModal";
 
@@ -15,12 +19,13 @@ const AbsencePillColors: Record<AbsenceReason, string> = {
 };
 
 const AbsenceTable: React.FC<Props> = ({ absenceType, absences }: Props) => {
+  const canEdit = useCanEditField("absence", absenceType);
   const filteredAbsences = absences
     .filter((absence: Absence) => absence.type === absenceType)
     .sort((a: Absence, b: Absence) => Number(a.date) - Number(b.date));
 
   return (
-    <div className="mb-16 text-sm">
+    <div className="mb-8 text-sm">
       <h2 className="text-xl font-semibold my-4">{absenceType} Absences</h2>
       <table className="w-full mb-4">
         <thead>
@@ -28,7 +33,7 @@ const AbsenceTable: React.FC<Props> = ({ absenceType, absences }: Props) => {
             <th className="w-3/12 pl-5 font-semibold">Date</th>
             <th className="w-2/12 font-semibold">Score</th>
             <th className="w-5/12 font-semibold">Description</th>
-            <th className="w-1/12 font-semibold">Actions</th>
+            {canEdit && <th className="w-1/12 font-semibold">Actions</th>}
           </tr>
         </thead>
         <tbody>
@@ -51,9 +56,11 @@ const AbsenceTable: React.FC<Props> = ({ absenceType, absences }: Props) => {
                   </span>
                 </td>
                 <td>{absence.description}</td>
-                <td className="w-1/12">
-                  <EditMore absenceId={absence.id} />
-                </td>
+                {canEdit && (
+                  <td className="w-1/12">
+                    <EditMore absenceId={absence.id} />
+                  </td>
+                )}
               </tr>
             ))}
         </tbody>
@@ -62,11 +69,17 @@ const AbsenceTable: React.FC<Props> = ({ absenceType, absences }: Props) => {
         <p>Total {absenceType} Absences</p>
         <p className="font-semibold">{filteredAbsences.length}</p>
       </div>
-      <div className=" mb-16 mt-8 grid grid-rows-2 w-full justify-end">
+      <div className="mt-8 grid grid-rows-2 w-full justify-end">
         <ProfileFieldEditorModal
           fieldKey="absence"
-          onComplete={() => {
-            // TODO: Dispatch notification
+          onComplete={(updated?: Absence | IProfileField) => {
+            if (updated && isAbsence(updated)) {
+              toast.success(
+                `Absence for ${dayjs(updated.date).format(
+                  "MMMMM YYYY"
+                )} has been created!`
+              );
+            }
           }}
         />
       </div>

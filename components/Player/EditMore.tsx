@@ -6,6 +6,11 @@ import Icon from "components/Icon";
 import Modal from "components/Modal";
 import { StandaloneProfileFieldEditor } from "components/Player/ProfileFieldEditorModal";
 import { IProfileField, NumericProfileFields } from "interfaces/user";
+import dayjs from "lib/day";
+import toast from "lib/toast";
+import { deserializeProfileFieldValue } from "utils/buildUserProfile";
+import labelProfileField from "utils/labelProfileField";
+import isAbsence from "utils/isAbsence";
 import DeleteField from "./DeleteField";
 import ProfileContext from "./ProfileContext";
 
@@ -49,13 +54,8 @@ const EditMore: React.FunctionComponent<EditProps> = (props: EditProps) => {
       <Menu>
         {({ open }) => (
           <>
-            <Menu.Button className="focus:outline-none">
-              <button
-                type="button"
-                className="relative focus:outline-none flex align-center justify-center"
-              >
-                <Icon type="more" className="h-5 ml-4 fill-current" />
-              </button>
+            <Menu.Button className="relative focus:outline-none flex align-center justify-center">
+              <Icon type="more" className="h-5 ml-4 fill-current" />
             </Menu.Button>
             <Transition
               show={open}
@@ -109,21 +109,48 @@ const EditMore: React.FunctionComponent<EditProps> = (props: EditProps) => {
           </>
         )}
       </Menu>
-      <Modal open={selectedOption === "edit"} className="w-2/3">
+      <Modal
+        open={selectedOption === "edit"}
+        className="w-1/2"
+        onClose={() => setSelectedOption(null)}
+      >
         <StandaloneProfileFieldEditor
           field={field}
-          onComplete={() => {
+          onComplete={(updated?: IProfileField | Absence) => {
             setSelectedOption(null);
-            // TODO: Dispatch notification
+            if (updated) {
+              toast.success(
+                `${labelProfileField(updated)} for ${dayjs(
+                  isAbsence(updated)
+                    ? updated.date
+                    : deserializeProfileFieldValue(
+                        updated as IProfileField<NumericProfileFields>
+                      )?.date
+                ).format("MMMM YYYY")} has been updated!`
+              );
+            }
           }}
         />
       </Modal>
-      <Modal open={selectedOption === "delete"} className="w-2/3">
+      <Modal
+        open={selectedOption === "delete"}
+        onClose={() => setSelectedOption(null)}
+      >
         <DeleteField
           field={field}
-          onComplete={() => {
+          onComplete={(deleted?: IProfileField | Absence) => {
             setSelectedOption(null);
-            // TODO: Dispatch notification
+            if (deleted) {
+              toast.success(
+                `${labelProfileField(deleted)} for ${dayjs(
+                  isAbsence(deleted)
+                    ? deleted.date
+                    : deserializeProfileFieldValue(
+                        deleted as IProfileField<NumericProfileFields>
+                      )?.date
+                ).format("MMMM YYYY")} has been deleted.`
+              );
+            }
           }}
         />
       </Modal>

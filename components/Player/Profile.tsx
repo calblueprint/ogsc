@@ -248,8 +248,8 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
   }, [player, dispatch]);
 
   return (
-    <div>
-      <div className="flex flex-row text-sm text-center">
+    <div className="pb-24">
+      <div className="flex flex-row flex-wrap text-sm text-center">
         {Object.values(ProfileCategory)
           .filter(
             (category: ProfileCategory) =>
@@ -263,7 +263,7 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
             <button
               key={category}
               type="button"
-              className={`navigation-tab mr-8 ${
+              className={`navigation-tab mr-6 ${
                 selectedCategory === category
                   ? "navigation-tab-highlighted"
                   : ""
