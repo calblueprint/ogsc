@@ -38,23 +38,6 @@ type Props = React.PropsWithChildren<{
   notes: Notes[] | undefined;
 }>;
 
-// const NotesTable: React.FC<Props> = ({ notes }) => {
-//   return (
-//     <tbody>
-//       {notes?.map((note: Notes) => (
-//         <tr className="h-56 tr-border">
-//           {note.created_at.toLocaleString("default", {
-//             month: "short",
-//             day: "numeric",
-//             year: "numeric",
-//           })}
-//           {note.content}
-//         </tr>
-//       ))}
-//     </tbody>
-//   );
-// };
-
 const NotesTable: React.FC<Props> = ({ notes }) => {
   return (
     <div>
