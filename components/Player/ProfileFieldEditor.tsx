@@ -325,7 +325,7 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
               </p>
               <ProfileFieldEditorModal fieldKey={field.key} />
             </div>
-            <ValueHistoryTable values={field.history} />
+            <ValueHistoryTable fieldKey={field.key} values={field.history} />
           </div>
         );
       }
