@@ -16,6 +16,7 @@ import { deserializeProfileFieldValue } from "utils/buildUserProfile";
 import isAbsence from "utils/isAbsence";
 import labelProfileField from "utils/labelProfileField";
 import colors from "../../constants/colors";
+import LargeFieldCellLayout from "./LargeFieldCellLayout";
 import ProfileFieldEditorModal from "./ProfileFieldEditorModal";
 import ValueHistoryGraph from "./ValueHistoryGraph";
 import ValueHistoryTable from "./ValueHistoryTable";
@@ -134,8 +135,7 @@ const ValueHistoryView: React.FC<Props> = ({
     ).length || 1);
 
   return (
-    <div className="mb-10">
-      <h2 className="text-dark text-lg font-semibold my-5">{fieldLabel}</h2>
+    <LargeFieldCellLayout fieldKey={fieldKey}>
       <ValueHistorySummary
         icon={icon}
         color={primaryColor}
@@ -223,7 +223,7 @@ const ValueHistoryView: React.FC<Props> = ({
           }}
         />
       </div>
-    </div>
+    </LargeFieldCellLayout>
   );
 };
 
