@@ -31,7 +31,7 @@ export async function getServerSideProps(
       absences: true,
       profileFields: true,
       roles: true,
-      notes: true,
+      playerNotes: true,
     },
   });
   if (user === null) {

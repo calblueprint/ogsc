@@ -277,5 +277,5 @@ export type IPlayer = IUser & {
   profile: Partial<PlayerProfile> | null;
   absences?: (IAbsence | UncreatedAbsence)[];
   absenceDraft?: Partial<Absence>;
-  notes?: Notes[];
+  playerNotes?: Notes[];
 };
