@@ -3,21 +3,20 @@ import Button from "components/Button";
 import React from "react";
 
 const Note: React.FunctionComponent<{ note: Notes }> = ({
-  // note: { id, author, created_at, content, type },   <- add this in later!
   // eslint-disable-next-line camelcase
-  note: { created_at, content },
+  note: { created_at, content, authorId, type },
 }) => {
   return (
     <div className=" grid grid-rows-3 text-sm max-h-56 border-opacity-50 border-b">
       <text className="row-span-3 w-16 h-4 text-xs text-center rounded-full font-semibold text-unselected bg-button mt-10">
-        Tag
+        {type}
       </text>
       <div className="row-span-2 inline-flex pt-4">
         <div className="w-10 h-10 mr-4 bg-placeholder rounded-full">
           <img src="/placeholder-profile.png" alt="" />
         </div>
         <div>
-          <p className="font-semibold">Name</p>
+          <p className="font-semibold">{authorId}</p>
           <p>
             {created_at.toLocaleString("default", {
               month: "short",
@@ -36,10 +35,10 @@ const Note: React.FunctionComponent<{ note: Notes }> = ({
 
 type Props = React.PropsWithChildren<{
   userId: number | undefined;
-  notes: Notes[] | undefined;
+  playerNotes: Notes[] | undefined;
 }>;
 
-const NotesTable: React.FC<Props> = ({ notes }) => {
+const NotesTable: React.FC<Props> = ({ playerNotes }) => {
   return (
     <div>
       <div className="flex flex-row mt-8">
@@ -72,7 +71,7 @@ const NotesTable: React.FC<Props> = ({ notes }) => {
         </Button>
       </div>
       <img src="" alt="" />
-      {notes?.map((note: Notes) => (
+      {playerNotes?.map((note: Notes) => (
         <Note note={note} />
       ))}
     </div>
