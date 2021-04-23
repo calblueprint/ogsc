@@ -11,7 +11,6 @@ import { ProfileAccessDefinitionsByRole } from "lib/access/definitions";
 import resolveAccessValue from "lib/access/resolve";
 import React, { useContext } from "react";
 import { deserializeProfileFieldValue } from "utils/buildUserProfile";
-import sortTimeSeriesFields from "utils/sortTimeSeriesFields";
 import useSessionInfo from "utils/useSessionInfo";
 import LargeFieldCellLayout from "./LargeFieldCellLayout";
 import ProfileContext, { ProfileSectionContext } from "./ProfileContext";
@@ -20,7 +19,6 @@ import ProfileFieldEditorModal from "./ProfileFieldEditorModal";
 import TestResultHistoryTable from "./TestResultHistoryTable";
 import TextLayout from "./TextLayout";
 import TextListTable from "./TextListTable";
-import ValueHistorySummary from "./ValueHistorySummary";
 import ValueHistoryView from "./ValueHistoryView";
 
 export type ProfileFieldCellProps = {
@@ -167,21 +165,8 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
       if (editing) {
         return <ProfileFieldEditor profileField={field} />;
       }
-
-      const [mostRecentField] = field.history.sort(sortTimeSeriesFields);
-      const mostRecentValue = deserializeProfileFieldValue(mostRecentField);
-
       return (
         <LargeFieldCellLayout fieldKey={field.key}>
-          <ValueHistorySummary
-            icon="academics"
-            color="gold"
-            displayedValue={mostRecentValue?.value ?? 0}
-            maxValue={100}
-          >
-            Most recent test -{" "}
-            {mostRecentValue?.date.format("MMM DD, YYYY") ?? "N/A"}
-          </ValueHistorySummary>
           <TestResultHistoryTable fieldKey={field.key} values={field.history} />
           <div className="w-full flex justify-end mt-8">
             <ProfileFieldEditorModal fieldKey={fieldKey} shouldToastOnSuccess />
@@ -192,7 +177,9 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
     case ProfileFieldValue.TextListItem: {
       type TextListKeys = ProfileFieldKeysOfProfileValueType<ProfileFieldValue.TextListItem>;
       const field = profileField as IProfileFieldBuilt<TextListKeys>;
-
+      if (editing) {
+        return <ProfileFieldEditor profileField={field} />;
+      }
       return (
         <LargeFieldCellLayout fieldKey={profileField.key}>
           <TextListTable fieldKey={field.key} values={field.history} />
