@@ -16,8 +16,10 @@ import useSessionInfo from "utils/useSessionInfo";
 import LargeFieldCellLayout from "./LargeFieldCellLayout";
 import ProfileContext, { ProfileSectionContext } from "./ProfileContext";
 import ProfileFieldEditor from "./ProfileFieldEditor";
+import ProfileFieldEditorModal from "./ProfileFieldEditorModal";
 import TestResultHistoryTable from "./TestResultHistoryTable";
 import TextLayout from "./TextLayout";
+import TextListTable from "./TextListTable";
 import ValueHistorySummary from "./ValueHistorySummary";
 import ValueHistoryView from "./ValueHistoryView";
 
@@ -181,15 +183,25 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
             {mostRecentValue?.date.format("MMM DD, YYYY") ?? "N/A"}
           </ValueHistorySummary>
           <TestResultHistoryTable fieldKey={field.key} values={field.history} />
+          <div className="w-full flex justify-end mt-8">
+            <ProfileFieldEditorModal fieldKey={fieldKey} shouldToastOnSuccess />
+          </div>
         </LargeFieldCellLayout>
       );
     }
-    case ProfileFieldValue.TextListItem:
+    case ProfileFieldValue.TextListItem: {
+      type TextListKeys = ProfileFieldKeysOfProfileValueType<ProfileFieldValue.TextListItem>;
+      const field = profileField as IProfileFieldBuilt<TextListKeys>;
+
       return (
         <LargeFieldCellLayout fieldKey={profileField.key}>
-          Text List Item
+          <TextListTable fieldKey={field.key} values={field.history} />
+          <div className="w-full flex justify-end mt-8">
+            <ProfileFieldEditorModal fieldKey={fieldKey} shouldToastOnSuccess />
+          </div>
         </LargeFieldCellLayout>
       );
+    }
     case ProfileFieldValue.Text:
     default:
       return <TextLayout title={title}>{contentOrEditor}</TextLayout>;
