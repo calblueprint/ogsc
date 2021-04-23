@@ -274,8 +274,12 @@ export default async function seedDatabase(): Promise<void> {
                 ),
                 ...generateFieldsAcrossTimestamps(
                   ProfileFieldKey.DisciplinaryActions,
-                  () => Faker.lorem.lines(2),
-                  1
+                  () =>
+                    JSON.stringify({
+                      comment: Faker.lorem.lines(1),
+                      date: Faker.date.past(1).toISOString(),
+                    }),
+                  3
                 ),
                 ...generateFieldsAcrossTimestamps(ProfileFieldKey.GPA, () =>
                   JSON.stringify({
