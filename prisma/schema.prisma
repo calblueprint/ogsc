@@ -17,10 +17,11 @@ model User {
   updatedAt      DateTime        @default(now()) @map("updated_at")
   hashedPassword String          @map("hashed_password")
   phoneNumber    String?         @map("phone_number")
-  status         UserStatus
   adminNote      String?
-  notes          Notes[]         @relation("NotesTousers")
+  status         UserStatus
   absences       Absence[]       @relation("AbsencesToUsers")
+  authorNotes    Notes[]         @relation("notes_authorIdTousers")
+  userNotes      Notes[]         @relation("notes_userIdTousers")
   profileFields  ProfileField[]  @relation("ProfileFieldToUsers")
   resetPassword  ResetPassword[] @relation("ResetPasswordToUsers")
   upstreamRoles  Role[]          @relation("RolesToRelatedPlayers")
@@ -135,11 +136,15 @@ model Role {
 
 model Notes {
   id         Int      @id @default(autoincrement())
-  author     Int
   created_at DateTime @default(now())
   content    String
   type       NoteType @default(general)
-  users      User     @relation("NotesTousers", fields: [author], references: [id])
+  authorId   Int
+  userId     Int
+  author     User     @relation("notes_authorIdTousers", fields: [authorId], references: [id])
+  user       User     @relation("notes_userIdTousers", fields: [userId], references: [id])
+
+  @@map("notes")
 }
 
 enum ProfileFieldKey {
