@@ -11,13 +11,15 @@ import { ProfileAccessDefinitionsByRole } from "lib/access/definitions";
 import resolveAccessValue from "lib/access/resolve";
 import React, { useContext } from "react";
 import { deserializeProfileFieldValue } from "utils/buildUserProfile";
-import labelProfileField from "utils/labelProfileField";
 import sortTimeSeriesFields from "utils/sortTimeSeriesFields";
 import useSessionInfo from "utils/useSessionInfo";
+import LargeFieldCellLayout from "./LargeFieldCellLayout";
 import ProfileContext, { ProfileSectionContext } from "./ProfileContext";
 import ProfileFieldEditor from "./ProfileFieldEditor";
+import ProfileFieldEditorModal from "./ProfileFieldEditorModal";
 import TestResultHistoryTable from "./TestResultHistoryTable";
 import TextLayout from "./TextLayout";
+import TextListTable from "./TextListTable";
 import ValueHistorySummary from "./ValueHistorySummary";
 import ValueHistoryView from "./ValueHistoryView";
 
@@ -170,10 +172,7 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
       const mostRecentValue = deserializeProfileFieldValue(mostRecentField);
 
       return (
-        <div className="mb-10">
-          <h2 className="text-dark text-lg font-semibold my-5">
-            {labelProfileField(field.key)}
-          </h2>
+        <LargeFieldCellLayout fieldKey={field.key}>
           <ValueHistorySummary
             icon="academics"
             color="gold"
@@ -184,7 +183,23 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
             {mostRecentValue?.date.format("MMM DD, YYYY") ?? "N/A"}
           </ValueHistorySummary>
           <TestResultHistoryTable fieldKey={field.key} values={field.history} />
-        </div>
+          <div className="w-full flex justify-end mt-8">
+            <ProfileFieldEditorModal fieldKey={fieldKey} shouldToastOnSuccess />
+          </div>
+        </LargeFieldCellLayout>
+      );
+    }
+    case ProfileFieldValue.TextListItem: {
+      type TextListKeys = ProfileFieldKeysOfProfileValueType<ProfileFieldValue.TextListItem>;
+      const field = profileField as IProfileFieldBuilt<TextListKeys>;
+
+      return (
+        <LargeFieldCellLayout fieldKey={profileField.key}>
+          <TextListTable fieldKey={field.key} values={field.history} />
+          <div className="w-full flex justify-end mt-8">
+            <ProfileFieldEditorModal fieldKey={fieldKey} shouldToastOnSuccess />
+          </div>
+        </LargeFieldCellLayout>
       );
     }
     case ProfileFieldValue.Text:

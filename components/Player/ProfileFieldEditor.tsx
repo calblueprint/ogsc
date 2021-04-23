@@ -23,6 +23,7 @@ import labelProfileField from "utils/labelProfileField";
 import ProfileContext from "./ProfileContext";
 import ProfileFieldEditorModal from "./ProfileFieldEditorModal";
 import TestResultHistoryTable from "./TestResultHistoryTable";
+import TextListTable from "./TextListTable";
 import ValueHistoryTable from "./ValueHistoryTable";
 
 type InputProps = React.ComponentPropsWithRef<"input"> & { unit?: string };
@@ -403,7 +404,7 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
         </div>
       );
     }
-    case ProfileFieldValue.StandardizedTestResult: {
+    case ProfileFieldValue.TextListItem: {
       if (
         typeof props.profileField === "object" &&
         "history" in props.profileField
@@ -413,6 +414,66 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
         >;
         return (
           <div className="mb-16">
+            <TextListTable fieldKey={field.key} values={field.history} />
+          </div>
+        );
+      }
+      const value = deserializedValue as
+        | ProfileFieldValueDeserializedTypes[typeof valueType]
+        | null;
+      return (
+        <div>
+          <p className="text-sm font-semibold mt-3 mb-3">Date</p>
+          <DateTimeEditor
+            value={value?.date}
+            onChange={(date) => {
+              dispatch({
+                type: "EDIT_FIELD",
+                key: profileKey as ProfileFieldKey,
+                value: {
+                  comment: "",
+                  ...value,
+                  date,
+                },
+                id: profileFieldId,
+              });
+            }}
+          />
+          <p className="text-sm font-semibold mb-3 mt-10">Description</p>
+          <input
+            type="text"
+            className="input text-sm w-full font-light"
+            name="comments"
+            value={value?.comment}
+            onChange={(event) => {
+              dispatch({
+                type: "EDIT_FIELD",
+                key: profileKey as ProfileFieldKey,
+                value: {
+                  date: dayjs(),
+                  ...value,
+                  comment: event.target.value,
+                },
+                id: profileFieldId,
+              });
+            }}
+          />
+        </div>
+      );
+    }
+    case ProfileFieldValue.StandardizedTestResult: {
+      if (
+        typeof props.profileField === "object" &&
+        "history" in props.profileField
+      ) {
+        const field = props.profileField as IProfileFieldBuilt<
+          ProfileFieldKeysOfProfileValueType<typeof valueType>
+        >;
+        return (
+          <div className="mb-16 text-sm">
+            <p className="font-semibold mt-10">
+              {labelProfileField(field.key)}:
+            </p>
             <CreateTableHeader field={field} />
             <TestResultHistoryTable
               fieldKey={field.key}

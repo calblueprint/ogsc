@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import dayjs from "lib/day";
 
-import { Absence, ProfileField } from "@prisma/client";
+import { ProfileField } from "@prisma/client";
 import Button from "components/Button";
 import { IconType } from "components/Icon";
 import {
@@ -11,11 +11,10 @@ import {
   ProfileFieldValues,
   UncreatedProfileField,
 } from "interfaces";
-import toast from "lib/toast";
 import { deserializeProfileFieldValue } from "utils/buildUserProfile";
-import isAbsence from "utils/isAbsence";
 import labelProfileField from "utils/labelProfileField";
 import colors from "../../constants/colors";
+import LargeFieldCellLayout from "./LargeFieldCellLayout";
 import ProfileFieldEditorModal from "./ProfileFieldEditorModal";
 import ValueHistoryGraph from "./ValueHistoryGraph";
 import ValueHistoryTable from "./ValueHistoryTable";
@@ -134,8 +133,7 @@ const ValueHistoryView: React.FC<Props> = ({
     ).length || 1);
 
   return (
-    <div className="mb-10">
-      <h2 className="text-dark text-lg font-semibold my-5">{fieldLabel}</h2>
+    <LargeFieldCellLayout fieldKey={fieldKey}>
       <ValueHistorySummary
         icon={icon}
         color={primaryColor}
@@ -204,26 +202,10 @@ const ValueHistoryView: React.FC<Props> = ({
           endDate={endDate}
         />
       )}
-
-      <div className="mb-16 mt-8 grid grid-rows-2 w-full justify-end">
-        <ProfileFieldEditorModal
-          fieldKey={fieldKey}
-          onComplete={(updated?: Absence | IProfileField) => {
-            if (updated) {
-              toast.success(
-                `${labelProfileField(updated)} for ${dayjs(
-                  isAbsence(updated)
-                    ? updated.date
-                    : deserializeProfileFieldValue(
-                        updated as IProfileField<NumericProfileFields>
-                      )?.date
-                ).format("MMMM YYYY")} has been created!`
-              );
-            }
-          }}
-        />
+      <div className="mt-8 flex w-full justify-end">
+        <ProfileFieldEditorModal fieldKey={fieldKey} shouldToastOnSuccess />
       </div>
-    </div>
+    </LargeFieldCellLayout>
   );
 };
 

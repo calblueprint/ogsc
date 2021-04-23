@@ -35,6 +35,7 @@ export enum ProfileFieldValue {
    */
   DistanceMeasured = "distance_measured",
   StandardizedTestResult = "standardized_test",
+  TextListItem = "text_list_item",
 }
 
 export const ProfileFieldValues = <const>{
@@ -52,7 +53,7 @@ export const ProfileFieldValues = <const>{
   [ProfileFieldKey.BioParents]: ProfileFieldValue.Text,
   [ProfileFieldKey.BioSiblings]: ProfileFieldValue.Text,
   [ProfileFieldKey.Height]: ProfileFieldValue.DistanceMeasured,
-  [ProfileFieldKey.DisciplinaryActions]: ProfileFieldValue.Text,
+  [ProfileFieldKey.DisciplinaryActions]: ProfileFieldValue.TextListItem,
   [ProfileFieldKey.GPA]: ProfileFieldValue.FloatWithComment,
   [ProfileFieldKey.HealthAndWellness]: ProfileFieldValue.Text,
   [ProfileFieldKey.Highlights]: ProfileFieldValue.URL,
@@ -194,6 +195,7 @@ export type ProfileFieldValueDeserializedTypes = {
       value: number;
       percentile: number;
     };
+  [ProfileFieldValue.TextListItem]: TrackedOverTime & Required<WithComment>;
 };
 
 export type TimeSeriesProfileFieldValues = {
