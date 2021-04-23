@@ -119,8 +119,8 @@ export const ProfileContents = <T extends ProfileCategory>({
     case ProfileCategory.Notes:
       return (
         <div>
-          {player?.notes && (
-            <NotesTable userId={player.id} notes={player.notes} />
+          {player?.playerNotes && (
+            <NotesTable userId={player.id} playerNotes={player.playerNotes} />
           )}
         </div>
       );

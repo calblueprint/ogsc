@@ -347,7 +347,7 @@ export default async function seedDatabase(): Promise<void> {
                         created_at: Faker.date.recent(90),
                         type,
                         content: Faker.lorem.lines(1),
-                        user: {
+                        player: {
                           connect: {
                             email: `player${index}@ogsc.dev`,
                           },

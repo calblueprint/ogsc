@@ -30,7 +30,7 @@ export async function up(
     );
     db.addColumn(
       "notes",
-      "userId",
+      "playerId",
       {
         type: "int",
         unsigned: true,
@@ -66,7 +66,6 @@ export async function down(
       {
         type: "int",
         unsigned: true,
-        notNull: true,
         foreignKey: {
           name: "fk_user_notes_user_id",
           table: "users",
@@ -79,8 +78,8 @@ export async function down(
       },
       callback
     );
-    db.removeColumn("notes", "userId", callback);
     db.removeColumn("notes", "authorId", callback);
+    db.removeColumn("notes", "playerId", callback);
   } catch (err) {
     callback(err, null);
   }
