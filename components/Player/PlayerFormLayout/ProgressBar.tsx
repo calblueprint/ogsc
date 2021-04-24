@@ -4,17 +4,25 @@ type BarProps = {
   fill: boolean;
   content: string;
   title: string;
+  disabled?: boolean;
 };
 
 const BarTab: React.FunctionComponent<BarProps> = ({
   fill,
   content,
   title,
+  disabled,
 }: BarProps) => {
   const link = `/admin/players/create/${title}`;
   return (
     <Link href={link}>
-      <div role="button">
+      <button
+        type="button"
+        className={`text-left focus:outline-none ${
+          disabled ? "cursor-not-allowed" : "cursor-pointer"
+        }`}
+        disabled={disabled}
+      >
         <div
           className={
             fill
@@ -23,9 +31,13 @@ const BarTab: React.FunctionComponent<BarProps> = ({
           }
         />
         <p className="font-bold mt-2 text-xs">{content}</p>
-      </div>
+      </button>
     </Link>
   );
+};
+
+BarTab.defaultProps = {
+  disabled: false,
 };
 
 export default BarTab;

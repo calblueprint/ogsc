@@ -5,7 +5,6 @@ import {
   IProfileField,
   IProfileFieldBuilt,
   PlayerProfile,
-  ProfileFieldValue,
   ProfileFieldValueDeserializedTypes,
   ProfileFieldValues,
   UncreatedAbsence,
@@ -45,7 +44,7 @@ export type ProfileState = {
   };
 };
 
-export type ProfileAction =
+export type ProfileAction<K extends ProfileFieldKey = ProfileFieldKey> =
   | {
       type: "RESET_PLAYER";
     }
@@ -55,8 +54,8 @@ export type ProfileAction =
     }
   | {
       type: "EDIT_FIELD";
-      key: ProfileFieldKey;
-      value: ProfileFieldValueDeserializedTypes[ProfileFieldValue];
+      key: K;
+      value: ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]];
       id?: number;
     }
   | {

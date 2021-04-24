@@ -38,7 +38,7 @@ a {
   }
 
   .input {
-    @apply bg-button p-2 font-light rounded-lg;
+    @apply bg-button p-2 font-light rounded-lg border border-transparent;
   }
 
   .input:focus {

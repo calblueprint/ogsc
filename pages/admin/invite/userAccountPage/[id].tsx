@@ -12,10 +12,9 @@ import Joi from "joi";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { useForm } from "react-hook-form";
 import Icon from "components/Icon";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import Modal from "components/Modal";
 import { ViewingPermissionDTO } from "pages/api/admin/roles/create";
-import colors from "../../../../constants/colors";
 
 interface AdminEditUserFormValues {
   firstName: string;
@@ -33,16 +32,7 @@ interface EditUserProps {
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-const toasty = () =>
-  toast.success("Account request accepted!", {
-    duration: 2000,
-    iconTheme: { primary: colors.dark, secondary: colors.button },
-    style: {
-      background: colors.dark,
-      color: colors.button,
-      margin: "50px",
-    },
-  });
+const toasty = () => toast.success("Account request accepted!");
 
 const AdminEditUserFormSchema = Joi.object<AdminEditUserFormValues>({
   firstName: Joi.string().trim().required(),
@@ -119,11 +109,8 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
   }
 
   return (
-    <Modal
-      className=" bg-white rounded w-3/4 px-10 pt-12 pb-8"
-      open={Boolean(isEditing)}
-    >
-      <div className="mx-16 mt-24">
+    <Modal open={Boolean(isEditing)} onClose={() => setIsEditing(false)}>
+      <div className="m-8">
         <h1 className="text-3xl font-display font-medium mb-2">
           Basic Information
         </h1>
@@ -357,7 +344,11 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = () => {
   return (
     <DashboardLayout>
       <div className="flex-col mx-16 mt-14">
-        <Modal className="mb-2" open={Boolean(isDeleting)}>
+        <Modal
+          className="mb-2"
+          open={Boolean(isDeleting)}
+          onClose={() => setIsDeleting(false)}
+        >
           <h1 className="font-semibold">Decline account request?</h1>
           <p className="mb-6">
             Are you sure you want to decline {user?.name}&apos;s account
@@ -456,7 +447,6 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = () => {
               >
                 Accept
               </Button>
-              <Toaster position="bottom-left" reverseOrder={false} />
             </div>
           </div>
         </div>

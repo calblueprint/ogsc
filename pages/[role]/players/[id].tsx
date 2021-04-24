@@ -15,6 +15,7 @@ import buildUserProfile, {
 import filterPlayerProfileRead from "utils/filterPlayerProfileRead";
 import flattenUserRoles from "utils/flattenUserRoles";
 import { IPlayer } from "interfaces";
+import { Dialog } from "@headlessui/react";
 
 type Props = {
   player?: IPlayer;
@@ -30,7 +31,7 @@ export async function getServerSideProps(
       absences: true,
       profileFields: true,
       roles: true,
-      notes: true,
+      playerNotes: true,
     },
   });
   if (user === null) {
@@ -94,10 +95,14 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
             </p>
           </div>
         </div>
-        <Modal className="w-2/5" open={showModal}>
-          <h1 className="text-dark text-3xl font-medium mb-2">
+        <Modal
+          className="w-2/5"
+          open={showModal}
+          onClose={() => setShowModal(false)}
+        >
+          <Dialog.Title className="text-dark text-3xl font-medium mb-2">
             Dashboard Created!
-          </h1>
+          </Dialog.Title>
           <p className="text-dark mb-10">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
             semper, massa sed tempor rhoncus, tortor lectus luctus orci,
