@@ -56,6 +56,9 @@ export const ProfileFieldValueValidators: Record<
   }).required(),
   [ProfileFieldValue.TimeElapsed]: Joi.string().isoDuration().required(),
   [ProfileFieldValue.DistanceMeasured]: Joi.number().required(),
+  [ProfileFieldValue.File]: CouldBeJSON.object({
+    key: Joi.string().required(),
+  }).required(),
 };
 
 export default Joi.extend(JoiPhoneNumber as ExtensionFactory) as typeof Joi;

@@ -16,6 +16,7 @@ import {
   ProfileFieldValues,
 } from "interfaces";
 import dayjs from "lib/day";
+import { AwsDTO } from "pages/api/admin/users/addImage";
 import React, { useContext } from "react";
 import { deserializeProfileFieldValue } from "utils/buildUserProfile";
 import isAbsence from "utils/isAbsence";
@@ -506,6 +507,57 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
         />
       );
     }
+    case ProfileFieldValue.File:
+      return (
+        <>
+          <p>Upload a .png or .jpg image (max 1MB).</p>
+          <input
+            onChange={async (event) => {
+              if (event.target.files != null) {
+                const file = event.target.files[0];
+                const filename = encodeURIComponent(
+                  `${Date.now()}-${file.name}`
+                );
+                // reqeusting presigned url
+                const res = await fetch(
+                  `/api/admin/users/addImage?file=${filename}`
+                );
+                const { url, fields } = (await res.json()) as AwsDTO;
+                const formData = new FormData();
+
+                Object.entries({ ...fields, file }).forEach(([key, val]) => {
+                  formData.append(key, val);
+                });
+
+                // posting to bucket?
+                const upload = await fetch(url, {
+                  method: "POST",
+                  body: formData,
+                });
+                // error handling
+
+                console.log(upload);
+
+                if (upload.ok) {
+                  console.log("Uploaded successfully!");
+                } else {
+                  console.error("Upload failed.");
+                }
+
+                // profile field??
+                dispatch({
+                  type: "EDIT_FIELD",
+                  key: profileKey,
+                  value: { key: filename },
+                  id: profileFieldId,
+                });
+              }
+            }}
+            type="file"
+            accept="image/png, image/jpeg"
+          />
+        </>
+      );
     case ProfileFieldValue.Text:
     default: {
       const value = deserializedValue as

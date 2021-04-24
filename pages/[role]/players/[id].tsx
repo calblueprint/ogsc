@@ -81,6 +81,7 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
           <div className="picture flex mr-10">
             <img
               src="/placeholder-profile.png"
+              // api <img src=“https://<our app>/api/image/<key>” />
               alt={player.name || "player"}
               className="bg-button rounded-full max-w-full align-middle border-none w-24 h-24"
             />

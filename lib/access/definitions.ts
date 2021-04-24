@@ -29,6 +29,7 @@ const standardReadAccess = {
   [ProfileFieldKey.IntroVideo]: { read: true },
   [ProfileFieldKey.Highlights]: { read: true },
   [ProfileFieldKey.YearOfBirth]: { read: true },
+  [ProfileFieldKey.ProfilePicture]: { read: true },
 };
 
 /**

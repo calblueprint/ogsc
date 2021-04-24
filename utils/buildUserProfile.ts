@@ -58,6 +58,9 @@ export function serializeProfileFieldValue(
         const draft = draftValue as ProfileFieldValueDeserializedTypes[typeof originValueType];
         return JSON.stringify({ ...draft, date: draft.date.toISOString() });
       }
+      case ProfileFieldValue.File: {
+        return JSON.stringify(draftValue);
+      }
       case ProfileFieldValue.TimeElapsed: {
         const draft = draftValue as ProfileFieldValueDeserializedTypes[typeof originValueType];
         return draft.toISOString();
@@ -140,6 +143,11 @@ export function deserializeProfileFieldValue<
           date: dayjs(parsed.date),
         } as Deserialized;
       }
+      case ProfileFieldValue.File:
+        if (value === null) {
+          return null;
+        }
+        return JSON.parse(value);
       case ProfileFieldValue.TimeElapsed:
         if (value === null) {
           return null;

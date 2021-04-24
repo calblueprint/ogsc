@@ -142,6 +142,19 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
         </TextLayout>
       );
     }
+    case ProfileFieldValue.File: {
+      const value = deserializedValue as ProfileFieldValueDeserializedTypes[typeof valueType];
+
+      return (
+        <TextLayout title={title}>
+          {editing ? (
+            <ProfileFieldEditor profileField={profileField} />
+          ) : (
+            `${value.key}`
+          )}
+        </TextLayout>
+      );
+    }
     case ProfileFieldValue.Text:
     default:
       return <TextLayout title={title}>{contentOrEditor}</TextLayout>;
