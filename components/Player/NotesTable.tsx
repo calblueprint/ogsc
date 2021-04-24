@@ -1,7 +1,9 @@
 import { Notes } from "@prisma/client";
 import Button from "components/Button";
 import { ReadManyNotesDTO } from "pages/api/notes/readMany";
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
+import { Menu, Transition } from "@headlessui/react";
+import Icon from "components/Icon";
 
 const Note: React.FunctionComponent<{ note: Notes }> = ({
   // eslint-disable-next-line camelcase
@@ -42,8 +44,6 @@ type Props = React.PropsWithChildren<{
 const NotesTable: React.FC<Props> = ({ userId, defaultNotes }) => {
   const [phrase, setPhrase] = useState<string>(" ");
   const [notes, setNotes] = useState<Notes[]>(defaultNotes);
-  // console.log(defaultNotes);
-  console.log(notes);
 
   useEffect(() => {
     const getNotes = async (): Promise<Notes[]> => {
@@ -63,6 +63,25 @@ const NotesTable: React.FC<Props> = ({ userId, defaultNotes }) => {
     }
     fetchData();
   }, [phrase, userId]);
+
+  const CATEGORIES = ["General", "Soccer", "Academics", "Mentorship"];
+  const [categoryToggles, setCategoryToggles] = useState<
+    Record<string, boolean>
+  >(
+    CATEGORIES.reduce<Record<string, boolean>>((obj, category) => {
+      return {
+        ...obj,
+        [category]: true,
+      };
+    }, {})
+  );
+
+  const toggleCategory = (category: string): void => {
+    setCategoryToggles({
+      ...categoryToggles,
+      [category]: !categoryToggles[category],
+    });
+  };
 
   return (
     <div>
@@ -88,17 +107,78 @@ const NotesTable: React.FC<Props> = ({ userId, defaultNotes }) => {
         >
           Sort
         </Button>
-        <Button
-          className="font-display text-sm px-6 bg-button text-dark rounded-full h-10 mr-5"
-          iconType="filter"
-        >
-          Filter
-        </Button>
+        <>
+          <Menu>
+            {({ open }) => (
+              <>
+                <Menu.Button
+                  className={`button button-normal text-sm rounded-full focus:outline-none ${
+                    open
+                      ? "bg-dark text-white"
+                      : "bg-button text-dark hover:opacity-75"
+                  }`}
+                >
+                  <Icon
+                    type={open ? "filterWhite" : "filter"}
+                    className="h-4 mr-5"
+                  />
+                  <p>Filter</p>
+                </Menu.Button>
+                <Transition
+                  show={open}
+                  as={Fragment}
+                  enter="transition ease-out duration-100"
+                  enterFrom="transform opacity-0 scale-95"
+                  enterTo="transform opacity-100 scale-100"
+                  leave="transition ease-in duration-75"
+                  leaveFrom="transform opacity-100 scale-100"
+                  leaveTo="transform opacity-0 scale-95"
+                >
+                  <Menu.Items
+                    className="absolute right-0 mr-32 mt-24 border-medium-gray shadow-lg bg-white rounded-md pt-12 focus:outline-none flex flex-col text-unselected font-semibold text-sm w-36"
+                    style={{ borderWidth: 1, transform: "translateY(-32px)" }}
+                    static
+                  >
+                    <p className="h-5 ml-4 -mt-10 fill-current">Category</p>
+                    {Object.keys(categoryToggles).map((category) => (
+                      // <Menu.Item>
+                      //   {({ active }) => (
+                      <button
+                        type="button"
+                        className="flex items-center w-full px-4 py-2 font-medium focus:outline-none hover:bg-button hover:text-dark"
+                        onClick={() => {
+                          toggleCategory(category);
+                        }}
+                      >
+                        <Icon
+                          type="selected"
+                          className={`h-4 mr-3 ${
+                            categoryToggles[category] ? "" : "opacity-0"
+                          }`}
+                        />
+                        <p className="justify-self-start">{category}</p>
+                      </button>
+                      // )}
+                      // </Menu.Item>
+                    ))}
+                  </Menu.Items>
+                </Transition>
+              </>
+            )}
+          </Menu>
+        </>
       </div>
       <img src="" alt="" />
-      {notes.map((note: Notes) => (
-        <Note note={note} />
-      ))}
+      {notes
+        .filter(
+          (note: Notes) =>
+            categoryToggles[
+              note.type.charAt(0).toUpperCase() + note.type.slice(1)
+            ]
+        )
+        .map((note: Notes) => (
+          <Note note={note} />
+        ))}
     </div>
   );
 };
