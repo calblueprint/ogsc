@@ -204,6 +204,26 @@ export default async function seedDatabase(): Promise<void> {
                     })
                 ),
                 ...generateFieldsAcrossTimestamps(
+                  ProfileFieldKey.InternalAssessments,
+                  () =>
+                    JSON.stringify({
+                      comment: Faker.lorem.lines(1),
+                      value: Faker.random.number(5),
+                      date: Faker.date.past(1).toISOString(),
+                    })
+                ),
+                ...generateFieldsAcrossTimestamps(
+                  ProfileFieldKey.StandardizedTesting,
+                  () =>
+                    JSON.stringify({
+                      comment: Faker.lorem.lines(1),
+                      value: Faker.random.number(800),
+                      percentile: Faker.random.number(100),
+                      date: Faker.date.past(1).toISOString(),
+                    }),
+                  3
+                ),
+                ...generateFieldsAcrossTimestamps(
                   ProfileFieldKey.BioAboutMe,
                   () => Faker.lorem.lines(2),
                   1
@@ -240,8 +260,12 @@ export default async function seedDatabase(): Promise<void> {
                 ),
                 ...generateFieldsAcrossTimestamps(
                   ProfileFieldKey.DisciplinaryActions,
-                  () => Faker.lorem.lines(2),
-                  1
+                  () =>
+                    JSON.stringify({
+                      comment: Faker.lorem.lines(1),
+                      date: Faker.date.past(1).toISOString(),
+                    }),
+                  3
                 ),
                 ...generateFieldsAcrossTimestamps(ProfileFieldKey.GPA, () =>
                   JSON.stringify({
