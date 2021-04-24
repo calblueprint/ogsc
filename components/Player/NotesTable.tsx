@@ -141,8 +141,6 @@ const NotesTable: React.FC<Props> = ({ userId, defaultNotes }) => {
                   >
                     <p className="h-5 ml-4 -mt-10 fill-current">Category</p>
                     {Object.keys(categoryToggles).map((category) => (
-                      // <Menu.Item>
-                      //   {({ active }) => (
                       <button
                         type="button"
                         className="flex items-center w-full px-4 py-2 font-medium focus:outline-none hover:bg-button hover:text-dark"
@@ -156,10 +154,10 @@ const NotesTable: React.FC<Props> = ({ userId, defaultNotes }) => {
                             categoryToggles[category] ? "" : "opacity-0"
                           }`}
                         />
-                        <p className="justify-self-start">{category}</p>
+                        <p className="justify-self-start text-xs text-center rounded-full font-medium text-dark bg-pink-muted px-2">
+                          {category}
+                        </p>
                       </button>
-                      // )}
-                      // </Menu.Item>
                     ))}
                   </Menu.Items>
                 </Transition>
