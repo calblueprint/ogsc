@@ -35,7 +35,7 @@ const PlayerDashboardItem: React.FunctionComponent<
               <img src={image || "/placeholder-profile.png"} alt="" />
               {/* Not being used right now because seed data doesn't have images */}
             </div>
-            <p className="self-center">{name}</p>
+            <p className="self-center text-sm font-semibold">{name}</p>
           </div>
           <p className="self-center col-span-4">
             {deserializeProfileFieldValue(profile?.YearOfBirth?.current)}

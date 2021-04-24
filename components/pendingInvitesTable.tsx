@@ -25,7 +25,6 @@ const PendingInvitesItem: React.FunctionComponent<PendingInvites> = ({
 }) => {
   return (
     <div className="hover:bg-placeholder">
-      <hr className="border-unselected border-opacity-50" />
       <div className="col-span-2">
         <Link href={`invite/${id}`}>
           <div className="grid grid-cols-4 gap-5 justify-items-start m-5 font-display items-center py-3 text-sm">
@@ -61,6 +60,7 @@ const PendingInvitesItem: React.FunctionComponent<PendingInvites> = ({
         </Link>
       </div>
       <img src="" alt="" />
+      <hr className="border-unselected border-opacity-50" />
     </div>
   );
 };
@@ -93,13 +93,13 @@ const PendingInvitesTable: React.FunctionComponent = () => {
           </p>
         </div>
       </div>
-      <div className="grid grid-cols-4 gap-5 justify-items-start mt-5 ml-5 font-semibold text-unselected text-sm">
+      <div className="grid grid-cols-4 gap-5 justify-items-start my-5 ml-5 font-semibold text-unselected text-sm">
         <p>Name</p>
         <p>Email</p>
         <p>Phone</p>
         <p>Date Created/Modified</p>
-        <hr className="border-unselected border-opacity-50" />
       </div>
+      <hr className="border-unselected border-opacity-50" />
       {users?.length ? (
         users?.map((user) => (
           <PendingInvitesItem
