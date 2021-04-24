@@ -1,9 +1,9 @@
 import { Notes } from "@prisma/client";
 import Button from "components/Button";
-import React from "react";
+import { ReadManyNotesDTO } from "pages/api/notes/readMany";
+import React, { useEffect, useState } from "react";
 
 const Note: React.FunctionComponent<{ note: Notes }> = ({
-  // note: { id, author, created_at, content, type },   <- add this in later!
   // eslint-disable-next-line camelcase
   note: { created_at, content },
 }) => {
@@ -36,10 +36,32 @@ const Note: React.FunctionComponent<{ note: Notes }> = ({
 
 type Props = React.PropsWithChildren<{
   userId: number | undefined;
-  notes: Notes[] | undefined;
+  defaultNotes: Notes[];
 }>;
 
-const NotesTable: React.FC<Props> = ({ notes }) => {
+const NotesTable: React.FC<Props> = ({ userId, defaultNotes }) => {
+  const [phrase, setPhrase] = useState<string>(" ");
+  const [notes, setNotes] = useState<Notes[]>(defaultNotes);
+
+  useEffect(() => {
+    const getNotes = async (): Promise<Notes[]> => {
+      const response = await fetch(
+        `/api/notes/readMany?id=${userId}&search=${phrase}`,
+        {
+          method: "GET",
+          headers: { "content-type": "application/json" },
+          redirect: "follow",
+        }
+      );
+      const data = (await response.json()) as ReadManyNotesDTO;
+      return data.notes;
+    };
+    async function fetchData(): Promise<void> {
+      setNotes(await getNotes());
+    }
+    fetchData();
+  }, [phrase, userId]);
+
   return (
     <div>
       <div className="flex flex-row mt-8">
@@ -49,7 +71,7 @@ const NotesTable: React.FC<Props> = ({ notes }) => {
             type="search"
             name="search"
             placeholder="Search notes"
-            // onChange={(event) => setPhrase(event.target.value)}
+            onChange={(event) => setPhrase(event.target.value)}
           />
         </div>
         <Button
@@ -72,7 +94,7 @@ const NotesTable: React.FC<Props> = ({ notes }) => {
         </Button>
       </div>
       <img src="" alt="" />
-      {notes?.map((note: Notes) => (
+      {notes.map((note: Notes) => (
         <Note note={note} />
       ))}
     </div>

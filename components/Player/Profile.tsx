@@ -120,7 +120,7 @@ export const ProfileContents = <T extends ProfileCategory>({
       return (
         <div>
           {player?.notes && (
-            <NotesTable userId={player.id} notes={player.notes} />
+            <NotesTable userId={player.id} defaultNotes={player.notes} />
           )}
         </div>
       );
