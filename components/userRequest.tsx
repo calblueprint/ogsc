@@ -93,8 +93,7 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
           </Button>
         </div>
       </Modal>
-      <hr className="border-unselected border-opacity-50" />
-      <div className="hover:bg-placeholder grid grid-cols-3">
+      <div className="hover:bg-placeholder grid grid-cols-3 text-sm">
         <div className="col-span-2">
           <Link href={`invite/userAccountPage/${id}`}>
             <div className="grid grid-cols-3 gap-32 justify-items-start m-5 font-display items-center py-3">
@@ -139,6 +138,7 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
           </div>
         </div>
       </div>
+      <hr className="border-unselected border-opacity-50" />
     </div>
   );
 };
@@ -175,34 +175,41 @@ const UserDashboard: React.FunctionComponent = () => {
   }, []);
   return (
     <div>
-      <div className="grid grid-cols-4 gap-3 justify-items-start my-5 font-display text-unselected ml-5">
+      <div className="grid grid-cols-4 gap-3 justify-items-start my-5 font-display text-unselected text-sm font-semibold ml-5">
         <p>Name</p>
         <p>Email</p>
         <p>Phone</p>
       </div>
+      <hr className="border-unselected border-opacity-50" />
       <img src="" alt="" />
-      {users?.map((user) => (
-        <UserRequestDashboardItem
-          name={user.name}
-          email={user.email}
-          phoneNumber={user.phoneNumber}
-          image={user.image}
-          defaultRole={user.defaultRole}
-          id={user.id}
-          isDeleting={user.isDeleting}
-          onDelete={getUsers}
-          onAccept={getUsers}
-        />
-      ))}
+      {users?.length ? (
+        users?.map((user) => (
+          <UserRequestDashboardItem
+            name={user.name}
+            email={user.email}
+            phoneNumber={user.phoneNumber}
+            image={user.image}
+            defaultRole={user.defaultRole}
+            id={user.id}
+            isDeleting={user.isDeleting}
+            onDelete={getUsers}
+            onAccept={getUsers}
+          />
+        ))
+      ) : (
+        <div className="m-5 text-sm text-unselected">
+          No invitation requests at the moment!
+        </div>
+      )}
     </div>
   );
 };
 
 const userRequestsTable: React.FunctionComponent = () => (
-  <div className="mx-0 mt-0">
+  <div className="mx-0 mt-20">
     <div className="text-3xl font-display font-medium mb-10">
       <div className="mx-0 mt-0">
-        <p className="text-2xl font-semibold mx-0 mt-0">Invitation Requests</p>
+        <p className="text-xl font-semibold mx-0 mt-0">Invitation Requests</p>
       </div>
     </div>
     {UserDashboard({})}

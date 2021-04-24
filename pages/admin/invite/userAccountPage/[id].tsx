@@ -8,7 +8,7 @@ import Button from "components/Button";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { IUser, UserRoleLabel } from "interfaces";
 import FormField from "components/FormField";
-import Joi from "joi";
+import Joi from "lib/validate";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { useForm } from "react-hook-form";
 import Icon from "components/Icon";
@@ -41,7 +41,9 @@ const AdminEditUserFormSchema = Joi.object<AdminEditUserFormValues>({
     .trim()
     .email({ tlds: { allow: false } })
     .required(),
-  phoneNumber: Joi.string().optional(),
+  phoneNumber: Joi.string()
+    .phoneNumber({ defaultCountry: "US", format: "national", strict: true })
+    .allow(""),
   role: Joi.string()
     .valid(...Object.values(UserRoleType))
     .required(),
