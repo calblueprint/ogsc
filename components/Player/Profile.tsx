@@ -75,6 +75,8 @@ export const ProfileContents = <T extends ProfileCategory>({
         <div>
           <ProfileFieldCell fieldKey={ProfileFieldKey.GPA} />
           <ProfileFieldCell fieldKey={ProfileFieldKey.DisciplinaryActions} />
+          <ProfileFieldCell fieldKey={ProfileFieldKey.InternalAssessments} />
+          <ProfileFieldCell fieldKey={ProfileFieldKey.StandardizedTesting} />
         </div>
       );
     case ProfileCategory.PhysicalWellness:
@@ -119,8 +121,8 @@ export const ProfileContents = <T extends ProfileCategory>({
     case ProfileCategory.Notes:
       return (
         <div>
-          {player?.notes && (
-            <NotesTable userId={player.id} notes={player.notes} />
+          {player?.playerNotes && (
+            <NotesTable userId={player.id} playerNotes={player.playerNotes} />
           )}
         </div>
       );

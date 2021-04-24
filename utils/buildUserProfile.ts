@@ -54,7 +54,9 @@ export function serializeProfileFieldValue(
   try {
     switch (originValueType) {
       case ProfileFieldValue.FloatWithComment:
-      case ProfileFieldValue.IntegerWithComment: {
+      case ProfileFieldValue.IntegerWithComment:
+      case ProfileFieldValue.StandardizedTestResult:
+      case ProfileFieldValue.TextListItem: {
         const draft = draftValue as ProfileFieldValueDeserializedTypes[typeof originValueType];
         return JSON.stringify({ ...draft, date: draft.date.toISOString() });
       }
@@ -131,7 +133,11 @@ export function deserializeProfileFieldValue<
           return null;
         }
         const parsed = JSON.parse(value);
-        if (typeof parsed !== "object" || !("value" in parsed)) {
+        if (
+          typeof parsed !== "object" ||
+          !("value" in parsed) ||
+          !("date" in parsed)
+        ) {
           return null;
         }
         return {
@@ -148,6 +154,42 @@ export function deserializeProfileFieldValue<
           return null;
         }
         return JSON.parse(value);
+      case ProfileFieldValue.StandardizedTestResult: {
+        if (!value) {
+          return null;
+        }
+        const parsed = JSON.parse(value);
+        if (
+          typeof parsed !== "object" ||
+          !("value" in parsed) ||
+          !("date" in parsed)
+        ) {
+          return null;
+        }
+        return {
+          comment: parsed.comment,
+          date: dayjs(parsed.date),
+          value: parsed.value,
+          percentile: parsed.percentile,
+        } as Deserialized;
+      }
+      case ProfileFieldValue.TextListItem: {
+        if (!value) {
+          return null;
+        }
+        const parsed = JSON.parse(value);
+        if (
+          typeof parsed !== "object" ||
+          !("comment" in parsed) ||
+          !("date" in parsed)
+        ) {
+          return null;
+        }
+        return {
+          comment: parsed.comment,
+          date: dayjs(parsed.date),
+        } as Deserialized;
+      }
       case ProfileFieldValue.TimeElapsed:
         if (value === null) {
           return null;

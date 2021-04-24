@@ -19,8 +19,9 @@ model User {
   phoneNumber    String?         @map("phone_number")
   status         UserStatus
   adminNote      String?
-  notes          Notes[]         @relation("NotesTousers")
   absences       Absence[]       @relation("AbsencesToUsers")
+  authorNotes    Notes[]         @relation("notes_authorIdTousers")
+  playerNotes    Notes[]         @relation("notes_playerIdTousers")
   profileFields  ProfileField[]  @relation("ProfileFieldToUsers")
   resetPassword  ResetPassword[] @relation("ResetPasswordToUsers")
   upstreamRoles  Role[]          @relation("RolesToRelatedPlayers")
@@ -135,11 +136,15 @@ model Role {
 
 model Notes {
   id         Int      @id @default(autoincrement())
-  author     Int
   created_at DateTime @default(now())
   content    String
   type       NoteType @default(general)
-  users      User     @relation("NotesTousers", fields: [author], references: [id])
+  authorId   Int
+  playerId   Int
+  author     User     @relation("notes_authorIdTousers", fields: [authorId], references: [id])
+  player     User     @relation("notes_playerIdTousers", fields: [playerId], references: [id])
+
+  @@map("notes")
 }
 
 enum ProfileFieldKey {
@@ -153,6 +158,8 @@ enum ProfileFieldKey {
   AcademicEngagementScore @map("academic_engagement_score")
   AdvisingScore @map("advising_score")
   AthleticScore @map("athletic_score")
+  InternalAssessments @map("internal_assessments")
+  StandardizedTesting @map("standardized_testing")
   GPA @map("gpa")
   DisciplinaryActions @map("disciplinary_actions")
   Height @map("height")

@@ -59,6 +59,16 @@ export const ProfileFieldValueValidators: Record<
   [ProfileFieldValue.File]: CouldBeJSON.object({
     key: Joi.string().required(),
   }).required(),
+  [ProfileFieldValue.StandardizedTestResult]: CouldBeJSON.object({
+    comment: Joi.string(),
+    value: Joi.number().integer().required(),
+    percentile: Joi.number().integer().min(0).max(99).required(),
+    date: Joi.string().isoDate().required(),
+  }),
+  [ProfileFieldValue.TextListItem]: CouldBeJSON.object({
+    comment: Joi.string().required(),
+    date: Joi.string().isoDate().required(),
+  }),
 };
 
 export default Joi.extend(JoiPhoneNumber as ExtensionFactory) as typeof Joi;

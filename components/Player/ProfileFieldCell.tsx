@@ -1,5 +1,7 @@
 import { ProfileFieldKey, UserRoleType } from "@prisma/client";
 import {
+  IProfileFieldBuilt,
+  ProfileFieldKeysOfProfileValueType,
   ProfileFieldLabels,
   ProfileFieldValue,
   ProfileFieldValueDeserializedTypes,
@@ -10,9 +12,13 @@ import resolveAccessValue from "lib/access/resolve";
 import React, { useContext } from "react";
 import { deserializeProfileFieldValue } from "utils/buildUserProfile";
 import useSessionInfo from "utils/useSessionInfo";
+import LargeFieldCellLayout from "./LargeFieldCellLayout";
 import ProfileContext, { ProfileSectionContext } from "./ProfileContext";
 import ProfileFieldEditor from "./ProfileFieldEditor";
+import ProfileFieldEditorModal from "./ProfileFieldEditorModal";
+import TestResultHistoryTable from "./TestResultHistoryTable";
 import TextLayout from "./TextLayout";
+import TextListTable from "./TextListTable";
 import ValueHistoryView from "./ValueHistoryView";
 
 export type ProfileFieldCellProps = {
@@ -105,6 +111,17 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
             valueRange={[2, 4]}
           />
         );
+      case ProfileFieldKey.InternalAssessments:
+        return (
+          <ValueHistoryView
+            icon="book"
+            primaryColor="pink"
+            fieldKey={ProfileFieldKey.InternalAssessments}
+            shortFieldLabel="Internal Assessment"
+            values={profileField.history}
+            valueRange={[0, 5]}
+          />
+        );
       default:
     }
   }
@@ -153,6 +170,36 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
             `${value.key}`
           )}
         </TextLayout>
+      );
+    }
+    case ProfileFieldValue.StandardizedTestResult: {
+      type StandardizedTestResultKeys = ProfileFieldKeysOfProfileValueType<ProfileFieldValue.StandardizedTestResult>;
+      const field = profileField as IProfileFieldBuilt<StandardizedTestResultKeys>;
+      if (editing) {
+        return <ProfileFieldEditor profileField={field} />;
+      }
+      return (
+        <LargeFieldCellLayout fieldKey={field.key}>
+          <TestResultHistoryTable fieldKey={field.key} values={field.history} />
+          <div className="w-full flex justify-end mt-8">
+            <ProfileFieldEditorModal fieldKey={fieldKey} shouldToastOnSuccess />
+          </div>
+        </LargeFieldCellLayout>
+      );
+    }
+    case ProfileFieldValue.TextListItem: {
+      type TextListKeys = ProfileFieldKeysOfProfileValueType<ProfileFieldValue.TextListItem>;
+      const field = profileField as IProfileFieldBuilt<TextListKeys>;
+      if (editing) {
+        return <ProfileFieldEditor profileField={field} />;
+      }
+      return (
+        <LargeFieldCellLayout fieldKey={profileField.key}>
+          <TextListTable fieldKey={field.key} values={field.history} />
+          <div className="w-full flex justify-end mt-8">
+            <ProfileFieldEditorModal fieldKey={fieldKey} shouldToastOnSuccess />
+          </div>
+        </LargeFieldCellLayout>
       );
     }
     case ProfileFieldValue.Text:

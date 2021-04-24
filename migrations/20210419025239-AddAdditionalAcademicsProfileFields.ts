@@ -2,7 +2,10 @@ import Base from "db-migrate-base";
 import updateEnumMigration from "../utils/updateEnumMigration";
 
 /**
- * Adds profile_picture to the profile field key.
+ * This migration updates the following profile fields:
+ *
+ * * Adds Internal Assessments field
+ * * Adds Standardized Testing field
  */
 export async function up(
   db: Base,
@@ -22,8 +25,8 @@ export async function up(
       "academic_engagement_score",
       "advising_score",
       "athletic_score",
-      "internal_assessments",
-      "standardized_testing",
+      "internal_assessments", // Added in this up migration
+      "standardized_testing", // Added in this up migration
       "gpa",
       "disciplinary_actions",
       "height",
@@ -34,7 +37,6 @@ export async function up(
       "health_and_wellness",
       "highlights",
       "year_of_birth",
-      "profile_picture", // Added in this migration
     ],
     [{ tableName: "profile_fields", columnName: "key" }],
     callback
@@ -42,7 +44,10 @@ export async function up(
 }
 
 /**
- * Removes profile_picture field
+ * This migration updates the following profile fields:
+ *
+ * * Removes Internal Assessments field
+ * * Removes Standardized Testing field
  */
 export async function down(
   db: Base,
@@ -62,8 +67,6 @@ export async function down(
       "academic_engagement_score",
       "advising_score",
       "athletic_score",
-      "internal_assessments",
-      "standardized_testing",
       "gpa",
       "disciplinary_actions",
       "height",

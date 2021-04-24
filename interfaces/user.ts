@@ -35,6 +35,8 @@ export enum ProfileFieldValue {
    * DistanceMeasured values are recorded in inches.
    */
   DistanceMeasured = "distance_measured",
+  StandardizedTestResult = "standardized_test",
+  TextListItem = "text_list_item",
 }
 
 export const ProfileFieldValues = <const>{
@@ -42,6 +44,9 @@ export const ProfileFieldValues = <const>{
     ProfileFieldValue.IntegerWithComment,
   [ProfileFieldKey.AdvisingScore]: ProfileFieldValue.IntegerWithComment,
   [ProfileFieldKey.AthleticScore]: ProfileFieldValue.IntegerWithComment,
+  [ProfileFieldKey.InternalAssessments]: ProfileFieldValue.IntegerWithComment,
+  [ProfileFieldKey.StandardizedTesting]:
+    ProfileFieldValue.StandardizedTestResult,
   [ProfileFieldKey.BioAboutMe]: ProfileFieldValue.Text,
   [ProfileFieldKey.BioFavoriteSubject]: ProfileFieldValue.Text,
   [ProfileFieldKey.BioHobbies]: ProfileFieldValue.Text,
@@ -49,7 +54,7 @@ export const ProfileFieldValues = <const>{
   [ProfileFieldKey.BioParents]: ProfileFieldValue.Text,
   [ProfileFieldKey.BioSiblings]: ProfileFieldValue.Text,
   [ProfileFieldKey.Height]: ProfileFieldValue.DistanceMeasured,
-  [ProfileFieldKey.DisciplinaryActions]: ProfileFieldValue.Text,
+  [ProfileFieldKey.DisciplinaryActions]: ProfileFieldValue.TextListItem,
   [ProfileFieldKey.GPA]: ProfileFieldValue.FloatWithComment,
   [ProfileFieldKey.HealthAndWellness]: ProfileFieldValue.Text,
   [ProfileFieldKey.Highlights]: ProfileFieldValue.URL,
@@ -83,6 +88,8 @@ export const ProfileFieldLabels = {
   [ProfileFieldKey.HealthAndWellness]: "Comments",
   [ProfileFieldKey.YearOfBirth]: "Birth Year",
   [ProfileFieldKey.ProfilePicture]: "Upload Profile Picture",
+  [ProfileFieldKey.InternalAssessments]: "Internal Assessments",
+  [ProfileFieldKey.StandardizedTesting]: "Standardized Testing",
 } as const;
 
 export enum ProfileCategory {
@@ -133,6 +140,8 @@ export const ProfileFieldsByCategory: Record<
   ],
   [ProfileCategory.AcademicPerformance]: [
     ProfileFieldKey.GPA,
+    ProfileFieldKey.InternalAssessments,
+    ProfileFieldKey.StandardizedTesting,
     ProfileFieldKey.DisciplinaryActions,
   ],
   [ProfileCategory.Attendance]: [],
@@ -162,23 +171,42 @@ type WithComment = {
   comment?: string;
 };
 
+type TrackedOverTime = {
+  /**
+   * A field that represents what date this value is recorded for.
+   */
+  date: Dayjs;
+};
+
 export type ProfileFieldValueDeserializedTypes = {
   [ProfileFieldValue.Text]: string;
   [ProfileFieldValue.URL]: string;
   [ProfileFieldValue.Integer]: number;
-  [ProfileFieldValue.IntegerWithComment]: WithComment & {
-    value: number;
-    date: Dayjs;
-  };
+  [ProfileFieldValue.IntegerWithComment]: TrackedOverTime &
+    WithComment & {
+      value: number;
+    };
   [ProfileFieldValue.Float]: number;
-  [ProfileFieldValue.FloatWithComment]: WithComment & {
-    value: number;
-    date: Dayjs;
-  };
+  [ProfileFieldValue.FloatWithComment]: TrackedOverTime &
+    WithComment & {
+      value: number;
+    };
   [ProfileFieldValue.TimeElapsed]: Duration;
   [ProfileFieldValue.DistanceMeasured]: { feet: number; inches: number };
   [ProfileFieldValue.File]: { key: string };
+  [ProfileFieldValue.StandardizedTestResult]: TrackedOverTime &
+    WithComment & {
+      value: number;
+      percentile: number;
+    };
+  [ProfileFieldValue.TextListItem]: TrackedOverTime & Required<WithComment>;
 };
+
+export type TimeSeriesProfileFieldValues = {
+  [V in ProfileFieldValue]: ProfileFieldValueDeserializedTypes[V] extends TrackedOverTime
+    ? V
+    : never;
+}[ProfileFieldValue];
 
 export type IProfileField<K extends ProfileFieldKey = ProfileFieldKey> = Omit<
   ProfileField,
@@ -226,7 +254,9 @@ export type ProfileFieldKeysOfProfileValueType<
 >;
 
 export type NumericProfileFields = ProfileFieldKeysOfProfileValueType<
-  ProfileFieldValue.IntegerWithComment | ProfileFieldValue.FloatWithComment
+  | ProfileFieldValue.IntegerWithComment
+  | ProfileFieldValue.FloatWithComment
+  | ProfileFieldValue.StandardizedTestResult
 >;
 
 export type DefaultRole = {
@@ -251,5 +281,5 @@ export type IPlayer = IUser & {
   profile: Partial<PlayerProfile> | null;
   absences?: (IAbsence | UncreatedAbsence)[];
   absenceDraft?: Partial<Absence>;
-  notes?: Notes[];
+  playerNotes?: Notes[];
 };
