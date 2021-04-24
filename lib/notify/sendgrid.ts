@@ -12,6 +12,7 @@ export default class SendgridNotifier implements Notifier {
   templates: Record<NotificationType, string> = {
     [NotificationType.ForgotPassword]: "d-9e3ecf30ca4846a68e1e879db5105974",
     [NotificationType.SignUpInvitation]: "d-3ad525e2c11840e59dce1a51d1d89004",
+    [NotificationType.RequestAccepted]: "d-d3d3822022b548589003f1a005227616",
   };
 
   async setup(): Promise<void> {
