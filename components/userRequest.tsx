@@ -47,7 +47,10 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ status: UserStatus.Active } as UpdateUserDTO),
+        body: JSON.stringify({
+          status: UserStatus.Active,
+          userAccepted: true,
+        } as UpdateUserDTO),
       });
       if (!response.ok) {
         throw await response.json();

@@ -20,7 +20,8 @@ export type UpdateUserDTO = {
   roles?: [ViewingPermissionDTO];
   status?: UserStatus;
   hashedPassword?: string;
-  sendEmail?: boolean;
+  resendInvite?: boolean;
+  userAccepted?: boolean;
 };
 
 const expectedBody = Joi.object<UpdateUserDTO>({
@@ -34,7 +35,8 @@ const expectedBody = Joi.object<UpdateUserDTO>({
   image: Joi.string(),
   roles: Joi.array().items(Joi.string()),
   hashedPassword: Joi.string(),
-  sendEmail: Joi.boolean(),
+  resendInvite: Joi.boolean(),
+  userAccepted: Joi.boolean(),
   status: Joi.string(),
 });
 
@@ -177,11 +179,17 @@ const handler = async (
         .json({ statusCode: 404, message: "User does not exist." });
     }
 
-    if (userInfo.sendEmail) {
+    if (userInfo.resendInvite) {
       await Notifier.sendNotification(NotificationType.SignUpInvitation, {
         email: user.email,
         inviteCodeId: user.userInvites[0].id,
       });
+    }
+    if (userInfo.userAccepted) {
+      console.log("sending request accepted email");
+      // await Notifier.sendNotification(NotificationType.RequestAccepted, {
+      //   email: user.email,
+      // });
     }
     res.json({
       message: "Successfully updated user.",
