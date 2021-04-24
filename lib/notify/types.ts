@@ -1,6 +1,7 @@
 export enum NotificationType {
   SignUpInvitation = "SIGN_UP_INVITATION",
   ForgotPassword = "FORGOT_PASSWORD_REQUEST",
+  RequestAccepted = "REQUEST_ACCEPTED",
 }
 
 type BaseNotificationMeta = {

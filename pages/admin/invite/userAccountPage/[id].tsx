@@ -331,6 +331,7 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = () => {
         body: JSON.stringify({
           status: UserStatus.Active,
           roles: linkedPlayers,
+          userAccepted: true,
         } as UpdateUserDTO),
       });
       if (!response.ok) {

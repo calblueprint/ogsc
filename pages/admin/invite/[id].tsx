@@ -252,7 +252,7 @@ const UserInvitation: React.FunctionComponent<gsspProps> = ({
           name: `${values.firstName} ${values.lastName}`,
           phoneNumber: values.phoneNumber,
           roles: role,
-          sendEmail: submitter === "resend",
+          resendInvite: submitter === "resend",
         } as UpdateUserDTO),
       });
 
