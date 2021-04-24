@@ -28,7 +28,7 @@ const PendingInvitesItem: React.FunctionComponent<PendingInvites> = ({
       <hr className="border-unselected border-opacity-50" />
       <div className="col-span-2">
         <Link href={`invite/${id}`}>
-          <div className="grid grid-cols-4 gap-5 justify-items-start m-5 font-display items-center py-3">
+          <div className="grid grid-cols-4 gap-5 justify-items-start m-5 font-display items-center py-3 text-sm">
             <div className="flex flex-row">
               <div className="w-10 h-10 mr-4 rounded-full">
                 <img src={image || "/placeholder-profile.png"} alt="" />
@@ -42,9 +42,9 @@ const PendingInvitesItem: React.FunctionComponent<PendingInvites> = ({
               <p className="self-center font-normal">{email}</p>
             </div>
             <div>
-              <p className="self-center font-normal">{phoneNumber}</p>
+              <p className="self-center font-normal ml-3">{phoneNumber}</p>
             </div>
-            <div>
+            <div className="ml-5">
               {createdAt
                 .substring(0, 19)
                 .localeCompare(updatedAt.substring(0, 19)) === 0 ? (
@@ -88,30 +88,36 @@ const PendingInvitesTable: React.FunctionComponent = () => {
     <div>
       <div className="text-3xl font-display font-medium mb-10">
         <div className="mx-0 mt-0">
-          <p className="text-2xl font-semibold mx-0 mt-20">
+          <p className="text-xl font-semibold mx-0 mt-20">
             Your Pending Invites
           </p>
         </div>
       </div>
-      <div className="grid grid-cols-4 gap-5 justify-items-start mt-5 ml-5 font-display text-unselected">
+      <div className="grid grid-cols-4 gap-5 justify-items-start mt-5 ml-5 font-semibold text-unselected text-sm">
         <p>Name</p>
         <p>Email</p>
         <p>Phone</p>
         <p>Date Created/Modified</p>
         <hr className="border-unselected border-opacity-50" />
       </div>
-      {users?.map((user) => (
-        <PendingInvitesItem
-          name={user.name}
-          email={user.email}
-          phoneNumber={user.phoneNumber}
-          image={user.image}
-          id={user.id}
-          createdAt={user.createdAt}
-          updatedAt={user.updatedAt}
-          defaultRole={user.defaultRole}
-        />
-      ))}
+      {users?.length ? (
+        users?.map((user) => (
+          <PendingInvitesItem
+            name={user.name}
+            email={user.email}
+            phoneNumber={user.phoneNumber}
+            image={user.image}
+            id={user.id}
+            createdAt={user.createdAt}
+            updatedAt={user.updatedAt}
+            defaultRole={user.defaultRole}
+          />
+        ))
+      ) : (
+        <div className="m-5 text-sm text-unselected">
+          No pending invites at the moment!
+        </div>
+      )}
     </div>
   );
 };

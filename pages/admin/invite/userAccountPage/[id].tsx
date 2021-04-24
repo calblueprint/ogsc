@@ -41,7 +41,9 @@ const AdminEditUserFormSchema = Joi.object<AdminEditUserFormValues>({
     .trim()
     .email({ tlds: { allow: false } })
     .required(),
-  phoneNumber: Joi.string().optional(),
+  phoneNumber: Joi.string()
+    .phoneNumber({ defaultCountry: "US", format: "national", strict: true })
+    .allow(""),
   role: Joi.string()
     .valid(...Object.values(UserRoleType))
     .required(),
