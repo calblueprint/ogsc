@@ -42,6 +42,8 @@ type Props = React.PropsWithChildren<{
 const NotesTable: React.FC<Props> = ({ userId, defaultNotes }) => {
   const [phrase, setPhrase] = useState<string>(" ");
   const [notes, setNotes] = useState<Notes[]>(defaultNotes);
+  // console.log(defaultNotes);
+  console.log(notes);
 
   useEffect(() => {
     const getNotes = async (): Promise<Notes[]> => {

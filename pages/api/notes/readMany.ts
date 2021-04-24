@@ -11,7 +11,7 @@ export default async (
   res: NextApiResponse
 ): Promise<void> => {
   const search = req.query.search as string | undefined;
-  // const id = req.query.id as string;
+  const id = req.query.id as string;
   try {
     const filterArgs: Prisma.FindManyNotesArgs = {
       where: {
@@ -21,11 +21,15 @@ export default async (
                 contains: search,
                 mode: "insensitive",
               },
-              // author: {
-              //   equals: parseInt(id, 10),
-              // },
+              playerId: {
+                equals: parseInt(id, 10),
+              },
             }
-          : undefined),
+          : {
+              playerId: {
+                equals: parseInt(id, 10),
+              },
+            }),
       },
     };
 
