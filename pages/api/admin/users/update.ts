@@ -186,10 +186,9 @@ const handler = async (
       });
     }
     if (userInfo.userAccepted) {
-      console.log("sending request accepted email");
-      // await Notifier.sendNotification(NotificationType.RequestAccepted, {
-      //   email: user.email,
-      // });
+      await Notifier.sendNotification(NotificationType.RequestAccepted, {
+        email: user.email,
+      });
     }
     res.json({
       message: "Successfully updated user.",
