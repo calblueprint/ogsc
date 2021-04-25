@@ -81,7 +81,7 @@ const AddNote: React.FC<Props> = ({
         <select
           value={noteType}
           className="select"
-          onChange={(event) => setNoteType(event.target.value)}
+          onChange={(event) => setNoteType(event.target.value as NoteType)}
         >
           {Object.values(NoteType).map((type: NoteType) => (
             <option key={type} value={type}>
