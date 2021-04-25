@@ -5,13 +5,32 @@ import React, { Fragment, useEffect, useState } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import Icon from "components/Icon";
 
+interface Category {
+  color: string;
+  enabled: boolean;
+}
+
+const CATEGORIES = {
+  General: "blue-muted",
+  Soccer: "purple-muted",
+  Academics: "pink-muted",
+  Mentorship: "gold-muted",
+};
+
 const Note: React.FunctionComponent<{ note: Notes }> = ({
   // eslint-disable-next-line camelcase
   note: { created_at, content, authorId, type },
 }) => {
   return (
     <div className=" grid grid-rows-3 text-sm max-h-56 border-opacity-50 border-b">
-      <text className="row-span-3 w-16 h-4 text-xs text-center rounded-full font-semibold text-unselected bg-button mt-10">
+      <text
+        className={`row-span-3 w-16 h-4 text-xs text-center rounded-full font-semibold text-unselected bg-${
+          CATEGORIES[
+            (type.charAt(0).toUpperCase() +
+              type.slice(1)) as keyof typeof CATEGORIES
+          ]
+        } mt-10`}
+      >
         {type}
       </text>
       <div className="row-span-2 inline-flex pt-4">
@@ -64,31 +83,39 @@ const NotesTable: React.FC<Props> = ({ userId, defaultNotes }) => {
     fetchData();
   }, [phrase, userId]);
 
-  const CATEGORIES = ["General", "Soccer", "Academics", "Mentorship"];
   const [categoryToggles, setCategoryToggles] = useState<
-    Record<string, boolean>
+    Record<string, Category>
   >(
-    CATEGORIES.reduce<Record<string, boolean>>((obj, category) => {
-      return {
-        ...obj,
-        [category]: true,
-      };
-    }, {})
+    Object.keys(CATEGORIES).reduce<Record<string, Category>>(
+      (obj, categoryName) => {
+        return {
+          ...obj,
+          [categoryName]: {
+            color: CATEGORIES[categoryName as keyof typeof CATEGORIES],
+            enabled: true,
+          },
+        };
+      },
+      {}
+    )
   );
 
-  const toggleCategory = (category: string): void => {
+  const toggleCategory = (categoryName: string): void => {
     setCategoryToggles({
       ...categoryToggles,
-      [category]: !categoryToggles[category],
+      [categoryName]: {
+        ...categoryToggles[categoryName],
+        enabled: !categoryToggles[categoryName].enabled,
+      },
     });
   };
 
   return (
     <div>
       <div className="flex flex-row mt-8">
-        <div className="text-gray-600 w-4/6">
+        <div className="text-gray-600 w-4/6 pr-12">
           <input
-            className="border-2 border-gray-300 bg-white h-10 px-96 pr-16 rounded-full text-sm focus:outline-none"
+            className="border-2 border-gray-300 bg-white h-10 rounded-full text-sm focus:outline-none w-full"
             type="search"
             name="search"
             placeholder="Search notes"
@@ -140,22 +167,26 @@ const NotesTable: React.FC<Props> = ({ userId, defaultNotes }) => {
                     static
                   >
                     <p className="h-5 ml-4 -mt-10 fill-current">Category</p>
-                    {Object.keys(categoryToggles).map((category) => (
+                    {Object.keys(categoryToggles).map((categoryName) => (
                       <button
                         type="button"
                         className="flex items-center w-full px-4 py-2 font-medium focus:outline-none hover:bg-button hover:text-dark"
                         onClick={() => {
-                          toggleCategory(category);
+                          toggleCategory(categoryName);
                         }}
                       >
                         <Icon
                           type="selected"
                           className={`h-4 mr-3 ${
-                            categoryToggles[category] ? "" : "opacity-0"
+                            categoryToggles[categoryName].enabled
+                              ? ""
+                              : "opacity-0"
                           }`}
                         />
-                        <p className="justify-self-start text-xs text-center rounded-full font-medium text-dark bg-pink-muted px-2">
-                          {category}
+                        <p
+                          className={`justify-self-start text-xs text-center rounded-full font-medium text-dark bg-${categoryToggles[categoryName].color} px-2`}
+                        >
+                          {categoryName}
                         </p>
                       </button>
                     ))}
@@ -172,7 +203,7 @@ const NotesTable: React.FC<Props> = ({ userId, defaultNotes }) => {
           (note: Notes) =>
             categoryToggles[
               note.type.charAt(0).toUpperCase() + note.type.slice(1)
-            ]
+            ].enabled
         )
         .map((note: Notes) => (
           <Note note={note} />
