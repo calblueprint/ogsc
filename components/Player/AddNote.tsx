@@ -59,7 +59,9 @@ const AddNote: React.FC<Props> = ({
       resetModal();
     }
   }
-  const handleChange = (fieldName: string) => (e) => {
+  const handleChange = (fieldName: string) => (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     if (fieldName === "description") {
       setDescription(e.target.value);
     } else if (fieldName === "type") {
