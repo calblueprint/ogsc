@@ -59,15 +59,6 @@ const AddNote: React.FC<Props> = ({
       resetModal();
     }
   }
-  const handleChange = (fieldName: string) => (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    if (fieldName === "description") {
-      setDescription(e.target.value);
-    } else if (fieldName === "type") {
-      setNoteType(e.target.value as NoteType);
-    }
-  };
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const toasty = () => toast.success(toastMessage);
   return (
@@ -84,13 +75,13 @@ const AddNote: React.FC<Props> = ({
           cols={40}
           rows={5}
           value={description}
-          onChange={handleChange("description")}
+          onChange={(event) => setDescription(event.target.value)}
         />
         <p className="text-sm font-semibold mb-2">Category</p>
         <select
           value={noteType}
           className="select"
-          onChange={handleChange("type")}
+          onChange={(event) => setNoteType(event.target.value)}
         >
           {Object.values(NoteType).map((type: NoteType) => (
             <option key={type} value={type}>
