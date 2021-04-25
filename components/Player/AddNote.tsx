@@ -65,7 +65,7 @@ const AddNote: React.FC<Props> = ({
     if (fieldName === "description") {
       setDescription(e.target.value);
     } else if (fieldName === "type") {
-      setNoteType(e.target.value);
+      setNoteType(e.target.value as NoteType);
     }
   };
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
