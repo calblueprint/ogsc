@@ -22,18 +22,18 @@ const Note: React.FunctionComponent<{ note: Notes }> = ({
   note: { created_at, content, authorId, type },
 }) => {
   return (
-    <div className=" grid grid-rows-3 text-sm max-h-56 border-opacity-50 border-b">
+    <div className=" grid grid-rows-3 grid-cols-3 text-sm max-h-56 border-opacity-50 border-b">
       <text
-        className={`row-span-3 w-16 h-4 text-xs text-center rounded-full font-semibold text-unselected bg-${
+        className={`row-span-3 col-start-1 h-4 text-xs w-1/6 text-center rounded-full font-medium text-dark bg-${
           CATEGORIES[
             (type.charAt(0).toUpperCase() +
               type.slice(1)) as keyof typeof CATEGORIES
           ]
         } mt-10`}
       >
-        {type}
+        {type.charAt(0).toUpperCase() + type.slice(1)}
       </text>
-      <div className="row-span-2 inline-flex pt-4">
+      <div className="row-span-2 inline-flex pt-4 col-start-1">
         <div className="w-10 h-10 mr-4 bg-placeholder rounded-full">
           <img src="/placeholder-profile.png" alt="" />
         </div>
@@ -48,7 +48,7 @@ const Note: React.FunctionComponent<{ note: Notes }> = ({
           </p>
         </div>
       </div>
-      <p className="self-center row-span-1 mb-10 text-sm pt-3 mb-10">
+      <p className="self-center row-span-1 mb-10 text-sm pt-3 mb-10 col-start-1">
         {content}
       </p>
     </div>
@@ -114,8 +114,9 @@ const NotesTable: React.FC<Props> = ({ userId, defaultNotes }) => {
     <div>
       <div className="flex flex-row mt-8">
         <div className="text-gray-600 w-4/6 pr-12">
+          <Icon type="search" className="absolute ml-4 mt-3" />
           <input
-            className="border-2 border-gray-300 bg-white h-10 rounded-full text-sm focus:outline-none w-full"
+            className="pl-12 border-2 border-gray-300 bg-white h-10 rounded-full text-sm focus:outline-none w-full"
             type="search"
             name="search"
             placeholder="Search notes"
@@ -166,7 +167,9 @@ const NotesTable: React.FC<Props> = ({ userId, defaultNotes }) => {
                     style={{ borderWidth: 1, transform: "translateY(-32px)" }}
                     static
                   >
-                    <p className="h-5 ml-4 -mt-10 fill-current">Category</p>
+                    <p className="h-5 ml-4 -mt-10 fill-current text-dark-gray text-xs">
+                      Category
+                    </p>
                     {Object.keys(categoryToggles).map((categoryName) => (
                       <button
                         type="button"
