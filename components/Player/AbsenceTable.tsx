@@ -1,9 +1,6 @@
 import React from "react";
 import { Absence, AbsenceReason, AbsenceType } from "@prisma/client";
-import { IProfileField } from "interfaces";
 import dayjs from "lib/day";
-import toast from "lib/toast";
-import isAbsence from "utils/isAbsence";
 import useCanEditField from "utils/useCanEditField";
 import EditMore from "./EditMore";
 import ProfileFieldEditorModal from "./ProfileFieldEditorModal";
@@ -70,18 +67,7 @@ const AbsenceTable: React.FC<Props> = ({ absenceType, absences }: Props) => {
         <p className="font-semibold">{filteredAbsences.length}</p>
       </div>
       <div className="mt-8 grid grid-rows-2 w-full justify-end">
-        <ProfileFieldEditorModal
-          fieldKey="absence"
-          onComplete={(updated?: Absence | IProfileField) => {
-            if (updated && isAbsence(updated)) {
-              toast.success(
-                `Absence for ${dayjs(updated.date).format(
-                  "MMMMM YYYY"
-                )} has been created!`
-              );
-            }
-          }}
-        />
+        <ProfileFieldEditorModal fieldKey="absence" shouldToastOnSuccess />
       </div>
     </div>
   );

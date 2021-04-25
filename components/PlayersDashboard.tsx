@@ -29,15 +29,15 @@ const PlayerDashboardItem: React.FunctionComponent<
     <Link href={link}>
       <div role="button" className=" hover:bg-hover">
         <hr className="border-unselected border-opacity-50" />
-        <div className="grid grid-cols-3 gap-12 justify-items-start m-5">
-          <div className="flex flex-row">
+        <div className="grid grid-cols-12 gap-12 justify-items-start m-5">
+          <div className="flex flex-row col-span-7">
             <div className="w-10 h-10 mr-4 bg-placeholder rounded-full">
               <img src={image || "/placeholder-profile.png"} alt="" />
               {/* Not being used right now because seed data doesn't have images */}
             </div>
-            <p className="font-semibold self-center">{name}</p>
+            <p className="self-center text-sm font-semibold">{name}</p>
           </div>
-          <p className="self-center font-normal">
+          <p className="self-center col-span-4">
             {deserializeProfileFieldValue(profile?.YearOfBirth?.current)}
           </p>
           <div className="flex flex-row relative">
@@ -58,13 +58,13 @@ const PlayerDashboardItem: React.FunctionComponent<
                   {showHoverPlayer && (
                     <Icon
                       type="yourPlayer"
-                      className="absolute right-0 top-0 mr-16 -mt-10"
+                      className="absolute right-0 top-0 mr-5 -mt-10"
                     />
                   )}
                 </div>
                 <Icon
                   type="goldStar"
-                  className="absolute right-0 top-0 mr-24 mt-4 w-4 h-4"
+                  className="absolute right-0 top-0 mr-16 mt-4 w-4 h-4"
                 />
               </div>
             ) : (
@@ -119,9 +119,9 @@ const PlayerDashboard: React.FunctionComponent<PlayerDashboardProps> = ({
   return (
     <div>
       <div>
-        <div className="grid grid-cols-3 gap-12 justify-items-start m-5 font-semibold text-unselected">
-          <p>Name</p>
-          <p>Birth Year</p>
+        <div className="grid grid-cols-12 gap-12 text-sm justify-items-start mb-4 mx-5 mt-12 font-semibold text-unselected">
+          <p className="col-span-7">Name</p>
+          <p className="col-span-4">Birth Year</p>
         </div>
       </div>
       <hr className="border-unselected border-opacity-0" />

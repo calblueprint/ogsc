@@ -1,6 +1,7 @@
 import {
   IProfileField,
-  NumericProfileFields,
+  ProfileFieldKeysOfProfileValueType,
+  ProfileFieldValue,
   UncreatedProfileField,
 } from "interfaces/user";
 import dayjs from "lib/day";
@@ -10,17 +11,19 @@ import sortTimeSeriesFields from "utils/sortTimeSeriesFields";
 import useCanEditField from "utils/useCanEditField";
 import EditMore from "./EditMore";
 
+type StandardizedTestProfileFields = ProfileFieldKeysOfProfileValueType<ProfileFieldValue.StandardizedTestResult>;
+
 type Props = {
-  fieldKey: NumericProfileFields;
+  fieldKey: StandardizedTestProfileFields;
   values: (
-    | IProfileField<NumericProfileFields>
-    | UncreatedProfileField<NumericProfileFields>
+    | IProfileField<StandardizedTestProfileFields>
+    | UncreatedProfileField<StandardizedTestProfileFields>
   )[];
   startDate?: Date | null;
   endDate?: Date | null;
 };
 
-const ValueHistoryTable: React.FC<Props> = ({
+const TestResultHistoryTable: React.FC<Props> = ({
   fieldKey,
   values,
   startDate,
@@ -32,8 +35,9 @@ const ValueHistoryTable: React.FC<Props> = ({
       <thead>
         <tr className="h-10 text-left text-unselected tr-border">
           <th className="w-2/12 pl-5 font-semibold">Date</th>
-          <th className="w-2/12 font-semibold">Value</th>
-          <th className="w-6/12 font-semibold">Description</th>
+          <th className="w-2/12 font-semibold">Score</th>
+          <th className="w-2/12 font-semibold">Percentile</th>
+          <th className="w-5/12 font-semibold">Description</th>
           {canEdit && <th className="w-1/12 font-semibold">Actions</th>}
         </tr>
       </thead>
@@ -52,10 +56,11 @@ const ValueHistoryTable: React.FC<Props> = ({
           return (
             <tr key={field.id} className="h-16 tr-border">
               <td className="w-2/12 px-5">
-                {dayjs(value?.date).format("MMM YYYY")}
+                {dayjs(value?.date).format("MMM DD, YYYY")}
               </td>
               <td className="w-2/12">{value?.value}</td>
-              <td>{value?.comment}</td>
+              <td className="w-2/12">{value?.percentile}</td>
+              <td className="w-5/12">{value?.comment}</td>
               {canEdit && (
                 <td className="w-1/12">
                   <EditMore fieldKey={field.key} fieldId={field.id} />
@@ -69,9 +74,9 @@ const ValueHistoryTable: React.FC<Props> = ({
   );
 };
 
-ValueHistoryTable.defaultProps = {
+TestResultHistoryTable.defaultProps = {
   startDate: undefined,
   endDate: undefined,
 };
 
-export default ValueHistoryTable;
+export default TestResultHistoryTable;

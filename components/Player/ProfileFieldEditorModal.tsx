@@ -2,14 +2,21 @@
 import { Absence, ProfileFieldKey } from "@prisma/client";
 import Button from "components/Button";
 import Modal from "components/Modal";
+import dayjs from "lib/day";
+import toast from "lib/toast";
 import React, { useCallback, useContext, useState } from "react";
 import {
   IProfileField,
+  ProfileFieldKeysOfProfileValueType,
   ProfileFieldValueDeserializedTypes,
   ProfileFieldValues,
+  TimeSeriesProfileFieldValues,
 } from "interfaces/user";
 import PropTypes from "prop-types";
-import { serializeProfileFieldValue } from "utils/buildUserProfile";
+import {
+  deserializeProfileFieldValue,
+  serializeProfileFieldValue,
+} from "utils/buildUserProfile";
 import labelProfileField from "utils/labelProfileField";
 import isAbsence from "utils/isAbsence";
 import useCanEditField from "utils/useCanEditField";
@@ -28,6 +35,7 @@ type UpdateProps = {
 
 type Props = (CreateProps | UpdateProps) & {
   trigger?: React.ReactElement;
+  shouldToastOnSuccess?: boolean;
 };
 
 export const StandaloneProfileFieldEditor: React.FC<
@@ -117,16 +125,30 @@ export const StandaloneProfileFieldEditor: React.FC<
 const ProfileFieldEditorModal: React.FC<Props> = ({
   onComplete,
   trigger,
+  shouldToastOnSuccess,
   ...props
 }: Props) => {
   const { state } = useContext(ProfileContext);
   const [modalOpen, setModalOpen] = useState(false);
   const wrappedOnComplete = useCallback(
     (updated?: IProfileField | Absence): void => {
+      if (updated && shouldToastOnSuccess) {
+        toast.success(
+          `${labelProfileField(updated)} for ${dayjs(
+            isAbsence(updated)
+              ? updated.date
+              : deserializeProfileFieldValue(
+                  updated as IProfileField<
+                    ProfileFieldKeysOfProfileValueType<TimeSeriesProfileFieldValues>
+                  >
+                )?.date
+          ).format("MMMM YYYY")} has been created!`
+        );
+      }
       onComplete?.(updated);
       setModalOpen(false);
     },
-    [onComplete]
+    [onComplete, shouldToastOnSuccess]
   );
   const canEdit = useCanEditField(
     (() => {
@@ -185,6 +207,7 @@ ProfileFieldEditorModal.propTypes = {
 ProfileFieldEditorModal.defaultProps = {
   onComplete: undefined,
   trigger: undefined,
+  shouldToastOnSuccess: false,
 };
 
 export default ProfileFieldEditorModal;
