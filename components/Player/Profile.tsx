@@ -15,6 +15,7 @@ import { useRouter } from "next/router";
 import { UpdateOneAbsenceDTO } from "pages/api/absences/update";
 import { serializeProfileFieldValue } from "utils/buildUserProfile";
 import isAbsence from "utils/isAbsence";
+import useSessionInfo from "utils/useSessionInfo";
 import AbsenceTable from "./AbsenceTable";
 import ProfileFieldCell from "./ProfileFieldCell";
 import NotesTable from "./NotesTable";
@@ -40,6 +41,7 @@ export const ProfileContents = <T extends ProfileCategory>({
   } = useContext(ProfileContext);
 
   const Section = renderSection ?? ProfileSection;
+  const session = useSessionInfo();
 
   switch (category) {
     case ProfileCategory.Overview:
@@ -119,8 +121,11 @@ export const ProfileContents = <T extends ProfileCategory>({
     case ProfileCategory.Notes:
       return (
         <div>
-          {player?.notes && (
-            <NotesTable userId={player.id} notes={player.notes} />
+          {player?.playerNotes && (
+            <NotesTable
+              authorId={session.user.id}
+              playerNotes={player.playerNotes}
+            />
           )}
         </div>
       );

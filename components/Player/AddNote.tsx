@@ -1,14 +1,121 @@
-type Props = React.PropsWithChildren<{
-  userId: number | undefined;
-  category: string;
-  content: string;
-}>;
+import Button from "components/Button";
+import Modal from "components/Modal";
+import React, { useState } from "react";
+import { useRouter } from "next/router";
+import { NoteType, Notes } from "@prisma/client";
+import toast from "lib/toast";
 
-const AddNote: React.FC<Props> = ({ userId, category, content }: Props) => {
-  console.log(userId);
-  console.log(category);
-  console.log(content);
-  return <div>hello</div>;
+type Props = React.PropsWithChildren<{
+  authorId: number | undefined;
+  addOrEdit: string;
+  note?: Notes;
+  modalOpen: boolean;
+  closeModal: () => void;
+  toastMessage: string;
+  refresh: () => void;
+}>;
+const AddNote: React.FC<Props> = ({
+  authorId,
+  addOrEdit,
+  note,
+  modalOpen,
+  closeModal,
+  toastMessage,
+  refresh,
+}: Props) => {
+  const router = useRouter();
+  const [description, setDescription] = useState(note ? note.content : "");
+  const [noteType, setNoteType] = useState(note ? note.type : NoteType.general);
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  const resetModal = () => {
+    closeModal();
+    if (addOrEdit === "Add") {
+      setDescription("");
+      setNoteType(NoteType.general);
+    }
+  };
+  async function onSubmit(): Promise<void> {
+    const response = await fetch(`/api/notes/update`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        content: description,
+        type: noteType,
+        authorId,
+        playerId: Number(router.query.id),
+        noteId: note.id,
+      }),
+    });
+    if (!response.ok) {
+      throw await response.json();
+    } else {
+      refresh();
+      resetModal();
+    }
+  }
+  const handleChange = (fieldName: string) => (e) => {
+    if (fieldName === "description") {
+      setDescription(e.target.value);
+    } else if (fieldName === "type") {
+      setNoteType(e.target.value);
+    }
+  };
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  const toasty = () => toast.success(toastMessage);
+  return (
+    <>
+      <Modal open={modalOpen} className="w-1/2" onClose={closeModal}>
+        <h1 className="text-2xl font-semibold">
+          {addOrEdit === "Add" ? "Create" : addOrEdit} Note
+        </h1>
+        <hr className="" />
+        <p className="text-sm font-semibold mb-2 mt-8">Description</p>
+        <textarea
+          className="input text-sm w-full font-light"
+          name="Text1"
+          cols={40}
+          rows={5}
+          value={description}
+          onChange={handleChange("description")}
+        />
+        <p className="text-sm font-semibold mb-2">Category</p>
+        <select
+          value={noteType}
+          className="select"
+          onChange={handleChange("type")}
+        >
+          {Object.values(NoteType).map((type: NoteType) => (
+            <option key={type} value={type}>
+              {type}
+            </option>
+          ))}
+        </select>
+        <hr className="my-10" />
+        <div className="flex flex-row my-5 gap-4 justify-start pb-4">
+          <Button
+            className="bg-blue-muted text-sm px-5 py-2 text-blue tracking-wide rounded-md"
+            iconType="plus"
+            onClick={() => {
+              onSubmit();
+              closeModal();
+              toasty();
+            }}
+          >
+            {addOrEdit} Note
+          </Button>
+          <Button
+            type="button"
+            className="border border-blue text-blue bg-white text-sm px-10 py-2 rounded-md tracking-wide"
+            onClick={resetModal}
+          >
+            Cancel
+          </Button>
+        </div>
+      </Modal>
+    </>
+  );
 };
 
 export default AddNote;
