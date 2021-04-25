@@ -13,10 +13,11 @@ const EditDeleteMenu: React.FunctionComponent<{
   note: Notes;
 }> = ({ note }) => {
   const [edit, setEdit] = useState(false);
+  const [currNote, setCurrNote] = useState<Notes>(note);
   const router = useRouter();
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const editNote = () => {
-    console.log(note);
+    setCurrNote(note);
     setEdit(true);
   };
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
@@ -96,8 +97,8 @@ const EditDeleteMenu: React.FunctionComponent<{
       </Menu>
       <AddNote
         addOrEdit="Edit"
-        authorId={note.authorId}
-        note={note}
+        authorId={currNote.authorId}
+        note={currNote}
         modalOpen={edit}
         closeModal={() => setEdit(false)}
         toastMessage="Note updated!"

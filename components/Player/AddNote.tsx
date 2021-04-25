@@ -1,6 +1,6 @@
 import Button from "components/Button";
 import Modal from "components/Modal";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { NoteType, Notes } from "@prisma/client";
 import toast from "lib/toast";
@@ -34,6 +34,10 @@ const AddNote: React.FC<Props> = ({
       setNoteType(NoteType.general);
     }
   };
+  useEffect(() => {
+    setDescription(note?.content || "");
+    setNoteType(note?.type || NoteType.general);
+  }, [note?.content, note?.type]);
   async function onSubmit(): Promise<void> {
     const response = await fetch(`/api/notes/update`, {
       method: "POST",
@@ -45,7 +49,7 @@ const AddNote: React.FC<Props> = ({
         type: noteType,
         authorId,
         playerId: Number(router.query.id),
-        noteId: note.id,
+        noteId: note?.id,
       }),
     });
     if (!response.ok) {
