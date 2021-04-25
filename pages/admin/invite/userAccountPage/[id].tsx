@@ -398,7 +398,10 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = () => {
             <Icon type="edit" />
           </button>
         </div>
-        <p className="mb-10">Created {user?.createdAt}</p>
+        <p className="mb-10">
+          Created{" "}
+          {user && new Date(user.createdAt.toString()).toLocaleDateString()}
+        </p>
         <p className="text-3xl font-semibold mb-10">Basic Information </p>
         <p className="text-1xl">Name</p>
         <p className="mb-10 font-semibold">{user?.name}</p>

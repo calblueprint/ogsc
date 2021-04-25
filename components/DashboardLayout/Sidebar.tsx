@@ -127,7 +127,7 @@ const Sidebar: React.FC = () => {
               }}
             >
               {showHoverMenu && (
-                <div className="absolute ml-56 w-32 h-24 rounded-md shadow-lg bg-white border">
+                <div className="absolute ml-46 w-32 h-24 rounded-md shadow-lg bg-white border">
                   <div className="h-14 pt-3 pb-3 hover:bg-hover hover:font-semibold cursor-pointer">
                     <Link
                       href={`/${UserRoleLabel[
