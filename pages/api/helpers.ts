@@ -4,7 +4,8 @@ import { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
 
 export const validateBody = <T>(
   handler: ValidatedNextApiHandler<T>,
-  schema: Joi.ObjectSchema<T>
+  schema: Joi.ObjectSchema<T>,
+  customMessage?: (error: string) => string
 ) => async (
   req: NextApiRequest,
   res: NextApiResponse,
@@ -12,7 +13,10 @@ export const validateBody = <T>(
 ): Promise<void> => {
   const { error } = schema.validate(req.body || {});
   if (error) {
-    res.status(400).json({ statusCode: 400, message: error.message });
+    res.status(400).json({
+      statusCode: 400,
+      message: customMessage ? customMessage(error.message) : error.message,
+    });
     return;
   }
   handler(req as ValidatedNextApiRequest<T>, res, ...args);
