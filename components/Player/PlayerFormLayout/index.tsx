@@ -23,7 +23,7 @@ const PlayerFormLayout: React.FC<Props> = ({ children }: Props) => {
 
   return (
     <div className="text-dark">
-      <div className="mt-6 grid grid-cols-7 gap-4">
+      <div className="mt-6 flex">
         <BarTab fill content="1. Basic Info" title="" />
         {categories.map((category: ProfileCategory, index: number) => {
           const displayIndex = index + 2;

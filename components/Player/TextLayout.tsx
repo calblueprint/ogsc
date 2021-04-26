@@ -11,17 +11,17 @@ const TextLayout: React.FunctionComponent<TextProps> = ({
 }: TextProps) => {
   if (title) {
     return (
-      <div className="mb-5">
+      <div className="mb-6">
         <div className="flex flex-col text-sm">
-          <div className="flex flex-col font-semibold text-dark">
-            <div>{title}:</div>
+          <div className="flex flex-col font-semibold text-dark mb-1">
+            <div>{title}</div>
           </div>
           <div className="flex flex-col font-normal">{children}</div>
         </div>
       </div>
     );
   }
-  return <div className="mb-5 text-sm font-normal">{children}</div>;
+  return <div className="mb-6 text-sm font-normal">{children}</div>;
 };
 
 export default TextLayout;

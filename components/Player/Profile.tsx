@@ -45,6 +45,7 @@ export const ProfileContents = <T extends ProfileCategory>({
             <ProfileFieldCell fieldKey={ProfileFieldKey.BioSiblings} />
             <ProfileFieldCell fieldKey={ProfileFieldKey.BioParents} />
           </Section>
+          <hr className="my-2 mb-6" />
           <Section sectionName="Intro Video">
             <ProfileFieldCell fieldKey={ProfileFieldKey.IntroVideo} />
           </Section>
@@ -75,14 +76,14 @@ export const ProfileContents = <T extends ProfileCategory>({
           <Section sectionName="Height">
             <ProfileFieldCell fieldKey={ProfileFieldKey.Height} />
           </Section>
-          <hr className="mt-4" />
+          <hr className="my-2 mb-6" />
           <Section sectionName="Fitness Testing">
             <ProfileFieldCell fieldKey={ProfileFieldKey.PacerTest} />
             <ProfileFieldCell fieldKey={ProfileFieldKey.MileTime} />
             <ProfileFieldCell fieldKey={ProfileFieldKey.Situps} />
             <ProfileFieldCell fieldKey={ProfileFieldKey.Pushups} />
           </Section>
-          <hr className="mt-4" />
+          <hr className="my-2 mb-6" />
           <Section sectionName="Health & Wellness">
             <ProfileFieldCell fieldKey={ProfileFieldKey.HealthAndWellness} />
           </Section>

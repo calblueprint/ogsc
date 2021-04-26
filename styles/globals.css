@@ -38,11 +38,15 @@ a {
   }
 
   .input {
-    @apply bg-button p-2 font-light rounded-lg border border-transparent;
+    @apply bg-button p-2 font-light rounded-lg border-2 border-transparent;
   }
 
   .input:focus {
-    @apply bg-white border border-unselected;
+    @apply bg-white border-2 border-medium-gray outline-none;
+  }
+
+  .has-errors .input {
+    @apply border-error;
   }
 
   .input-full {

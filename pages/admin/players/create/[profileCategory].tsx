@@ -36,7 +36,7 @@ const Section = ({
   children,
 }: ProfileSectionProps): JSX.Element => (
   <div>
-    <h1 className="mb-10 text-lg font-semibold">{sectionName}</h1>
+    <h1 className="mb-6 text-lg font-semibold">{sectionName}</h1>
     {children}
   </div>
 );

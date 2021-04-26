@@ -18,7 +18,7 @@ const BarTab: React.FunctionComponent<BarProps> = ({
     <Link href={link}>
       <button
         type="button"
-        className={`text-left focus:outline-none ${
+        className={`text-left focus:outline-none mr-2 flex-1 ${
           disabled ? "cursor-not-allowed" : "cursor-pointer"
         }`}
         disabled={disabled}
