@@ -3,8 +3,8 @@ import Link from "next/link";
 import PageNav from "components/PageNav";
 import { IUser, UserRoleLabel } from "interfaces/user";
 import { ReadManyUsersDTO } from "pages/api/admin/users/readMany";
+import usePagination from "utils/usePagination";
 import useSessionInfo from "utils/useSessionInfo";
-import usePagination from "./pagination";
 
 interface UserDashboardProps {
   filterValue: UserRoleType | UserStatus | null;
