@@ -218,7 +218,10 @@ export type IProfileField<K extends ProfileFieldKey = ProfileFieldKey> = Omit<
    * field that already exists.
    */
   draft?: ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]];
-
+  /**
+   * A validation error message in reference to the current `draft` value.
+   */
+  error?: string;
   modified?: boolean;
 };
 
@@ -238,6 +241,10 @@ export type IProfileFieldBuilt<K extends ProfileFieldKey> = {
    * for the new field to be created.
    */
   draft?: ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]];
+  /**
+   * A validation error message in reference to the current `draft` value.
+   */
+  error?: string;
 };
 
 export type PlayerProfile = {

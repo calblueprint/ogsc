@@ -1,10 +1,7 @@
-import {
-  Absence,
-  AbsenceReason,
-  AbsenceType,
-  ProfileFieldKey,
-} from "@prisma/client";
-import { Dayjs } from "dayjs";
+/* eslint-disable react/destructuring-assignment */
+import { Absence, ProfileFieldKey } from "@prisma/client";
+import DateTimeInput from "components/DateTimeInput";
+import NumberInput from "components/NumberInput";
 import {
   IAbsence,
   IProfileField,
@@ -17,213 +14,17 @@ import {
 } from "interfaces";
 import dayjs from "lib/day";
 import { AwsDTO } from "pages/api/admin/users/addImage";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { deserializeProfileFieldValue } from "utils/buildUserProfile";
 import isAbsence from "utils/isAbsence";
 import labelProfileField from "utils/labelProfileField";
+import validateProfileField from "utils/validateProfileField";
+import AbsenceInput from "./AbsenceInput";
 import ProfileContext from "./ProfileContext";
 import ProfileFieldEditorModal from "./ProfileFieldEditorModal";
 import TestResultHistoryTable from "./TestResultHistoryTable";
 import TextListTable from "./TextListTable";
 import ValueHistoryTable from "./ValueHistoryTable";
-
-type InputProps = React.ComponentPropsWithRef<"input"> & { unit?: string };
-const NumberEditor: React.FC<InputProps> = ({ unit, ...props }: InputProps) => {
-  const input = (
-    <input
-      {...props}
-      className={`${props.className ?? ""} input`}
-      type="number"
-    />
-  );
-  if (unit) {
-    return (
-      <div className="flex items-center">
-        {input}
-        <p className="ml-3 mr-6">{unit}</p>
-      </div>
-    );
-  }
-  return input;
-};
-NumberEditor.defaultProps = {
-  unit: undefined,
-};
-
-type DateTimeInputProps = {
-  hideMonth?: boolean;
-  hideDay?: boolean;
-  hideYear?: boolean;
-  /**
-   * Defaults to [2015, <current year>]. Maximum is inclusive.
-   */
-  yearRange?: [number, number];
-  onChange?: (date: Dayjs) => void;
-  value?: dayjs.ConfigType;
-};
-const DateTimeEditor: React.FC<DateTimeInputProps> = ({
-  hideMonth,
-  hideDay,
-  hideYear,
-  yearRange = [2015, dayjs().year()],
-  onChange,
-  value,
-}: DateTimeInputProps) => {
-  const date = dayjs(value);
-  const [minYear, maxYear] = yearRange;
-  const yearDiff = maxYear - minYear + 1;
-  if (yearDiff <= 0) {
-    throw new Error("Year range must be specified as [min, max].");
-  }
-
-  return (
-    <div className="flex items-center">
-      {!hideMonth && (
-        <select
-          value={date.month()}
-          className="select mr-3"
-          onChange={({
-            target: { value: monthValue },
-          }: React.ChangeEvent<HTMLSelectElement>) => {
-            const newDate = dayjs(date).month(Number(monthValue));
-            onChange?.(newDate);
-          }}
-        >
-          {Array(12)
-            .fill(null)
-            .map((_: null, month: number) => (
-              // Options are stable:
-              // eslint-disable-next-line react/no-array-index-key
-              <option key={month} value={month}>
-                {dayjs().month(month).format("MMMM")}
-              </option>
-            ))}
-        </select>
-      )}
-      {!hideDay && (
-        <select
-          value={date.date()}
-          className="select mr-3"
-          onChange={({
-            target: { value: dayValue },
-          }: React.ChangeEvent<HTMLSelectElement>) => {
-            const newDate = dayjs(date).date(Number(dayValue));
-            onChange?.(newDate);
-          }}
-        >
-          {Array(date.daysInMonth())
-            .fill(null)
-            .map((_: null, day: number) => (
-              <option
-                // Options are stable:
-                // eslint-disable-next-line react/no-array-index-key
-                key={`${date.month()}-${day}-${date.year()}`}
-                value={day + 1}
-              >
-                {dayjs()
-                  .month(date.month())
-                  .year(date.year())
-                  .date(day + 1)
-                  .format("DD")}
-              </option>
-            ))}
-        </select>
-      )}
-      {!hideYear && (
-        <select
-          value={date.year()}
-          className="select"
-          onChange={({
-            target: { value: yearValue },
-          }: React.ChangeEvent<HTMLSelectElement>) => {
-            const newDate = dayjs(date).year(Number(yearValue));
-            onChange?.(newDate);
-          }}
-        >
-          {Array(yearDiff)
-            .fill(null)
-            .map((_: null, index: number) => {
-              const year = minYear + index;
-              return (
-                <option key={year} value={year}>
-                  {dayjs().year(year).format("YYYY")}
-                </option>
-              );
-            })}
-        </select>
-      )}
-    </div>
-  );
-};
-DateTimeEditor.defaultProps = {
-  hideDay: false,
-  hideMonth: false,
-  hideYear: false,
-  onChange: undefined,
-  value: undefined,
-  yearRange: undefined,
-};
-
-type AbsenceEditorProps = {
-  absence: Partial<IAbsence> | undefined;
-  onChange: (change: Partial<Absence>) => void;
-};
-const AbsenceEditor: React.FC<AbsenceEditorProps> = ({
-  absence: _absence,
-  onChange,
-}: AbsenceEditorProps) => {
-  const absence = _absence?.draft ?? _absence;
-  return (
-    <div>
-      <p className="text-sm font-semibold mb-2">Absence Type</p>
-      <select
-        value={absence?.type}
-        className="select"
-        onChange={({ target: { value } }) =>
-          onChange({ type: value as AbsenceType })
-        }
-      >
-        <option disabled selected value={undefined}>
-          {" "}
-        </option>
-        {Object.values(AbsenceType).map((type: AbsenceType) => (
-          <option key={type} value={type}>
-            {type}
-          </option>
-        ))}
-      </select>
-      <p className="text-sm font-semibold mb-2 mt-8">Month/Year</p>
-      <DateTimeEditor
-        onChange={(date: Dayjs) => onChange({ date: date.toDate() })}
-        value={absence?.date}
-      />
-      <p className="text-sm font-semibold mb-2 mt-8">Excused/Unexcused</p>
-      <select
-        value={absence?.reason}
-        className="select"
-        onChange={({ target: { value } }) =>
-          onChange({ reason: value as AbsenceReason })
-        }
-      >
-        <option disabled selected value={undefined}>
-          {" "}
-        </option>
-        {Object.values(AbsenceReason).map((reason: AbsenceReason) => (
-          <option key={reason} value={reason}>
-            {reason}
-          </option>
-        ))}
-      </select>
-      <p className="text-sm font-semibold mb-2 mt-8">Description</p>
-      <input
-        type="text"
-        className="input text-sm w-full font-light"
-        value={absence?.description}
-        onChange={({ target: { value } }) => onChange({ description: value })}
-      />
-    </div>
-  );
-};
 
 type CreateTableHeaderProps = {
   field: IProfileFieldBuilt<NumericProfileFields>;
@@ -354,47 +155,46 @@ type CreateAbsenceProps = {
   profileField: "absence";
 };
 
-type UpdateProfileFieldOrAbsenceProps = {
+type UpdateProfileFieldProps = {
   /**
-   * If profileField is specified as an IProfileField or Absence, the ProfileFieldEditor will
+   * If profileField is specified as an IProfileField, the ProfileFieldEditor will
    * assume that you want to update a specific profile field's value rather than create a new
    * ProfileField in the database, which is why `updateExisting` must be specified as true to
    * disambiguate its meaning.
    */
-  profileField: IProfileField | IAbsence;
+  profileField: IProfileField;
+  updateExisting: true;
+};
+
+type UpdateAbsenceProps = {
+  /**
+   * If profileField is specified as an IAbsence, the ProfileFieldEditor will
+   * assume that you want to update a specific absence's value rather than create a new
+   * Absence in the database, which is why `updateExisting` must be specified as true to
+   * disambiguate its meaning.
+   */
+  profileField: IAbsence;
   updateExisting: true;
 };
 
 type Props =
   | CreateProfileFieldProps
   | CreateAbsenceProps
-  | UpdateProfileFieldOrAbsenceProps;
+  | UpdateProfileFieldProps
+  | UpdateAbsenceProps;
 
-const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
+const ProfileFieldEditor: React.FC<
+  CreateProfileFieldProps | UpdateProfileFieldProps
+> = (props: CreateProfileFieldProps | UpdateProfileFieldProps) => {
   const { state, dispatch } = useContext(ProfileContext);
 
   let profileKey: ProfileFieldKey;
   let profileFieldId: number | undefined;
-  let deserializedValue;
+  let deserializedValue:
+    | ProfileFieldValueDeserializedTypes[ProfileFieldValue]
+    | null
+    | undefined;
 
-  if (props.profileField === "absence" || isAbsence(props.profileField)) {
-    const existingAbsence =
-      props.profileField !== "absence"
-        ? props.profileField
-        : state.player?.absenceDraft;
-    return (
-      <AbsenceEditor
-        absence={existingAbsence}
-        onChange={(change: Partial<Absence>) => {
-          dispatch({
-            type: "EDIT_ABSENCE",
-            id: existingAbsence?.id,
-            value: change,
-          });
-        }}
-      />
-    );
-  }
   if (typeof props.profileField === "string") {
     profileKey = props.profileField;
     deserializedValue = state.player?.profile?.[profileKey]?.draft;
@@ -414,6 +214,35 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
   }
 
   const valueType = ProfileFieldValues[profileKey];
+
+  const serializeAndValidate = useCallback(() => {
+    if (!deserializedValue) {
+      dispatch({
+        type: "CLEAR_FIELD_VALIDATION_ERROR",
+        key: profileKey,
+        id: profileFieldId,
+      });
+      return;
+    }
+    const validationResult = validateProfileField(
+      deserializedValue,
+      profileKey
+    );
+    if (validationResult.error) {
+      dispatch({
+        type: "ADD_FIELD_VALIDATION_ERROR",
+        error: validationResult.error.message,
+        key: profileKey,
+        id: profileFieldId,
+      });
+    } else {
+      dispatch({
+        type: "CLEAR_FIELD_VALIDATION_ERROR",
+        key: profileKey,
+        id: profileFieldId,
+      });
+    }
+  }, [deserializedValue, dispatch, profileKey, profileFieldId]);
 
   switch (valueType) {
     case ProfileFieldValue.IntegerWithComment:
@@ -440,7 +269,8 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
           <p className="text-sm font-semibold mb-3 mt-10">
             {labelProfileField(profileKey)} Value
           </p>
-          <NumberEditor
+          <NumberInput
+            onBlur={serializeAndValidate}
             onChange={(event) => {
               dispatch({
                 type: "EDIT_FIELD",
@@ -453,13 +283,10 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
                 id: profileFieldId,
               });
             }}
-            // Floats can't be controlled, because intermediate states will not have decimal point
-            {...(valueType === ProfileFieldValue.IntegerWithComment
-              ? { value: value?.value }
-              : { defaultValue: value?.value })}
+            defaultValue={value?.value}
           />
           <p className="text-sm font-semibold mb-3 mt-10">Month/Year</p>
-          <DateTimeEditor
+          <DateTimeInput
             hideDay
             value={value?.date}
             onChange={(date) => {
@@ -474,6 +301,7 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
                 },
                 id: profileFieldId,
               });
+              serializeAndValidate();
             }}
           />
           <p className="text-sm font-semibold mb-3 mt-10">Comments</p>
@@ -482,6 +310,7 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
             className="input text-sm w-full font-light"
             name="comments"
             value={value?.comment}
+            onBlur={serializeAndValidate}
             onChange={(event) => {
               dispatch({
                 type: "EDIT_FIELD",
@@ -525,7 +354,7 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
       return (
         <div>
           <p className="text-sm font-semibold mt-3 mb-3">Date</p>
-          <DateTimeEditor
+          <DateTimeInput
             value={value?.date}
             onChange={(date) => {
               dispatch({
@@ -538,6 +367,7 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
                 },
                 id: profileFieldId,
               });
+              serializeAndValidate();
             }}
           />
           <p className="text-sm font-semibold mb-3 mt-10">Description</p>
@@ -546,6 +376,7 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
             className="input text-sm w-full font-light"
             name="comments"
             value={value?.comment}
+            onBlur={serializeAndValidate}
             onChange={(event) => {
               dispatch({
                 type: "EDIT_FIELD",
@@ -595,7 +426,8 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
           <p className="text-sm font-semibold mb-3 mt-10">
             {labelProfileField(fieldKey)} Score
           </p>
-          <NumberEditor
+          <NumberInput
+            onBlur={serializeAndValidate}
             onChange={(event) => {
               dispatch({
                 type: "EDIT_FIELD",
@@ -614,7 +446,8 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
           <p className="text-sm font-semibold mb-3 mt-10">
             {labelProfileField(fieldKey)} Percentile
           </p>
-          <NumberEditor
+          <NumberInput
+            onBlur={serializeAndValidate}
             onChange={(event) => {
               dispatch({
                 type: "EDIT_FIELD",
@@ -631,7 +464,7 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
             defaultValue={value?.percentile}
           />
           <p className="text-sm font-semibold mb-3 mt-10">Date</p>
-          <DateTimeEditor
+          <DateTimeInput
             value={value?.date}
             onChange={(date) => {
               dispatch({
@@ -645,6 +478,7 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
                 },
                 id: profileFieldId,
               });
+              serializeAndValidate();
             }}
           />
           <p className="text-sm font-semibold mb-3 mt-10">Comments</p>
@@ -653,6 +487,7 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
             className="input text-sm w-full font-light"
             name="comments"
             value={value?.comment}
+            onBlur={serializeAndValidate}
             onChange={(event) => {
               dispatch({
                 type: "EDIT_FIELD",
@@ -677,12 +512,13 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
         | null;
       return (
         <div className="flex items-center">
-          <NumberEditor
+          <NumberInput
             step={1}
             unit="minutes"
             placeholder="8"
             min={0}
             value={value?.minutes?.()}
+            onBlur={serializeAndValidate}
             onChange={(event) => {
               dispatch({
                 type: "EDIT_FIELD",
@@ -695,12 +531,13 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
               });
             }}
           />
-          <NumberEditor
+          <NumberInput
             unit="seconds"
             placeholder="8"
             min={0}
             max={59}
             value={value?.seconds?.()}
+            onBlur={serializeAndValidate}
             onChange={(event) => {
               dispatch({
                 type: "EDIT_FIELD",
@@ -722,12 +559,13 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
         | null;
       return (
         <div className="flex items-center">
-          <NumberEditor
+          <NumberInput
             step={1}
             unit="feet"
             placeholder="5"
             min={0}
             value={value?.feet}
+            onBlur={serializeAndValidate}
             onChange={(event) => {
               dispatch({
                 type: "EDIT_FIELD",
@@ -741,12 +579,13 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
               });
             }}
           />
-          <NumberEditor
+          <NumberInput
             unit="inches"
             placeholder="5"
             min={0}
             max={11}
             value={value?.inches}
+            onBlur={serializeAndValidate}
             onChange={(event) => {
               dispatch({
                 type: "EDIT_FIELD",
@@ -768,8 +607,9 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
         | ProfileFieldValueDeserializedTypes[typeof valueType]
         | null;
       return (
-        <NumberEditor
+        <NumberInput
           value={value ?? undefined}
+          onBlur={serializeAndValidate}
           onChange={(event) => {
             dispatch({
               type: "EDIT_FIELD",
@@ -810,9 +650,10 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
       return (
         <input
           type="text"
-          className="input"
+          className="input max-w-3xl"
           name={profileKey}
           value={value ?? undefined}
+          onBlur={serializeAndValidate}
           onChange={(event) =>
             dispatch({
               type: "EDIT_FIELD",
@@ -827,4 +668,43 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
   }
 };
 
-export default ProfileFieldEditor;
+const RootProfileFieldEditor: React.FC<Props> = (props: Props) => {
+  const { state, dispatch } = useContext(ProfileContext);
+
+  if (props.profileField === "absence" || isAbsence(props.profileField)) {
+    const existingAbsence =
+      props.profileField !== "absence"
+        ? props.profileField
+        : state.player?.absenceDraft;
+    return (
+      <AbsenceInput
+        absence={existingAbsence}
+        onChange={(change: Partial<Absence>) => {
+          dispatch({
+            type: "EDIT_ABSENCE",
+            id: existingAbsence?.id,
+            value: change,
+          });
+        }}
+      />
+    );
+  }
+
+  const error =
+    state.player?.profile?.[
+      typeof props.profileField === "string"
+        ? props.profileField
+        : props.profileField.key
+    ]?.error;
+
+  return (
+    <div className={`flex flex-col input-wrapper ${error ? "has-errors" : ""}`}>
+      <ProfileFieldEditor
+        {...(props as CreateProfileFieldProps | UpdateProfileFieldProps)}
+      />
+      {error && <p className="mt-1 text-error font-semibold">{error}</p>}
+    </div>
+  );
+};
+
+export default RootProfileFieldEditor;

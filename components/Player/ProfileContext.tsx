@@ -64,6 +64,17 @@ export type ProfileAction<K extends ProfileFieldKey = ProfileFieldKey> =
       id?: number;
     }
   | {
+      type: "ADD_FIELD_VALIDATION_ERROR";
+      key: K;
+      id?: number;
+      error: string;
+    }
+  | {
+      type: "CLEAR_FIELD_VALIDATION_ERROR";
+      key: K;
+      id?: number;
+    }
+  | {
       type: "SAVE_DRAFT_FIELD";
       key: ProfileFieldKey;
       id?: number;
@@ -259,6 +270,54 @@ export const ProfileContextReducer = (
                 ...createEmptyProfileField(action.key),
                 ...state.player.profile?.[action.key],
                 draft: action.value,
+              },
+            },
+          },
+        };
+      }
+      return state;
+
+    case "ADD_FIELD_VALIDATION_ERROR":
+    case "CLEAR_FIELD_VALIDATION_ERROR":
+      if (state.player) {
+        if (action.id) {
+          // Modify an existing field in the `.history` array
+          return {
+            ...state,
+            player: {
+              ...state.player,
+              profile: {
+                ...state.player.profile,
+                [action.key]: {
+                  ...state.player.profile?.[action.key],
+                  history: (
+                    (state.player.profile?.[action.key] as
+                      | IProfileFieldBuilt<ProfileFieldKey>
+                      | undefined)?.history || []
+                  ).map((field: IProfileField) => {
+                    if (field.id === action.id) {
+                      return {
+                        ...field,
+                        error: "error" in action ? action.error : undefined,
+                      };
+                    }
+                    return field;
+                  }),
+                },
+              },
+            },
+          };
+        }
+        // Create a new field
+        return {
+          ...state,
+          player: {
+            ...state.player,
+            profile: {
+              ...state.player.profile,
+              [action.key]: {
+                ...state.player.profile?.[action.key],
+                error: "error" in action ? action.error : undefined,
               },
             },
           },
