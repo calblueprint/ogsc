@@ -67,7 +67,7 @@ const AddNote: React.FC<Props> = ({
         <h1 className="text-2xl font-semibold">
           {addOrEdit === "Add" ? "Create" : addOrEdit} Note
         </h1>
-        <hr className="" />
+        <hr className="my-2" />
         <p className="text-sm font-semibold mb-2 mt-8">Description</p>
         <textarea
           className="input text-sm w-full font-light"
@@ -77,7 +77,7 @@ const AddNote: React.FC<Props> = ({
           value={description}
           onChange={(event) => setDescription(event.target.value)}
         />
-        <p className="text-sm font-semibold mb-2">Category</p>
+        <p className="text-sm pt-5 font-semibold mb-2">Category</p>
         <select
           value={noteType}
           className="select"

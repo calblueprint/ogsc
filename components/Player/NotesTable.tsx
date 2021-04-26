@@ -1,4 +1,4 @@
-import { Notes } from "@prisma/client";
+import { Notes, UserRoleType } from "@prisma/client";
 import Icon from "components/Icon";
 import Button from "components/Button";
 import AddNote from "components/Player/AddNote";
@@ -108,11 +108,11 @@ const EditDeleteMenu: React.FunctionComponent<{
   );
 };
 
-const Note: React.FunctionComponent<{ note: Notes; userId: number }> = ({
-  // eslint-disable-next-line camelcase
-  note,
-  userId,
-}) => {
+const Note: React.FunctionComponent<{
+  note: Notes;
+  userId: number;
+  isAdmin: boolean;
+}> = ({ note, userId, isAdmin }) => {
   const [author, setAuthor] = useState<IUser>();
   useEffect(() => {
     const getUser = async (): Promise<void> => {
@@ -149,7 +149,7 @@ const Note: React.FunctionComponent<{ note: Notes; userId: number }> = ({
       <p className="self-center row-span-1 mb-10 text-sm pt-3 mb-10">
         {note.content}
       </p>
-      {note.authorId === userId && <EditDeleteMenu note={note} />}
+      {(note.authorId === userId || isAdmin) && <EditDeleteMenu note={note} />}
     </div>
   );
 };
@@ -207,7 +207,11 @@ const NotesTable: React.FC<Props> = ({ playerNotes }) => {
       </div>
       <img src="" alt="" />
       {playerNotes?.map((note: Notes) => (
-        <Note note={note} userId={session.user.id} />
+        <Note
+          note={note}
+          userId={session.user.id}
+          isAdmin={session.sessionType === UserRoleType.Admin}
+        />
       ))}
     </div>
   );
