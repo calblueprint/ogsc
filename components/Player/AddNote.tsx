@@ -70,10 +70,8 @@ const AddNote: React.FC<Props> = ({
         <hr className="my-2" />
         <p className="text-sm font-semibold mb-2 mt-8">Description</p>
         <textarea
-          className="input text-sm w-full font-light"
+          className="input text-sm w-full font-light h-40"
           name="Text1"
-          cols={40}
-          rows={5}
           value={description}
           onChange={(event) => {
             setDescription(event.target.value);

@@ -30,6 +30,10 @@ module.exports = {
         "Roboto",
       ],
     },
+    maxHeight: {
+      0: "0",
+      "1/3": "33vh",
+    },
   },
   plugins: [],
 };

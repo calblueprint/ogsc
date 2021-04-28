@@ -27,11 +27,11 @@ const Note: React.FunctionComponent<{
   }, [note.authorId]);
   const split = note.content.split("\n");
   return (
-    <div className="grid grid-rows-3 text-sm h-auto">
+    <div className="grid grid-rows-3 text-sm">
       <div className="row-span-3 w-16 h-4 text-xs text-center rounded-full font-semibold text-unselected bg-button">
         {note.type}
       </div>
-      <div className="row-span-2 inline-flex pt-4 justify-between">
+      <div className="row-span-2 inline-flex pt-4 justify-between pb-3">
         <div className="inline-flex">
           <div className="w-10 h-10 mr-4 bg-placeholder rounded-full">
             <img src="/placeholder-profile.png" alt="" />
@@ -56,11 +56,13 @@ const Note: React.FunctionComponent<{
           </div>
         )}
       </div>
-      {Object.values(split).map((line: string) => (
-        <p className="self-center row-span-1 text-sm pt-3 break-normal">
-          {line}
-        </p>
-      ))}
+      <div className="max-h-1/3 overflow-y-scroll bg-hover rounded-lg bg-opacity-50">
+        {Object.values(split).map((line: string) => (
+          <p className="self-center row-span-1 p-2 text-sm break-normal">
+            {line}
+          </p>
+        ))}
+      </div>
     </div>
   );
 };
