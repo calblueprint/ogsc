@@ -93,7 +93,7 @@ const UserRequestDashboardItem: React.FunctionComponent<UserRequest> = ({
           </Button>
         </div>
       </Modal>
-      <div className="hover:bg-placeholder grid grid-cols-3 text-sm">
+      <div className="hover:bg-placeholder grid grid-cols-3 text-sm cursor-pointer">
         <div className="col-span-2">
           <Link href={`invite/userAccountPage/${id}`}>
             <div className="grid grid-cols-3 gap-32 justify-items-start m-5 font-display items-center py-3">
@@ -181,7 +181,6 @@ const UserDashboard: React.FunctionComponent = () => {
         <p>Phone</p>
       </div>
       <hr className="border-unselected border-opacity-50" />
-      <img src="" alt="" />
       {users?.length ? (
         users?.map((user) => (
           <UserRequestDashboardItem

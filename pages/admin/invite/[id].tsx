@@ -272,7 +272,18 @@ const UserInvitation: React.FunctionComponent<gsspProps> = ({
 
   return (
     <DashboardLayout>
-      <div className="mx-16 mt-24">
+      <div className="mx-20 mt-20">
+        <div className="mt-5 mb-10">
+          <Button
+            iconType="back"
+            className="bg-white hover:bg-white text-blue font-bold pb-2 px-0"
+            onClick={() => {
+              router.push("/admin/invite");
+            }}
+          >
+            Back to invites
+          </Button>
+        </div>
         <h1 className="text-3xl font-display font-medium mb-2">Edit Invite</h1>
         <p>Description</p>
         <form
