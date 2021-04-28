@@ -17,7 +17,7 @@ import { serializeProfileFieldValue } from "utils/buildUserProfile";
 import isAbsence from "utils/isAbsence";
 import AbsenceTable from "./AbsenceTable";
 import ProfileFieldCell from "./ProfileFieldCell";
-import NotesTable from "./NotesTable";
+import { NotesTable } from "./NotesTable";
 import ProfileContext, {
   ProfileContextType,
   useProfileContext,
@@ -122,7 +122,7 @@ export const ProfileContents = <T extends ProfileCategory>({
       return (
         <div>
           {player?.playerNotes && (
-            <NotesTable userId={player.id} playerNotes={player.playerNotes} />
+            <NotesTable playerNotes={player.playerNotes} />
           )}
         </div>
       );
