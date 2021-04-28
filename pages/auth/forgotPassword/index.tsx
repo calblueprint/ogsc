@@ -80,7 +80,7 @@ const ForgotPassword: React.FC = () => {
                 ref={register}
               />
             </FormField>
-            <div className="flex mt-24 mb-32 justify-end">
+            <div className="flex mt-24 mb-20 justify-end">
               <div className="mb-2 flex ">
                 <Button
                   className="button-primary text-base px-10 py-2 "

@@ -181,7 +181,7 @@ const UserSignUpPageOne: React.FC = () => {
                   </button>
                 </div>
               </UserSignUpFormField>
-              <div className="flex mt-24 mb-32 justify-between align-middle">
+              <div className="flex mt-24 mb-12 justify-between align-middle">
                 <div className="flex flex-row">
                   <p className="text-gray-600">Already have an account? </p>{" "}
                   <Link href="/api/auth/signin">
