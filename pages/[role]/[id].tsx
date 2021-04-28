@@ -550,7 +550,19 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
   return (
     <DashboardLayout>
       <div className="mx-16 mb-24 ">
-        <div className="flex flex-row items-center pt-20 pb-12">
+        {UserRoleLabel[session.sessionType] === "Admin" ? (
+          <div className="pt-12">
+            <Button
+              className="bg-white text-blue px-4 font-light hover:font-semibold"
+              onClick={() => {
+                router.push(`/admin/users`);
+              }}
+            >
+              <Icon type="back" className="mr-3" /> BACK TO ALL USERS
+            </Button>
+          </div>
+        ) : null}
+        <div className="flex flex-row items-center pt-16 pb-12">
           <img
             src={user?.image || "/placeholder-profile.png"}
             alt=""

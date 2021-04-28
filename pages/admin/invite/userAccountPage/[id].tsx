@@ -382,12 +382,12 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = () => {
         </Modal>
         <div className="mt-5 mb-10">
           <Button
-            iconType="back"
             className="bg-white hover:bg-white text-blue font-bold pb-2 pt-8 px-4"
             onClick={() => {
               router.push("../");
             }}
           >
+            <Icon type="back" className="mr-3" />
             Back to invites
           </Button>
         </div>

@@ -27,7 +27,8 @@ export type IconType =
   | "logoutButton"
   | "filter"
   | "sort"
-  | "search";
+  | "search"
+  | "backNav";
 
 const IconSvgs: Record<IconType, React.ReactElement> = {
   academics: (
@@ -165,6 +166,27 @@ const IconSvgs: Record<IconType, React.ReactElement> = {
         clipRule="evenodd"
         d="M4.54341 6.89619C4.83902 7.18635 4.83902 7.65679 4.54341 7.94694C4.24781 8.2371 3.76853 8.2371 3.47293 7.94694L0.496485 5.02537C0.200879 4.73522 0.20088 4.26478 0.496485 3.97463L3.47293 1.05306C3.76854 0.762901 4.24781 0.762901 4.54341 1.05306C4.83902 1.34321 4.83902 1.81365 4.54341 2.1038L2.88318 3.73343L23.9752 3.73343C24.3894 3.73343 24.7252 4.06922 24.7252 4.48343C24.7252 4.89765 24.3894 5.23343 23.9752 5.23343L2.84942 5.23343L4.54341 6.89619Z"
         fill="#004284"
+      />
+    </svg>
+  ),
+  backNav: (
+    <svg
+      width="25"
+      height="12"
+      viewBox="0 0 25 12"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M7.15039 11L2.05648 6L7.15039 0.999999"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <path
+        d="M2 5.98343L24 5.98343"
+        stroke="#798393"
+        strokeWidth="1.5"
+        strokeLinecap="round"
       />
     </svg>
   ),

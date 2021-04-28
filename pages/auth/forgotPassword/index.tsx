@@ -79,6 +79,7 @@ const ForgotPassword: React.FC = () => {
                 placeholder="e.g., soccer@FIFA.com"
                 ref={register}
               />
+              {error && <p className="text-red-600 text-sm">{error}</p>}
             </FormField>
             <div className="flex mt-24 mb-20 justify-end">
               <div className="mb-2 flex ">
@@ -89,7 +90,6 @@ const ForgotPassword: React.FC = () => {
                   Send Link
                 </Button>
               </div>
-              {error && <p className="text-red-600 text-sm">{error}</p>}
             </div>
           </fieldset>
         </form>

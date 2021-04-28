@@ -17,6 +17,7 @@ import flattenUserRoles from "utils/flattenUserRoles";
 import sanitizeUser from "utils/sanitizeUser";
 import Modal from "components/Modal";
 import { Dialog } from "@headlessui/react";
+import Icon from "components/Icon";
 
 interface ResendConfirmationProps {
   isResending: boolean;
@@ -275,12 +276,12 @@ const UserInvitation: React.FunctionComponent<gsspProps> = ({
       <div className="mx-20 mt-20">
         <div className="mt-5 mb-10">
           <Button
-            iconType="back"
             className="bg-white hover:bg-white text-blue font-bold pb-2 px-0"
             onClick={() => {
               router.push("/admin/invite");
             }}
           >
+            <Icon type="back" className="mr-3" />
             Back to invites
           </Button>
         </div>
