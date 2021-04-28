@@ -106,7 +106,7 @@ const SignIn: React.FC = () => {
               </Link>
             </div>
             {error && <p className="text-red-600 text-sm mt-12">{error}</p>}
-            <div className="flex mt-12 mb-32 justify-between align-middle">
+            <div className="flex mt-12 mb-5 justify-between align-middle">
               <div className="flex flex-row">
                 <p className="text-gray-600">New to Oakland Genesis Club? </p>{" "}
                 <Link href="/users/signUp">
