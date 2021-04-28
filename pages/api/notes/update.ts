@@ -32,16 +32,6 @@ const updateOneNoteHandler = async (
         data: {
           content: req.body.content,
           type: req.body.type,
-          player: {
-            connect: {
-              id: req.body.playerId,
-            },
-          },
-          author: {
-            connect: {
-              id: req.body.authorId,
-            },
-          },
         },
       });
       return res.status(200).json({
