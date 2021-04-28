@@ -53,17 +53,7 @@ Safely reverts all database changes you made.<br />
 
 **You will need to run `yarn prisma introspect ` and `yarn prisma genereate` after running a migration**
 
-## Learn More
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/import?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+<a href="https://vercel.com?utm_source=calblueprint&utm_campaign=oss" target="_blank">
+<img width="170px" src="https://www.datocms-assets.com/31049/1618983297-powered-by-vercel.svg" alt="Powered By Vercel" />
+</a>
