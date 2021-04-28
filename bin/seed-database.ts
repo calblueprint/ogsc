@@ -83,7 +83,7 @@ export default async function seedDatabase(): Promise<void> {
     });
     await prisma.notes.deleteMany({
       where: {
-        author: {
+        authorId: {
           in: users.map((user: User) => user.id),
         },
       },
@@ -174,20 +174,6 @@ export default async function seedDatabase(): Promise<void> {
                   )
               ),
             },
-            notes: {
-              create: Object.values(NoteType).flatMap((type: NoteType) =>
-                Array<Notes | null>(Faker.random.number(4))
-                  .fill(null)
-                  .map(
-                    () =>
-                      <Prisma.NotesCreateWithoutUsersInput>{
-                        created_at: Faker.date.recent(90),
-                        type,
-                        content: Faker.lorem.lines(1),
-                      }
-                  )
-              ),
-            },
             profileFields: {
               create: [
                 ...generateFieldsAcrossTimestamps(
@@ -216,6 +202,26 @@ export default async function seedDatabase(): Promise<void> {
                       value: Faker.random.number(10),
                       date: Faker.date.past(1).toISOString(),
                     })
+                ),
+                ...generateFieldsAcrossTimestamps(
+                  ProfileFieldKey.InternalAssessments,
+                  () =>
+                    JSON.stringify({
+                      comment: Faker.lorem.lines(1),
+                      value: Faker.random.number(5),
+                      date: Faker.date.past(1).toISOString(),
+                    })
+                ),
+                ...generateFieldsAcrossTimestamps(
+                  ProfileFieldKey.StandardizedTesting,
+                  () =>
+                    JSON.stringify({
+                      comment: Faker.lorem.lines(1),
+                      value: Faker.random.number(800),
+                      percentile: Faker.random.number(100),
+                      date: Faker.date.past(1).toISOString(),
+                    }),
+                  3
                 ),
                 ...generateFieldsAcrossTimestamps(
                   ProfileFieldKey.BioAboutMe,
@@ -254,8 +260,12 @@ export default async function seedDatabase(): Promise<void> {
                 ),
                 ...generateFieldsAcrossTimestamps(
                   ProfileFieldKey.DisciplinaryActions,
-                  () => Faker.lorem.lines(2),
-                  1
+                  () =>
+                    JSON.stringify({
+                      comment: Faker.lorem.lines(1),
+                      date: Faker.date.past(1).toISOString(),
+                    }),
+                  3
                 ),
                 ...generateFieldsAcrossTimestamps(ProfileFieldKey.GPA, () =>
                   JSON.stringify({
@@ -350,6 +360,25 @@ export default async function seedDatabase(): Promise<void> {
                   },
                 },
               },
+            },
+            authorNotes: {
+              create: Object.values(NoteType).flatMap((type: NoteType) =>
+                Array<Notes | null>(Faker.random.number(4))
+                  .fill(null)
+                  .map(
+                    () =>
+                      <Prisma.NotesCreateWithoutAuthorInput>{
+                        created_at: Faker.date.recent(90),
+                        type,
+                        content: Faker.lorem.lines(1),
+                        player: {
+                          connect: {
+                            email: `player${index}@ogsc.dev`,
+                          },
+                        },
+                      }
+                  )
+              ),
             },
           },
         };

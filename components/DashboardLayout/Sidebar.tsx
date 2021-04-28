@@ -100,7 +100,7 @@ const Sidebar: React.FC = () => {
 
   return (
     <div className="fixed top-0 flex flex-col justify-between w-56 h-screen bg-button bg-opacity-75">
-      <div className="px-12 py-24">
+      <div className="px-12 py-16">
         <div className="w-full flex justify-center mb-16">
           <img src="/logo.png" alt="Oakland Genesis Soccer Club logo" />
         </div>

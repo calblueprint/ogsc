@@ -17,27 +17,30 @@ const UserDashboardItem: React.FunctionComponent<{ user: IUser }> = ({
   const session = useSessionInfo();
   return (
     <Link href={`/${UserRoleLabel[session.sessionType].toLowerCase()}/${id}`}>
-      <div className="grid grid-cols-6 text-sm h-24 hover:bg-hover border-unselected border-opacity-50 border-b">
-        {/* TODO: FIX PADDING ABOVE */}
-        <div className="col-span-3 inline-flex self-center">
-          <div className="w-10 h-10 mr-4 bg-placeholder rounded-full">
-            <img src={image || "/placeholder-profile.png"} alt="" />
-            {/* Not being used right now because seed data doesn't have images */}
+      <div className="hover:bg-hover cursor-pointer">
+        <div className="grid grid-cols-8 text-sm h-24 ml-5">
+          {/* TODO: FIX PADDING ABOVE */}
+          <div className="col-span-3 inline-flex self-center">
+            <div className="w-10 h-10 mr-4 bg-placeholder rounded-full">
+              <img src={image || "/placeholder-profile.png"} alt="" />
+              {/* Not being used right now because seed data doesn't have images */}
+            </div>
+            <div>
+              <p className="font-semibold">
+                {name}
+                {status === UserStatus.Inactive && (
+                  <text className="px-3 ml-5 rounded-full font-semibold text-unselected bg-button">
+                    {UserStatus.Inactive.toUpperCase()}
+                  </text>
+                )}
+              </p>
+              <p>{UserRoleLabel[defaultRole.type]}</p>
+            </div>
           </div>
-          <div>
-            <p className="font-semibold">
-              {name}
-              {status === UserStatus.Inactive && (
-                <text className="px-3 ml-5 rounded-full font-semibold text-unselected bg-button">
-                  {UserStatus.Inactive.toUpperCase()}
-                </text>
-              )}
-            </p>
-            <p>{UserRoleLabel[defaultRole.type]}</p>
-          </div>
+          <p className="col-span-3 self-center">{email}</p>
+          <p className="col-span-2 self-center">{phoneNumber}</p>
         </div>
-        <p className="col-span-2 self-center">{email}</p>
-        <p className="col-span-1 self-center">{phoneNumber}</p>
+        <hr className="border-unselected border-opacity-50" />
       </div>
     </Link>
   );
@@ -77,9 +80,9 @@ const UserDashboard: React.FunctionComponent<UserDashboardProps> = ({
 
   return (
     <div>
-      <div className="grid grid-cols-6 text-sm text-unselected tracking-wide mt-10">
+      <div className="grid grid-cols-8 text-sm text-unselected tracking-wide mt-12 font-semibold mb-4 ml-5">
         <p className="col-span-3">Name</p>
-        <p className="col-span-2">Email</p>
+        <p className="col-span-3">Email</p>
         <p>Phone</p>
       </div>
       <hr className="border-unselected border-opacity-50" />
