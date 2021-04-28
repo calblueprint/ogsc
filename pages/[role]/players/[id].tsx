@@ -16,6 +16,8 @@ import filterPlayerProfileRead from "utils/filterPlayerProfileRead";
 import flattenUserRoles from "utils/flattenUserRoles";
 import { IPlayer } from "interfaces";
 import { Dialog } from "@headlessui/react";
+import useSessionInfo from "utils/useSessionInfo";
+import Icon from "components/Icon";
 
 type Props = {
   player?: IPlayer;
@@ -67,6 +69,7 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
   player,
 }: Props) => {
   const router = useRouter();
+  const session = useSessionInfo();
   const [showModal, setShowModal] = useState<boolean>(
     Boolean(router.query.success)
   );
@@ -76,7 +79,19 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
 
   return (
     <DashboardLayout>
-      <div className="flex mt-20 flex-wrap space-y-6 flex-col mx-16">
+      <div className="flex mt-12 flex-wrap space-y-6 flex-col mx-16">
+        <div>
+          <Button
+            className="bg-white text-blue px-4 font-light hover:font-semibold"
+            onClick={() => {
+              router.push(
+                `/${session.sessionType.toLocaleLowerCase()}/players`
+              );
+            }}
+          >
+            <Icon type="back" className="mr-3" /> BACK TO ALL PLAYERS
+          </Button>
+        </div>
         <div className="header flex items-center">
           <div className="picture flex mr-10">
             <img

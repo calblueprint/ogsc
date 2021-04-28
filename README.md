@@ -53,7 +53,6 @@ Safely reverts all database changes you made.<br />
 
 **You will need to run `yarn prisma introspect ` and `yarn prisma genereate` after running a migration**
 
-
 <a href="https://vercel.com?utm_source=calblueprint&utm_campaign=oss" target="_blank">
 <img width="170px" src="https://www.datocms-assets.com/31049/1618983297-powered-by-vercel.svg" alt="Powered By Vercel" />
 </a>

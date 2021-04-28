@@ -24,10 +24,10 @@ const PendingInvitesItem: React.FunctionComponent<PendingInvites> = ({
   defaultRole,
 }) => {
   return (
-    <div className="hover:bg-placeholder">
+    <div className="hover:bg-placeholder text-sm cursor-pointer">
       <div className="col-span-2">
         <Link href={`invite/${id}`}>
-          <div className="grid grid-cols-4 gap-5 justify-items-start m-5 font-display items-center py-3 text-sm">
+          <div className="grid grid-cols-4 gap-5 justify-items-start font-display items-center py-8 px-5">
             <div className="flex flex-row">
               <div className="w-10 h-10 mr-4 rounded-full">
                 <img src={image || "/placeholder-profile.png"} alt="" />
@@ -59,7 +59,6 @@ const PendingInvitesItem: React.FunctionComponent<PendingInvites> = ({
           </div>
         </Link>
       </div>
-      <img src="" alt="" />
       <hr className="border-unselected border-opacity-50" />
     </div>
   );

@@ -2,7 +2,7 @@ import SignUpLayout from "components/SignUpLayout";
 
 const Confirmation: React.FC = () => (
   <SignUpLayout>
-    <div className="flex justify-center self-center mt-10 flex-wrap space-y-6 flex-col mx-5">
+    <div className="flex justify-center self-center mt-10 flex-wrap space-y-6 flex-col mx-5 pb-48">
       <div>
         <p className="w-1/2 text-6xl font-semibold mb-4">
           Thanks for signing up!
