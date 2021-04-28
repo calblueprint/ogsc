@@ -550,7 +550,9 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
   return (
     <DashboardLayout>
       <div className="mx-16 mb-24 ">
-        {UserRoleLabel[session.sessionType] === "Admin" ? (
+        {UserRoleLabel[session.sessionType] === "Admin" &&
+        user &&
+        session.user.id.toString() !== id ? (
           <div className="pt-12">
             <Button
               className="bg-white text-blue px-4 font-light hover:font-semibold"
