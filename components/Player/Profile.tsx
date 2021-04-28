@@ -46,6 +46,7 @@ export const ProfileContents = <T extends ProfileCategory>({
       return (
         <div>
           <Section sectionName="Student Bio">
+            {/* <ProfileFieldCell fieldKey={ProfileFieldKey.ProfilePicture} /> */}
             <ProfileFieldCell fieldKey={ProfileFieldKey.BioAboutMe} />
             <ProfileFieldCell fieldKey={ProfileFieldKey.BioHobbies} />
             <ProfileFieldCell fieldKey={ProfileFieldKey.BioFavoriteSubject} />

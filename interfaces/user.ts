@@ -87,7 +87,7 @@ export const ProfileFieldLabels = {
   [ProfileFieldKey.DisciplinaryActions]: "Disciplinary Actions",
   [ProfileFieldKey.HealthAndWellness]: "Comments",
   [ProfileFieldKey.YearOfBirth]: "Birth Year",
-  [ProfileFieldKey.ProfilePicture]: "Upload Profile Picture",
+  [ProfileFieldKey.ProfilePicture]: "Player Photo",
   [ProfileFieldKey.InternalAssessments]: "Internal Assessments",
   [ProfileFieldKey.StandardizedTesting]: "Standardized Testing",
 } as const;

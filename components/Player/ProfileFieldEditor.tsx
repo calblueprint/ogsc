@@ -4,6 +4,7 @@ import {
   AbsenceType,
   ProfileFieldKey,
 } from "@prisma/client";
+import Button from "components/Button";
 import { Dayjs } from "dayjs";
 import {
   IAbsence,
@@ -17,7 +18,7 @@ import {
 } from "interfaces";
 import dayjs from "lib/day";
 import { AwsDTO } from "pages/api/admin/users/addImage";
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { deserializeProfileFieldValue } from "utils/buildUserProfile";
 import isAbsence from "utils/isAbsence";
 import labelProfileField from "utils/labelProfileField";
@@ -248,6 +249,108 @@ const CreateTableHeader: React.FC<CreateTableHeaderProps> = ({
         </span>
       </p>
       <ProfileFieldEditorModal fieldKey={field.key} />
+    </div>
+  );
+};
+
+type ProfilePictureProps = {
+  dispatch: (key: string) => void;
+};
+const ProfilePictureEditor: React.FC<ProfilePictureProps> = ({
+  dispatch,
+}: ProfilePictureProps) => {
+  // const { state, dispatch } = useContext(ProfileContext);
+  const [error, setError] = useState<string>();
+  const [currentFileName, setCurrentFileName] = useState<string>();
+
+  const [profilePicture, setProfilePicture] = useState<string>(
+    "/placeholder-profile.png"
+  );
+
+  async function onSubmit(): Promise<void> {
+    if (currentFileName !== undefined) {
+      // propagate changes to database
+      console.log(currentFileName);
+      dispatch(currentFileName); // dont think this is working
+      console.log("post");
+      // dispatch({
+      //   type: "EDIT_FIELD",
+      //   key: profileKey,
+      //   value: { key: currentFile.name },
+      //   id: profileFieldId,
+      // });
+      // refresh? to change main profile picture ( useeffect should take care of this?? + not needed for create profile)
+      // confirmation message (or just reset)
+    }
+  }
+
+  async function handleChange(
+    event: React.ChangeEvent<HTMLInputElement>
+  ): Promise<void> {
+    setError("");
+    // excessive file size error handling?
+    if (event.target.files != null && event.target.files.length !== 0) {
+      // upload to bucket
+      const file = event.target.files[0];
+      const filename = encodeURIComponent(`${Date.now()}-${file.name}`);
+      // requesting presigned url
+      const res = await fetch(`/api/admin/users/addImage?file=${filename}`);
+      const { url, fields } = (await res.json()) as AwsDTO;
+      const formData = new FormData();
+
+      Object.entries({ ...fields, file }).forEach(([k, val]) => {
+        formData.append(k, val);
+      });
+
+      // posting to bucket?
+      const upload = await fetch(url, {
+        method: "POST",
+        body: formData,
+      });
+      // error handling
+      console.log(upload);
+
+      if (upload.ok) {
+        console.log("Uploaded successfully!");
+        // update profile picture preview
+        const response = await fetch(`/api/profilePicture?key=${filename}`, {
+          method: "GET",
+          headers: { "content-type": "application/json" },
+          redirect: "follow",
+        });
+        if (!response.ok) {
+          throw await response.json();
+        }
+        setProfilePicture((await response.json()).url);
+      } else {
+        setError("Preview failed. Try a square image less than 1MB");
+        console.error("Upload failed.");
+      }
+      setCurrentFileName(filename);
+    }
+  }
+
+  return (
+    <div className="flex mt-3 flex-wrap space-y-6 flex-col ">
+      <div className="picture flex mr-10">
+        <img
+          src={profilePicture}
+          alt="player"
+          className="bg-button rounded-full max-w-full align-middle border-none w-24 h-24"
+        />
+        <div className="ml-5">
+          <input
+            onChange={handleChange}
+            type="file"
+            accept="image/png, image/jpeg"
+          />
+          {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
+          <p className="mt-3 text-gray-600">JPG or PNG. Max size of 1MB.</p>
+          <Button className="mt-5" onClick={onSubmit}>
+            Upload Photo
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };
@@ -687,57 +790,26 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
         />
       );
     }
-    case ProfileFieldValue.File:
+    case ProfileFieldValue.File: {
+      // const value = deserializedValue as
+      //   | ProfileFieldValueDeserializedTypes[typeof valueType]
+      //   | null;
       return (
-        <>
-          <p>Upload a .png or .jpg image (max 1MB).</p>
-          <input
-            onChange={async (event) => {
-              if (event.target.files != null) {
-                const file = event.target.files[0];
-                const filename = encodeURIComponent(
-                  `${Date.now()}-${file.name}`
-                );
-                // reqeusting presigned url
-                const res = await fetch(
-                  `/api/admin/users/addImage?file=${filename}`
-                );
-                const { url, fields } = (await res.json()) as AwsDTO;
-                const formData = new FormData();
-
-                Object.entries({ ...fields, file }).forEach(([key, val]) => {
-                  formData.append(key, val);
-                });
-
-                // posting to bucket?
-                const upload = await fetch(url, {
-                  method: "POST",
-                  body: formData,
-                });
-                // error handling
-
-                console.log(upload);
-
-                if (upload.ok) {
-                  console.log("Uploaded successfully!");
-                } else {
-                  console.error("Upload failed.");
-                }
-
-                // profile field??
-                dispatch({
-                  type: "EDIT_FIELD",
-                  key: profileKey,
-                  value: { key: filename },
-                  id: profileFieldId,
-                });
-              }
+        <div>
+          <ProfilePictureEditor
+            dispatch={(filename) => {
+              dispatch({
+                type: "EDIT_FIELD",
+                key: profileKey,
+                value: { key: filename },
+                id: profileFieldId,
+              });
             }}
-            type="file"
-            accept="image/png, image/jpeg"
           />
-        </>
+        </div>
       );
+    }
+
     case ProfileFieldValue.Text:
     default: {
       const value = deserializedValue as

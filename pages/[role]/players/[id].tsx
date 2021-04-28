@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import prisma from "utils/prisma";
 import { NextPageContext } from "next";
 import { useRouter } from "next/router";
@@ -16,6 +16,9 @@ import filterPlayerProfileRead from "utils/filterPlayerProfileRead";
 import flattenUserRoles from "utils/flattenUserRoles";
 import { IPlayer } from "interfaces";
 import { Dialog } from "@headlessui/react";
+import Icon from "components/Icon";
+import ProfileFieldEditor from "components/Player/ProfileFieldEditor";
+import { ProfileFieldKey } from "@prisma/client";
 
 type Props = {
   player?: IPlayer;
@@ -70,6 +73,38 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
   const [showModal, setShowModal] = useState<boolean>(
     Boolean(router.query.success)
   );
+  const [profilePicture, setProfilePicture] = useState<string>();
+  const [editProfilePicture, setEditProfilePicture] = useState<boolean>(false);
+
+  useEffect(() => {
+    async function fetchProfilePicture(): Promise<void> {
+      if (player) {
+        const uploadedProfilePicture = deserializeProfileFieldValue(
+          player.profile?.ProfilePicture?.current
+        );
+        if (uploadedProfilePicture) {
+          // console.log(uploadedProfilePicture);
+          const response = await fetch(
+            `/api/profilePicture?key=${uploadedProfilePicture.key}`,
+            {
+              method: "GET",
+              headers: { "content-type": "application/json" },
+              redirect: "follow",
+            }
+          );
+          // console.log(response);
+          if (!response.ok) {
+            throw await response.json();
+          }
+          setProfilePicture((await response.json()).url);
+        } else {
+          setProfilePicture("/placeholder-profile.png");
+        }
+      }
+    }
+    fetchProfilePicture();
+  }, [player]);
+
   if (!player) {
     return <DashboardLayout>No player found</DashboardLayout>;
   }
@@ -80,11 +115,19 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
         <div className="header flex items-center">
           <div className="picture flex mr-10">
             <img
-              src="/placeholder-profile.png"
-              // api <img src=“https://<our app>/api/image/<key>” />
+              src={profilePicture}
               alt={player.name || "player"}
               className="bg-button rounded-full max-w-full align-middle border-none w-24 h-24"
             />
+            <div className="pt-16 pl-20 absolute">
+              <button
+                type="button"
+                onClick={() => setEditProfilePicture(true)}
+                className="bg-button w-8 h-8 rounded-full content-center"
+              >
+                <Icon className="justify-center" type="camera" />
+              </button>
+            </div>
           </div>
           <div className="player-info grid grid-rows-2">
             <p className="pt-6 text-2xl font-semibold">{player.name}</p>
@@ -96,6 +139,30 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
             </p>
           </div>
         </div>
+        <Modal
+          className="w-3/5"
+          open={editProfilePicture}
+          onClose={() => setEditProfilePicture(false)}
+        >
+          <Dialog.Title className="text-dark text-3xl font-medium mb-10">
+            Add Photo
+          </Dialog.Title>
+          <ProfileFieldEditor profileField={ProfileFieldKey.ProfilePicture} />
+          <div className="flex justify-end mb-2">
+            <Button
+              className="button-hollow px-10 py-3"
+              onClick={() => setEditProfilePicture(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="button-primary px-10 py-3"
+              onClick={() => setEditProfilePicture(false)}
+            >
+              Upload Photo
+            </Button>
+          </div>
+        </Modal>
         <Modal
           className="w-2/5"
           open={showModal}
