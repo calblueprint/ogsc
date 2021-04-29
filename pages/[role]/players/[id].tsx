@@ -246,9 +246,9 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
                 <button
                   type="button"
                   onClick={() => setEditProfilePicture(true)}
-                  className="bg-button w-8 h-8 rounded-full content-center"
+                  className="bg-button w-8 h-8 rounded-full flex justify-center items-center"
                 >
-                  <Icon className="justify-center" type="camera" />
+                  <Icon type="camera" />
                 </button>
               </div>
             </div>
