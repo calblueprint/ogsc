@@ -1,9 +1,14 @@
-import { Notes } from "@prisma/client";
+import { Notes, UserRoleType } from "@prisma/client";
 import Button from "components/Button";
 import { ReadManyNotesDTO } from "pages/api/notes/readMany";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useCallback, useState } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import Icon from "components/Icon";
+import AddNote from "components/Player/AddNote";
+import { IUser } from "interfaces";
+import useSessionInfo from "utils/useSessionInfo";
+import { useRouter } from "next/router";
+import EditDeleteMenu from "components/Player/EditDeleteMenu";
 
 interface Category {
   color: string;
@@ -17,39 +22,70 @@ const CATEGORIES = {
   Mentorship: "gold-muted",
 };
 
-const Note: React.FunctionComponent<{ note: Notes }> = ({
-  // eslint-disable-next-line camelcase
-  note: { created_at, content, authorId, type },
-}) => {
+const Note: React.FunctionComponent<{
+  note: Notes;
+  userId: number;
+  isAdmin: boolean;
+}> = ({ note, userId, isAdmin }) => {
+  const [author, setAuthor] = useState<IUser>();
+  useEffect(() => {
+    const getUser = async (): Promise<void> => {
+      const response = await fetch(`/api/admin/users/${note.authorId}`, {
+        method: "GET",
+        headers: { "content-type": "application/json" },
+        redirect: "follow",
+      });
+      const data = await response.json();
+      setAuthor(data.user);
+    };
+    getUser();
+  }, [note.authorId]);
   return (
-    <div className=" grid grid-rows-3 grid-cols-3 text-sm max-h-56 border-opacity-50 border-b">
+    <div className="grid grid-rows-3 grid-cols-3 text-sm max-h-56 border-opacity-50 border-b">
       <text
         className={`row-span-3 col-start-1 h-4 text-xs w-1/6 text-center rounded-full font-medium text-dark bg-${
           CATEGORIES[
-            (type.charAt(0).toUpperCase() +
-              type.slice(1)) as keyof typeof CATEGORIES
+            (note.type.charAt(0).toUpperCase() +
+              note.type.slice(1)) as keyof typeof CATEGORIES
           ]
         } mt-10`}
       >
-        {type.charAt(0).toUpperCase() + type.slice(1)}
+        {note.type.charAt(0).toUpperCase() + note.type.slice(1)}
       </text>
       <div className="row-span-2 inline-flex pt-4 col-start-1">
+        {/* <div className="row-span-2 inline-flex pt-4 justify-between pb-3"> */}
         <div className="w-10 h-10 mr-4 bg-placeholder rounded-full">
           <img src="/placeholder-profile.png" alt="" />
         </div>
         <div>
-          <p className="font-semibold">{authorId}</p>
+          <p className="font-semibold">{author?.name}</p>
           <p>
-            {created_at.toLocaleString("default", {
+            {note.created_at.toLocaleString("default", {
+              hour12: true,
+              hour: "2-digit",
+              minute: "2-digit",
               month: "short",
               day: "numeric",
               year: "numeric",
             })}
           </p>
         </div>
+        {/* </div> */}
+        {(note.authorId === userId || isAdmin) && (
+          <div className="absolute right-0 mr-16 px-2">
+            <EditDeleteMenu note={note} />
+          </div>
+        )}
       </div>
-      <p className="self-center row-span-1 text-sm pt-3 mb-10 col-start-1">
-        {content}
+      {/* <div className="max-h-1/3 overflow-y-scroll bg-hover rounded-lg bg-opacity-50">
+        {Object.values(split).map((line: string) => (
+          <p className="self-center row-span-1 p-2 text-sm break-normal">
+            {line}
+          </p>
+        ))}
+      </div> */}
+      <p className="self-center row-span-1 col-span-3 text-sm pt-3 mt-2 mb-10 col-start-1">
+        {note.content}
       </p>
     </div>
   );
@@ -57,12 +93,19 @@ const Note: React.FunctionComponent<{ note: Notes }> = ({
 
 type Props = React.PropsWithChildren<{
   userId: number | undefined;
-  defaultNotes: Notes[];
+  playerNotes: Notes[] | undefined;
 }>;
 
-const NotesTable: React.FC<Props> = ({ userId, defaultNotes }) => {
+const NotesTable: React.FC<Props> = ({ userId, playerNotes }) => {
   const [phrase, setPhrase] = useState<string>(" ");
-  const [notes, setNotes] = useState<Notes[]>(defaultNotes);
+  const [notes, setNotes] = useState<Notes[] | undefined>(playerNotes);
+
+  const session = useSessionInfo();
+  const [modalOpen, setModalOpen] = useState(false);
+  const router = useRouter();
+  const refreshProfile = useCallback(() => {
+    router.replace(router.asPath);
+  }, [router]);
 
   useEffect(() => {
     const getNotes = async (): Promise<Notes[]> => {
@@ -86,7 +129,7 @@ const NotesTable: React.FC<Props> = ({ userId, defaultNotes }) => {
       setNotes(await getNotes());
     }
     fetchData();
-  }, [phrase, userId]);
+  });
 
   const [categoryToggles, setCategoryToggles] = useState<
     Record<string, Category>
@@ -143,10 +186,11 @@ const NotesTable: React.FC<Props> = ({ userId, defaultNotes }) => {
           />
         </div>
         <Button
-          className="font-display text-sm px-6 bg-blue-muted text-blue rounded-full h-10 mr-5"
+          className="font-display text-sm bg-blue-muted text-blue rounded-full h-10 mr-5"
           iconType="plus"
+          onClick={() => setModalOpen(true)}
         >
-          Add Note
+          Note
         </Button>
         <>
           <Menu>
@@ -288,7 +332,7 @@ const NotesTable: React.FC<Props> = ({ userId, defaultNotes }) => {
         </>
       </div>
       <img src="" alt="" />
-      {sortFn(notes)
+      {sortFn(notes || [])
         .filter(
           (note: Notes) =>
             categoryToggles[
@@ -296,10 +340,32 @@ const NotesTable: React.FC<Props> = ({ userId, defaultNotes }) => {
             ].enabled
         )
         .map((note: Notes) => (
-          <Note note={note} />
+          <Note
+            note={note}
+            userId={session.user.id}
+            isAdmin={session.sessionType === UserRoleType.Admin}
+          />
         ))}
+      <AddNote
+        addOrEdit="Add"
+        authorId={session.user.id}
+        modalOpen={modalOpen}
+        closeModal={() => setModalOpen(false)}
+        toastMessage="Note created!"
+        refresh={() => refreshProfile()}
+      />
+      <img src="" alt="" />
+      {/* {playerNotes?.map((note: Notes) => (
+        <div className="mt-5 pb-5 border-opacity-50">
+          <Note
+            note={note}
+            userId={session.user.id}
+            isAdmin={session.sessionType === UserRoleType.Admin}
+          />
+        </div>
+      ))} */}
     </div>
   );
 };
 
-export default NotesTable;
+export { Note, NotesTable };

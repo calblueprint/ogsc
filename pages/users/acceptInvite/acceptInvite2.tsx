@@ -103,7 +103,7 @@ const UserAcceptInvitePageTwo: React.FC = () => {
 
   return (
     <SignUpLayout>
-      <div className="form flex mt-10 mr-32 flex-col">
+      <div className="form flex mr-32 flex-col">
         <p className="text-6xl mb-4">Accept your account invite</p>
         <p className="pt-6 text-2xl h-16">Set your password</p>
         <form className="mt-10" onSubmit={handleSubmit(onSubmit)}>

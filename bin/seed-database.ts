@@ -370,7 +370,7 @@ export default async function seedDatabase(): Promise<void> {
                       <Prisma.NotesCreateWithoutAuthorInput>{
                         created_at: Faker.date.recent(90),
                         type,
-                        content: Faker.lorem.lines(1),
+                        content: Faker.lorem.paragraph(10),
                         player: {
                           connect: {
                             email: `player${index}@ogsc.dev`,

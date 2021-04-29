@@ -17,6 +17,7 @@ import flattenUserRoles from "utils/flattenUserRoles";
 import sanitizeUser from "utils/sanitizeUser";
 import Modal from "components/Modal";
 import { Dialog } from "@headlessui/react";
+import Icon from "components/Icon";
 
 interface ResendConfirmationProps {
   isResending: boolean;
@@ -260,7 +261,7 @@ const UserInvitation: React.FunctionComponent<gsspProps> = ({
           name: `${values.firstName} ${values.lastName}`,
           phoneNumber: values.phoneNumber,
           roles: role,
-          sendEmail: submitter === "resend",
+          resendInvite: submitter === "resend",
         } as UpdateUserDTO),
       });
 
@@ -280,7 +281,18 @@ const UserInvitation: React.FunctionComponent<gsspProps> = ({
 
   return (
     <DashboardLayout>
-      <div className="mx-16 mt-24">
+      <div className="mx-20 mt-20">
+        <div className="mt-5 mb-10">
+          <Button
+            className="bg-white hover:bg-white text-blue font-bold pb-2 px-0"
+            onClick={() => {
+              router.push("/admin/invite");
+            }}
+          >
+            <Icon type="back" className="mr-3" />
+            Back to invites
+          </Button>
+        </div>
         <h1 className="text-3xl font-display font-medium mb-2">Edit Invite</h1>
         <p>Description</p>
         <form
