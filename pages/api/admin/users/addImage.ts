@@ -28,7 +28,6 @@ const handler = async (
   });
 
   res.status(200).json(post);
-  console.log(post);
 };
 
 export default handler;

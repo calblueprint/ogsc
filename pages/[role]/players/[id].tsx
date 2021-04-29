@@ -7,7 +7,6 @@ import ProfileContext, {
   useProfileContext,
 } from "components/Player/ProfileContext";
 import PlayerProfile from "components/Player/Profile";
-import ProfileFieldEditor from "components/Player/ProfileFieldEditor";
 import Modal from "components/Modal";
 import Button from "components/Button";
 import {
@@ -31,6 +30,7 @@ import flattenUserRoles from "utils/flattenUserRoles";
 import isAbsence from "utils/isAbsence";
 import prisma from "utils/prisma";
 import sanitizeUser from "utils/sanitizeUser";
+import { StandaloneProfileFieldEditor } from "components/Player/ProfileFieldEditorModal";
 
 type Props = {
   player?: IPlayer;
@@ -95,7 +95,6 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
           player.profile?.ProfilePicture?.current
         );
         if (uploadedProfilePicture) {
-          // console.log(uploadedProfilePicture);
           const response = await fetch(
             `/api/profilePicture?key=${uploadedProfilePicture.key}`,
             {
@@ -104,7 +103,6 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
               redirect: "follow",
             }
           );
-          // console.log(response);
           if (!response.ok) {
             throw await response.json();
           }
@@ -227,6 +225,10 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
     return <DashboardLayout>No player found</DashboardLayout>;
   }
 
+  const hasProfilePicture = state.player?.profile?.ProfilePicture?.history.find(
+    (profileField: IProfileField<typeof ProfileFieldKey.ProfilePicture>) =>
+      profileField.id === state.player?.profile?.ProfilePicture?.current?.id
+  );
   return (
     <DashboardLayout>
       <ProfileContext.Provider
@@ -265,24 +267,18 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
             open={editProfilePicture}
             onClose={() => setEditProfilePicture(false)}
           >
-            <Dialog.Title className="text-dark text-3xl font-medium mb-10">
-              Add Photo
-            </Dialog.Title>
-            <ProfileFieldEditor profileField={ProfileFieldKey.ProfilePicture} />
-            <div className="flex justify-end mb-2">
-              <Button
-                className="button-hollow px-10 py-3"
-                onClick={() => setEditProfilePicture(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                className="button-primary px-10 py-3"
-                onClick={() => setEditProfilePicture(false)}
-              >
-                Upload Photo
-              </Button>
-            </div>
+            {hasProfilePicture ? (
+              <StandaloneProfileFieldEditor
+                field={hasProfilePicture}
+                onComplete={() => {
+                  setEditProfilePicture(false);
+                }}
+              />
+            ) : (
+              <StandaloneProfileFieldEditor
+                fieldKey={ProfileFieldKey.ProfilePicture}
+              />
+            )}
           </Modal>
           <Modal
             className="w-2/5"

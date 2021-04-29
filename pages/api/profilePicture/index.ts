@@ -13,7 +13,6 @@ export default async (
       Key: `${process.env.PATH_NAME}${key}`,
     };
     const url = s3.getSignedUrl("getObject", params);
-    console.log("The URL is", url);
     res.json({
       url,
     });
