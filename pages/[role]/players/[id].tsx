@@ -277,6 +277,9 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
             ) : (
               <StandaloneProfileFieldEditor
                 fieldKey={ProfileFieldKey.ProfilePicture}
+                onComplete={() => {
+                  setEditProfilePicture(false);
+                }}
               />
             )}
           </Modal>
