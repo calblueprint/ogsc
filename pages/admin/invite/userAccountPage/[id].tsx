@@ -8,7 +8,7 @@ import Button from "components/Button";
 import { UpdateUserDTO } from "pages/api/admin/users/update";
 import { IUser, UserRoleLabel } from "interfaces";
 import FormField from "components/FormField";
-import Joi from "joi";
+import Joi from "lib/validate";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { useForm } from "react-hook-form";
 import Icon from "components/Icon";
@@ -41,7 +41,9 @@ const AdminEditUserFormSchema = Joi.object<AdminEditUserFormValues>({
     .trim()
     .email({ tlds: { allow: false } })
     .required(),
-  phoneNumber: Joi.string().optional(),
+  phoneNumber: Joi.string()
+    .phoneNumber({ defaultCountry: "US", format: "national", strict: true })
+    .allow(""),
   role: Joi.string()
     .valid(...Object.values(UserRoleType))
     .required(),
@@ -109,9 +111,13 @@ const EditUser: React.FunctionComponent<EditUserProps> = ({
   }
 
   return (
-    <Modal open={Boolean(isEditing)} onClose={() => setIsEditing(false)}>
+    <Modal
+      open={Boolean(isEditing)}
+      onClose={() => setIsEditing(false)}
+      className="w-3/5"
+    >
       <div className="m-8">
-        <h1 className="text-3xl font-display font-medium mb-2">
+        <h1 className="text-2xl font-display font-medium mb-2">
           Basic Information
         </h1>
         <form className="mt-10" onSubmit={handleSubmit(onSubmit)}>
@@ -331,6 +337,7 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = () => {
         body: JSON.stringify({
           status: UserStatus.Active,
           roles: linkedPlayers,
+          userAccepted: true,
         } as UpdateUserDTO),
       });
       if (!response.ok) {
@@ -375,45 +382,52 @@ const UserAccountPage: React.FunctionComponent<UserRequest> = () => {
         </Modal>
         <div className="mt-5 mb-10">
           <Button
-            iconType="back"
-            className="bg-white hover:bg-white text-blue font-bold py-2 px-4 rounded border-blue"
+            className="bg-white hover:bg-white text-blue font-bold pb-2 pt-8 px-4"
             onClick={() => {
               router.push("../");
             }}
           >
+            <Icon type="back" className="mr-3" />
             Back to invites
           </Button>
         </div>
         <div className="flex space-x-8">
-          <p className="text-4xl font-semibold">
+          <p className="text-3xl font-semibold">
             Invitation Request for {user?.name}{" "}
           </p>
           <button
             type="button"
-            className="py-3 px-5 rounded-full font-bold tracking-wide bg-button h-10 items-center text-sm flex-row flex"
+            className="h-12 items-center"
             onClick={() => {
               setIsEditing(true);
             }}
           >
-            <Icon type="edit" />
+            <Icon type="editCircle" />
           </button>
         </div>
-        <p className="mb-10">Created {user?.createdAt}</p>
-        <p className="text-3xl font-semibold mb-10">Basic Information </p>
-        <p className="text-1xl">Name</p>
-        <p className="mb-10 font-semibold">{user?.name}</p>
-        <p className="text-1xl">Email Address</p>
-        <p className="mb-10 font-semibold">{user?.email}</p>
-        <p className="text-1xl">Phone number</p>
-        <p className="mb-10 font-semibold">{user?.phoneNumber}</p>
+        <p className="mb-10">
+          Created{" "}
+          {user && new Date(user.createdAt.toString()).toLocaleDateString()}
+        </p>
+        <p className="font-semibold mb-10 text-xl">Basic Information </p>
+        <p className="font-semibold mb-3">Name</p>
+        <p className="mb-10 font-medium">{user?.name}</p>
+        <p className="font-semibold  mb-3">Email Address</p>
+        <p className="mb-10 font-medium">{user?.email}</p>
+        <p className="font-semibold  mb-3">Phone number</p>
+        <p className="mb-10 font-medium">{user?.phoneNumber}</p>
 
-        <p className="text-1xl">Role</p>
-        <p className="mb-10 font-semibold">{user?.defaultRole.type}</p>
-        <p className="text-2xl font-semibold mb-10">Attached Note</p>
-        <p className="mb-10 font-semibold">{user?.adminNote}</p>
+        <p className="font-semibold mb-3">Role</p>
+        <p className="mb-16 font-medium">{user?.defaultRole.type}</p>
+        {user?.adminNote ? (
+          <div>
+            <p className="font-semibold mb-10 text-xl">Attached Note</p>
+            <p className="mb-10 font-medium">{user?.adminNote}</p>
+          </div>
+        ) : null}
         <div className={showCombobox()}>
-          <p className="text-2xl font-semibold"> Role Information </p>
-          <p className="text-1xl font-semibold">Linked Players</p>
+          <p className="font-semibold mb-10 text-xl"> Role Information </p>
+          <p className="font-medium">Linked Players</p>
           <p className="mb-20">
             {user && (
               <Combobox

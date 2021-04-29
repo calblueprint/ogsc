@@ -9,7 +9,7 @@ import {
 } from "interfaces";
 import AbsenceTable from "./AbsenceTable";
 import ProfileFieldCell from "./ProfileFieldCell";
-import NotesTable from "./NotesTable";
+import { NotesTable } from "./NotesTable";
 import ProfileContext from "./ProfileContext";
 import ProfileSection, { Props as ProfileSectionProps } from "./ProfileSection";
 
@@ -112,7 +112,7 @@ export const ProfileContents = <T extends ProfileCategory>({
       return (
         <div>
           {player?.playerNotes && (
-            <NotesTable userId={player.id} playerNotes={player.playerNotes} />
+            <NotesTable playerNotes={player.playerNotes} />
           )}
         </div>
       );

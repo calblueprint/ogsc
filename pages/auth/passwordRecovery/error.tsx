@@ -4,8 +4,8 @@ import SignUpLayout from "components/SignUpLayout";
 const Confirmation: React.FC = () => {
   return (
     <SignUpLayout>
-      <div className="flex justify-center flex-col space-y-7 h-screen">
-        <div>
+      <div className="flex justify-center flex-col">
+        <div className="pt-20">
           <p className="text-6xl w-1/2 font-semibold">
             Oops! This link is no longer valid.
           </p>
@@ -16,7 +16,7 @@ const Confirmation: React.FC = () => {
                 because it’s already been used.
               </p>
             </div>
-            <div className="flex flex-row mt-10">
+            <div className="flex flex-row mt-10 pb-32">
               <p className="text-gray-600">Please request a </p>{" "}
               <Link href="/auth/forgotPassword">
                 <a className="ml-1 text-blue hover:underline font-semibold">

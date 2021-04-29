@@ -23,7 +23,11 @@ export const forgotPassword = async (
   const resetUser = await prisma.user.findUnique({
     where: { email: user.email },
   });
-  if (!resetUser || resetUser.status !== UserStatus.Active) {
+  if (
+    !resetUser ||
+    resetUser.status === UserStatus.PendingAdminApproval ||
+    resetUser.status === UserStatus.PendingUserAcceptance
+  ) {
     throw new Error("No account under that email exists");
   }
 

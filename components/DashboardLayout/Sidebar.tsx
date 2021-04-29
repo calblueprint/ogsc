@@ -1,11 +1,12 @@
 import { UserRoleType } from "@prisma/client";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import React, { useState } from "react";
+import React from "react";
 import { AuthenticatedSessionInfo, UserRoleLabel } from "interfaces";
 import useSessionInfo from "utils/useSessionInfo";
 import Icon from "components/Icon";
 import { signOut } from "next-auth/client";
+import { Menu, Transition } from "@headlessui/react";
 
 type SidebarLinkProps = {
   href: string;
@@ -96,64 +97,103 @@ const SidebarByRole = (
 
 const Sidebar: React.FC = () => {
   const session = useSessionInfo();
-  const [showHoverMenu, setShowHoverMenu] = useState(false);
+  const router = useRouter();
 
   return (
     <div className="fixed top-0 flex flex-col justify-between w-56 h-screen bg-button bg-opacity-75">
-      <div className="px-12 py-24">
+      <div className="px-12 pb-16 pt-12">
         <div className="w-full flex justify-center mb-16">
           <img src="/logo.png" alt="Oakland Genesis Soccer Club logo" />
         </div>
         {SidebarByRole(session.sessionType, session)}
       </div>
-      <div className="mb-12 px-6">
+      <div className="mb-12 px-3">
         <div>
-          <div className="flex items-center">
-            <div className="w-10 h-10 mr-4 bg-placeholder rounded-full" />
-            <div>
-              <p className="font-semibold">{session.user?.name}</p>
-              <p className="text-unselected">
-                {UserRoleLabel[session.sessionType]}
-              </p>
-            </div>
-            <div
-              className="absolute h-24"
-              style={{ width: showHoverMenu ? "22rem" : "22rem" }}
-              onMouseEnter={() => {
-                setShowHoverMenu(true);
-              }}
-              onMouseLeave={() => {
-                setShowHoverMenu(false);
-              }}
-            >
-              {showHoverMenu && (
-                <div className="absolute ml-56 w-32 h-24 rounded-md shadow-lg bg-white border">
-                  <div className="h-14 pt-3 pb-3 hover:bg-hover hover:font-semibold cursor-pointer">
-                    <Link
-                      href={`/${UserRoleLabel[
-                        session.sessionType
-                      ].toLowerCase()}/${session.user?.id}`}
-                    >
-                      <div>
-                        <Icon type="person" className="inline ml-4" />
-                        <p className="inline ml-2 text-sm">Profile</p>
+          <>
+            <Menu>
+              {({ open }) => (
+                <>
+                  <Menu.Button className="relative focus:outline-none flex align-center justify-center">
+                    <div className="flex items-center hover:bg-gray-300 hover:bg-opacity-75 rounded-full px-5 py-2">
+                      <div className="w-12 h-12 mr-3 rounded-full">
+                        <img src="/placeholder-profile.png" alt="profile" />
                       </div>
-                    </Link>
-                  </div>
-                  <button
-                    className="h-14 pt-3 pb-3 hover:bg-hover hover:font-semibold cursor-pointer w-full text-left"
-                    type="button"
-                    onClick={() =>
-                      signOut({ callbackUrl: `window.location.origin` })
-                    }
+                      <div>
+                        <p className="font-semibold">{session.user?.name}</p>
+                        <p className="text-unselected">
+                          {UserRoleLabel[session.sessionType]}
+                        </p>
+                      </div>
+                    </div>
+                  </Menu.Button>
+                  <Transition
+                    show={open}
+                    enter="transition duration-100 ease-out"
+                    enterFrom="transform scale-95 opacity-0"
+                    enterTo="transform scale-100 opacity-100"
+                    leave="transition duration-75 ease-out"
+                    leaveFrom="transform scale-100 opacity-100"
+                    leaveTo="transform scale-95 opacity-0"
                   >
-                    <Icon type="logoutToggle" className="inline ml-4" />
-                    <p className="inline ml-2 text-sm">Log Out</p>
-                  </button>
-                </div>
+                    <div className="absolute pl-56 -mt-16">
+                      <Menu.Items
+                        className="absolute z-10 border-medium-gray shadow-lg bg-white rounded-md focus:outline-none flex flex-col text-unselected font-semibold text-sm w-32"
+                        style={{
+                          borderWidth: 1,
+                          transform: "translateY(-32px)",
+                        }}
+                        static
+                      >
+                        <Menu.Item>
+                          {({ active }) => (
+                            <button
+                              type="button"
+                              className={`flex items-center w-full p-2 font-medium ${
+                                active ? "bg-button text-dark" : ""
+                              }`}
+                              onClick={() => {
+                                router.push(
+                                  `/${UserRoleLabel[
+                                    session.sessionType
+                                  ].toLowerCase()}/${session.user?.id}`
+                                );
+                              }}
+                            >
+                              <div className="my-2">
+                                <Icon type="person" className="inline ml-4" />
+                                <p className="inline ml-2 text-sm">Profile</p>
+                              </div>
+                            </button>
+                          )}
+                        </Menu.Item>
+                        <Menu.Item>
+                          {({ active }) => (
+                            <button
+                              type="button"
+                              className={`flex items-center w-full px-3 py-4 rounded-b-md font-medium ${
+                                active ? "bg-button text-dark" : ""
+                              }`}
+                              onClick={() =>
+                                signOut({
+                                  callbackUrl: `window.location.origin`,
+                                })
+                              }
+                            >
+                              <Icon
+                                type="logoutToggle"
+                                className="inline ml-4"
+                              />
+                              <p className="inline ml-2 text-sm">Log Out</p>
+                            </button>
+                          )}
+                        </Menu.Item>
+                      </Menu.Items>
+                    </div>
+                  </Transition>
+                </>
               )}
-            </div>
-          </div>
+            </Menu>
+          </>
         </div>
       </div>
     </div>

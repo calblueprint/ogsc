@@ -63,7 +63,7 @@ const SignIn: React.FC = () => {
 
   return (
     <SignUpLayout>
-      <div className="form flex mt-10 mr-32 flex-col">
+      <div className="form flex mr-32 flex-col">
         <p className="text-6xl font-semibold mb-4">Welcome Back</p>
         <p className="pt-6 text-2xl h-16">Login to Your Account</p>
         <form className="mt-10" onSubmit={handleSubmit(onSubmit)}>
@@ -106,7 +106,7 @@ const SignIn: React.FC = () => {
               </Link>
             </div>
             {error && <p className="text-red-600 text-sm mt-12">{error}</p>}
-            <div className="flex mt-12 mb-32 justify-between align-middle">
+            <div className="flex mt-12 mb-5 justify-between align-middle">
               <div className="flex flex-row">
                 <p className="text-gray-600">New to Oakland Genesis Club? </p>{" "}
                 <Link href="/users/signUp">

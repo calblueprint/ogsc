@@ -92,7 +92,7 @@ const UserSignUpPageOne: React.FC = () => {
   return (
     <StateMachineProvider>
       <SignUpLayout>
-        <div className="form flex mt-10 mr-32 flex-col">
+        <div className="form flex mr-32 flex-col">
           <p className="text-6xl font-semibold mb-10">Join the team</p>
           <p className="pt-6 text-2xl h-16">Create your account</p>
           <form className="mt-10" onSubmit={handleSubmit(onSubmit)}>
@@ -181,7 +181,7 @@ const UserSignUpPageOne: React.FC = () => {
                   </button>
                 </div>
               </UserSignUpFormField>
-              <div className="flex mt-24 mb-32 justify-between align-middle">
+              <div className="flex mt-24 mb-12 justify-between align-middle">
                 <div className="flex flex-row">
                   <p className="text-gray-600">Already have an account? </p>{" "}
                   <Link href="/api/auth/signin">
