@@ -47,7 +47,7 @@ const Note: React.FunctionComponent<{
   return (
     <div className="grid grid-rows-3 grid-cols-3 text-sm max-h-56 border-opacity-50 border-b">
       <text
-        className={`row-span-3 col-start-1 h-4 text-xs w-1/6 text-center rounded-full font-medium text-dark bg-${
+        className={`row-span-3 col-start-1 h-4 text-xs w-3/12 text-center rounded-full font-medium text-dark bg-${
           CATEGORIES[
             (note.type.charAt(0).toUpperCase() +
               note.type.slice(1)) as keyof typeof CATEGORIES
@@ -57,7 +57,6 @@ const Note: React.FunctionComponent<{
         {note.type.charAt(0).toUpperCase() + note.type.slice(1)}
       </text>
       <div className="row-span-2 inline-flex pt-4 col-start-1">
-        {/* <div className="row-span-2 inline-flex pt-4 justify-between pb-3"> */}
         <div className="w-10 h-10 mr-4 bg-placeholder rounded-full">
           <img src="/placeholder-profile.png" alt="" />
         </div>
@@ -74,20 +73,12 @@ const Note: React.FunctionComponent<{
             })}
           </p>
         </div>
-        {/* </div> */}
         {canEdit && (
           <div className="absolute right-0 mr-16 px-2">
             <EditDeleteMenu note={note} />
           </div>
         )}
       </div>
-      {/* <div className="max-h-1/3 overflow-y-scroll bg-hover rounded-lg bg-opacity-50">
-        {Object.values(split).map((line: string) => (
-          <p className="self-center row-span-1 p-2 text-sm break-normal">
-            {line}
-          </p>
-        ))}
-      </div> */}
       <p className="self-center row-span-1 col-span-3 text-sm pt-3 mt-2 mb-10 col-start-1 max-h-1/3 overflow-y-scroll">
         {note.content}
       </p>
@@ -233,7 +224,7 @@ const NotesTable: React.FC<Props> = ({ userId, playerNotes }) => {
                 </Menu.Button>
                 <Transition show={open}>
                   <Menu.Items
-                    className="absolute right-0 mr-56 mt-24 border-medium-gray shadow-lg bg-white rounded-md focus:outline-none flex flex-col text-unselected font-semibold text-sm w-36"
+                    className="absolute right-0 mr-48 mt-24 border-medium-gray shadow-lg bg-white rounded-md focus:outline-none flex flex-col text-unselected font-semibold text-sm w-36"
                     style={{ borderWidth: 1, transform: "translateY(-32px)" }}
                     static
                   >
@@ -315,7 +306,7 @@ const NotesTable: React.FC<Props> = ({ userId, playerNotes }) => {
                     leaveTo="transform opacity-0 scale-95"
                   >
                     <Menu.Items
-                      className="absolute right-0 mr-32 mt-24 border-medium-gray shadow-lg bg-white rounded-md pt-12 focus:outline-none flex flex-col text-unselected font-semibold text-sm w-36"
+                      className="absolute right-0 mr-16 mt-24 border-medium-gray shadow-lg bg-white rounded-md pt-12 focus:outline-none flex flex-col text-unselected font-semibold text-sm w-36"
                       style={{ borderWidth: 1, transform: "translateY(-32px)" }}
                       static
                     >
