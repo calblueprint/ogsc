@@ -11,7 +11,7 @@ import {
 } from "interfaces";
 
 export function serializeProfileFieldValue(
-  field: IProfileFieldBuilt<ProfileFieldKey> | null | undefined
+  field: IProfileFieldBuilt<ProfileFieldKey> | IProfileField | null | undefined
 ): string | null;
 export function serializeProfileFieldValue(
   value: ProfileFieldValueDeserializedTypes[ProfileFieldValues[ProfileFieldKey]],
@@ -20,6 +20,7 @@ export function serializeProfileFieldValue(
 export function serializeProfileFieldValue(
   fieldOrValue:
     | IProfileFieldBuilt<ProfileFieldKey>
+    | IProfileField
     | ProfileFieldValueDeserializedTypes[ProfileFieldValues[ProfileFieldKey]]
     | null
     | undefined,
@@ -30,7 +31,11 @@ export function serializeProfileFieldValue(
   }
   let draftValue;
   let key: ProfileFieldKey;
-  if (typeof fieldOrValue === "object" && "history" in fieldOrValue) {
+  if (
+    typeof fieldOrValue === "object" &&
+    "key" in fieldOrValue &&
+    ("id" in fieldOrValue || "history" in fieldOrValue)
+  ) {
     if (!fieldOrValue) {
       return null;
     }

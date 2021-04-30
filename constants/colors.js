@@ -8,6 +8,7 @@ module.exports = {
   border: "#A9AFB8",
   hover: "#F7F9FB",
   shadow: "#061640",
+  error: "#E23361",
 
   // All colors in palette are required to have a matching -muted counterpart in mutedPalette.
   palette: {

@@ -55,12 +55,28 @@ export type ProfileAction<K extends ProfileFieldKey = ProfileFieldKey> =
   | {
       type: "EDIT_FIELD";
       key: K;
-      value: ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]];
+      value: Partial<ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]]>;
+      id?: number;
+    }
+  | {
+      type: "CLEAR_FIELD_DRAFT";
+      key: K;
       id?: number;
     }
   | {
       type: "EDIT_ABSENCE";
       value: Partial<Absence>;
+      id?: number;
+    }
+  | {
+      type: "ADD_FIELD_VALIDATION_ERROR";
+      key: K;
+      id?: number;
+      error: string;
+    }
+  | {
+      type: "CLEAR_FIELD_VALIDATION_ERROR";
+      key: K;
       id?: number;
     }
   | {
@@ -259,6 +275,105 @@ export const ProfileContextReducer = (
                 ...createEmptyProfileField(action.key),
                 ...state.player.profile?.[action.key],
                 draft: action.value,
+              },
+            },
+          },
+        };
+      }
+      return state;
+
+    case "CLEAR_FIELD_DRAFT":
+      if (state.player) {
+        if (action.id) {
+          // Modify an existing field in the `.history` array
+          return {
+            ...state,
+            player: {
+              ...state.player,
+              profile: {
+                ...state.player.profile,
+                [action.key]: {
+                  ...createEmptyProfileField(action.key),
+                  ...state.player.profile?.[action.key],
+                  history: (
+                    (state.player.profile?.[action.key] as
+                      | IProfileFieldBuilt<ProfileFieldKey>
+                      | undefined)?.history || []
+                  ).map((field: IProfileField) => {
+                    if (field.id === action.id) {
+                      return {
+                        ...field,
+                        draft: undefined,
+                        error: undefined,
+                      };
+                    }
+                    return field;
+                  }),
+                },
+              },
+            },
+          };
+        }
+        // Create a new field
+        return {
+          ...state,
+          player: {
+            ...state.player,
+            profile: {
+              ...state.player.profile,
+              [action.key]: {
+                ...createEmptyProfileField(action.key),
+                ...state.player.profile?.[action.key],
+                draft: undefined,
+                error: undefined,
+              },
+            },
+          },
+        };
+      }
+      return state;
+
+    case "ADD_FIELD_VALIDATION_ERROR":
+    case "CLEAR_FIELD_VALIDATION_ERROR":
+      if (state.player) {
+        if (action.id) {
+          // Modify an existing field in the `.history` array
+          return {
+            ...state,
+            player: {
+              ...state.player,
+              profile: {
+                ...state.player.profile,
+                [action.key]: {
+                  ...state.player.profile?.[action.key],
+                  history: (
+                    (state.player.profile?.[action.key] as
+                      | IProfileFieldBuilt<ProfileFieldKey>
+                      | undefined)?.history || []
+                  ).map((field: IProfileField) => {
+                    if (field.id === action.id) {
+                      return {
+                        ...field,
+                        error: "error" in action ? action.error : undefined,
+                      };
+                    }
+                    return field;
+                  }),
+                },
+              },
+            },
+          };
+        }
+        // Create a new field
+        return {
+          ...state,
+          player: {
+            ...state.player,
+            profile: {
+              ...state.player.profile,
+              [action.key]: {
+                ...state.player.profile?.[action.key],
+                error: "error" in action ? action.error : undefined,
               },
             },
           },

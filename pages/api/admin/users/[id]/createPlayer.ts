@@ -111,6 +111,10 @@ const createPlayerProfileForUserHandler = async (
 
 export default adminOnlyHandler(
   routeByMethod({
-    POST: validateBody(createPlayerProfileForUserHandler, expectedBody),
+    POST: validateBody(
+      createPlayerProfileForUserHandler,
+      expectedBody,
+      (error: string) => `Could not save the Player Profile: ${error}`
+    ),
   })
 );

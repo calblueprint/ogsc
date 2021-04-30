@@ -112,12 +112,12 @@ const ProfileSection: React.FC<Props> = ({ children, sectionName }: Props) => {
           </button>
         )}
       </div>
-      <div className="col-span-2">
+      <div className="col-span-2 max-w-2xl">
         <ProfileSectionContext.Provider value={sectionName}>
           {children}
         </ProfileSectionContext.Provider>
         {editing && (
-          <div className="flex flex-row gap-8 justify-end pb-4">
+          <div className="flex flex-row gap-4 justify-end pb-4">
             <Button
               type="button"
               className="border border-blue text-blue bg-white text-sm px-10 py-2 rounded-md tracking-wide"

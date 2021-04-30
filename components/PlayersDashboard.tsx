@@ -5,7 +5,7 @@ import { IPlayer, UserRoleLabel } from "interfaces";
 import Icon from "components/Icon";
 import { useState } from "react";
 import { deserializeProfileFieldValue } from "utils/buildUserProfile";
-import usePagination from "./pagination";
+import usePagination from "utils/usePagination";
 
 interface ReadManyPlayersDTO {
   users: IPlayer[];

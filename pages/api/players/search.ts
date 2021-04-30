@@ -56,7 +56,9 @@ export default async (
             },
           }
         : {}),
-      status: UserStatus.Active,
+      status: {
+        not: UserStatus.Inactive,
+      },
       roles: {
         some: {
           type: UserRoleType.Player,

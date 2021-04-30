@@ -3,6 +3,7 @@ import Button from "components/Button";
 import DashboardLayout from "components/DashboardLayout";
 import Icon from "components/Icon";
 import PlayerFormLayout, {
+  categories,
   usePlayerFormCategoryIndex,
 } from "components/Player/PlayerFormLayout";
 import { ProfileContents } from "components/Player/Profile";
@@ -36,7 +37,7 @@ const Section = ({
   children,
 }: ProfileSectionProps): JSX.Element => (
   <div>
-    <h1 className="mb-10 text-lg font-semibold">{sectionName}</h1>
+    <h1 className="mb-6 text-lg font-semibold">{sectionName}</h1>
     {children}
   </div>
 );
@@ -224,8 +225,7 @@ const CreatePlayerProfilePage: React.FC = () => {
                     onClick={() =>
                       router.push(
                         `/admin/players/create/${
-                          Object.values(ProfileCategory)[currentTabIndex - 1] ??
-                          ""
+                          categories[currentTabIndex - 1] ?? ""
                         }`
                       )
                     }
@@ -233,14 +233,13 @@ const CreatePlayerProfilePage: React.FC = () => {
                     <Icon className="mr-6 w-8 stroke-current" type="back" />
                     Back
                   </Button>
-                  {currentTabIndex <
-                  Object.values(ProfileCategory).length - 1 ? (
+                  {currentTabIndex < categories.length - 1 ? (
                     <Button
                       className="bg-blue text-sm px-5 py-2 text-white tracking-wide rounded-md"
                       onClick={() =>
                         router.push(
                           `/admin/players/create/${
-                            Object.values(ProfileCategory)[currentTabIndex + 1]
+                            categories[currentTabIndex + 1]
                           }`
                         )
                       }

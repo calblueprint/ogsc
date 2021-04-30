@@ -1,12 +1,6 @@
 import { ProfileFieldKey } from "@prisma/client";
-import {
-  IPlayer,
-  IUser,
-  ProfileFieldValues,
-  ValidatedNextApiRequest,
-} from "interfaces";
+import { IPlayer, IUser, ValidatedNextApiRequest } from "interfaces";
 import Joi from "joi";
-import { ProfileFieldValueValidators } from "lib/validate";
 import { NextApiResponse } from "next";
 import superjson from "superjson";
 import buildUserProfile from "utils/buildUserProfile";
@@ -17,6 +11,7 @@ import getAuthenticatedUser from "utils/getAuthenticatedUser";
 import getPlayerById from "utils/getPlayerById";
 import prisma from "utils/prisma";
 import sanitizeUser from "utils/sanitizeUser";
+import validateProfileField from "utils/validateProfileField";
 import { validateBody } from "../helpers";
 
 export type CreateManyProfileFieldsDTO = {
@@ -35,18 +30,17 @@ export const expectedBody = Joi.object<CreateManyProfileFieldsDTO>({
           .valid(...Object.keys(ProfileFieldKey))
           .required(),
         value: Joi.string().required(),
-      }).custom((value: { key: ProfileFieldKey; value: string }) => {
-        const checkFieldValue = Joi.object({
-          value: ProfileFieldValueValidators[ProfileFieldValues[value.key]],
-        })
-          .unknown(true)
-          .validate(value);
-        if (checkFieldValue.error) {
-          throw checkFieldValue.error;
-        }
-        return value;
       })
+        .custom((value: { key: ProfileFieldKey; value: string }) => {
+          const checkFieldValue = validateProfileField(value.value, value.key);
+          if (checkFieldValue.error) {
+            throw checkFieldValue.error;
+          }
+          return value;
+        })
+        .message("{{#error.message}}")
     )
+    .options({ abortEarly: false })
     .required(),
   playerId: Joi.number().required(),
 });
@@ -114,4 +108,8 @@ const createManyProfileFieldsHandler = async (
   }
 };
 
-export default validateBody(createManyProfileFieldsHandler, expectedBody);
+export default validateBody(
+  createManyProfileFieldsHandler,
+  expectedBody,
+  (error: string) => `Could not save the Player Profile: ${error}`
+);

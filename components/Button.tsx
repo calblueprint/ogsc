@@ -7,7 +7,7 @@ type Props = React.PropsWithChildren<{
   pill?: boolean;
   type?: "button" | "submit" | "reset";
 }> &
-  React.HTMLAttributes<HTMLButtonElement>;
+  React.HTMLProps<HTMLButtonElement>;
 
 const Button: React.FC<Props> = ({
   children,
@@ -20,7 +20,7 @@ const Button: React.FC<Props> = ({
 }: Props) => {
   return (
     <button
-      className={`button button-normal hover:opacity-75 ${
+      className={`button button-normal ${
         pill ? "rounded-full" : "rounded"
       } ${className}`}
       onClick={onClick}
