@@ -150,7 +150,22 @@ export const StandaloneProfileFieldEditor: React.FC<
           </Button>
           <Button
             className="border border-blue bg-white py-2 px-12 text-sm border-opacity-100"
-            onClick={() => onComplete?.()}
+            onClick={() => {
+              if ("field" in props && !isAbsence(props.field)) {
+                dispatch({
+                  type: "CLEAR_FIELD_DRAFT",
+                  key: props.field.key,
+                  id: props.field.id,
+                });
+              } else if ("fieldKey" in props && props.fieldKey !== "absence") {
+                dispatch({
+                  type: "CLEAR_FIELD_DRAFT",
+                  key: props.fieldKey,
+                });
+              }
+
+              onComplete?.();
+            }}
           >
             Cancel
           </Button>
