@@ -346,7 +346,7 @@ const NotesTable: React.FC<Props> = ({ userId, playerNotes }) => {
       </div>
       <img src="" alt="" />
       {filteredNotes
-        .slice(currUIPage, currUIPage + UI_PAGE_SIZE)
+        .slice(currUIPage * UI_PAGE_SIZE, (currUIPage + 1) * UI_PAGE_SIZE)
         .map((note: Notes) => (
           <Note note={note} />
         ))}
