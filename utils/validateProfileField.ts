@@ -39,7 +39,11 @@ function validateProfileField(
   if (fieldOrValue == null) {
     return { value: fieldOrValue };
   }
-  if (typeof fieldOrValue === "object" && "key" in fieldOrValue) {
+  if (
+    typeof fieldOrValue === "object" &&
+    "key" in fieldOrValue &&
+    ("id" in fieldOrValue || "history" in fieldOrValue)
+  ) {
     if (!fieldOrValue?.draft) {
       return { value: fieldOrValue };
     }

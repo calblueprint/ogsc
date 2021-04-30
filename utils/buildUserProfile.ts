@@ -31,7 +31,11 @@ export function serializeProfileFieldValue(
   }
   let draftValue;
   let key: ProfileFieldKey;
-  if (typeof fieldOrValue === "object" && "key" in fieldOrValue) {
+  if (
+    typeof fieldOrValue === "object" &&
+    "key" in fieldOrValue &&
+    ("id" in fieldOrValue || "history" in fieldOrValue)
+  ) {
     if (!fieldOrValue) {
       return null;
     }
