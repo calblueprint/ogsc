@@ -61,7 +61,7 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
     deserializedValue
   );
 
-  if (!editing && (!canRead || deserializedValue === null)) {
+  if (!canRead || (!canEdit && deserializedValue === null)) {
     return null;
   }
 
@@ -134,40 +134,46 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
 
   switch (valueType) {
     case ProfileFieldValue.TimeElapsed: {
-      const value = deserializedValue as ProfileFieldValueDeserializedTypes[typeof valueType];
+      const value = deserializedValue as
+        | ProfileFieldValueDeserializedTypes[typeof valueType]
+        | null;
 
       return (
         <TextLayout title={title}>
           {editing ? (
             <ProfileFieldEditor profileField={profileField} />
           ) : (
-            `${value.minutes()} minutes ${value.seconds()} seconds`
+            value && `${value.minutes()} minutes ${value.seconds()} seconds`
           )}
         </TextLayout>
       );
     }
     case ProfileFieldValue.DistanceMeasured: {
-      const value = deserializedValue as ProfileFieldValueDeserializedTypes[typeof valueType];
+      const value = deserializedValue as
+        | ProfileFieldValueDeserializedTypes[typeof valueType]
+        | null;
 
       return (
         <TextLayout title={title}>
           {editing ? (
             <ProfileFieldEditor profileField={profileField} />
           ) : (
-            `${value.feet} ft. ${value.inches} in.`
+            value && `${value.feet} ft. ${value.inches} in.`
           )}
         </TextLayout>
       );
     }
     case ProfileFieldValue.File: {
-      const value = deserializedValue as ProfileFieldValueDeserializedTypes[typeof valueType];
+      const value = deserializedValue as
+        | ProfileFieldValueDeserializedTypes[typeof valueType]
+        | null;
 
       return (
         <TextLayout title={title}>
           {editing ? (
             <ProfileFieldEditor profileField={profileField} />
           ) : (
-            `${value.key}`
+            value && `${value.key}`
           )}
         </TextLayout>
       );

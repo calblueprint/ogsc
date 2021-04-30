@@ -1,4 +1,4 @@
-import { AbsenceType, ProfileFieldKey } from "@prisma/client";
+import { AbsenceType, ProfileFieldKey, UserRoleType } from "@prisma/client";
 import React, { useContext, useState } from "react";
 import Icon from "components/Icon";
 import {
@@ -7,6 +7,9 @@ import {
   ProfileCategoryIcons,
   ProfileFieldsByCategory,
 } from "interfaces";
+import { ProfileAccessDefinitionsByRole } from "lib/access/definitions";
+import resolveAccessValue from "lib/access/resolve";
+import useSessionInfo from "utils/useSessionInfo";
 import AbsenceTable from "./AbsenceTable";
 import ProfileFieldCell from "./ProfileFieldCell";
 import { NotesTable } from "./NotesTable";
@@ -134,15 +137,29 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
     ProfileCategory.Overview
   );
 
+  const { user } = useSessionInfo();
+  const {
+    defaultRole: { type: currentUserType },
+  } = user;
+
   return (
     <div className="pb-24">
       <div className="flex flex-row flex-wrap text-sm text-center">
         {Object.values(ProfileCategory)
           .filter(
             (category: ProfileCategory) =>
-              ProfileFieldsByCategory[category].some(
-                (key: ProfileFieldKey) => player.profile?.[key]
-              ) ||
+              ProfileFieldsByCategory[category].some((key: ProfileFieldKey) => {
+                const canEdit =
+                  currentUserType === UserRoleType.Admin ||
+                  resolveAccessValue(
+                    ProfileAccessDefinitionsByRole[currentUserType][key] ??
+                      false,
+                    "write",
+                    player,
+                    user
+                  );
+                return canEdit || player.profile?.[key];
+              }) ||
               (category === ProfileCategory.Attendance && player.absences) ||
               (category === ProfileCategory.Notes && player.playerNotes)
           )
