@@ -32,7 +32,8 @@ export type IconType =
   | "search"
   | "camera"
   | "selected"
-  | "backNav";
+  | "backNav"
+  | "close";
 
 const IconSvgs: Record<IconType, React.ReactElement> = {
   academics: (
@@ -529,6 +530,25 @@ C11.4,2.8,11.4,2.8,11.4,2.9z"
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+      />
+    </svg>
+  ),
+  close: (
+    <svg
+      width="17"
+      height="17"
+      viewBox="0 0 17 17"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M4.24225 4.24285C4.54047 3.94463 5.02398 3.94463 5.3222 4.24285L12.7275 11.6482C13.0258 11.9464 13.0258 12.4299 12.7275 12.7281C12.4293 13.0264 11.9458 13.0264 11.6476 12.7281L4.24225 5.3228C3.94404 5.02458 3.94404 4.54107 4.24225 4.24285Z"
+      />
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M12.7281 4.24262C13.0263 4.54084 13.0263 5.02435 12.7281 5.32257L5.32276 12.7279C5.02454 13.0261 4.54103 13.0261 4.24281 12.7279C3.94459 12.4297 3.94459 11.9462 4.24281 11.648L11.6481 4.24262C11.9464 3.9444 12.4299 3.9444 12.7281 4.24262Z"
       />
     </svg>
   ),

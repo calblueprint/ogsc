@@ -134,7 +134,7 @@ const UserSignUpPageOne: React.FC = () => {
                     <p className="text-sm ml-3 font-medium">No</p>
                   </label>
                   {existingUser === "Yes" ? (
-                    <div className="w-64">
+                    <div className="w-1/2 max-w-sm">
                       <Combobox
                         selectedPlayers={selectedPlayer}
                         setSelectedPlayers={setSelectedPlayer}
@@ -154,7 +154,7 @@ const UserSignUpPageOne: React.FC = () => {
               <div className="grid grid-rows-2 mr-32">
                 <ProfileContext.Provider value={context}>
                   {UncategorizedProfileFields.map((key: ProfileFieldKey) => (
-                    <ProfileFieldCell fieldKey={key} />
+                    <ProfileFieldCell key={key} fieldKey={key} />
                   ))}
                 </ProfileContext.Provider>
               </div>

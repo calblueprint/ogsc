@@ -121,15 +121,17 @@ const Combobox: React.FC<Props> = ({
               })()}
             </p>
           )}
-          {selectedPlayers.map((user) => (
-            <Card
-              text={user.name}
-              onDelete={() => onDelete(user)}
-              maxSize={promptOff}
-            />
-          ))}
-
-          <div>
+          <div className="max-w-sm">
+            {selectedPlayers.map((user) => (
+              <Card
+                key={user.id}
+                text={user.name}
+                onDelete={() => onDelete(user)}
+                maxSize
+              />
+            ))}
+          </div>
+          <div className="max-w-lg relative">
             <div {...getComboboxProps()}>
               {(!singleSelect || selectedPlayers.length === 0) && (
                 <>
@@ -150,7 +152,7 @@ const Combobox: React.FC<Props> = ({
                       onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
                         setQuery(event.target.value),
                     })}
-                    className={`w-full text-base form-input leading-10 border border-border rounded-lg ${
+                    className={`w-full text-base form-input leading-10 px-4 border-2 border-medium-gray rounded-md rounded-b-none focus:outline-none ${
                       !focused ? "hidden" : ""
                     }`}
                   />
@@ -159,17 +161,20 @@ const Combobox: React.FC<Props> = ({
             </div>
             <ul
               {...getMenuProps()}
-              className={`absolute w-full bg-white border border-b-0 rounded-sm mt-2 ${
+              className={`absolute z-10 w-full bg-white border-medium-gray border-2 rounded-md rounded-t-none border-t-0 overflow-scroll mt-2 ${
                 !isOpen ? "hidden" : ""
               }`}
+              style={{ top: "calc(100% - 8px)", maxHeight: "16rem" }}
             >
-              {isOpen &&
+              {inputPlayers.length > 0 ? (
                 inputPlayers.map((item: IUser, index: number) => (
                   <li
                     className={`${
-                      highlightedIndex === index ? "bg-lightBlue" : ""
-                    } px-3 py-2 border-b`}
-                    key={`${item.name}`}
+                      highlightedIndex === index ? "bg-blue-muted" : ""
+                    } px-3 py-2 border-medium-gray font-medium ${
+                      index > 0 && "border-t"
+                    }`}
+                    key={item.id}
                     {...getItemProps({
                       item,
                       index,
@@ -179,7 +184,12 @@ const Combobox: React.FC<Props> = ({
                   >
                     {item.name}
                   </li>
-                ))}
+                ))
+              ) : (
+                <p className="text-center text-medium-gray text-sm my-4 opacity-75">
+                  No players found
+                </p>
+              )}
             </ul>
           </div>
         </div>
