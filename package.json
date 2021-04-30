@@ -41,7 +41,7 @@
     "db-migrate-base": "^2.3.0",
     "downshift": "^6.0.6",
     "faker": "^5.1.0",
-    "joi": "^17.2.1",
+    "joi": "^17.4.0",
     "joi-phone-number": "^5.0.0",
     "little-state-machine": "^3.1.2",
     "lodash.debounce": "^4.0.8",
