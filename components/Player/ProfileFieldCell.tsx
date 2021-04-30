@@ -61,7 +61,7 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
     deserializedValue
   );
 
-  if (!editing && (!canRead || deserializedValue === null)) {
+  if (!canRead || (!canEdit && deserializedValue === null)) {
     return null;
   }
 
