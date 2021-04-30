@@ -36,7 +36,7 @@
     "autoprefixer": "9.8.6",
     "aws-sdk": "^2.888.0",
     "babel-plugin-superjson-next": "^0.1.8",
-    "dayjs": "^1.9.6",
+    "dayjs": "^1.10.4",
     "db-migrate": "^0.11.11",
     "db-migrate-base": "^2.3.0",
     "downshift": "^6.0.6",
