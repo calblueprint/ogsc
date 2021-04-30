@@ -378,9 +378,7 @@ const ProfileFieldEditor: React.FC<
         return (
           <div className="mb-16 text-sm">
             <div className="flex justify-between items-center">
-              <p className="font-semibold mt-10">
-                {labelProfileField(field.key)}:
-              </p>
+              <p className="font-semibold">{labelProfileField(field.key)}:</p>
               <ProfileFieldEditorModal fieldKey={field.key} />
             </div>
             <TextListTable fieldKey={field.key} values={field.history} />

@@ -51,6 +51,8 @@ const standardReadAccess = {
   [ProfileFieldKey.Highlights]: { read: true },
   [ProfileFieldKey.YearOfBirth]: { read: true },
   [ProfileFieldKey.ProfilePicture]: { read: true },
+  [ProfileFieldKey.HighSchoolGraduation]: { read: true },
+  [ProfileFieldKey.CollegeAdmissions]: { read: true },
 };
 
 /**
@@ -58,6 +60,10 @@ const standardReadAccess = {
  */
 const sharedReadAccess = {
   [ProfileFieldKey.GPA]: { read: isSharedPlayerProfile },
+  [ProfileFieldKey.ACT]: { read: isSharedPlayerProfile },
+  [ProfileFieldKey.SAT]: { read: isSharedPlayerProfile },
+  [ProfileFieldKey.InternalAssessments]: { read: isSharedPlayerProfile },
+  [ProfileFieldKey.Height]: { read: isSharedPlayerProfile },
   [ProfileFieldKey.PacerTest]: { read: isSharedPlayerProfile },
   [ProfileFieldKey.MileTime]: { read: isSharedPlayerProfile },
   [ProfileFieldKey.Situps]: { read: isSharedPlayerProfile },
