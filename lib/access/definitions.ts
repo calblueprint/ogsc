@@ -125,5 +125,9 @@ export const ProfileAccessDefinitionsByRole: Record<
     [ProfileFieldKey.Pushups]: { read: isOwnPlayerProfile },
     [ProfileFieldKey.HealthAndWellness]: { read: isOwnPlayerProfile },
     [ProfileFieldKey.DisciplinaryActions]: { read: isOwnPlayerProfile },
+    [ProfileFieldKey.ProfilePicture]: {
+      read: true,
+      write: isOwnPlayerProfile,
+    },
   },
 };
