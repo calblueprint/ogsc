@@ -1,11 +1,12 @@
 import { Dialog } from "@headlessui/react";
-import { Absence, ProfileFieldKey, UserRoleType } from "@prisma/client";
+import { Absence, ProfileFieldKey } from "@prisma/client";
 import DashboardLayout from "components/DashboardLayout";
 import Icon from "components/Icon";
 import ProfileContext, {
   ProfileContextType,
   useProfileContext,
 } from "components/Player/ProfileContext";
+import ProfileFieldEditorModal from "components/Player/ProfileFieldEditorModal";
 import PlayerProfile from "components/Player/Profile";
 import Modal from "components/Modal";
 import Button from "components/Button";
@@ -20,7 +21,7 @@ import { getSession } from "next-auth/client";
 import { useRouter } from "next/router";
 import { NextPageContext } from "next";
 import { UpdateOneAbsenceDTO } from "pages/api/absences/update";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import buildUserProfile, {
   deserializeProfileFieldValue,
   serializeProfileFieldValue,
@@ -30,10 +31,8 @@ import flattenUserRoles from "utils/flattenUserRoles";
 import isAbsence from "utils/isAbsence";
 import prisma from "utils/prisma";
 import sanitizeUser from "utils/sanitizeUser";
-import { StandaloneProfileFieldEditor } from "components/Player/ProfileFieldEditorModal";
+import useCanEditField from "utils/useCanEditField";
 import useSessionInfo from "utils/useSessionInfo";
-import { ProfileAccessDefinitionsByRole } from "lib/access/definitions";
-import resolveAccessValue from "lib/access/resolve";
 
 type Props = {
   player?: IPlayer;
@@ -81,27 +80,14 @@ export async function getServerSideProps(
   };
 }
 
-const PlayerProfilePage: React.FunctionComponent<Props> = ({
-  player,
-}: Props) => {
+const PlayerProfileHeader: React.FC = () => {
   const router = useRouter();
   const session = useSessionInfo();
-  const [showModal, setShowModal] = useState<boolean>(
-    Boolean(router.query.success)
-  );
   const [profilePicture, setProfilePicture] = useState<string>();
-  const [editProfilePicture, setEditProfilePicture] = useState<boolean>(false);
-  const canEditProfilePicture =
-    player &&
-    (session.user.defaultRole.type === UserRoleType.Admin ||
-      resolveAccessValue(
-        ProfileAccessDefinitionsByRole[session.user.defaultRole.type][
-          ProfileFieldKey.ProfilePicture
-        ] ?? false,
-        "write",
-        player,
-        session.user
-      ));
+  const canEditProfilePicture = useCanEditField(ProfileFieldKey.ProfilePicture);
+  const canEditBirthYear = useCanEditField(ProfileFieldKey.YearOfBirth);
+  const { state } = useContext(ProfileContext);
+  const { player } = state;
 
   useEffect(() => {
     async function fetchProfilePicture(): Promise<void> {
@@ -130,6 +116,87 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
     fetchProfilePicture();
   }, [player]);
 
+  const profilePictureCurrentField = state.player?.profile?.ProfilePicture?.history.find(
+    (profileField: IProfileField<typeof ProfileFieldKey.ProfilePicture>) =>
+      profileField.id === state.player?.profile?.ProfilePicture?.current?.id
+  );
+  const birthYearCurrentField = state.player?.profile?.YearOfBirth?.history.find(
+    (profileField: IProfileField<typeof ProfileFieldKey.YearOfBirth>) =>
+      profileField.id === state.player?.profile?.YearOfBirth?.current?.id
+  );
+
+  return (
+    <>
+      <div>
+        <Button
+          className="bg-white text-blue px-4 font-light hover:font-semibold"
+          onClick={() => {
+            router.push(`/${session.sessionType.toLocaleLowerCase()}/players`);
+          }}
+        >
+          <Icon type="back" className="mr-3" /> BACK TO ALL PLAYERS
+        </Button>
+      </div>
+      <div className="header flex items-center">
+        <div className="picture flex mr-10">
+          <img
+            src={profilePicture}
+            alt={player?.name || "player"}
+            className="bg-button rounded-full max-w-full align-middle border-none w-24 h-24"
+          />
+          {canEditProfilePicture && (
+            <ProfileFieldEditorModal
+              trigger={
+                <div className="pt-16 pl-20 absolute">
+                  <button
+                    type="button"
+                    className="bg-button w-8 h-8 rounded-full flex justify-center items-center"
+                  >
+                    <Icon type="camera" />
+                  </button>
+                </div>
+              }
+              {...(profilePictureCurrentField
+                ? { field: profilePictureCurrentField }
+                : { fieldKey: ProfileFieldKey.ProfilePicture })}
+            />
+          )}
+        </div>
+        <div className="player-info grid grid-rows-2">
+          <p className="pt-6 text-2xl font-semibold">{player?.name}</p>
+          <div className="flex justify-between items-center h-10">
+            <p className="text-sm font-medium">
+              Birth Year:{" "}
+              {deserializeProfileFieldValue(
+                player?.profile?.YearOfBirth?.current
+              )}
+            </p>
+            {canEditBirthYear && (
+              <ProfileFieldEditorModal
+                trigger={
+                  <Button className="w-8 h-8 p-0 rounded-full text-dark stroke-0 flex justify-center items-center bg-button">
+                    <Icon className="w-4 h-4" type="edit" />
+                  </Button>
+                }
+                {...(birthYearCurrentField
+                  ? { field: birthYearCurrentField }
+                  : { fieldKey: ProfileFieldKey.YearOfBirth })}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+const PlayerProfilePage: React.FunctionComponent<Props> = ({
+  player,
+}: Props) => {
+  const router = useRouter();
+  const [showModal, setShowModal] = useState<boolean>(
+    Boolean(router.query.success)
+  );
   const [state, dispatch] = useProfileContext();
   useEffect(() => {
     if (player) {
@@ -240,78 +307,14 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
     return <DashboardLayout>No player found</DashboardLayout>;
   }
 
-  const hasProfilePicture = state.player?.profile?.ProfilePicture?.history.find(
-    (profileField: IProfileField<typeof ProfileFieldKey.ProfilePicture>) =>
-      profileField.id === state.player?.profile?.ProfilePicture?.current?.id
-  );
   return (
     <DashboardLayout>
       <ProfileContext.Provider
         value={{ state, dispatch, createField, updateField, deleteField }}
       >
         <div className="flex mt-20 flex-wrap space-y-6 flex-col mx-16">
-          <div>
-            <Button
-              className="bg-white text-blue px-4 font-light hover:font-semibold"
-              onClick={() => {
-                router.push(
-                  `/${session.sessionType.toLocaleLowerCase()}/players`
-                );
-              }}
-            >
-              <Icon type="back" className="mr-3" /> BACK TO ALL PLAYERS
-            </Button>
-          </div>
-          <div className="header flex items-center">
-            <div className="picture flex mr-10">
-              <img
-                src={profilePicture}
-                alt={player.name || "player"}
-                className="bg-button rounded-full max-w-full align-middle border-none w-24 h-24"
-              />
-              {canEditProfilePicture && (
-                <div className="pt-16 pl-20 absolute">
-                  <button
-                    type="button"
-                    onClick={() => setEditProfilePicture(true)}
-                    className="bg-button w-8 h-8 rounded-full flex justify-center items-center"
-                  >
-                    <Icon type="camera" />
-                  </button>
-                </div>
-              )}
-            </div>
-            <div className="player-info grid grid-rows-2">
-              <p className="pt-6 text-2xl font-semibold">{player.name}</p>
-              <p className="pt-2 text-sm font-medium">
-                Birth Year:{" "}
-                {deserializeProfileFieldValue(
-                  player.profile?.YearOfBirth?.current
-                )}
-              </p>
-            </div>
-          </div>
-          <Modal
-            className="w-3/5"
-            open={editProfilePicture}
-            onClose={() => setEditProfilePicture(false)}
-          >
-            {hasProfilePicture ? (
-              <StandaloneProfileFieldEditor
-                field={hasProfilePicture}
-                onComplete={() => {
-                  setEditProfilePicture(false);
-                }}
-              />
-            ) : (
-              <StandaloneProfileFieldEditor
-                fieldKey={ProfileFieldKey.ProfilePicture}
-                onComplete={() => {
-                  setEditProfilePicture(false);
-                }}
-              />
-            )}
-          </Modal>
+          <PlayerProfileHeader />
+          <PlayerProfile player={player} />
           <Modal
             className="w-2/5"
             open={showModal}
@@ -334,7 +337,6 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
               </Button>
             </div>
           </Modal>
-          <PlayerProfile player={player} />
         </div>
       </ProfileContext.Provider>
     </DashboardLayout>
