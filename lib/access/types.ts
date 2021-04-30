@@ -1,7 +1,9 @@
 import { AbsenceType, ProfileFieldKey } from "@prisma/client";
 import { IPlayer, IUser } from "interfaces";
 
-type AccessValueBase = boolean | ((player: IPlayer, user: IUser) => boolean);
+type AccessValueBase =
+  | boolean
+  | ((player: IPlayer, user: IUser, data?: Record<string, unknown>) => boolean);
 export type AccessValue =
   | AccessValueBase
   | { read?: AccessValueBase; write?: AccessValueBase };
@@ -25,3 +27,5 @@ export type ProfileAccessDefinition = Partial<
 export type AttendanceAccessDefinition = Partial<
   Record<AbsenceType, AccessValue>
 >;
+
+export type NotesAccessDefinition = AccessValue;

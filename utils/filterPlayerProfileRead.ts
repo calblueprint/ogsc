@@ -8,6 +8,7 @@ import { IPlayer, IUser, PlayerProfile } from "interfaces";
 import {
   AttendanceAccessDefinitionsByRole,
   ProfileAccessDefinitionsByRole,
+  NotesAccessDefinitionsByRole,
 } from "lib/access/definitions";
 import resolveAccessValue from "lib/access/resolve";
 
@@ -49,6 +50,15 @@ const filterPlayerProfileRead = (player: IPlayer, user: IUser): IPlayer => {
     canAccessAbsenceType(type)
   );
 
+  const canAccessNotes = resolveAccessValue(
+    NotesAccessDefinitionsByRole[
+      user.defaultRole.type as Exclude<UserRoleType, "Admin">
+    ],
+    "read",
+    player,
+    user
+  );
+
   return {
     ...player,
     absences: canAccessAbsences
@@ -63,6 +73,7 @@ const filterPlayerProfileRead = (player: IPlayer, user: IUser): IPlayer => {
         filterProfileFieldRead(fieldKey as ProfileFieldKey, player, user)
       )
     ),
+    playerNotes: canAccessNotes ? player.playerNotes ?? [] : undefined,
   };
 };
 

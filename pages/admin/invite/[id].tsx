@@ -23,46 +23,53 @@ interface ResendConfirmationProps {
   isResending: boolean;
   setIsResending: React.Dispatch<React.SetStateAction<boolean>>;
   setSubmitter: React.Dispatch<React.SetStateAction<string>>;
+  getValues: () => AdminEditUserInviteFormValues;
+  onSubmit: (values: AdminEditUserInviteFormValues) => Promise<void>;
 }
 
 const ResendConfirmation: React.FunctionComponent<ResendConfirmationProps> = ({
   isResending,
   setIsResending,
   setSubmitter,
+  getValues,
+  onSubmit,
 }) => {
   return (
-    <Modal
-      open={isResending}
-      onClose={() => setIsResending(false)}
-      className="max-w-xl"
-    >
-      <Dialog.Title className="text-lg font-medium text-dark">
-        Re-sending this invite will save invite changes
-      </Dialog.Title>
-      <p className="text-sm font-normal text-dark pt-2 pb-10">
-        By re-sending this invite, any changes you&apos;ve made will
-        automatically be saved and updated.
-      </p>
-      <div className="mb-2 flex float-right">
-        <Button
-          className="px-10 py-2 mr-5 hover:bg-button text-unselected bg-opacity-0"
-          onClick={() => {
-            setIsResending(false);
-          }}
-        >
-          Don&apos;t Send
-        </Button>
-        <Button
-          className="button-primary px-10 py-2 text-blue hover:bg-blue-muted bg-opacity-0"
-          type="submit"
-          onClick={() => {
-            setSubmitter("resend");
-          }}
-        >
-          Save and Send
-        </Button>
-      </div>
-    </Modal>
+    <>
+      <Modal
+        open={isResending}
+        onClose={() => setIsResending(false)}
+        className="max-w-xl"
+      >
+        <Dialog.Title className="text-lg font-medium text-dark">
+          Re-sending this invite will save invite changes
+        </Dialog.Title>
+        <p className="text-sm font-normal text-dark pt-2 pb-10">
+          By re-sending this invite, any changes you&apos;ve made will
+          automatically be saved and updated.
+        </p>
+        <div className="mb-2 flex float-right">
+          <Button
+            className="px-10 py-2 mr-5 hover:bg-button text-unselected bg-opacity-0"
+            onClick={() => {
+              setIsResending(false);
+            }}
+          >
+            Don&apos;t Send
+          </Button>
+          <Button
+            className="button-primary px-10 py-2 text-blue hover:bg-blue-muted bg-opacity-0"
+            type="submit"
+            onClick={() => {
+              setSubmitter("resend");
+              onSubmit(getValues());
+            }}
+          >
+            Save and Send
+          </Button>
+        </div>
+      </Modal>
+    </>
   );
 };
 
@@ -206,6 +213,7 @@ const UserInvitation: React.FunctionComponent<gsspProps> = ({
     errors,
     register,
     handleSubmit,
+    getValues,
   } = useForm<AdminEditUserInviteFormValues>({
     resolver: joiResolver(AdminEditUserFormSchema),
   });
@@ -484,6 +492,8 @@ const UserInvitation: React.FunctionComponent<gsspProps> = ({
               isResending={isResending}
               setIsResending={setIsResending}
               setSubmitter={setSubmitter}
+              getValues={getValues}
+              onSubmit={onSubmit}
             />
           )}
         </form>
