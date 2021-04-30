@@ -88,7 +88,7 @@ const Note: React.FunctionComponent<{
           </p>
         ))}
       </div> */}
-      <p className="self-center row-span-1 col-span-3 text-sm pt-3 mt-2 mb-10 col-start-1">
+      <p className="self-center row-span-1 col-span-3 text-sm pt-3 mt-2 mb-10 col-start-1 max-h-1/3 overflow-y-scroll">
         {note.content}
       </p>
     </div>
@@ -134,7 +134,7 @@ const NotesTable: React.FC<Props> = ({ userId, playerNotes }) => {
       setNotes(allNotes);
     }
     fetchData();
-  }, [userId, phrase]);
+  }, [userId, phrase, router]);
 
   const [categoryToggles, setCategoryToggles] = useState<
     Record<string, Category>

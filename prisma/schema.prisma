@@ -17,8 +17,8 @@ model User {
   updatedAt      DateTime        @default(now()) @map("updated_at")
   hashedPassword String          @map("hashed_password")
   phoneNumber    String?         @map("phone_number")
-  adminNote      String?
   status         UserStatus
+  adminNote      String?
   absences       Absence[]       @relation("AbsencesToUsers")
   authorNotes    Notes[]         @relation("notes_authorIdTousers")
   playerNotes    Notes[]         @relation("notes_playerIdTousers")
@@ -148,64 +148,64 @@ model Notes {
 }
 
 enum ProfileFieldKey {
-  BioAboutMe               @map("bio_about_me")
-  BioHobbies               @map("bio_hobbies")
-  BioFavoriteSubject       @map("bio_favorite_subject")
-  BioMostDifficultSubject  @map("bio_most_difficult_subject")
-  BioSiblings              @map("bio_siblings")
-  BioParents               @map("bio_parents")
-  IntroVideo               @map("intro_video")
-  AcademicEngagementScore  @map("academic_engagement_score")
-  AdvisingScore            @map("advising_score")
-  AthleticScore            @map("athletic_score")
-  InternalAssessments      @map("internal_assessments")
-  StandardizedTesting      @map("standardized_testing")
-  GPA                      @map("gpa")
-  DisciplinaryActions      @map("disciplinary_actions")
-  Height                   @map("height")
-  PacerTest                @map("pacer_test")
-  MileTime                 @map("mile_time")
-  Situps                   @map("situps")
-  Pushups                  @map("pushups")
-  HealthAndWellness        @map("health_and_wellness")
-  Highlights               @map("highlights")
-  YearOfBirth              @map("year_of_birth")
+  BioAboutMe @map("bio_about_me")
+  BioHobbies @map("bio_hobbies")
+  BioFavoriteSubject @map("bio_favorite_subject")
+  BioMostDifficultSubject @map("bio_most_difficult_subject")
+  BioSiblings @map("bio_siblings")
+  BioParents @map("bio_parents")
+  IntroVideo @map("intro_video")
+  AcademicEngagementScore @map("academic_engagement_score")
+  AdvisingScore @map("advising_score")
+  AthleticScore @map("athletic_score")
+  InternalAssessments @map("internal_assessments")
+  StandardizedTesting @map("standardized_testing")
+  GPA @map("gpa")
+  DisciplinaryActions @map("disciplinary_actions")
+  Height @map("height")
+  PacerTest @map("pacer_test")
+  MileTime @map("mile_time")
+  Situps @map("situps")
+  Pushups @map("pushups")
+  HealthAndWellness @map("health_and_wellness")
+  Highlights @map("highlights")
+  YearOfBirth @map("year_of_birth")
 
-  @@map("profile_field_key")
+   @@map("profile_field_key")
 }
 
 enum AbsenceReason {
-  Excused    @map("excused")
-  Unexcused  @map("unexcused")
+  Excused @map("excused")
+  Unexcused @map("unexcused")
 
-  @@map("absence_reason")
+   @@map("absence_reason")
 }
 
 enum AbsenceType {
-  School    @map("school")
-  Academic  @map("academic")
-  Athletic  @map("athletic")
+  School @map("school")
+  Academic @map("academic")
+  Athletic @map("athletic")
 
-  @@map("absence_type")
+   @@map("absence_type")
 }
 
 enum UserRoleType {
-  Admin   @map("admin")
-  Player  @map("player")
-  Mentor  @map("mentor")
-  Parent  @map("parent")
-  Donor   @map("donor")
+  Admin @map("admin")
+  Player @map("player")
+  Mentor @map("mentor")
+  Parent @map("parent")
+  Donor @map("donor")
 
-  @@map("user_role")
+   @@map("user_role")
 }
 
 enum UserStatus {
-  Active                 @map("active")
-  Inactive               @map("inactive")
-  PendingAdminApproval   @map("pending_admin_approval")
-  PendingUserAcceptance  @map("pending_user_acceptance")
+  Active @map("active")
+  Inactive @map("inactive")
+  PendingAdminApproval @map("pending_admin_approval")
+  PendingUserAcceptance @map("pending_user_acceptance")
 
-  @@map("user_status")
+   @@map("user_status")
 }
 
 enum NoteType {
@@ -214,5 +214,5 @@ enum NoteType {
   academics
   mentorship
 
-  @@map("note_type")
+   @@map("note_type")
 }
