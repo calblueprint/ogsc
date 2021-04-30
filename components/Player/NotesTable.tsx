@@ -10,6 +10,8 @@ import useSessionInfo from "utils/useSessionInfo";
 import { useRouter } from "next/router";
 import EditDeleteMenu from "components/Player/EditDeleteMenu";
 import useCanEditField from "utils/useCanEditField";
+import PageNav from "components/PageNav";
+import { UI_PAGE_SIZE } from "../../constants";
 
 interface Category {
   color: string;
@@ -128,10 +130,11 @@ const NotesTable: React.FC<Props> = ({ userId, playerNotes }) => {
       });
     };
     async function fetchData(): Promise<void> {
-      setNotes(await getNotes());
+      const allNotes = await getNotes();
+      setNotes(allNotes);
     }
     fetchData();
-  });
+  }, [userId, phrase]);
 
   const [categoryToggles, setCategoryToggles] = useState<
     Record<string, Category>
@@ -169,10 +172,27 @@ const NotesTable: React.FC<Props> = ({ userId, playerNotes }) => {
       (note1: Notes, note2: Notes) =>
         note1.created_at.getTime() - note2.created_at.getTime()
     );
-  const sortFn =
-    selectedOption === "Oldest First"
-      ? sortAscending
-      : (allNotes: Notes[]): Notes[] => sortAscending(allNotes).reverse();
+
+  // Pagination
+  const [currUIPage, setUIPage] = useState(0);
+  const [filteredNotes, setFilteredNotes] = useState<Notes[]>([]);
+  const [numUIPages, setNumUIPages] = useState(0);
+
+  useEffect(() => {
+    const sortFn =
+      selectedOption === "Oldest First"
+        ? sortAscending
+        : (allNotes: Notes[]): Notes[] => sortAscending(allNotes).reverse();
+
+    const result = sortFn(notes || []).filter(
+      (note: Notes) =>
+        categoryToggles[note.type.charAt(0).toUpperCase() + note.type.slice(1)]
+          .enabled
+    );
+    setFilteredNotes(result);
+    setNumUIPages(Math.ceil(result.length / UI_PAGE_SIZE));
+    setUIPage(0);
+  }, [categoryToggles, notes, selectedOption]);
 
   return (
     <div>
@@ -334,13 +354,8 @@ const NotesTable: React.FC<Props> = ({ userId, playerNotes }) => {
         </>
       </div>
       <img src="" alt="" />
-      {sortFn(notes || [])
-        .filter(
-          (note: Notes) =>
-            categoryToggles[
-              note.type.charAt(0).toUpperCase() + note.type.slice(1)
-            ].enabled
-        )
+      {filteredNotes
+        .slice(currUIPage, currUIPage + UI_PAGE_SIZE)
         .map((note: Notes) => (
           <Note note={note} />
         ))}
@@ -353,15 +368,18 @@ const NotesTable: React.FC<Props> = ({ userId, playerNotes }) => {
         refresh={() => refreshProfile()}
       />
       <img src="" alt="" />
-      {/* {playerNotes?.map((note: Notes) => (
-        <div className="mt-5 pb-5 border-opacity-50">
-          <Note
-            note={note}
-            userId={session.user.id}
-            isAdmin={session.sessionType === UserRoleType.Admin}
-          />
-        </div>
-      ))} */}
+      <PageNav
+        currentPage={currUIPage + 1}
+        numPages={numUIPages}
+        onPrevPage={() => {
+          setUIPage(currUIPage - 1);
+        }}
+        onNextPage={() => {
+          setUIPage(currUIPage + 1);
+        }}
+        prevDisabled={currUIPage <= 0}
+        nextDisabled={currUIPage >= numUIPages - 1}
+      />
     </div>
   );
 };
