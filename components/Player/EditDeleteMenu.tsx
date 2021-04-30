@@ -118,7 +118,7 @@ const EditDeleteMenu: React.FunctionComponent<{
           undone.
         </p>
         <div className="p-3 border rounded-lg">
-          <Note note={note} userId={-1} isAdmin={false} />
+          <Note note={note} />
         </div>
         <hr className="my-6" />
         <div className="flex flex-row my-5 gap-4 justify-start pb-4">
