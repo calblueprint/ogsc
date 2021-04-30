@@ -20,6 +20,7 @@ import {
 import labelProfileField from "utils/labelProfileField";
 import isAbsence from "utils/isAbsence";
 import useCanEditField from "utils/useCanEditField";
+import validateProfileField from "utils/validateProfileField";
 import ProfileFieldEditor from "./ProfileFieldEditor";
 import ProfileContext from "./ProfileContext";
 
@@ -41,10 +42,24 @@ type Props = (CreateProps | UpdateProps) & {
 export const StandaloneProfileFieldEditor: React.FC<
   CreateProps | UpdateProps
 > = ({ onComplete, ...props }: CreateProps | UpdateProps) => {
-  const { createField, updateField, state } = useContext(ProfileContext);
+  const { createField, updateField, state, dispatch } = useContext(
+    ProfileContext
+  );
   const [error, setError] = useState("");
   const createOrUpdateField = useCallback(async () => {
     if ("field" in props) {
+      if (!isAbsence(props.field)) {
+        const validationResult = validateProfileField(props.field);
+        if (validationResult.error) {
+          dispatch({
+            type: "ADD_FIELD_VALIDATION_ERROR",
+            key: props.field.key,
+            id: props.field.id,
+            error: validationResult.error.message,
+          });
+          return;
+        }
+      }
       try {
         await updateField(props.field);
         onComplete?.(props.field);
@@ -60,6 +75,30 @@ export const StandaloneProfileFieldEditor: React.FC<
           props.fieldKey === "absence"
             ? state.player.absenceDraft
             : state.player.profile[props.fieldKey]?.draft;
+
+        if (props.fieldKey !== "absence") {
+          if (!draft) {
+            dispatch({
+              type: "ADD_FIELD_VALIDATION_ERROR",
+              key: props.fieldKey,
+              error: `${labelProfileField(
+                props.fieldKey
+              )} value is required, but none was entered`,
+            });
+          }
+          const validationResult = validateProfileField(
+            draft as ProfileFieldValueDeserializedTypes[ProfileFieldValues[ProfileFieldKey]],
+            props.fieldKey
+          );
+          if (validationResult.error) {
+            dispatch({
+              type: "ADD_FIELD_VALIDATION_ERROR",
+              key: props.fieldKey,
+              error: validationResult.error.message,
+            });
+            return;
+          }
+        }
         if (!draft) {
           return;
         }
@@ -82,7 +121,7 @@ export const StandaloneProfileFieldEditor: React.FC<
         setError(err.message);
       }
     }
-  }, [onComplete, createField, updateField, state.player, props]);
+  }, [onComplete, createField, updateField, dispatch, state.player, props]);
 
   const intentLabel =
     "field" in props

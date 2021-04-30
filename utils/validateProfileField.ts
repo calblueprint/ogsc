@@ -1,5 +1,6 @@
 import { ProfileFieldKey } from "@prisma/client";
 import {
+  IProfileField,
   IProfileFieldBuilt,
   ProfileFieldValueDeserializedTypes,
   ProfileFieldValues,
@@ -13,7 +14,7 @@ import { serializeProfileFieldValue } from "./buildUserProfile";
 import labelProfileField from "./labelProfileField";
 
 function validateProfileField(
-  field: IProfileFieldBuilt<ProfileFieldKey> | null | undefined
+  field: IProfileFieldBuilt<ProfileFieldKey> | IProfileField | null | undefined
 ): Joi.ValidationResult;
 function validateProfileField(
   value: ProfileFieldValueDeserializedTypes[ProfileFieldValues[ProfileFieldKey]],
@@ -26,6 +27,7 @@ function validateProfileField(
 function validateProfileField(
   fieldOrValue:
     | IProfileFieldBuilt<ProfileFieldKey>
+    | IProfileField
     | ProfileFieldValueDeserializedTypes[ProfileFieldValues[ProfileFieldKey]]
     | string
     | null
@@ -37,7 +39,7 @@ function validateProfileField(
   if (fieldOrValue == null) {
     return { value: fieldOrValue };
   }
-  if (typeof fieldOrValue === "object" && "history" in fieldOrValue) {
+  if (typeof fieldOrValue === "object" && "key" in fieldOrValue) {
     if (!fieldOrValue?.draft) {
       return { value: fieldOrValue };
     }

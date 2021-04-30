@@ -183,6 +183,45 @@ type Props =
   | UpdateProfileFieldProps
   | UpdateAbsenceProps;
 
+const useValidationError = (
+  props: CreateProfileFieldProps | UpdateProfileFieldProps
+): string | undefined => {
+  const { state } = useContext(ProfileContext);
+  if ("updateExisting" in props) {
+    return props.profileField.error;
+  }
+  return state.player?.profile?.[
+    typeof props.profileField === "string"
+      ? props.profileField
+      : props.profileField.key
+  ]?.error;
+};
+
+const WithInlineValidationErrors: React.FC<
+  React.PropsWithChildren<CreateProfileFieldProps | UpdateProfileFieldProps>
+> = ({
+  children,
+  ...props
+}: React.PropsWithChildren<
+  CreateProfileFieldProps | UpdateProfileFieldProps
+>) => {
+  const error = useValidationError(props);
+  return (
+    <div className={`flex flex-col input-wrapper ${error ? "has-errors" : ""}`}>
+      {children}
+      {error && (
+        <p className="mt-1 text-error text-sm font-semibold">{error}</p>
+      )}
+    </div>
+  );
+};
+
+const NumberOrUndefined = (numberStr: string): number | undefined => {
+  return numberStr !== "" && !Number.isNaN(Number(numberStr))
+    ? Number(numberStr)
+    : undefined;
+};
+
 const ProfileFieldEditor: React.FC<
   CreateProfileFieldProps | UpdateProfileFieldProps
 > = (props: CreateProfileFieldProps | UpdateProfileFieldProps) => {
@@ -269,22 +308,24 @@ const ProfileFieldEditor: React.FC<
           <p className="text-sm font-semibold mb-3 mt-10">
             {labelProfileField(profileKey)} Value
           </p>
-          <NumberInput
-            onBlur={serializeAndValidate}
-            onChange={(event) => {
-              dispatch({
-                type: "EDIT_FIELD",
-                key: profileKey as ProfileFieldKey,
-                value: {
-                  date: dayjs(),
-                  ...value,
-                  value: Number(event.target.value),
-                },
-                id: profileFieldId,
-              });
-            }}
-            defaultValue={value?.value}
-          />
+          <WithInlineValidationErrors {...props}>
+            <NumberInput
+              onBlur={serializeAndValidate}
+              onChange={(event) => {
+                dispatch({
+                  type: "EDIT_FIELD",
+                  key: profileKey as ProfileFieldKey,
+                  value: {
+                    date: dayjs(),
+                    ...value,
+                    value: NumberOrUndefined(event.target.value),
+                  },
+                  id: profileFieldId,
+                });
+              }}
+              value={value?.value}
+            />
+          </WithInlineValidationErrors>
           <p className="text-sm font-semibold mb-3 mt-10">Month/Year</p>
           <DateTimeInput
             hideDay
@@ -295,7 +336,6 @@ const ProfileFieldEditor: React.FC<
                 type: "EDIT_FIELD",
                 key: profileKey as ProfileFieldKey,
                 value: {
-                  value: 0,
                   ...value,
                   date,
                 },
@@ -316,7 +356,6 @@ const ProfileFieldEditor: React.FC<
                 type: "EDIT_FIELD",
                 key: profileKey as ProfileFieldKey,
                 value: {
-                  value: 0,
                   date: dayjs(),
                   ...value,
                   comment: event.target.value,
@@ -361,7 +400,6 @@ const ProfileFieldEditor: React.FC<
                 type: "EDIT_FIELD",
                 key: profileKey as ProfileFieldKey,
                 value: {
-                  comment: "",
                   ...value,
                   date,
                 },
@@ -371,25 +409,27 @@ const ProfileFieldEditor: React.FC<
             }}
           />
           <p className="text-sm font-semibold mb-3 mt-10">Description</p>
-          <input
-            type="text"
-            className="input text-sm w-full font-light"
-            name="comments"
-            value={value?.comment}
-            onBlur={serializeAndValidate}
-            onChange={(event) => {
-              dispatch({
-                type: "EDIT_FIELD",
-                key: profileKey as ProfileFieldKey,
-                value: {
-                  date: dayjs(),
-                  ...value,
-                  comment: event.target.value,
-                },
-                id: profileFieldId,
-              });
-            }}
-          />
+          <WithInlineValidationErrors {...props}>
+            <input
+              type="text"
+              className="input text-sm w-full font-light"
+              name="comments"
+              value={value?.comment}
+              onBlur={serializeAndValidate}
+              onChange={(event) => {
+                dispatch({
+                  type: "EDIT_FIELD",
+                  key: profileKey as ProfileFieldKey,
+                  value: {
+                    date: dayjs(),
+                    ...value,
+                    comment: event.target.value,
+                  },
+                  id: profileFieldId,
+                });
+              }}
+            />
+          </WithInlineValidationErrors>
         </div>
       );
     }
@@ -423,86 +463,98 @@ const ProfileFieldEditor: React.FC<
       >;
       return (
         <div>
-          <p className="text-sm font-semibold mb-3 mt-10">
-            {labelProfileField(fieldKey)} Score
-          </p>
-          <NumberInput
-            onBlur={serializeAndValidate}
-            onChange={(event) => {
-              dispatch({
-                type: "EDIT_FIELD",
-                key: fieldKey,
-                value: {
-                  date: dayjs(),
-                  percentile: 0,
-                  ...value,
-                  value: Number(event.target.value),
-                },
-                id: profileFieldId,
-              });
-            }}
-            defaultValue={value?.value}
-          />
-          <p className="text-sm font-semibold mb-3 mt-10">
-            {labelProfileField(fieldKey)} Percentile
-          </p>
-          <NumberInput
-            onBlur={serializeAndValidate}
-            onChange={(event) => {
-              dispatch({
-                type: "EDIT_FIELD",
-                key: fieldKey,
-                value: {
-                  date: dayjs(),
-                  value: 0,
-                  ...value,
-                  percentile: Number(event.target.value),
-                },
-                id: profileFieldId,
-              });
-            }}
-            defaultValue={value?.percentile}
-          />
-          <p className="text-sm font-semibold mb-3 mt-10">Date</p>
-          <DateTimeInput
-            value={value?.date}
-            onChange={(date) => {
-              dispatch({
-                type: "EDIT_FIELD",
-                key: fieldKey,
-                value: {
-                  value: 0,
-                  percentile: 0,
-                  ...value,
-                  date,
-                },
-                id: profileFieldId,
-              });
-              serializeAndValidate();
-            }}
-          />
-          <p className="text-sm font-semibold mb-3 mt-10">Comments</p>
-          <input
-            type="text"
-            className="input text-sm w-full font-light"
-            name="comments"
-            value={value?.comment}
-            onBlur={serializeAndValidate}
-            onChange={(event) => {
-              dispatch({
-                type: "EDIT_FIELD",
-                key: fieldKey,
-                value: {
-                  value: 0,
-                  date: dayjs(),
-                  percentile: 0,
-                  ...value,
-                  comment: event.target.value,
-                },
-                id: profileFieldId,
-              });
-            }}
-          />
+          <WithInlineValidationErrors {...props}>
+            <p className="text-sm font-semibold mb-3 mt-10">
+              {labelProfileField(fieldKey)} Score
+            </p>
+            <NumberInput
+              onChange={(event) => {
+                dispatch({
+                  type: "CLEAR_FIELD_VALIDATION_ERROR",
+                  key: profileKey,
+                  id: profileFieldId,
+                });
+                dispatch({
+                  type: "EDIT_FIELD",
+                  key: fieldKey,
+                  value: {
+                    date: dayjs(),
+                    ...value,
+                    value: NumberOrUndefined(event.target.value),
+                  },
+                  id: profileFieldId,
+                });
+              }}
+              defaultValue={value?.value}
+            />
+            <p className="text-sm font-semibold mb-3 mt-10">
+              {labelProfileField(fieldKey)} Percentile
+            </p>
+            <NumberInput
+              onChange={(event) => {
+                dispatch({
+                  type: "CLEAR_FIELD_VALIDATION_ERROR",
+                  key: profileKey,
+                  id: profileFieldId,
+                });
+                dispatch({
+                  type: "EDIT_FIELD",
+                  key: fieldKey,
+                  value: {
+                    date: dayjs(),
+                    ...value,
+                    percentile: NumberOrUndefined(event.target.value),
+                  },
+                  id: profileFieldId,
+                });
+              }}
+              defaultValue={value?.percentile}
+            />
+            <p className="text-sm font-semibold mb-3 mt-10">Date</p>
+            <DateTimeInput
+              value={value?.date}
+              onChange={(date) => {
+                dispatch({
+                  type: "CLEAR_FIELD_VALIDATION_ERROR",
+                  key: profileKey,
+                  id: profileFieldId,
+                });
+                dispatch({
+                  type: "EDIT_FIELD",
+                  key: fieldKey,
+                  value: {
+                    ...value,
+                    date,
+                  },
+                  id: profileFieldId,
+                });
+              }}
+            />
+            <p className="text-sm font-semibold mb-3 mt-10">Comments</p>
+            <input
+              type="text"
+              className="input text-sm w-full font-light"
+              name="comments"
+              value={value?.comment}
+              onChange={(event) => {
+                dispatch({
+                  type: "CLEAR_FIELD_VALIDATION_ERROR",
+                  key: profileKey,
+                  id: profileFieldId,
+                });
+                dispatch({
+                  type: "EDIT_FIELD",
+                  key: fieldKey,
+                  value: {
+                    date: dayjs(),
+                    ...value,
+                    comment: event.target.value,
+                  },
+                  id: profileFieldId,
+                });
+              }}
+            />
+          </WithInlineValidationErrors>
         </div>
       );
     }
@@ -511,46 +563,48 @@ const ProfileFieldEditor: React.FC<
         | ProfileFieldValueDeserializedTypes[typeof valueType]
         | null;
       return (
-        <div className="flex items-center">
-          <NumberInput
-            step={1}
-            unit="minutes"
-            placeholder="8"
-            min={0}
-            value={value?.minutes?.()}
-            onBlur={serializeAndValidate}
-            onChange={(event) => {
-              dispatch({
-                type: "EDIT_FIELD",
-                key: profileKey,
-                value: dayjs.duration({
-                  minutes: event.target.value,
-                  seconds: value?.seconds?.(),
-                }),
-                id: profileFieldId,
-              });
-            }}
-          />
-          <NumberInput
-            unit="seconds"
-            placeholder="8"
-            min={0}
-            max={59}
-            value={value?.seconds?.()}
-            onBlur={serializeAndValidate}
-            onChange={(event) => {
-              dispatch({
-                type: "EDIT_FIELD",
-                key: profileKey,
-                value: dayjs.duration({
-                  minutes: value?.minutes(),
-                  seconds: event.target.value,
-                }),
-                id: profileFieldId,
-              });
-            }}
-          />
-        </div>
+        <WithInlineValidationErrors {...props}>
+          <div className="flex items-center">
+            <NumberInput
+              step={1}
+              unit="minutes"
+              placeholder="8"
+              min={0}
+              value={value?.minutes?.()}
+              onBlur={serializeAndValidate}
+              onChange={(event) => {
+                dispatch({
+                  type: "EDIT_FIELD",
+                  key: profileKey,
+                  value: dayjs.duration({
+                    minutes: event.target.value,
+                    seconds: value?.seconds?.(),
+                  }),
+                  id: profileFieldId,
+                });
+              }}
+            />
+            <NumberInput
+              unit="seconds"
+              placeholder="8"
+              min={0}
+              max={59}
+              value={value?.seconds?.()}
+              onBlur={serializeAndValidate}
+              onChange={(event) => {
+                dispatch({
+                  type: "EDIT_FIELD",
+                  key: profileKey,
+                  value: dayjs.duration({
+                    minutes: value?.minutes(),
+                    seconds: event.target.value,
+                  }),
+                  id: profileFieldId,
+                });
+              }}
+            />
+          </div>
+        </WithInlineValidationErrors>
       );
     }
     case ProfileFieldValue.DistanceMeasured: {
@@ -558,48 +612,50 @@ const ProfileFieldEditor: React.FC<
         | ProfileFieldValueDeserializedTypes[typeof valueType]
         | null;
       return (
-        <div className="flex items-center">
-          <NumberInput
-            step={1}
-            unit="feet"
-            placeholder="5"
-            min={0}
-            value={value?.feet}
-            onBlur={serializeAndValidate}
-            onChange={(event) => {
-              dispatch({
-                type: "EDIT_FIELD",
-                key: profileKey,
-                value: {
-                  inches: 0,
-                  ...value,
-                  feet: Number(event.target.value),
-                },
-                id: profileFieldId,
-              });
-            }}
-          />
-          <NumberInput
-            unit="inches"
-            placeholder="5"
-            min={0}
-            max={11}
-            value={value?.inches}
-            onBlur={serializeAndValidate}
-            onChange={(event) => {
-              dispatch({
-                type: "EDIT_FIELD",
-                key: profileKey,
-                value: {
-                  feet: 0,
-                  ...value,
-                  inches: Number(event.target.value),
-                },
-                id: profileFieldId,
-              });
-            }}
-          />
-        </div>
+        <WithInlineValidationErrors {...props}>
+          <div className="flex items-center">
+            <NumberInput
+              step={1}
+              unit="feet"
+              placeholder="5"
+              min={0}
+              value={value?.feet}
+              onBlur={serializeAndValidate}
+              onChange={(event) => {
+                dispatch({
+                  type: "EDIT_FIELD",
+                  key: profileKey,
+                  value: {
+                    inches: 0,
+                    ...value,
+                    feet: NumberOrUndefined(event.target.value),
+                  },
+                  id: profileFieldId,
+                });
+              }}
+            />
+            <NumberInput
+              unit="inches"
+              placeholder="5"
+              min={0}
+              max={11}
+              value={value?.inches}
+              onBlur={serializeAndValidate}
+              onChange={(event) => {
+                dispatch({
+                  type: "EDIT_FIELD",
+                  key: profileKey,
+                  value: {
+                    feet: 0,
+                    ...value,
+                    inches: NumberOrUndefined(event.target.value),
+                  },
+                  id: profileFieldId,
+                });
+              }}
+            />
+          </div>
+        </WithInlineValidationErrors>
       );
     }
     case ProfileFieldValue.Integer: {
@@ -607,18 +663,20 @@ const ProfileFieldEditor: React.FC<
         | ProfileFieldValueDeserializedTypes[typeof valueType]
         | null;
       return (
-        <NumberInput
-          value={value ?? undefined}
-          onBlur={serializeAndValidate}
-          onChange={(event) => {
-            dispatch({
-              type: "EDIT_FIELD",
-              key: profileKey,
-              value: event.target.value,
-              id: profileFieldId,
-            });
-          }}
-        />
+        <WithInlineValidationErrors {...props}>
+          <NumberInput
+            value={value ?? undefined}
+            onBlur={serializeAndValidate}
+            onChange={(event) => {
+              dispatch({
+                type: "EDIT_FIELD",
+                key: profileKey,
+                value: event.target.value,
+                id: profileFieldId,
+              });
+            }}
+          />
+        </WithInlineValidationErrors>
       );
     }
     case ProfileFieldValue.File: {
@@ -648,21 +706,23 @@ const ProfileFieldEditor: React.FC<
         | ProfileFieldValueDeserializedTypes[typeof valueType]
         | null;
       return (
-        <input
-          type="text"
-          className="input max-w-3xl"
-          name={profileKey}
-          value={value ?? undefined}
-          onBlur={serializeAndValidate}
-          onChange={(event) =>
-            dispatch({
-              type: "EDIT_FIELD",
-              key: profileKey,
-              value: event.target.value,
-              id: profileFieldId,
-            })
-          }
-        />
+        <WithInlineValidationErrors {...props}>
+          <input
+            type="text"
+            className="input max-w-3xl"
+            name={profileKey}
+            value={value ?? undefined}
+            onBlur={serializeAndValidate}
+            onChange={(event) =>
+              dispatch({
+                type: "EDIT_FIELD",
+                key: profileKey,
+                value: event.target.value,
+                id: profileFieldId,
+              })
+            }
+          />
+        </WithInlineValidationErrors>
       );
     }
   }
@@ -690,20 +750,10 @@ const RootProfileFieldEditor: React.FC<Props> = (props: Props) => {
     );
   }
 
-  const error =
-    state.player?.profile?.[
-      typeof props.profileField === "string"
-        ? props.profileField
-        : props.profileField.key
-    ]?.error;
-
   return (
-    <div className={`flex flex-col input-wrapper ${error ? "has-errors" : ""}`}>
-      <ProfileFieldEditor
-        {...(props as CreateProfileFieldProps | UpdateProfileFieldProps)}
-      />
-      {error && <p className="mt-1 text-error font-semibold">{error}</p>}
-    </div>
+    <ProfileFieldEditor
+      {...(props as CreateProfileFieldProps | UpdateProfileFieldProps)}
+    />
   );
 };
 

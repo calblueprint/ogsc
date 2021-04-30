@@ -55,7 +55,7 @@ export type ProfileAction<K extends ProfileFieldKey = ProfileFieldKey> =
   | {
       type: "EDIT_FIELD";
       key: K;
-      value: ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]];
+      value: Partial<ProfileFieldValueDeserializedTypes[ProfileFieldValues[K]]>;
       id?: number;
     }
   | {

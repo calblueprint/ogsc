@@ -25,6 +25,14 @@ a {
     @apply flex items-center px-6 py-3 font-medium;
   }
 
+  .button:hover {
+    @apply opacity-75;
+  }
+
+  .button:disabled {
+    @apply cursor-not-allowed opacity-50;
+  }
+
   .button-normal {
     @apply bg-blue-muted text-blue font-semibold;
   }

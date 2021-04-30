@@ -59,8 +59,13 @@ export const ProfileFieldValueValidators = {
   }).required(),
   [ProfileFieldValue.StandardizedTestResult]: CouldBeJSON.object({
     comment: Joi.string(),
-    value: Joi.number().integer().required(),
-    percentile: Joi.number().integer().min(0).max(99).required(),
+    value: Joi.number().integer().required().label("Test Score"),
+    percentile: Joi.number()
+      .integer()
+      .min(0)
+      .max(99)
+      .required()
+      .label("Test Percentile"),
     date: Joi.string().isoDate().required(),
   }),
   [ProfileFieldValue.TextListItem]: CouldBeJSON.object({
