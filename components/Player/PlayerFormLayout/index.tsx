@@ -12,7 +12,9 @@ type Props = {
   children: React.ReactNode;
 };
 
-const categories = Object.values(ProfileCategory);
+export const categories = Object.values(ProfileCategory).filter(
+  (category) => category !== ProfileCategory.Notes
+);
 export const usePlayerFormCategoryIndex = (): number => {
   const router = useRouter();
   const currentTabIndex = categories.findIndex(
@@ -26,7 +28,7 @@ const PlayerFormLayout: React.FC<Props> = ({ children }: Props) => {
   const { state } = useCreateProfileContext();
 
   const categorizedErrors = Object.fromEntries(
-    Object.values(ProfileCategory).map((category) => [
+    categories.map((category) => [
       category,
       ProfileFieldsByCategory[category]
         .map((key) => state.player?.profile?.[key]?.error)

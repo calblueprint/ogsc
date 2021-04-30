@@ -40,7 +40,7 @@ const CouldBeJSON = Joi.extend(
 export const ProfileFieldValueValidators = {
   [ProfileFieldValue.Text]: Joi.string().required(),
   [ProfileFieldValue.URL]: Joi.string().uri().required(),
-  [ProfileFieldValue.Integer]: Joi.number().integer().positive().required(),
+  [ProfileFieldValue.Integer]: Joi.number().integer().min(0).required(),
   [ProfileFieldValue.IntegerWithComment]: CouldBeJSON.object({
     comment: Joi.string(),
     value: Joi.number().integer().required(),
@@ -59,7 +59,7 @@ export const ProfileFieldValueValidators = {
   }).required(),
   [ProfileFieldValue.StandardizedTestResult]: CouldBeJSON.object({
     comment: Joi.string(),
-    value: Joi.number().integer().required().label("Test Score"),
+    value: Joi.number().integer().positive().required().label("Test Score"),
     percentile: Joi.number()
       .integer()
       .min(0)
@@ -105,6 +105,13 @@ export const ProfileFieldExtraValidators: Partial<
   [ProfileFieldKey.AcademicEngagementScore]: EngagementScoreValidator,
   [ProfileFieldKey.AdvisingScore]: EngagementScoreValidator,
   [ProfileFieldKey.AthleticScore]: EngagementScoreValidator,
+  [ProfileFieldKey.InternalAssessments]: CouldBeJSON.object({
+    value: Joi.number()
+      .min(0)
+      .max(5)
+      .required()
+      .label("Internal Assessment Score"),
+  }).unknown(true),
   [ProfileFieldKey.GPA]: CouldBeJSON.object({
     value: Joi.number().min(0).max(5).required().label("GPA"),
   }).unknown(true),
