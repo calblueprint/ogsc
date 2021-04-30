@@ -56,6 +56,9 @@ export const ProfileFieldValueValidators: Record<
   }).required(),
   [ProfileFieldValue.TimeElapsed]: Joi.string().isoDuration().required(),
   [ProfileFieldValue.DistanceMeasured]: Joi.number().required(),
+  [ProfileFieldValue.File]: CouldBeJSON.object({
+    key: Joi.string().required(),
+  }).required(),
   [ProfileFieldValue.StandardizedTestResult]: CouldBeJSON.object({
     comment: Joi.string(),
     value: Joi.number().integer().required(),

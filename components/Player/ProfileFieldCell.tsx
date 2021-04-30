@@ -159,6 +159,19 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
         </TextLayout>
       );
     }
+    case ProfileFieldValue.File: {
+      const value = deserializedValue as ProfileFieldValueDeserializedTypes[typeof valueType];
+
+      return (
+        <TextLayout title={title}>
+          {editing ? (
+            <ProfileFieldEditor profileField={profileField} />
+          ) : (
+            `${value.key}`
+          )}
+        </TextLayout>
+      );
+    }
     case ProfileFieldValue.StandardizedTestResult: {
       type StandardizedTestResultKeys = ProfileFieldKeysOfProfileValueType<ProfileFieldValue.StandardizedTestResult>;
       const field = profileField as IProfileFieldBuilt<StandardizedTestResultKeys>;

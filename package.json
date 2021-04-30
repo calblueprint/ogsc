@@ -34,6 +34,7 @@
     "@prisma/client": "2.13.1",
     "@sendgrid/mail": "^7.4.0",
     "autoprefixer": "9.8.6",
+    "aws-sdk": "^2.888.0",
     "babel-plugin-superjson-next": "^0.1.8",
     "dayjs": "^1.9.6",
     "db-migrate": "^0.11.11",

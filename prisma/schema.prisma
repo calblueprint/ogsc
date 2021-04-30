@@ -170,6 +170,7 @@ enum ProfileFieldKey {
   HealthAndWellness @map("health_and_wellness")
   Highlights @map("highlights")
   YearOfBirth @map("year_of_birth")
+  ProfilePicture @map("profile_picture")
 
    @@map("profile_field_key")
 }

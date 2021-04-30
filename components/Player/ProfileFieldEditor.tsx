@@ -16,7 +16,8 @@ import {
   ProfileFieldValues,
 } from "interfaces";
 import dayjs from "lib/day";
-import React, { useContext } from "react";
+import { AwsDTO } from "pages/api/admin/users/addImage";
+import React, { useContext, useEffect, useState } from "react";
 import { deserializeProfileFieldValue } from "utils/buildUserProfile";
 import isAbsence from "utils/isAbsence";
 import labelProfileField from "utils/labelProfileField";
@@ -249,6 +250,100 @@ const CreateTableHeader: React.FC<CreateTableHeaderProps> = ({
       <ProfileFieldEditorModal fieldKey={field.key} />
     </div>
   );
+};
+
+type ProfilePictureProps = {
+  onUpload: (key: string) => void;
+  currentFileName?: string | null;
+};
+const ProfilePictureEditor: React.FC<ProfilePictureProps> = ({
+  onUpload,
+  currentFileName,
+}: ProfilePictureProps) => {
+  const [error, setError] = useState<string>();
+  const [profilePicture, setProfilePicture] = useState<string>(
+    "/placeholder-profile.png"
+  );
+
+  useEffect(() => {
+    const updatePreview = async (): Promise<void> => {
+      if (currentFileName !== null) {
+        const response = await fetch(
+          `/api/profilePicture?key=${currentFileName}`,
+          {
+            method: "GET",
+            headers: { "content-type": "application/json" },
+            redirect: "follow",
+          }
+        );
+        if (!response.ok) {
+          throw await response.json();
+        }
+        setProfilePicture((await response.json()).url);
+      }
+    };
+    updatePreview();
+  }, [currentFileName]);
+
+  async function handleChange(
+    event: React.ChangeEvent<HTMLInputElement>
+  ): Promise<void> {
+    setError("");
+    if (event.target.files != null && event.target.files.length !== 0) {
+      const file = event.target.files[0];
+      const filename = encodeURIComponent(`${Date.now()}-${file.name}`);
+      const res = await fetch(`/api/admin/users/addImage?file=${filename}`);
+      const { url, fields } = (await res.json()) as AwsDTO;
+      const formData = new FormData();
+
+      Object.entries({ ...fields, file }).forEach(([k, val]) => {
+        formData.append(k, val);
+      });
+      const upload = await fetch(url, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (upload.ok) {
+        const response = await fetch(`/api/profilePicture?key=${filename}`, {
+          method: "GET",
+          headers: { "content-type": "application/json" },
+          redirect: "follow",
+        });
+        if (!response.ok) {
+          throw await response.json();
+        }
+        setProfilePicture((await response.json()).url);
+        onUpload(filename);
+      } else {
+        setError("Preview failed. Try a square image less than 1MB");
+      }
+    }
+  }
+
+  return (
+    <div className="flex mt-3 flex-wrap space-y-6 flex-col ">
+      <div className="picture flex mr-10 mb-3">
+        <img
+          src={profilePicture}
+          alt="player"
+          className="bg-button rounded-full max-w-full align-middle border-none w-24 h-24"
+        />
+        <div className="mt-2 ml-5">
+          <input
+            onChange={handleChange}
+            type="file"
+            accept="image/png, image/jpeg"
+          />
+          {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
+          <p className="mt-3 text-gray-600">JPG or PNG. Max size of 1MB.</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+ProfilePictureEditor.defaultProps = {
+  currentFileName: null,
 };
 
 type CreateProfileFieldProps = {
@@ -686,6 +781,27 @@ const ProfileFieldEditor: React.FC<Props> = (props: Props) => {
         />
       );
     }
+    case ProfileFieldValue.File: {
+      const value = deserializedValue as
+        | ProfileFieldValueDeserializedTypes[typeof valueType]
+        | null;
+      return (
+        <div>
+          <ProfilePictureEditor
+            currentFileName={value?.key}
+            onUpload={(filename) => {
+              dispatch({
+                type: "EDIT_FIELD",
+                key: profileKey,
+                value: { key: filename },
+                id: profileFieldId,
+              });
+            }}
+          />
+        </div>
+      );
+    }
+
     case ProfileFieldValue.Text:
     default: {
       const value = deserializedValue as

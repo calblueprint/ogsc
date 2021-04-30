@@ -50,6 +50,7 @@ const standardReadAccess = {
   [ProfileFieldKey.IntroVideo]: { read: true },
   [ProfileFieldKey.Highlights]: { read: true },
   [ProfileFieldKey.YearOfBirth]: { read: true },
+  [ProfileFieldKey.ProfilePicture]: { read: true },
 };
 
 /**
@@ -158,5 +159,9 @@ export const ProfileAccessDefinitionsByRole: Record<
     [ProfileFieldKey.Pushups]: { read: isOwnPlayerProfile },
     [ProfileFieldKey.HealthAndWellness]: { read: isOwnPlayerProfile },
     [ProfileFieldKey.DisciplinaryActions]: { read: isOwnPlayerProfile },
+    [ProfileFieldKey.ProfilePicture]: {
+      read: true,
+      write: isOwnPlayerProfile,
+    },
   },
 };

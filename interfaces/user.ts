@@ -30,6 +30,7 @@ export enum ProfileFieldValue {
   IntegerWithComment = "integer_with_comment",
   FloatWithComment = "float_with_comment",
   TimeElapsed = "time_elapsed",
+  File = "file",
   /**
    * DistanceMeasured values are recorded in inches.
    */
@@ -63,6 +64,7 @@ export const ProfileFieldValues = <const>{
   [ProfileFieldKey.YearOfBirth]: ProfileFieldValue.Integer,
   [ProfileFieldKey.Pushups]: ProfileFieldValue.Integer,
   [ProfileFieldKey.Situps]: ProfileFieldValue.Integer,
+  [ProfileFieldKey.ProfilePicture]: ProfileFieldValue.File,
 };
 export type ProfileFieldValues = typeof ProfileFieldValues;
 
@@ -85,6 +87,7 @@ export const ProfileFieldLabels = {
   [ProfileFieldKey.DisciplinaryActions]: "Disciplinary Actions",
   [ProfileFieldKey.HealthAndWellness]: "Comments",
   [ProfileFieldKey.YearOfBirth]: "Birth Year",
+  [ProfileFieldKey.ProfilePicture]: "Player Photo",
   [ProfileFieldKey.InternalAssessments]: "Internal Assessments",
   [ProfileFieldKey.StandardizedTesting]: "Standardized Testing",
 } as const;
@@ -190,6 +193,7 @@ export type ProfileFieldValueDeserializedTypes = {
     };
   [ProfileFieldValue.TimeElapsed]: Duration;
   [ProfileFieldValue.DistanceMeasured]: { feet: number; inches: number };
+  [ProfileFieldValue.File]: { key: string };
   [ProfileFieldValue.StandardizedTestResult]: TrackedOverTime &
     WithComment & {
       value: number;
