@@ -93,7 +93,7 @@ const UserAcceptInvitePageTwo: React.FC = () => {
         phoneNumber: "",
       });
       // TODO: user dashboard view doesn't exist yet
-      router.push("/users/signUp/signUpConfirmation");
+      router.push("/users/acceptInvite/confirmation");
     } catch (err) {
       setError(err.message);
     } finally {
