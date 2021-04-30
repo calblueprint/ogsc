@@ -3,6 +3,7 @@ import { IPlayer, IUser } from "interfaces";
 import {
   AccessValue,
   AttendanceAccessDefinition,
+  NotesAccessDefinition,
   ProfileAccessDefinition,
 } from "./types";
 
@@ -15,6 +16,26 @@ const isOwnPlayerProfile: AccessValue = (
   player: IPlayer,
   user: IUser
 ): boolean => player.id === user.id;
+
+const isCreator: AccessValue = (
+  _: IPlayer,
+  user: IUser,
+  data?: Record<string, unknown>
+): boolean => {
+  if (!data || !("creatorId" in data)) return false;
+  return user.id === data.creatorId;
+};
+
+// Takes in an arbitrary number of AccessValue functions, and returns
+// a new AccessValue function that requires all of them to be true.
+const requireAll = (
+  ...conditions: ((
+    player: IPlayer,
+    user: IUser,
+    data?: Record<string, unknown>
+  ) => AccessValue)[]
+) => (player: IPlayer, user: IUser, data?: Record<string, unknown>) =>
+  conditions.every((condition) => condition(player, user, data));
 
 /**
  * The standard access that all users share, minimally.
@@ -69,6 +90,19 @@ export const AttendanceAccessDefinitionsByRole: Record<
     [AbsenceType.Athletic]: { read: isOwnPlayerProfile },
     [AbsenceType.School]: { read: isOwnPlayerProfile },
   },
+};
+
+export const NotesAccessDefinitionsByRole: Record<
+  Exclude<UserRoleType, "Admin">,
+  NotesAccessDefinition
+> = {
+  [UserRoleType.Donor]: {},
+  [UserRoleType.Mentor]: {
+    read: isSharedPlayerProfile,
+    write: requireAll(isSharedPlayerProfile, isCreator),
+  },
+  [UserRoleType.Parent]: {},
+  [UserRoleType.Player]: {},
 };
 
 /**

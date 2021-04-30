@@ -259,7 +259,7 @@ const Profile: React.FunctionComponent<Props> = ({ player }: Props) => {
                 (key: ProfileFieldKey) => player.profile?.[key]
               ) ||
               (category === ProfileCategory.Attendance && player.absences) ||
-              category === ProfileCategory.Notes
+              (category === ProfileCategory.Notes && player.playerNotes)
           )
           .map((category: ProfileCategory) => (
             <button

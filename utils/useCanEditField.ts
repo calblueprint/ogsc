@@ -3,14 +3,16 @@ import ProfileContext from "components/Player/ProfileContext";
 import {
   AttendanceAccessDefinitionsByRole,
   ProfileAccessDefinitionsByRole,
+  NotesAccessDefinitionsByRole,
 } from "lib/access/definitions";
 import resolveAccessValue from "lib/access/resolve";
 import { useContext } from "react";
 import useSessionInfo from "./useSessionInfo";
 
 const useCanEditField = (
-  key: ProfileFieldKey | "absence",
-  absenceType?: AbsenceType
+  key: ProfileFieldKey | "absence" | "note",
+  absenceType?: AbsenceType,
+  data?: Record<string, unknown>
 ): boolean => {
   const { user } = useSessionInfo();
   const {
@@ -31,14 +33,24 @@ const useCanEditField = (
       ] ?? false,
       "write",
       player,
-      user
+      user,
+      data
+    );
+  } else if (key === "note") {
+    canEdit = resolveAccessValue(
+      NotesAccessDefinitionsByRole[user.defaultRole.type],
+      "write",
+      player,
+      user,
+      data
     );
   } else {
     canEdit = resolveAccessValue(
       ProfileAccessDefinitionsByRole[user.defaultRole.type][key] ?? false,
       "write",
       player,
-      user
+      user,
+      data
     );
   }
   return canEdit;

@@ -1,4 +1,4 @@
-import { Notes, UserRoleType } from "@prisma/client";
+import { Notes } from "@prisma/client";
 import Button from "components/Button";
 import { ReadManyNotesDTO } from "pages/api/notes/readMany";
 import React, { Fragment, useEffect, useCallback, useState } from "react";
@@ -9,6 +9,7 @@ import { IUser } from "interfaces";
 import useSessionInfo from "utils/useSessionInfo";
 import { useRouter } from "next/router";
 import EditDeleteMenu from "components/Player/EditDeleteMenu";
+import useCanEditField from "utils/useCanEditField";
 
 interface Category {
   color: string;
@@ -24,13 +25,14 @@ const CATEGORIES = {
 
 const Note: React.FunctionComponent<{
   note: Notes;
-  userId: number;
-  isAdmin: boolean;
-}> = ({ note, userId, isAdmin }) => {
+}> = ({ note }) => {
   const [author, setAuthor] = useState<IUser>();
+  const canEdit = useCanEditField("note", undefined, {
+    creatorId: note.authorId,
+  });
   useEffect(() => {
     const getUser = async (): Promise<void> => {
-      const response = await fetch(`/api/admin/users/${note.authorId}`, {
+      const response = await fetch(`/api/users/${note.authorId}`, {
         method: "GET",
         headers: { "content-type": "application/json" },
         redirect: "follow",
@@ -71,7 +73,7 @@ const Note: React.FunctionComponent<{
           </p>
         </div>
         {/* </div> */}
-        {(note.authorId === userId || isAdmin) && (
+        {canEdit && (
           <div className="absolute right-0 mr-16 px-2">
             <EditDeleteMenu note={note} />
           </div>
@@ -340,11 +342,7 @@ const NotesTable: React.FC<Props> = ({ userId, playerNotes }) => {
             ].enabled
         )
         .map((note: Notes) => (
-          <Note
-            note={note}
-            userId={session.user.id}
-            isAdmin={session.sessionType === UserRoleType.Admin}
-          />
+          <Note note={note} />
         ))}
       <AddNote
         addOrEdit="Add"
