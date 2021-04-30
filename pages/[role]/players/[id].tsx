@@ -1,5 +1,5 @@
 import { Dialog } from "@headlessui/react";
-import { Absence, ProfileFieldKey } from "@prisma/client";
+import { Absence, ProfileFieldKey, UserRoleType } from "@prisma/client";
 import DashboardLayout from "components/DashboardLayout";
 import Icon from "components/Icon";
 import ProfileContext, {
@@ -32,6 +32,8 @@ import prisma from "utils/prisma";
 import sanitizeUser from "utils/sanitizeUser";
 import { StandaloneProfileFieldEditor } from "components/Player/ProfileFieldEditorModal";
 import useSessionInfo from "utils/useSessionInfo";
+import { ProfileAccessDefinitionsByRole } from "lib/access/definitions";
+import resolveAccessValue from "lib/access/resolve";
 
 type Props = {
   player?: IPlayer;
@@ -89,6 +91,17 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
   );
   const [profilePicture, setProfilePicture] = useState<string>();
   const [editProfilePicture, setEditProfilePicture] = useState<boolean>(false);
+  const canEditProfilePicture =
+    player &&
+    (session.user.defaultRole.type === UserRoleType.Admin ||
+      resolveAccessValue(
+        ProfileAccessDefinitionsByRole[session.user.defaultRole.type][
+          ProfileFieldKey.ProfilePicture
+        ] ?? false,
+        "write",
+        player,
+        session.user
+      ));
 
   useEffect(() => {
     async function fetchProfilePicture(): Promise<void> {
@@ -256,15 +269,17 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
                 alt={player.name || "player"}
                 className="bg-button rounded-full max-w-full align-middle border-none w-24 h-24"
               />
-              <div className="pt-16 pl-20 absolute">
-                <button
-                  type="button"
-                  onClick={() => setEditProfilePicture(true)}
-                  className="bg-button w-8 h-8 rounded-full flex justify-center items-center"
-                >
-                  <Icon type="camera" />
-                </button>
-              </div>
+              {canEditProfilePicture && (
+                <div className="pt-16 pl-20 absolute">
+                  <button
+                    type="button"
+                    onClick={() => setEditProfilePicture(true)}
+                    className="bg-button w-8 h-8 rounded-full flex justify-center items-center"
+                  >
+                    <Icon type="camera" />
+                  </button>
+                </div>
+              )}
             </div>
             <div className="player-info grid grid-rows-2">
               <p className="pt-6 text-2xl font-semibold">{player.name}</p>
