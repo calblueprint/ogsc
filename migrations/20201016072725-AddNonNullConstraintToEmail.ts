@@ -13,7 +13,6 @@ export async function up(
     {
       type: "string",
       notNull: true,
-      unique: true,
     },
     callback
   );
@@ -32,7 +31,6 @@ export async function down(
     {
       type: "string",
       notNull: false,
-      unique: true,
     },
     callback
   );
