@@ -47,6 +47,10 @@ export const ProfileFieldValues = <const>{
   [ProfileFieldKey.InternalAssessments]: ProfileFieldValue.IntegerWithComment,
   [ProfileFieldKey.StandardizedTesting]:
     ProfileFieldValue.StandardizedTestResult,
+  [ProfileFieldKey.SAT]: ProfileFieldValue.StandardizedTestResult,
+  [ProfileFieldKey.ACT]: ProfileFieldValue.StandardizedTestResult,
+  [ProfileFieldKey.HighSchoolGraduation]: ProfileFieldValue.Text,
+  [ProfileFieldKey.CollegeAdmissions]: ProfileFieldValue.Text,
   [ProfileFieldKey.BioAboutMe]: ProfileFieldValue.Text,
   [ProfileFieldKey.BioFavoriteSubject]: ProfileFieldValue.Text,
   [ProfileFieldKey.BioHobbies]: ProfileFieldValue.Text,
@@ -90,6 +94,10 @@ export const ProfileFieldLabels = {
   [ProfileFieldKey.ProfilePicture]: "Player Photo",
   [ProfileFieldKey.InternalAssessments]: "Internal Assessments",
   [ProfileFieldKey.StandardizedTesting]: "Standardized Testing",
+  [ProfileFieldKey.SAT]: "SAT",
+  [ProfileFieldKey.ACT]: "ACT",
+  [ProfileFieldKey.HighSchoolGraduation]: "High School Graduation",
+  [ProfileFieldKey.CollegeAdmissions]: "College Admissions",
 } as const;
 
 export enum ProfileCategory {
@@ -140,6 +148,10 @@ export const ProfileFieldsByCategory: Record<
   ],
   [ProfileCategory.AcademicPerformance]: [
     ProfileFieldKey.GPA,
+    ProfileFieldKey.HighSchoolGraduation,
+    ProfileFieldKey.CollegeAdmissions,
+    ProfileFieldKey.SAT,
+    ProfileFieldKey.ACT,
     ProfileFieldKey.InternalAssessments,
     ProfileFieldKey.StandardizedTesting,
     ProfileFieldKey.DisciplinaryActions,

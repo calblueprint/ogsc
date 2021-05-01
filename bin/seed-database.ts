@@ -224,6 +224,38 @@ export default async function seedDatabase(): Promise<void> {
                   3
                 ),
                 ...generateFieldsAcrossTimestamps(
+                  ProfileFieldKey.SAT,
+                  () =>
+                    JSON.stringify({
+                      comment: Faker.lorem.lines(1),
+                      value: Faker.random.number(800),
+                      percentile: Faker.random.number(100),
+                      date: Faker.date.past(1).toISOString(),
+                    }),
+                  3
+                ),
+                ...generateFieldsAcrossTimestamps(
+                  ProfileFieldKey.ACT,
+                  () =>
+                    JSON.stringify({
+                      comment: Faker.lorem.lines(1),
+                      value: Faker.random.number(36),
+                      percentile: Faker.random.number(100),
+                      date: Faker.date.past(1).toISOString(),
+                    }),
+                  3
+                ),
+                ...generateFieldsAcrossTimestamps(
+                  ProfileFieldKey.HighSchoolGraduation,
+                  () => Faker.lorem.words(2),
+                  1
+                ),
+                ...generateFieldsAcrossTimestamps(
+                  ProfileFieldKey.CollegeAdmissions,
+                  () => Faker.lorem.words(2),
+                  1
+                ),
+                ...generateFieldsAcrossTimestamps(
                   ProfileFieldKey.BioAboutMe,
                   () => Faker.lorem.lines(2),
                   1
