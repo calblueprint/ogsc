@@ -1,5 +1,5 @@
 import Base from "db-migrate-base";
-import { updateEnumMigrationWithDiff } from "utils/updateEnumMigration";
+import { updateEnumMigrationWithDiff } from "../utils/updateEnumMigration";
 
 /**
  * Describe what your `up` migration does.
