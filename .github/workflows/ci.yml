@@ -22,7 +22,7 @@ jobs:
       - run: yarn build:scripts
 
   check_migrations:
-    name: Run migrations and check Prisma schema diff
+    name: Validate migrations
     runs-on: ubuntu-latest
 
     services:
@@ -47,7 +47,7 @@ jobs:
           node-version: 12.x
       - run: yarn install --frozen-lockfile
       - run: yarn build:scripts
-      - name: Run migrations
+      - name: Run all migrations
         run: yarn db:migrate up -e ci
         env:
           PG_USERNAME: postgres
@@ -66,7 +66,9 @@ jobs:
           files: |
             prisma/schema.prisma
       - name: Are there pending Prisma schema changes not present in this diff?
-        if: steps.verify_changed_files.outputs.files_changed == 'true'
+        if: steps.check_prisma_schema.outputs.files_changed == 'true'
         run: |
           echo "The Prisma schema changed while running migrations. You may need to run `yarn prisma introspect` and commit those changes."
           exit 1
+      - name: Run all down migrations
+        run: yarn db:migrate reset -e ci
