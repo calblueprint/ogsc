@@ -31,6 +31,63 @@ function diffEnumMembers(
   };
 }
 
+export function updateEnumMigrationWithDiff(
+  db: Base,
+  enumName: string,
+  diff: { add: string[]; remove: string[] },
+  affectedTables: TableSpec[],
+  callback: Base.CallbackFunction
+): void {
+  db.all(
+    `SELECT enum_range(NULL::"${enumName}");`,
+    (
+      err: Error | undefined,
+      // eslint-disable-next-line camelcase
+      [response]: [{ enum_range: string }]
+    ): void => {
+      if (err) {
+        callback(err, null);
+        return;
+      }
+      const currentEnumMembers = response.enum_range
+        .slice(1, response.enum_range.length - 1)
+        .split(",");
+
+      db.runSql(
+        `
+      ALTER TYPE "${enumName}" RENAME TO "${enumName}_migrating";
+      CREATE TYPE "${enumName}" AS ENUM (${currentEnumMembers
+          .concat(diff.add)
+          .filter((value) => !diff.remove.includes(value))
+          .map((value: string) => `'${value}'`)
+          .join(", ")});
+  
+      ${affectedTables
+        .map(
+          (table: TableSpec) =>
+            `${diff.remove
+              .map(
+                (removedMember: string) =>
+                  `DELETE FROM "${table.tableName}" WHERE "${table.columnName}" = '${removedMember}';`
+              )
+              .join("\n")}
+            ALTER TABLE "${table.tableName}" ALTER COLUMN "${
+              table.columnName
+            }" TYPE "${enumName}" USING "${
+              table.columnName
+            }"::"text"::"${enumName}";`
+        )
+        .join("\n")}
+  
+      DROP TYPE "${enumName}_migrating";
+    `,
+        [],
+        callback
+      );
+    }
+  );
+}
+
 /**
  * Utility for migrating an enum migration. Note that `enumValues` will replace all existing values
  * of the current enum state.
