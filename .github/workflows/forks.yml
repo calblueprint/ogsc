@@ -3,7 +3,8 @@ name: Mirror updates to forks
 on: [push, delete]
 
 jobs:
-  "Push to ethanlee16/ogsc":
+  to_github:
+    name: Push to ethanlee16/ogsc
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v1
