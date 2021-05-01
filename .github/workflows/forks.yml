@@ -12,4 +12,4 @@ jobs:
         target_repo_url:
           git@gitlab.com:ethanlee16/ogsc.git
         ssh_private_key:
-          ${{ secrets.GITHUB_SSH_PRIVATE_KEY }}
+          ${{ secrets.FORK_SSH_PRIVATE_KEY }}
