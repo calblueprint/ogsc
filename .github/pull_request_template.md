@@ -13,10 +13,8 @@ _Describe how to use and/or access the feature that your PR handles_
 ## PR Checklist
 
 Does your branch (check if true):
-[] work when you run `yarn build`?
-[] successfully run `yarn:db-migrate up` without yielding any errors?
-[] successfully run `yarn prisma introspect` without yielding any errors?
-[] successfully run `yarn dev` and support all changes that your branch intends to perform?
+
+- [] successfully run `yarn dev` and support all changes that your branch intends to perform?
 
 ## Related PRs
 

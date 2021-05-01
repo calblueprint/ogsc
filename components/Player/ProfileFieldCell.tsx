@@ -11,6 +11,7 @@ import { ProfileAccessDefinitionsByRole } from "lib/access/definitions";
 import resolveAccessValue from "lib/access/resolve";
 import React, { useContext } from "react";
 import { deserializeProfileFieldValue } from "utils/buildUserProfile";
+import labelProfileField from "utils/labelProfileField";
 import useSessionInfo from "utils/useSessionInfo";
 import LargeFieldCellLayout from "./LargeFieldCellLayout";
 import ProfileContext, { ProfileSectionContext } from "./ProfileContext";
@@ -176,6 +177,26 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
             value && `${value.key}`
           )}
         </TextLayout>
+      );
+    }
+    case ProfileFieldValue.IntegerWithComment:
+    case ProfileFieldValue.FloatWithComment: {
+      type Keys = ProfileFieldKeysOfProfileValueType<
+        | ProfileFieldValue.IntegerWithComment
+        | ProfileFieldValue.FloatWithComment
+      >;
+      const field = profileField as IProfileFieldBuilt<Keys>;
+      if (editing) {
+        return <ProfileFieldEditor profileField={field} />;
+      }
+      return (
+        <ValueHistoryView
+          icon="star"
+          primaryColor="blue"
+          fieldKey={field.key}
+          shortFieldLabel={labelProfileField(field.key)}
+          values={field.history}
+        />
       );
     }
     case ProfileFieldValue.StandardizedTestResult: {
