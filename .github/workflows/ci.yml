@@ -72,3 +72,9 @@ jobs:
           exit 1
       - name: Run all down migrations
         run: yarn db:migrate reset -e ci
+        env:
+          PG_USERNAME: postgres
+          PG_PASSWORD: postgres
+          PG_HOST: localhost
+          PG_PORT: 5432
+          PG_DB_NAME: postgres
