@@ -7,6 +7,14 @@
     "port": { "ENV": "PG_PORT" },
     "database": "ogsc_development"
   },
+  "ci": {
+    "driver": "pg",
+    "user": { "ENV": "PG_USERNAME" },
+    "password": { "ENV": "PG_PASSWORD" },
+    "host": { "ENV": "PG_HOST" },
+    "port": { "ENV": "PG_PORT" },
+    "database": { "ENV": "PG_DB_NAME" }
+  },
   "prod": {
     "driver": "pg",
     "user": { "ENV": "PG_USERNAME" },

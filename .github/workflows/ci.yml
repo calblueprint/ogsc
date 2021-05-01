@@ -48,7 +48,7 @@ jobs:
       - run: yarn install --frozen-lockfile
       - run: yarn build:scripts
       - name: Run migrations
-        run: yarn db:migrate up -e prod
+        run: yarn db:migrate up -e ci
         env:
           PG_USERNAME: postgres
           PG_PASSWORD: postgres
