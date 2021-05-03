@@ -34,7 +34,7 @@ const AdminInvitePage: React.FC = () => {
       >
         <h1 className="text-dark text-3xl font-medium mb-2">Invite Sent!</h1>
         <p className="text-dark mb-10">
-          Your invitee will have ? days to accept their invite.
+          Your invitee will receive an email where they can accept their invite.
         </p>
         <div className="flex justify-end">
           <Button

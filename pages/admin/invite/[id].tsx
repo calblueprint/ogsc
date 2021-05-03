@@ -294,7 +294,10 @@ const UserInvitation: React.FunctionComponent<gsspProps> = ({
           </Button>
         </div>
         <h1 className="text-3xl font-display font-medium mb-2">Edit Invite</h1>
-        <p>Description</p>
+        <p>
+          You can edit the account invite for {user?.name} and save changes or
+          resend your invite to them.
+        </p>
         <form
           className="mt-10"
           id="editInviteForm"
