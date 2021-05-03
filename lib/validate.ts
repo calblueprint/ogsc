@@ -108,7 +108,7 @@ export const ProfileFieldExtraValidators: Partial<
       .label("Internal Assessment Score"),
   }).unknown(true),
   [ProfileFieldKey.GPA]: CouldBeJSON.object({
-    value: Joi.number().min(0).max(5).required().label("GPA"),
+    value: Joi.number().min(2).max(5).required().label("GPA"),
   }).unknown(true),
   [ProfileFieldKey.SAT]: CouldBeJSON.object({
     value: Joi.number().max(1600).required().label("SAT Score"),
