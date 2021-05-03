@@ -110,7 +110,7 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
             fieldKey={ProfileFieldKey.GPA}
             shortFieldLabel="GPA"
             values={profileField.history}
-            valueRange={[2, 4]}
+            valueRange={[0, 5]}
           />
         );
       case ProfileFieldKey.InternalAssessments:
