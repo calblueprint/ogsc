@@ -273,18 +273,20 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
             <ProfileFieldEditor profileField={profileField} />
           ) : (
             value && (
-              <a
-                className="text-blue underline flex"
-                href={value}
-                target="_blank"
-                rel="noreferrer"
-              >
-                {value}
-                <Icon
-                  className="stroke-current w-2 transform -rotate-90 ml-1"
-                  type="chevron"
-                />
-              </a>
+              <p>
+                <a
+                  className="text-blue transition duration-100 ease-in-out hover:opacity-75 underline inline-flex"
+                  href={value}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {value}
+                  <Icon
+                    className="stroke-current w-2 transform -rotate-90 ml-1"
+                    type="chevron"
+                  />
+                </a>
+              </p>
             )
           )}
         </TextLayout>
