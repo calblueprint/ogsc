@@ -221,10 +221,3 @@ enum NoteType {
 
    @@map("note_type")
 }
-
-enum notetype {
-  general
-  soccer
-  academics
-  mentorship
-}
