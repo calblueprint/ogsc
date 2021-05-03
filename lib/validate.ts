@@ -60,12 +60,7 @@ export const ProfileFieldValueValidators = {
   [ProfileFieldValue.StandardizedTestResult]: CouldBeJSON.object({
     comment: Joi.string(),
     value: Joi.number().integer().positive().required().label("Test Score"),
-    percentile: Joi.number()
-      .integer()
-      .min(0)
-      .max(99)
-      .required()
-      .label("Test Percentile"),
+    percentile: Joi.number().integer().min(0).max(99).label("Test Percentile"),
     date: Joi.string().isoDate().required(),
   }),
   [ProfileFieldValue.TextListItem]: CouldBeJSON.object({
@@ -114,6 +109,12 @@ export const ProfileFieldExtraValidators: Partial<
   }).unknown(true),
   [ProfileFieldKey.GPA]: CouldBeJSON.object({
     value: Joi.number().min(0).max(5).required().label("GPA"),
+  }).unknown(true),
+  [ProfileFieldKey.SAT]: CouldBeJSON.object({
+    value: Joi.number().max(1600).required().label("SAT Score"),
+  }).unknown(true),
+  [ProfileFieldKey.ACT]: CouldBeJSON.object({
+    value: Joi.number().max(36).required().label("ACT Score"),
   }).unknown(true),
   [ProfileFieldKey.YearOfBirth]: Joi.number()
     .min(1900)

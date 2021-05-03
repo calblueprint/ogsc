@@ -67,10 +67,16 @@ export const ProfileContents = <T extends ProfileCategory>({
     case ProfileCategory.AcademicPerformance:
       return (
         <div>
+          <Section sectionName="Academic Plans">
+            <ProfileFieldCell fieldKey={ProfileFieldKey.HighSchoolGraduation} />
+            <ProfileFieldCell fieldKey={ProfileFieldKey.CollegeAdmissions} />
+          </Section>
           <ProfileFieldCell fieldKey={ProfileFieldKey.GPA} />
-          <ProfileFieldCell fieldKey={ProfileFieldKey.DisciplinaryActions} />
           <ProfileFieldCell fieldKey={ProfileFieldKey.InternalAssessments} />
           <ProfileFieldCell fieldKey={ProfileFieldKey.StandardizedTesting} />
+          <ProfileFieldCell fieldKey={ProfileFieldKey.SAT} />
+          <ProfileFieldCell fieldKey={ProfileFieldKey.ACT} />
+          <ProfileFieldCell fieldKey={ProfileFieldKey.DisciplinaryActions} />
         </div>
       );
     case ProfileCategory.PhysicalWellness:

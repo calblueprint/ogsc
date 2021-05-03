@@ -53,7 +53,7 @@ export async function down(
   db: Base,
   callback: Base.CallbackFunction
 ): Promise<void> {
-  db.dropTable("user_invites", callback);
+  db.dropTable("reset_password", callback);
 }
 
 // eslint-disable-next-line no-underscore-dangle

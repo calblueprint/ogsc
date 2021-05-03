@@ -137,7 +137,9 @@ export const StandaloneProfileFieldEditor: React.FC<
           {"field" in props ? (
             <ProfileFieldEditor profileField={props.field} updateExisting />
           ) : (
-            <ProfileFieldEditor profileField={props.fieldKey} />
+            <ProfileFieldEditor
+              profileField={props.fieldKey as ProfileFieldKey}
+            />
           )}
         </div>
         <div className="flex flex-row gap-6 mt-10">

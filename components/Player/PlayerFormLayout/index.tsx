@@ -55,6 +55,7 @@ const PlayerFormLayout: React.FC<Props> = ({ children }: Props) => {
           const displayIndex = index + 2;
           return (
             <BarTab
+              key={category}
               fill={currentTabIndex >= index}
               content={`${displayIndex}. ${category}`}
               title={category}

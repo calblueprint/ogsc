@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build the app
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 12.x
+      - run: yarn install --frozen-lockfile
+      - run: yarn build
+      - run: yarn build:scripts
+
+  check_migrations:
+    name: Validate migrations
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 12.x
+      - run: yarn install --frozen-lockfile
+      - run: yarn build:scripts
+      - name: Run all migrations
+        run: yarn db:migrate up -e ci
+        env:
+          PG_USERNAME: postgres
+          PG_PASSWORD: postgres
+          PG_HOST: localhost
+          PG_PORT: 5432
+          PG_DB_NAME: postgres
+      - name: Attempt Prisma introspection
+        run: yarn prisma introspect
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+      - name: Check Prisma schema
+        uses: tj-actions/verify-changed-files@v6
+        id: check_prisma_schema
+        with:
+          files: |
+            prisma/schema.prisma
+      - name: Are there pending Prisma schema changes not present in this diff?
+        if: steps.check_prisma_schema.outputs.files_changed == 'true'
+        run: |
+          echo "The Prisma schema changed while running migrations. You may need to run `yarn prisma introspect` and commit those changes."
+          exit 1
+      - name: Run all down migrations
+        run: yarn db:migrate reset -e ci
+        env:
+          PG_USERNAME: postgres
+          PG_PASSWORD: postgres
+          PG_HOST: localhost
+          PG_PORT: 5432
+          PG_DB_NAME: postgres

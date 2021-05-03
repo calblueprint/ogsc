@@ -1,4 +1,5 @@
 import { ProfileFieldKey, UserRoleType } from "@prisma/client";
+import Icon from "components/Icon";
 import {
   IProfileFieldBuilt,
   ProfileFieldKeysOfProfileValueType,
@@ -11,6 +12,7 @@ import { ProfileAccessDefinitionsByRole } from "lib/access/definitions";
 import resolveAccessValue from "lib/access/resolve";
 import React, { useContext } from "react";
 import { deserializeProfileFieldValue } from "utils/buildUserProfile";
+import labelProfileField from "utils/labelProfileField";
 import useSessionInfo from "utils/useSessionInfo";
 import LargeFieldCellLayout from "./LargeFieldCellLayout";
 import ProfileContext, { ProfileSectionContext } from "./ProfileContext";
@@ -178,6 +180,26 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
         </TextLayout>
       );
     }
+    case ProfileFieldValue.IntegerWithComment:
+    case ProfileFieldValue.FloatWithComment: {
+      type Keys = ProfileFieldKeysOfProfileValueType<
+        | ProfileFieldValue.IntegerWithComment
+        | ProfileFieldValue.FloatWithComment
+      >;
+      const field = profileField as IProfileFieldBuilt<Keys>;
+      if (editing) {
+        return <ProfileFieldEditor profileField={field} />;
+      }
+      return (
+        <ValueHistoryView
+          icon="star"
+          primaryColor="blue"
+          fieldKey={field.key}
+          shortFieldLabel={labelProfileField(field.key)}
+          values={field.history}
+        />
+      );
+    }
     case ProfileFieldValue.StandardizedTestResult: {
       type StandardizedTestResultKeys = ProfileFieldKeysOfProfileValueType<ProfileFieldValue.StandardizedTestResult>;
       const field = profileField as IProfileFieldBuilt<StandardizedTestResultKeys>;
@@ -206,6 +228,66 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
             <ProfileFieldEditorModal fieldKey={fieldKey} shouldToastOnSuccess />
           </div>
         </LargeFieldCellLayout>
+      );
+    }
+    case ProfileFieldValue.URL: {
+      const value = deserializedValue as
+        | ProfileFieldValueDeserializedTypes[typeof valueType]
+        | null;
+      let videoId: string | null | undefined;
+      if (value) {
+        try {
+          const url = new URL(value);
+          if (
+            url.hostname === "www.youtube.com" ||
+            url.hostname === "youtube.com"
+          ) {
+            videoId = url.searchParams.get("v");
+          }
+        } catch {
+          // No-op
+        }
+      }
+      if (videoId) {
+        return (
+          <TextLayout title={title}>
+            {editing ? (
+              <ProfileFieldEditor profileField={profileField} />
+            ) : (
+              <iframe
+                className="mt-2"
+                width="640"
+                height="360"
+                src={`https://www.youtube.com/embed/${videoId}`}
+                frameBorder="0"
+                title={title}
+              />
+            )}
+          </TextLayout>
+        );
+      }
+
+      return (
+        <TextLayout title={title}>
+          {editing ? (
+            <ProfileFieldEditor profileField={profileField} />
+          ) : (
+            value && (
+              <a
+                className="text-blue underline flex"
+                href={value}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {value}
+                <Icon
+                  className="stroke-current w-2 transform -rotate-90 ml-1"
+                  type="chevron"
+                />
+              </a>
+            )
+          )}
+        </TextLayout>
       );
     }
     case ProfileFieldValue.Text:

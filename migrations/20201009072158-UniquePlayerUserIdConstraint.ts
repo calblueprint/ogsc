@@ -13,7 +13,7 @@ export async function up(
     {
       type: "int",
       notNull: true,
-      unique: true,
+      primaryKey: true,
       foreignKey: {
         name: "fk_players_user_id",
         table: "users",
@@ -41,7 +41,7 @@ export async function down(
     {
       type: "int",
       notNull: true,
-      unique: false,
+      primaryKey: true,
       foreignKey: {
         name: "fk_players_user_id",
         table: "users",

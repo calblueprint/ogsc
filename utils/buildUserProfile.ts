@@ -240,7 +240,7 @@ export default function buildUserProfile<
       date: new Date(notes.created_at),
     })),
     profile: <PlayerProfile>(
-      Object.fromEntries<PlayerProfile[ProfileFieldKey]>(
+      Object.fromEntries<IProfileFieldBuilt<ProfileFieldKey>>(
         Object.values(ProfileFieldKey).map((key: ProfileFieldKey) => [
           key,
           { key, lastUpdated: null, history: [] },
@@ -251,7 +251,9 @@ export default function buildUserProfile<
   user.profileFields.forEach((field: ProfileField) => {
     const { lastUpdated } = transformedUser.profile[field.key];
     if (lastUpdated === null || lastUpdated < new Date(field.createdAt)) {
-      transformedUser.profile[field.key].current = field;
+      (transformedUser.profile[
+        field.key
+      ] as IProfileFieldBuilt<ProfileFieldKey>).current = field;
       transformedUser.profile[field.key].lastUpdated = new Date(
         field.createdAt
       );

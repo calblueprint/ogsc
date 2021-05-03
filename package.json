@@ -2,7 +2,7 @@
   "name": "ogsc",
   "version": "0.1.0",
   "engines": {
-    "node": "12.18.3"
+    "node": "^12.18.3"
   },
   "private": true,
   "scripts": {
