@@ -51,14 +51,14 @@ const standardReadAccess = {
   [ProfileFieldKey.Highlights]: { read: true },
   [ProfileFieldKey.YearOfBirth]: { read: true },
   [ProfileFieldKey.ProfilePicture]: { read: true },
-  [ProfileFieldKey.HighSchoolGraduation]: { read: true },
-  [ProfileFieldKey.CollegeAdmissions]: { read: true },
 };
 
 /**
  * Additional access given to non-players.
  */
 const sharedReadAccess = {
+  [ProfileFieldKey.HighSchoolGraduation]: { read: isSharedPlayerProfile },
+  [ProfileFieldKey.CollegeAdmissions]: { read: isSharedPlayerProfile },
   [ProfileFieldKey.GPA]: { read: isSharedPlayerProfile },
   [ProfileFieldKey.ACT]: { read: isSharedPlayerProfile },
   [ProfileFieldKey.SAT]: { read: isSharedPlayerProfile },
@@ -158,7 +158,12 @@ export const ProfileAccessDefinitionsByRole: Record<
     [ProfileFieldKey.BioHobbies]: { read: true, write: isOwnPlayerProfile },
     [ProfileFieldKey.BioParents]: { read: true, write: isOwnPlayerProfile },
     [ProfileFieldKey.BioSiblings]: { read: true, write: isOwnPlayerProfile },
+    [ProfileFieldKey.HighSchoolGraduation]: { read: isOwnPlayerProfile },
+    [ProfileFieldKey.CollegeAdmissions]: { read: isOwnPlayerProfile },
     [ProfileFieldKey.GPA]: { read: isOwnPlayerProfile },
+    [ProfileFieldKey.ACT]: { read: isOwnPlayerProfile },
+    [ProfileFieldKey.SAT]: { read: isOwnPlayerProfile },
+    [ProfileFieldKey.InternalAssessments]: { read: isOwnPlayerProfile },
     [ProfileFieldKey.PacerTest]: { read: isOwnPlayerProfile },
     [ProfileFieldKey.MileTime]: { read: isOwnPlayerProfile },
     [ProfileFieldKey.Situps]: { read: isOwnPlayerProfile },

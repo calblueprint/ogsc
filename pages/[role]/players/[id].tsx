@@ -312,7 +312,7 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
       <ProfileContext.Provider
         value={{ state, dispatch, createField, updateField, deleteField }}
       >
-        <div className="flex mt-20 flex-wrap space-y-6 flex-col mx-16">
+        <div className="flex-1 mt-20 flex-wrap space-y-6 flex-col mx-16">
           <PlayerProfileHeader />
           <PlayerProfile player={player} />
           <Modal
@@ -324,11 +324,9 @@ const PlayerProfilePage: React.FunctionComponent<Props> = ({
               Dashboard Created!
             </Dialog.Title>
             <p className="text-dark mb-10">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-              Suspendisse semper, massa sed tempor rhoncus, tortor lectus luctus
-              orci, suscipit commodo nunc quam eu risus.
+              Your Player Profile for {player.name} has been created.
             </p>
-            <div className="flex justify-end">
+            <div className="flex-1 justify-end">
               <Button
                 className="button-primary px-10 py-3"
                 onClick={() => setShowModal(false)}
