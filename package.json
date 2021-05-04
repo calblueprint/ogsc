@@ -62,7 +62,7 @@
     "victory": "^35.3.5"
   },
   "devDependencies": {
-    "@prisma/cli": "2.13.1",
+    "@prisma/cli": "2.20.1",
     "@prisma/codemods": "^0.7.0",
     "@types/db-migrate-base": "^0.0.8",
     "@types/faker": "^5.1.4",
