@@ -7,6 +7,7 @@ import useSessionInfo from "utils/useSessionInfo";
 import Icon from "components/Icon";
 import { signOut } from "next-auth/client";
 import { Menu, Transition } from "@headlessui/react";
+import useProfilePicture from "utils/useProfilePicture";
 
 type SidebarLinkProps = {
   href: string;
@@ -98,6 +99,7 @@ const SidebarByRole = (
 const Sidebar: React.FC = () => {
   const session = useSessionInfo();
   const router = useRouter();
+  const profilePicture = useProfilePicture(session.user.id);
 
   return (
     <div className="fixed top-0 flex flex-col justify-between w-56 h-screen bg-button bg-opacity-75">
@@ -119,9 +121,11 @@ const Sidebar: React.FC = () => {
                 <>
                   <Menu.Button className="relative focus:outline-none flex align-center justify-center">
                     <div className="flex items-center hover:bg-gray-300 hover:bg-opacity-75 rounded-full px-5 py-2">
-                      <div className="w-12 h-12 mr-3 rounded-full">
-                        <img src="/placeholder-profile.png" alt="profile" />
-                      </div>
+                      <img
+                        src={profilePicture}
+                        alt="profile"
+                        className="w-12 h-12 rounded-full"
+                      />
                       <div>
                         <p className="font-semibold">{session.user?.name}</p>
                         <p className="text-unselected">
