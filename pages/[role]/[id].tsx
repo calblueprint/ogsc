@@ -21,6 +21,7 @@ import { signOut } from "next-auth/client";
 import sanitizeUser from "utils/sanitizeUser";
 import flattenUserRoles from "utils/flattenUserRoles";
 import Modal from "components/Modal";
+import useProfilePicture from "../../utils/useProfilePicture";
 
 type EditNameProps = React.PropsWithChildren<{
   user?: IUser;
@@ -667,7 +668,7 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
   }
 
   const session = useSessionInfo();
-  const profilePicture = useProfilePicture(session.user.id);
+  const profilePicture = useProfilePicture(user?.id);
 
   return (
     <DashboardLayout>
@@ -689,8 +690,8 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
         <div className="flex flex-row items-center pt-16 pb-12">
           <img
             src={profilePicture}
-            alt=""
-            className="w-24 h-24 mr-12 bg-placeholder rounded-full"
+            alt="profile"
+            className="w-24 h-24 mr-12 rounded-full"
           />
           <div>
             <div className="flex flex-row items-center">
