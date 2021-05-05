@@ -6,6 +6,7 @@ import Icon from "components/Icon";
 import { useState } from "react";
 import { deserializeProfileFieldValue } from "utils/buildUserProfile";
 import usePagination from "utils/usePagination";
+import useProfilePicture from "utils/useProfilePicture";
 
 interface ReadManyPlayersDTO {
   users: IPlayer[];
@@ -20,31 +21,34 @@ type PlayerDashboardProps = {
 
 const PlayerDashboardItem: React.FunctionComponent<
   IPlayer & { relatedPlayerIds: number[] }
-> = ({ name, profile, id, image, relatedPlayerIds }) => {
+> = ({ relatedPlayerIds, ...player }) => {
   const session = useSessionInfo();
   const [showHoverPlayer, setShowHoverPlayer] = useState(false);
 
-  const link = `/${session.sessionType.toLowerCase()}/players/${id}`;
+  const image = useProfilePicture(player);
+
+  const link = `/${session.sessionType.toLowerCase()}/players/${player.id}`;
   return (
     <Link href={link}>
       <div role="button" className=" hover:bg-hover">
         <hr className="border-unselected border-opacity-50" />
         <div className="grid grid-cols-12 gap-12 justify-items-start m-5">
           <div className="flex flex-row col-span-7">
-            <div className="w-10 h-10 mr-4 bg-placeholder rounded-full">
-              <img src={image || "/placeholder-profile.png"} alt="" />
-              {/* Not being used right now because seed data doesn't have images */}
-            </div>
-            <p className="self-center text-sm font-semibold">{name}</p>
+            <img
+              src={image || "/placeholder-profile.png"}
+              className="w-10 h-10 mr-4 bg-placeholder rounded-full"
+              alt=""
+            />
+            <p className="self-center text-sm font-semibold">{player.name}</p>
           </div>
           <p className="self-center col-span-4">
-            {deserializeProfileFieldValue(profile?.YearOfBirth?.current)}
+            {deserializeProfileFieldValue(player.profile?.YearOfBirth?.current)}
           </p>
           <div className="flex flex-row relative">
             {(UserRoleLabel[session.sessionType] === "Donor" ||
               UserRoleLabel[session.sessionType] === "Mentor" ||
               UserRoleLabel[session.sessionType] === "Parent") &&
-            relatedPlayerIds.includes(id) ? (
+            relatedPlayerIds.includes(player.id) ? (
               <div className="h-12 w-12 self-center">
                 <div
                   className="h-12 w-12 absolute right-0 top-0 pr-32"

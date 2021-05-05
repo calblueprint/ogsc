@@ -33,6 +33,7 @@ import prisma from "utils/prisma";
 import sanitizeUser from "utils/sanitizeUser";
 import useCanEditField from "utils/useCanEditField";
 import useSessionInfo from "utils/useSessionInfo";
+import useProfilePicture from "utils/useProfilePicture";
 
 type Props = {
   player?: IPlayer;
@@ -83,38 +84,12 @@ export async function getServerSideProps(
 const PlayerProfileHeader: React.FC = () => {
   const router = useRouter();
   const session = useSessionInfo();
-  const [profilePicture, setProfilePicture] = useState<string>();
   const canEditProfilePicture = useCanEditField(ProfileFieldKey.ProfilePicture);
   const canEditBirthYear = useCanEditField(ProfileFieldKey.YearOfBirth);
   const { state } = useContext(ProfileContext);
   const { player } = state;
 
-  useEffect(() => {
-    async function fetchProfilePicture(): Promise<void> {
-      if (player) {
-        const uploadedProfilePicture = deserializeProfileFieldValue(
-          player.profile?.ProfilePicture?.current
-        );
-        if (uploadedProfilePicture) {
-          const response = await fetch(
-            `/api/profilePicture?key=${uploadedProfilePicture.key}`,
-            {
-              method: "GET",
-              headers: { "content-type": "application/json" },
-              redirect: "follow",
-            }
-          );
-          if (!response.ok) {
-            throw await response.json();
-          }
-          setProfilePicture((await response.json()).url);
-        } else {
-          setProfilePicture("/placeholder-profile.png");
-        }
-      }
-    }
-    fetchProfilePicture();
-  }, [player]);
+  const profilePicture = useProfilePicture(player);
 
   const profilePictureCurrentField = state.player?.profile?.ProfilePicture?.history.find(
     (profileField: IProfileField<typeof ProfileFieldKey.ProfilePicture>) =>
