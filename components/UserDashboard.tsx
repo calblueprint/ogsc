@@ -17,9 +17,9 @@ const UserDashboardItem: React.FunctionComponent<{ user: IUser }> = ({
 }) => {
   const session = useSessionInfo();
   const image = useProfilePicture(id);
-  if (image !== "/placeholder-profile.png") {
-    console.log(name + id);
-  }
+  // if (image !== "/placeholder-profile.png") {
+  //   console.log(name + id);
+  // }
   return (
     <Link href={`/${UserRoleLabel[session.sessionType].toLowerCase()}/${id}`}>
       <div className="hover:bg-hover cursor-pointer">
