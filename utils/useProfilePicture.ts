@@ -1,6 +1,6 @@
-import { IPlayer } from "interfaces";
+// import { IPlayer } from "interfaces";
 import { useState, useEffect } from "react";
-import { deserializeProfileFieldValue } from "./buildUserProfile";
+// import { deserializeProfileFieldValue } from "./buildUserProfile";
 
 // export default function useProfilePicture(player: IPlayer | null): string {
 export default function useProfilePicture(id: number | undefined): string {
@@ -31,12 +31,12 @@ export default function useProfilePicture(id: number | undefined): string {
       if (id) {
         // debugger;
         // console.log(id);
-        const response = await fetch(`/api/player/images/${id}`, {
+        const response = await fetch(`/api/players/images/${id}`, {
           method: "GET",
           headers: { "content-type": "application/json" },
           redirect: "follow",
         });
-        console.log(response);
+        // console.log(response);
         if (response.ok) {
           setProfilePicture((await response.json()).url);
         }

@@ -1,7 +1,7 @@
 import { ProfileFieldKey } from "@prisma/client";
 import prisma from "utils/prisma";
-import { IPlayer } from "interfaces";
-import Joi from "lib/validate";
+// import { IPlayer } from "interfaces";
+// import Joi from "lib/validate";
 import { NextApiRequest, NextApiResponse } from "next";
 import sanitizeUser from "utils/sanitizeUser";
 import buildUserProfile, {
@@ -14,7 +14,6 @@ export const getImageById = async (id: string): Promise<string> => {
   //   return DEFAULT_PROFILE_PICTURE;
   // }
   const userId = parseInt(id, 10);
-  console.log(userId);
   const user = await prisma.user.findUnique({
     where: { id: userId },
     include: {
@@ -25,28 +24,28 @@ export const getImageById = async (id: string): Promise<string> => {
       },
     },
   });
-  // return user ? user.toString() : "bad";
   if (!user) {
     return DEFAULT_PROFILE_PICTURE;
   }
 
   const player = buildUserProfile(sanitizeUser(user));
 
-  const uploadedProfilePicture = deserializeProfileFieldValue(
-    player.profile?.ProfilePicture?.current
-  );
-  console.log(uploadedProfilePicture);
-  if (uploadedProfilePicture) {
-    const response = await fetch(
-      `/api/profilePicture?key=${uploadedProfilePicture.key}`,
-      {
-        method: "GET",
-        headers: { "content-type": "application/json" },
-        redirect: "follow",
-      }
+  if (player) {
+    const uploadedProfilePicture = deserializeProfileFieldValue(
+      player.profile?.ProfilePicture?.current
     );
-    if (response.ok) {
-      return (await response.json()).url;
+    if (uploadedProfilePicture) {
+      const response = await fetch(
+        `/api/profilePicture?key=${uploadedProfilePicture.key}`,
+        {
+          method: "GET",
+          headers: { "content-type": "application/json" },
+          redirect: "follow",
+        }
+      );
+      if (response.ok) {
+        return (await response.json()).url;
+      }
     }
   }
   return DEFAULT_PROFILE_PICTURE;
@@ -58,6 +57,7 @@ const handler = async (
 ): Promise<void> => {
   const id = req.query.id as string;
   try {
+    // console.log(id);
     const userImage = await getImageById(id);
     if (userImage) {
       res.status(200).json(userImage);
