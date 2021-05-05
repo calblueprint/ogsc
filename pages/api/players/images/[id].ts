@@ -10,12 +10,11 @@ import buildUserProfile, {
 import { DEFAULT_PROFILE_PICTURE } from "../../../../constants";
 
 export const getImageById = async (id: string): Promise<string> => {
-  if (Joi.string().uuid({ version: "uuidv4" }).validate(id).error) {
-    return DEFAULT_PROFILE_PICTURE;
-  }
+  // if (Joi.string().uuid({ version: "uuidv4" }).validate(id).error) {
+  //   return DEFAULT_PROFILE_PICTURE;
+  // }
   const userId = parseInt(id, 10);
-
-  console.log("userid:", userId);
+  console.log(userId);
   const user = await prisma.user.findUnique({
     where: { id: userId },
     include: {
@@ -26,13 +25,12 @@ export const getImageById = async (id: string): Promise<string> => {
       },
     },
   });
+  // return user ? user.toString() : "bad";
   if (!user) {
     return DEFAULT_PROFILE_PICTURE;
   }
-  console.log(user);
 
-  const player = <IPlayer>(<unknown>buildUserProfile(sanitizeUser(user)));
-  console.log(player);
+  const player = buildUserProfile(sanitizeUser(user));
 
   const uploadedProfilePicture = deserializeProfileFieldValue(
     player.profile?.ProfilePicture?.current

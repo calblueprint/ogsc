@@ -29,11 +29,14 @@ export default function useProfilePicture(id: number | undefined): string {
       //   }
       // }
       if (id) {
-        const response = await fetch(`/api/player/images?${id}`, {
+        // debugger;
+        // console.log(id);
+        const response = await fetch(`/api/player/images/${id}`, {
           method: "GET",
           headers: { "content-type": "application/json" },
           redirect: "follow",
         });
+        console.log(response);
         if (response.ok) {
           setProfilePicture((await response.json()).url);
         }
