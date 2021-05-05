@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import DashboardLayout from "components/DashboardLayout";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Icon from "components/Icon";
 import Button from "components/Button";
 import FormField from "components/FormField";
@@ -20,7 +20,137 @@ import toast from "react-hot-toast";
 import { signOut } from "next-auth/client";
 import sanitizeUser from "utils/sanitizeUser";
 import flattenUserRoles from "utils/flattenUserRoles";
-import useProfilePicture from "utils/useProfilePicture";
+import Modal from "components/Modal";
+
+type EditNameProps = React.PropsWithChildren<{
+  user?: IUser;
+  modalOpen: boolean;
+  closeModal: () => void;
+  relatedPlayers?: IUser[];
+  refresh: () => void;
+}>;
+const EditName: React.FC<EditNameProps> = ({
+  user,
+  modalOpen,
+  closeModal,
+  relatedPlayers,
+  refresh,
+}: EditNameProps) => {
+  const [username, setUsername] = useState(user?.name || "");
+  const [userRole, setUserRole] = useState<UserRoleType>();
+  const [error, setError] = useState("");
+  const session = useSessionInfo();
+  useEffect(() => {
+    setUserRole(user?.defaultRole.type);
+    setUsername(user?.name ? user?.name : "");
+  }, [user]);
+
+  async function onSubmit(): Promise<void> {
+    const linkedPlayers: ViewingPermissionDTO[] = [];
+    (relatedPlayers || [])?.forEach((link) => {
+      const body = (JSON.stringify({
+        type: userRole,
+        userId: user?.id,
+        relatedPlayerId: link.id,
+      }) as unknown) as ViewingPermissionDTO;
+      linkedPlayers.push(body);
+    });
+    if (linkedPlayers.length === 0) {
+      const body = (JSON.stringify({
+        type: userRole,
+        userId: user?.id,
+      }) as unknown) as ViewingPermissionDTO;
+      linkedPlayers.push(body);
+    }
+
+    try {
+      const response = await fetch(`/api/users/${user?.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: user?.email,
+          name: username,
+          roles: linkedPlayers,
+        } as UpdateUserDTO),
+      });
+      if (!response.ok) {
+        throw await response.json();
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      closeModal();
+      refresh();
+    }
+  }
+  return (
+    <>
+      <Modal open={modalOpen} className="w-1/2" onClose={closeModal}>
+        <h1 className="text-2xl font-semibold">Edit User Info</h1>
+        <hr className="my-2" />
+        <p className="text-sm font-semibold mb-2 mt-8">User Name</p>
+        <textarea
+          className="input text-sm w-full font-light h-10"
+          name="name input"
+          value={username}
+          onChange={(event) => {
+            setUsername(event.target.value);
+          }}
+        />
+        {UserRoleLabel[session.sessionType] === "Admin" ? (
+          <div>
+            {" "}
+            <p className="text-sm pt-5 font-semibold mb-2">Role</p>
+            {Object.values(UserRoleType).map((roleType: UserRoleType) => (
+              <label
+                className="block font-normal"
+                htmlFor={roleType}
+                key={roleType}
+              >
+                <input
+                  className="mr-3"
+                  type="radio"
+                  name="role"
+                  id={roleType}
+                  defaultValue={roleType}
+                  onChange={(event) =>
+                    setUserRole(event.target.value as UserRoleType)
+                  }
+                  checked={userRole === roleType}
+                />
+                {UserRoleLabel[roleType]}
+              </label>
+            ))}
+          </div>
+        ) : null}
+        <hr className="my-10" />
+        <div className="flex flex-row my-5 gap-4 justify-start pb-4">
+          <Button
+            type="button"
+            className="border border-blue text-blue bg-white text-sm px-10 py-2 rounded-md tracking-wide"
+            onClick={() => {
+              closeModal();
+              refresh();
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            className="button-primary px-10 py-2 mr-5"
+            onClick={() => {
+              onSubmit();
+              closeModal();
+            }}
+          >
+            Save
+          </Button>
+          {error && <p className="text-red-600 text-sm">{error}</p>}
+        </div>
+      </Modal>
+    </>
+  );
+};
 
 type gsspProps = {
   user?: IUser;
@@ -93,14 +223,12 @@ const BasicInfoFormSchema = Joi.object<BasicInfoFormValues>({
 
 interface BasicInfoProps {
   user?: IUser;
-  setUser: (user: IUser) => void;
   relatedPlayers?: IUser[];
   canEdit?: boolean;
 }
 
 const BasicInfo: React.FunctionComponent<BasicInfoProps> = ({
   user,
-  setUser,
   relatedPlayers,
   canEdit,
 }) => {
@@ -115,6 +243,13 @@ const BasicInfo: React.FunctionComponent<BasicInfoProps> = ({
   useEffect(() => {
     setCurrRole(user?.defaultRole.type);
   }, [user]);
+
+  const router = useRouter();
+  const refreshData = useCallback((): void => {
+    router.replace(router.asPath);
+  }, [router]);
+
+  const session = useSessionInfo();
 
   async function onSubmit(
     values: BasicInfoFormValues,
@@ -156,7 +291,8 @@ const BasicInfo: React.FunctionComponent<BasicInfoProps> = ({
       if (!response.ok) {
         throw await response.json();
       } else {
-        setUser((await response.json()).user);
+        // setUser((await response.json()).user);
+        refreshData();
       }
     } catch (err) {
       setError(err.message);
@@ -165,11 +301,6 @@ const BasicInfo: React.FunctionComponent<BasicInfoProps> = ({
       setIsEditing(false);
     }
   }
-
-  const router = useRouter();
-  const refreshData = (): void => {
-    router.replace(router.asPath);
-  };
 
   return (
     <div className="pb-16 grid grid-cols-2 justify-items-start w-4/6">
@@ -245,32 +376,36 @@ const BasicInfo: React.FunctionComponent<BasicInfoProps> = ({
                   />
                 )}
               </FormField>
-              <FormField
-                label="Role"
-                name="role"
-                error={errors.role?.message}
-                mb={3}
-              >
-                {Object.values(UserRoleType).map((role: UserRoleType) => (
-                  <label
-                    className="block font-normal"
-                    htmlFor={role}
-                    key={role}
-                  >
-                    <input
-                      className="mr-3"
-                      type="radio"
-                      name="role"
-                      id={role}
-                      defaultValue={role}
-                      onChange={() => setCurrRole(role)}
-                      checked={currRole === role}
-                      ref={register}
-                    />
-                    {UserRoleLabel[role]}
-                  </label>
-                ))}
-              </FormField>
+              {UserRoleLabel[session.sessionType] === "Admin" ? (
+                <FormField
+                  label="Role"
+                  name="role"
+                  error={errors.role?.message}
+                  mb={3}
+                >
+                  {Object.values(UserRoleType).map((role: UserRoleType) => (
+                    <label
+                      className="block font-normal"
+                      htmlFor={role}
+                      key={role}
+                    >
+                      <input
+                        className="mr-3"
+                        type="radio"
+                        name="role"
+                        id={role}
+                        defaultValue={role}
+                        onChange={() => setCurrRole(role)}
+                        checked={currRole === role}
+                        ref={register}
+                      />
+                      {UserRoleLabel[role]}
+                    </label>
+                  ))}
+                </FormField>
+              ) : (
+                []
+              )}
             </fieldset>
 
             <div className="my-10">
@@ -323,14 +458,12 @@ interface RoleInfoFormValues {
 
 interface RoleInfoProps {
   user?: IUser;
-  setUser: (user: IUser) => void;
   relatedPlayers?: IUser[];
   canEdit?: boolean;
 }
 
 const RoleInfo: React.FunctionComponent<RoleInfoProps> = ({
   user,
-  setUser,
   relatedPlayers,
   canEdit,
 }) => {
@@ -391,7 +524,6 @@ const RoleInfo: React.FunctionComponent<RoleInfoProps> = ({
       if (!response.ok) {
         throw await response.json();
       } else {
-        setUser((await response.json()).user);
         refreshData();
       }
     } catch (err) {
@@ -482,10 +614,11 @@ const RoleInfo: React.FunctionComponent<RoleInfoProps> = ({
 
 const UserProfile: React.FunctionComponent<gsspProps> = ({
   relatedPlayers,
+  user,
 }) => {
-  const [user, setUser] = useState<IUser>();
   const [newStatus, setNewStatus] = useState("");
   const [error, setError] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
   const router = useRouter();
   const { id } = router.query;
   let statusButtonText;
@@ -514,7 +647,6 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
       if (!response.ok) {
         throw await response.json();
       } else {
-        setUser((await response.json()).user);
         refreshData();
         let toastMessage;
         if (user?.status === UserStatus.Inactive) {
@@ -534,18 +666,6 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
     statusButtonText = "Activate Acconut";
   }
 
-  useEffect(() => {
-    const getUser = async (): Promise<void> => {
-      const response = await fetch(`/api/users/${id}`, {
-        method: "GET",
-        headers: { "content-type": "application/json" },
-        redirect: "follow",
-      });
-      const data = await response.json();
-      setUser(data.user);
-    };
-    getUser();
-  }, [id]);
   const session = useSessionInfo();
   const profilePicture = useProfilePicture(session.user.id);
 
@@ -587,7 +707,12 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
               </p>
               {UserRoleLabel[session.sessionType] === "Admin" ||
               (user && session.user.id.toString() === id) ? (
-                <button type="button">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setModalOpen(true);
+                  }}
+                >
                   <Icon type="editCircle" />
                 </button>
               ) : (
@@ -613,7 +738,6 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
         <div>
           <BasicInfo
             user={user}
-            setUser={setUser}
             relatedPlayers={relatedPlayers || []}
             canEdit={
               UserRoleLabel[session.sessionType] === "Admin" ||
@@ -628,7 +752,6 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
             <hr className="border-unselected border-opacity-50 pb-16" />
             <RoleInfo
               user={user}
-              setUser={setUser}
               relatedPlayers={relatedPlayers}
               canEdit={UserRoleLabel[session.sessionType] === "Admin"}
             />
@@ -675,6 +798,13 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
             []
           )}
         </div>
+        <EditName
+          user={user}
+          modalOpen={modalOpen}
+          closeModal={() => setModalOpen(false)}
+          relatedPlayers={relatedPlayers || []}
+          refresh={() => refreshData()}
+        />
       </div>
     </DashboardLayout>
   );

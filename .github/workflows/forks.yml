@@ -1,14 +1,16 @@
 name: Mirror updates to forks
 
-on: [push, delete]
+on:
+  push:
+    branches: [main]
 
 jobs:
-  to_github:
-    name: Push to ethanlee16/ogsc
+  to_github_ogsc:
+    name: Push to OaklandGenesis/ogsc
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v1
       - uses: pixta-dev/repository-mirroring-action@v1
         with:
-          target_repo_url: git@github.com:ethanlee16/ogsc.git
-          ssh_private_key: ${{ secrets.FORK_SSH_PRIVATE_KEY }}
+          target_repo_url: git@github.com:OaklandGenesis/ogsc.git
+          ssh_private_key: ${{ secrets.OGSC_SSH_PRIVATE_KEY }}

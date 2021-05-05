@@ -7,14 +7,12 @@ const handler = async (
   req: NextApiRequest,
   res: NextApiResponse
 ): Promise<void> => {
-  aws.config.update({
+  const s3 = new aws.S3({
     accessKeyId: process.env.ACCESS_KEY,
     secretAccessKey: process.env.SECRET_KEY,
     region: process.env.REGION,
     signatureVersion: "v4",
   });
-
-  const s3 = new aws.S3();
   const post = await s3.createPresignedPost({
     Bucket: process.env.BUCKET_NAME,
     Fields: {

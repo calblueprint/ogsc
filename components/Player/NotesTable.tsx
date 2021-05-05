@@ -79,9 +79,9 @@ const Note: React.FunctionComponent<{
           </div>
         )}
       </div>
-      <p className="self-center row-span-1 col-span-3 text-sm pt-3 mt-2 mb-10 col-start-1 max-h-1/3 overflow-y-scroll">
+      <div className="self-center row-span-1 col-span-3 text-sm pt-3 mt-2 mb-10 col-start-1 max-h-1/3 overflow-y-auto whitespace-pre-line">
         {note.content}
-      </p>
+      </div>
     </div>
   );
 };
@@ -346,7 +346,7 @@ const NotesTable: React.FC<Props> = ({ userId, playerNotes }) => {
       </div>
       <img src="" alt="" />
       {filteredNotes
-        .slice(currUIPage, currUIPage + UI_PAGE_SIZE)
+        .slice(currUIPage * UI_PAGE_SIZE, (currUIPage + 1) * UI_PAGE_SIZE)
         .map((note: Notes) => (
           <Note note={note} />
         ))}

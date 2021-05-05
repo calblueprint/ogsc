@@ -1,4 +1,5 @@
 import { ProfileFieldKey, UserRoleType } from "@prisma/client";
+import Icon from "components/Icon";
 import {
   IProfileFieldBuilt,
   ProfileFieldKeysOfProfileValueType,
@@ -227,6 +228,68 @@ const ProfileFieldCell: React.FC<ProfileFieldCellProps> = ({
             <ProfileFieldEditorModal fieldKey={fieldKey} shouldToastOnSuccess />
           </div>
         </LargeFieldCellLayout>
+      );
+    }
+    case ProfileFieldValue.URL: {
+      const value = deserializedValue as
+        | ProfileFieldValueDeserializedTypes[typeof valueType]
+        | null;
+      let videoId: string | null | undefined;
+      if (value) {
+        try {
+          const url = new URL(value);
+          if (
+            url.hostname === "www.youtube.com" ||
+            url.hostname === "youtube.com"
+          ) {
+            videoId = url.searchParams.get("v");
+          }
+        } catch {
+          // No-op
+        }
+      }
+      if (videoId) {
+        return (
+          <TextLayout title={title}>
+            {editing ? (
+              <ProfileFieldEditor profileField={profileField} />
+            ) : (
+              <iframe
+                className="mt-2"
+                width="640"
+                height="360"
+                src={`https://www.youtube.com/embed/${videoId}`}
+                frameBorder="0"
+                title={title}
+              />
+            )}
+          </TextLayout>
+        );
+      }
+
+      return (
+        <TextLayout title={title}>
+          {editing ? (
+            <ProfileFieldEditor profileField={profileField} />
+          ) : (
+            value && (
+              <p>
+                <a
+                  className="text-blue transition duration-100 ease-in-out hover:opacity-75 underline inline-flex"
+                  href={value}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {value}
+                  <Icon
+                    className="stroke-current w-2 transform -rotate-90 ml-1"
+                    type="chevron"
+                  />
+                </a>
+              </p>
+            )
+          )}
+        </TextLayout>
       );
     }
     case ProfileFieldValue.Text:
