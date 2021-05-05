@@ -1,6 +1,8 @@
 name: Mirror updates to forks
 
-on: [push, delete]
+on:
+  push:
+    branches: [main]
 
 jobs:
   to_github_ogsc:
