@@ -1,5 +1,6 @@
 // import { IPlayer } from "interfaces";
 import { useState, useEffect } from "react";
+import { DEFAULT_PROFILE_PICTURE } from "../constants";
 // import { deserializeProfileFieldValue } from "./buildUserProfile";
 
 // export default function useProfilePicture(player: IPlayer | null): string {
@@ -10,35 +11,25 @@ export default function useProfilePicture(id: number | undefined): string {
 
   useEffect(() => {
     async function fetchProfilePicture(): Promise<void> {
-      // if (player) {
-      //   const uploadedProfilePicture = deserializeProfileFieldValue(
-      //     player.profile?.ProfilePicture?.current
-      //   );
-      //   if (uploadedProfilePicture) {
-      //     const response = await fetch(
-      //       `/api/profilePicture?key=${uploadedProfilePicture.key}`,
-      //       {
-      //         method: "GET",
-      //         headers: { "content-type": "application/json" },
-      //         redirect: "follow",
-      //       }
-      //     );
-      //     if (response.ok) {
-      //       setProfilePicture((await response.json()).url);
-      //     }
-      //   }
-      // }
       if (id) {
-        // debugger;
-        // console.log(id);
         const response = await fetch(`/api/players/images/${id}`, {
           method: "GET",
           headers: { "content-type": "application/json" },
           redirect: "follow",
         });
-        // console.log(response);
-        if (response.ok) {
-          setProfilePicture((await response.json()).url);
+        const data = await response.json();
+        if (response.ok && data.userImage !== DEFAULT_PROFILE_PICTURE) {
+          const response2 = await fetch(
+            `/api/profilePicture?key=${data.userImage}`,
+            {
+              method: "GET",
+              headers: { "content-type": "application/json" },
+              redirect: "follow",
+            }
+          );
+          if (response2.ok) {
+            setProfilePicture((await response2.json()).url);
+          }
         }
       }
     }

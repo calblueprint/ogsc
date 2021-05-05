@@ -27,7 +27,6 @@ export const getImageById = async (id: string): Promise<string> => {
   if (!user) {
     return DEFAULT_PROFILE_PICTURE;
   }
-
   const player = buildUserProfile(sanitizeUser(user));
 
   if (player) {
@@ -35,17 +34,7 @@ export const getImageById = async (id: string): Promise<string> => {
       player.profile?.ProfilePicture?.current
     );
     if (uploadedProfilePicture) {
-      const response = await fetch(
-        `/api/profilePicture?key=${uploadedProfilePicture.key}`,
-        {
-          method: "GET",
-          headers: { "content-type": "application/json" },
-          redirect: "follow",
-        }
-      );
-      if (response.ok) {
-        return (await response.json()).url;
-      }
+      return uploadedProfilePicture.key;
     }
   }
   return DEFAULT_PROFILE_PICTURE;
@@ -57,10 +46,9 @@ const handler = async (
 ): Promise<void> => {
   const id = req.query.id as string;
   try {
-    // console.log(id);
     const userImage = await getImageById(id);
     if (userImage) {
-      res.status(200).json(userImage);
+      res.json({ userImage });
     } else {
       res
         .status(404)

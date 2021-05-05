@@ -20,6 +20,7 @@ import toast from "react-hot-toast";
 import { signOut } from "next-auth/client";
 import sanitizeUser from "utils/sanitizeUser";
 import flattenUserRoles from "utils/flattenUserRoles";
+import useProfilePicture from "utils/useProfilePicture";
 
 type gsspProps = {
   user?: IUser;
@@ -546,6 +547,7 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
     getUser();
   }, [id]);
   const session = useSessionInfo();
+  const profilePicture = useProfilePicture(session.user.id);
 
   return (
     <DashboardLayout>
@@ -566,7 +568,7 @@ const UserProfile: React.FunctionComponent<gsspProps> = ({
         ) : null}
         <div className="flex flex-row items-center pt-16 pb-12">
           <img
-            src={user?.image || "/placeholder-profile.png"}
+            src={profilePicture}
             alt=""
             className="w-24 h-24 mr-12 bg-placeholder rounded-full"
           />
