@@ -1,7 +1,5 @@
 import { ProfileFieldKey } from "@prisma/client";
 import prisma from "utils/prisma";
-// import { IPlayer } from "interfaces";
-// import Joi from "lib/validate";
 import { NextApiRequest, NextApiResponse } from "next";
 import sanitizeUser from "utils/sanitizeUser";
 import buildUserProfile, {
@@ -10,9 +8,6 @@ import buildUserProfile, {
 import { DEFAULT_PROFILE_PICTURE } from "../../../../constants";
 
 export const getImageById = async (id: string): Promise<string> => {
-  // if (Joi.string().uuid({ version: "uuidv4" }).validate(id).error) {
-  //   return DEFAULT_PROFILE_PICTURE;
-  // }
   const userId = parseInt(id, 10);
   const user = await prisma.user.findUnique({
     where: { id: userId },
