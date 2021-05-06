@@ -17,9 +17,6 @@ const UserDashboardItem: React.FunctionComponent<{ user: IUser }> = ({
 }) => {
   const session = useSessionInfo();
   const image = useProfilePicture(id);
-  // if (image !== "/placeholder-profile.png") {
-  //   console.log(name + id);
-  // }
   return (
     <Link href={`/${UserRoleLabel[session.sessionType].toLowerCase()}/${id}`}>
       <div className="hover:bg-hover cursor-pointer">
@@ -96,7 +93,7 @@ const UserDashboard: React.FunctionComponent<UserDashboardProps> = ({
       <hr className="border-unselected border-opacity-50" />
       <img src="" alt="" />
       {visibleData.map((user) => (
-        <UserDashboardItem user={user} />
+        <UserDashboardItem key={user.id} user={user} />
       ))}
       <PageNav
         currentPage={currUIPage + 1}
