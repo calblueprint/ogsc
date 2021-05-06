@@ -5,6 +5,7 @@ import { IUser, UserRoleLabel } from "interfaces/user";
 import { ReadManyUsersDTO } from "pages/api/admin/users/readMany";
 import usePagination from "utils/usePagination";
 import useSessionInfo from "utils/useSessionInfo";
+import useProfilePicture from "utils/useProfilePicture";
 
 interface UserDashboardProps {
   filterValue: UserRoleType | UserStatus | null;
@@ -12,9 +13,10 @@ interface UserDashboardProps {
 }
 
 const UserDashboardItem: React.FunctionComponent<{ user: IUser }> = ({
-  user: { id, name, email, image, phoneNumber, defaultRole, status },
+  user: { id, name, email, phoneNumber, defaultRole, status },
 }) => {
   const session = useSessionInfo();
+  const image = useProfilePicture(id);
   return (
     <Link href={`/${UserRoleLabel[session.sessionType].toLowerCase()}/${id}`}>
       <div className="hover:bg-hover cursor-pointer">
@@ -22,8 +24,11 @@ const UserDashboardItem: React.FunctionComponent<{ user: IUser }> = ({
           {/* TODO: FIX PADDING ABOVE */}
           <div className="col-span-3 inline-flex self-center">
             <div className="w-10 h-10 mr-4 bg-placeholder rounded-full">
-              <img src={image || "/placeholder-profile.png"} alt="" />
-              {/* Not being used right now because seed data doesn't have images */}
+              <img
+                src={image || "/placeholder-profile.png"}
+                className="w-10 h-10 mr-4 bg-placeholder rounded-full"
+                alt=""
+              />
             </div>
             <div>
               <p className="font-semibold">
@@ -88,7 +93,7 @@ const UserDashboard: React.FunctionComponent<UserDashboardProps> = ({
       <hr className="border-unselected border-opacity-50" />
       <img src="" alt="" />
       {visibleData.map((user) => (
-        <UserDashboardItem user={user} />
+        <UserDashboardItem key={user.id} user={user} />
       ))}
       <PageNav
         currentPage={currUIPage + 1}

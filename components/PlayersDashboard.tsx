@@ -25,7 +25,7 @@ const PlayerDashboardItem: React.FunctionComponent<
   const session = useSessionInfo();
   const [showHoverPlayer, setShowHoverPlayer] = useState(false);
 
-  const image = useProfilePicture(player);
+  const image = useProfilePicture(player.id);
 
   const link = `/${session.sessionType.toLowerCase()}/players/${player.id}`;
   return (
