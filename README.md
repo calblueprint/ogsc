@@ -2,6 +2,8 @@
 
 This is a web application that helps the OGSC's participants (players/students, their mentors, their parents, and the donors that support them) find information about the program and see its impact over time on players in the program.
 
+For more a more indepth guide checkout our documentation [here](https://www.notion.so/calblueprint/Blueprint-OGSC-App-Documentation-36f64fbd20914b9db132d6220c6d04df)
+
 ## Technologies
 
 - [Next.js](https://nextjs.org/)
