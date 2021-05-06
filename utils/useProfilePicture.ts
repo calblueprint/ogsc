@@ -1,9 +1,6 @@
-// import { IPlayer } from "interfaces";
 import { useState, useEffect } from "react";
 import { DEFAULT_PROFILE_PICTURE } from "../constants";
-// import { deserializeProfileFieldValue } from "./buildUserProfile";
 
-// export default function useProfilePicture(player: IPlayer | null): string {
 export default function useProfilePicture(id: number | undefined): string {
   const [profilePicture, setProfilePicture] = useState<string>(
     "/placeholder-profile.png"

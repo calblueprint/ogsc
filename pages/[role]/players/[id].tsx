@@ -89,7 +89,6 @@ const PlayerProfileHeader: React.FC = () => {
   const { state } = useContext(ProfileContext);
   const { player } = state;
 
-  // const profilePicture = useProfilePicture(player);
   const profilePicture = useProfilePicture(player?.id);
 
   const profilePictureCurrentField = state.player?.profile?.ProfilePicture?.history.find(
