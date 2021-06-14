@@ -59,7 +59,7 @@
     "react-hot-toast": "^1.0.2",
     "superjson": "^1.4.1",
     "tailwindcss": "^1.9.4",
-    "victory": "^35.3.5"
+    "victory": "^35.8.6"
   },
   "devDependencies": {
     "@prisma/cli": "2.13.1",
